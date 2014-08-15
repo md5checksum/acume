@@ -8,11 +8,19 @@ import org.apache.hadoop.fs.Path
 
 object OrcReader {
 
-  def main(args: Array[String]) = { 
+  def readORCWrittenByORCWriteModule{
     
     val config = new Configuration
     val fs = FileSystem.get(config)
     val reader = OrcFile.createReader(fs, new Path("/Users/archit.thakur/Documents/Code_Crux.Git_Scala/orc.txt"))
+    reader
+  }
+  
+  def main(args: Array[String]) = { 
+    
+    val config = new Configuration
+    val fs = FileSystem.get(config)
+    val reader = OrcFile.createReader(fs, new Path("/Users/archit.thakur/Documents/Code_Custom_SparkCache_Scala/SearchPRI_InteractionIngressDimension.orc"))
     val rowSet = reader.rows()
     var previous = null.asInstanceOf[Object]
     while(rowSet.hasNext){

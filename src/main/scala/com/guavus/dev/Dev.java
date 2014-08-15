@@ -32,4 +32,21 @@ public class Dev {
 		reader.close();
 		writer.close();
 	}
+	
+	public static void convertSequenceFileToText(String str) throws Exception {
+		
+		Configuration config = new Configuration();
+		FileSystem fs = FileSystem.get(config);
+		SequenceFile.Reader reader = new SequenceFile.Reader(fs, new Path(str), config);
+		BufferedWriter writer = new BufferedWriter(new FileWriter(str+".text"));
+		DimensionSet key = new DimensionSet();
+		MeasureSet value = new MeasureSet();
+		while(reader.next(key, value)) {
+			
+			writer.write(key.toString() + "\t" + value.toString() + "\n" );
+		}
+		
+		try{writer.close();} catch(Exception ex){}
+//		try{reader.close();} catch(Exception ex){}
+	}
 }
