@@ -8,7 +8,7 @@
 	<packaging>pom</packaging>
 
 	<modules>
-		<module>InteligentCache</module>
+		<module>IntelligentCache</module>
 		<module>intelligentcache-war</module>
 	</modules>
 </project>
