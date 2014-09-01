@@ -13,12 +13,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
+import com.guavus.equinox.common.EquinoxConstants;
 
 public enum EquinoxConfiguration {
     DataDir("dataDir", "data"),
     ClusterName("cluster.name", ""),
-    LastModified("lastModified",""+System.currentTimeMillis());
-
+    LastModified("lastModified",""+System.currentTimeMillis()),
+    File("File", "ORC"),
+    MaxLength("maxLength", "10"),
+    SPARK_HOME("SPARK_HOME", "/opt/spark/"),
+    HADOOP_HOME("HADOOP_HOME", "/opt/hadoop/"),
+    CATALINA_HOME("CATALINA_HOME", "/data/tomcat/"),
+    DOC_BASE("docbase", "/data/solution/"),
+    EncryptedMeasures("encryptedMeasures", ""),
+    EncryptedDimensions("encryptedDimensions", ""),
+    Main_Jar("mainjar", "/data/archit/Equinox.jar"),
+    Runmode("runmode", "SPARK_YARN"),
+    CubeXml("cubedefxml","/opt/tomcat/classes/CubeDefinition.xml");
+    
     public static class RPObservable extends Observable {
         public void setChanged() {
             super.setChanged();
