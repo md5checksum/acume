@@ -115,11 +115,6 @@
 				  </exclusion>
 	        </exclusions>
         </dependency>
-		  <dependency>
-		      <groupId>com.guavus</groupId>
-				<artifactId>bizreflex</artifactId>
-				<version>1.0</version>
-		  </dependency>
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-serde</artifactId>
@@ -170,11 +165,6 @@
 		<groupId>thirdparty</groupId>
 		<artifactId>jgrapht-jdk1.6</artifactId>
 		<version>0.8.1</version>
-	</dependency>
-	<dependency>
-	  	<groupId>com.guavus</groupId>
-		<artifactId>crux</artifactId>
-		<version>1.0</version>
 	</dependency>
 	</dependencies>
 

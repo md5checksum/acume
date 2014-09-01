@@ -17,7 +17,6 @@ import org.apache.spark.deploy.SparkSubmit
 import com.guavus.equinox.utils.CustomClasspathModificationEngine
 import java.io.File
 import com.guavus.equinox.common.EquinoxConstants
-import org.easymock.internal.RuntimeExceptionWrapper
 import java.lang.RuntimeException
 
 class EquinoxLauncher extends HttpServlet {
