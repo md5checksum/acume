@@ -1,2 +1,2 @@
-IntelligentCache/target
-intelligentcache-war/target
+IntelligentCache/target/*
+intelligentcache-war/target/*
