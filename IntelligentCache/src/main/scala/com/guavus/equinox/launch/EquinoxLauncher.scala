@@ -136,7 +136,8 @@ object EquinoxLauncher {
     println(x$)
     val tomcat = new Tomcat();
     tomcat.setPort(38080);
-    tomcat.addWebapp("/", new File("/data/archit/server_testing_scala/solution").getAbsolutePath())
+    tomcat.addWebapp("", new File("/data/archit/server_testing_scala/solution").getAbsolutePath())
+//    File docBase
     tomcat.start();
     tomcat.getServer().await();
 //    val rootCtx: Context = tomcat.addContext("/app", base.getAbsolutePath());
