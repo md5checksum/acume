@@ -27,12 +27,17 @@ class EquinoxLauncher extends HttpServlet {
   @throws[ServletException]
   override def init() { 
     
-    EquinoxConfiguration.Runmode.getValue() match { 
+    /*
+     * 
+     EquinoxConfiguration.Runmode.getValue() match { 
       
       case _ => SparkSubmitLauncher.init
       case EquinoxConstants.SPARK_YARN => SparkSubmitLauncher.init
       case x => throw new RuntimeException("The mode " + EquinoxConfiguration.Runmode.getValue() +" is not supported yet.")
     }
+    * 
+    * 
+    */
   }
   
   @throws[IOException]
