@@ -20,6 +20,7 @@ import com.guavus.equinox.common.EquinoxConstants
 import java.lang.RuntimeException
 import org.apache.catalina.startup.Tomcat
 import org.apache.catalina.Context
+import org.apache.catalina.loader.WebappLoader
 
 class EquinoxLauncher extends HttpServlet {
   
@@ -136,7 +137,9 @@ object EquinoxLauncher {
     println(x$)
     val tomcat = new Tomcat();
     tomcat.setPort(38080);
-    tomcat.addWebapp("", new File("/data/archit/server_testing_scala/solution").getAbsolutePath())
+    val _$context = tomcat.addWebapp("", new File("/data/archit/server_testing_scala/solution").getAbsolutePath())
+    val solrLoader = new WebappLoader(classOf[WebappLoader].getClassLoader());
+    _$context.setLoader(solrLoader); 
 //    File docBase
     tomcat.start();
     tomcat.getServer().await();
