@@ -117,6 +117,7 @@ object EquinoxLauncher {
         0 else 1
     }).reduce(_+_)
     
+    println(x$)
 //    for(_$x <- x_.collect)
 //      println(_$x)
     
