@@ -2,7 +2,7 @@ package com.guavus.equinox.launch
 
 import scala.collection.mutable.HashMap
 
-object EquinoxSparkOnYarnConfiguration extends LauncherConfiguration {
+object EquinoxSparkOnYarnConfiguration {
 
   val config = new HashMap[String, Any]
   override def get(key: String) = config.get(key)

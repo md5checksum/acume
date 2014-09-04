@@ -55,7 +55,7 @@ class EquinoxLauncher extends HttpServlet {
   }
     
 }
-object EquinoxLauncher { 
+object EquinoxLauncher123 { 
   
   case class SearchPRI_InteractionEgressMeasure(id: Long, ts: Long, TTS_B: Long)
   case class SearchPRI_InteractionEgressDimension(id: Long, ts: Long, EgressProspectEntityId: Long, EgressNeighborEntityId: Long, EgressAS: Long, EgressIP: Long, EgressRTR: Long, OutgoingIF: Long, FlowDirection: Long)
@@ -81,7 +81,7 @@ object EquinoxLauncher {
     cacheTable("isearchIngressCustCubeDimension")
     cacheTable("isearchIngressCustCubeMeasure")
 
-    val x_ = sqlContext.sql("select id from isearchIngressCustCubeDimension")
+    val x_ = sqlContext.sql("select id from isearchIngressCustCubeDimension").count
 
     val x$ = sparkContextEquinox.parallelize(List(1 to 10000), 2).map({ i =>
       if(scala.math.random % 2 == 0)
