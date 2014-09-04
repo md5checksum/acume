@@ -43,7 +43,21 @@ class EquinoxLauncher extends HttpServlet {
     out.println("---------")
 //    out.println(q)
 //    val baseRdd = SparkLauncher.run(q, bool)
-    context.sqlContext.sql(request.getParameter("sqlQuery"))
+//    -------------------- context.sqlContext.sql(request.getParameter("sqlQuery"))
+    
+    println(request.getParameter("sqlQuery"))
+    val sparkContext = EquinoxSparkOnYarnConfiguration.get("context") match {
+      case Some(x) => x.asInstanceOf[SparkContext]
+      case None => null.asInstanceOf[SparkContext]
+    }
+    
+    val $x=sparkContext.parallelize(List(1 to 10000), 2).map({ i =>
+      if(scala.math.random % 2 == 0)
+        0 else 1
+    }).reduce(_+_)
+    
+    out.println($x)
+    
 //    CustomClasspathModificationEngine.addFile(new File("/opt/hadoop"))
 //    val argument = "--class com.guavus.equinox.launch.Del --master yarn-client" /* --jars \" + FileWrapper.commaSeparatedFile("/data/archit/server_testing_scala/solution/WEB-INF/lib") + */ + " /data/archit/server_testing_scala/solution/WEB-INF/lib/IntelligentCache-0.1-SNAPSHOT-jar-with-guava-hive-dependencies.jar"
 //    SparkSubmit.main(argument.split(" "))
@@ -102,6 +116,8 @@ object EquinoxLauncher {
   val sqlContext = new SQLContext(sparkContextEquinox)
       val orcFile1 = sparkContextEquinox.newAPIHadoopFile[NullWritable, OrcStruct, OrcNewInputFormat]("/data/intelligentcache/orc/searchIngressCustCubeDimension.orc")
     val orcFile2 = sparkContextEquinox.newAPIHadoopFile[NullWritable, OrcStruct, OrcNewInputFormat]("/data/intelligentcache/orc/searchIngressCustCubeMeasure.orc")
+    
+    EquinoxSparkOnYarnConfiguration.set("context", sparkContextEquinox)
     import sqlContext._
 //    
     val dimensionRdd = orcFile1.map(iSearchPRI_InteractionEgressDimension).registerAsTable("isearchIngressCustCubeDimension")
@@ -118,6 +134,12 @@ object EquinoxLauncher {
     }).reduce(_+_)
     
     println(x$)
+    val tomcat = new Tomcat();
+    tomcat.setPort(38080);
+    tomcat.addWebapp("/", new File("/data/archit/server_testing_scala/solution").getAbsolutePath())
+    tomcat.start();
+    tomcat.getServer().await();
+//    val rootCtx: Context = tomcat.addContext("/app", base.getAbsolutePath());
 //    for(_$x <- x_.collect)
 //      println(_$x)
     
