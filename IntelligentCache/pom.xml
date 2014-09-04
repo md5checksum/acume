@@ -19,6 +19,7 @@
 		<hadoop.version>2.4.0</hadoop.version>
     		<maven.compiler.source>1.7</maven.compiler.source>
     		<maven.compiler.target>1.7</maven.compiler.target>
+		<tomcat.version>7.0.34</tomcat.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -50,7 +51,38 @@
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-catalina</artifactId>
-			<version>7.0.27</version>
+			<version>${tomcat.version}</version>
+		</dependency>
+		<dependency>
+		        <groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-core</artifactId>
+			
+			<version>${tomcat.version}</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.apache.tomcat.embed</groupId>
+		  <artifactId>tomcat-embed-logging-juli</artifactId>
+		  <version>${tomcat.version}</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.apache.tomcat.embed</groupId>
+		  <artifactId>tomcat-embed-jasper</artifactId>
+		  <version>${tomcat.version}</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.apache.tomcat</groupId>
+		  <artifactId>tomcat-jasper</artifactId>
+		  <version>${tomcat.version}</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.apache.tomcat</groupId>
+		  <artifactId>tomcat-jasper-el</artifactId>
+		  <version>${tomcat.version}</version>
+		</dependency>
+		<dependency>
+		  <groupId>org.apache.tomcat</groupId>
+		  <artifactId>tomcat-jsp-api</artifactId>
+		  <version>${tomcat.version}</version>
 		</dependency>
 		<dependency>
               		<groupId>com.google.code.gson</groupId>
