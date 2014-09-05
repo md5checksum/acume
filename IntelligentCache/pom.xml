@@ -249,7 +249,7 @@
                         <buildcommand>org.scala-ide.sdt.core.scalabuilder</buildcommand>
                     </buildcommands>
                     <classpathContainers>
-                        <classpathContainer>org.scala-ide.sdt.launching.SCALA_CONTAINER"</classpathContainer>
+                        <classpathContainer>org.scala-ide.sdt.launching.SCALA_CONTAINER</classpathContainer>
                         <classpathContainer>org.eclipse.jdt.launching.JRE_CONTAINER</classpathContainer>
                     </classpathContainers>
                 </configuration>
