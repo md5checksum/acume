@@ -35,10 +35,17 @@ class EquinoxLauncher extends HttpServlet {
     response.setContentType("text/html")
     val out = response.getWriter
     out.println("---------")
-    out.println(request.getParameter("sqlQuery"))
+//    out.println(request.getParameter("sqlQuery")
+    val x$ = request.getParameter("sqlQuery")
+//    val sparkContext = EquinoxSparkOnYarnConfiguration.get("context")
     val sparkContext = EquinoxSparkOnYarnConfiguration.get("context") match {
       case Some(x) => x.asInstanceOf[SparkContext]
       case None => null.asInstanceOf[SparkContext]
+    }
+    
+    val sqlContext = EquinoxSparkOnYarnConfiguration.get("sqlContext") match {
+      case Some(x) => x.asInstanceOf[SQLContext]
+      case None => null.asInstanceOf[SQLContext]
     }
     
     val $x=sparkContext.parallelize(List(1 to 10000), 2).map({ i =>
@@ -46,6 +53,8 @@ class EquinoxLauncher extends HttpServlet {
         0 else 1
     }).reduce(_+_)
     
+    import sqlContext._
+    out.println(sqlContext.sql(x$).count)
     out.println($x)
     
   }
@@ -80,6 +89,8 @@ object EquinoxLauncher123 {
 //    
     cacheTable("isearchIngressCustCubeDimension")
     cacheTable("isearchIngressCustCubeMeasure")
+    
+    EquinoxSparkOnYarnConfiguration.set("sqlContext", sqlContext)
 
     val x_ = sqlContext.sql("select id from isearchIngressCustCubeDimension").count
 
