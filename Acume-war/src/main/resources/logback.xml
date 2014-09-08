@@ -1,0 +1,27 @@
+<configuration>
+	<appender name="FILE_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>equinox.log</file>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+				
+			<fileNamePattern>equinox.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+			<maxHistory>30</maxHistory>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>1GB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+		</rollingPolicy>
+		<layout class="ch.qos.logback.classic.PatternLayout">
+			<Pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %-30logger{30} - %msg%n
+			</Pattern>
+		</layout>
+	</appender>
+	<appender name="ASYNC_FILE_LOG" class="ch.qos.logback.classic.AsyncAppender">
+		<appender-ref ref="FILE_LOG" />
+ 	</appender>
+	<logger name="org.jgroups.protocols" level="INFO">
+		<appender-ref ref="ASYNC_FILE_LOG" />
+	</logger>
+	<root>
+		<level value="INFO" />
+		<appender-ref ref="ASYNC_FILE_LOG" />
+	</root>
+</configuration>
