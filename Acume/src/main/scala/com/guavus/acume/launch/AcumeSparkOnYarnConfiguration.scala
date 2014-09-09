@@ -2,7 +2,7 @@ package com.guavus.acume.launch
 
 import scala.collection.mutable.HashMap
 
-object EquinoxSparkOnYarnConfiguration extends LauncherConfiguration {
+object AcumeSparkOnYarnConfiguration extends LauncherConfiguration {
 
   val config = new HashMap[String, Any]
   override def get(key: String) = config.get(key)
@@ -10,3 +10,7 @@ object EquinoxSparkOnYarnConfiguration extends LauncherConfiguration {
 
   
 }
+
+
+
+

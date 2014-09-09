@@ -25,18 +25,18 @@ object ApplicationLauncher {
   
   def main(args: Array[String]) { 
 
-    val str = EquinoxSparkOnYarnConfiguration.get("sqlquery") match { 
+    val str = AcumeSparkOnYarnConfiguration.get("sqlquery") match { 
       
       case Some(str) => str.asInstanceOf[String] 
       case None => ""
     }
-    val sqlContext = EquinoxSparkOnYarnConfiguration.get("sqlcontext") match { 
+    val sqlContext = AcumeSparkOnYarnConfiguration.get("sqlcontext") match { 
       
       case Some(sqlContext) => sqlContext.asInstanceOf[SQLContext]
       case None => throw new RuntimeException("SQLContext has not been initialized yet.")
     }
     val xr = sqlContext.sql(str)
-    val out = EquinoxSparkOnYarnConfiguration.get("tx") match { 
+    val out = AcumeSparkOnYarnConfiguration.get("tx") match { 
       
       case Some(sqlContext) => sqlContext.asInstanceOf[PrintWriter]
       case None => throw new RuntimeException("PrintWriter has not been initialized yet.")
@@ -62,7 +62,7 @@ object TableCreator {
 //      val measureSet = c.asInstanceOf[StaticCube].getMeasureSet()
 //    }
     
-    val sqlContext = EquinoxSparkOnYarnConfiguration.get("sqlcontext") match { 
+    val sqlContext = AcumeSparkOnYarnConfiguration.get("sqlcontext") match { 
       
       case Some(localContext) => localContext.asInstanceOf[SQLContext]
       case None => throw new RuntimeException("SQLContext has not been initialized yet.")
@@ -176,9 +176,9 @@ object SparkSubmitLauncher extends Launcher {
 
   override def submit() = {
     
-    EquinoxSparkOnYarnConfiguration.get("conf") match { 
+    AcumeSparkOnYarnConfiguration.get("conf") match { 
       
-      case Some(conf) => SparkSubmit.main(EquinoxSparkOnYarnConfiguration.get("conf").get.asInstanceOf[String].split(" "))
+      case Some(conf) => SparkSubmit.main(AcumeSparkOnYarnConfiguration.get("conf").get.asInstanceOf[String].split(" "))
       case None => throw new RuntimeException("No options found for SparkSubmit to launch");
     }
   }
@@ -194,15 +194,15 @@ object SparkSubmitLauncher extends Launcher {
     val sparkContext = new SparkContext(sparkConf)
     val sqlContext = new SQLContext(sparkContext)
     val conf = "--class com.guavus.acume.launch.ApplicationLauncher --master local " + AcumeConfiguration.Main_Jar.getValue
-    EquinoxSparkOnYarnConfiguration.set("sqlcontext", sqlContext)
-    EquinoxSparkOnYarnConfiguration.set("conf", conf)
+    AcumeSparkOnYarnConfiguration.set("sqlcontext", sqlContext)
+    AcumeSparkOnYarnConfiguration.set("conf", conf)
     TableCreator.createTables()
     true
   }
   
   override def destroy() = { 
     
-    val sqlContext = EquinoxSparkOnYarnConfiguration.get("sqlcontext") match { 
+    val sqlContext = AcumeSparkOnYarnConfiguration.get("sqlcontext") match { 
       
       case Some(sqlContext) => sqlContext.asInstanceOf[SQLContext]
       case None => throw new RuntimeException("SpaarkContext has not been initialized yet.")

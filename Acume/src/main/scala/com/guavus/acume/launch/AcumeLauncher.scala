@@ -15,12 +15,12 @@ import org.apache.hadoop.hive.ql.io.orc.OrcNewInputFormat
 import org.apache.spark.deploy.SparkSubmit
 import com.guavus.acume.utils.CustomClasspathModificationEngine
 import java.io.File
-import com.guavus.acume.common.EquinoxConstants
+import com.guavus.acume.common.AcumeConstants
 import java.lang.RuntimeException
 import org.apache.catalina.startup.Tomcat
 import org.apache.catalina.loader.WebappLoader
 
-class EquinoxLauncher extends HttpServlet {
+class AcumeLauncher extends HttpServlet {
   
   @throws[ServletException]
   override def init() { 
@@ -39,14 +39,14 @@ class EquinoxLauncher extends HttpServlet {
 //      case _ => { 
 //        
 //        val acumeLocal = request.getParameter("sqlQuery")
-//        EquinoxSparkOnYarnConfiguration.set("sqlquery", acumeLocal)
-//        EquinoxSparkOnYarnConfiguration.set("tx", out)
+//        AcumeSparkOnYarnConfiguration.set("sqlquery", acumeLocal)
+//        AcumeSparkOnYarnConfiguration.set("tx", out)
 //        SparkSubmitLauncher.submit
 //      }
 //      case EquinoxConstants.SPARK_YARN => { 
 //        
 //        val acumeLocal = request.getParameter("sqlQuery")
-//        EquinoxSparkOnYarnConfiguration.set("sqlquery", acumeLocal)
+//        AcumeSparkOnYarnConfiguration.set("sqlquery", acumeLocal)
 //        SparkSubmitLauncher.submit
 //      }
 //      case x => throw new RuntimeException("The mode " + EquinoxConfiguration.Runmode.getValue() +" is not supported yet.")
@@ -58,16 +58,16 @@ class EquinoxLauncher extends HttpServlet {
 //    bool = false;
     
     val x = request.getParameter("sqlQuery")
-    EquinoxSparkOnYarnConfiguration.set("sqlquery", x)
-    val _$SQLContext = EquinoxSparkOnYarnConfiguration.get("sqlcontext")
+    AcumeSparkOnYarnConfiguration.set("sqlquery", x)
+    val _$SQLContext = AcumeSparkOnYarnConfiguration.get("sqlcontext")
     val sqlContext = _$SQLContext match { 
       
       case Some(x) => _$SQLContext.get.asInstanceOf[SQLContext]
       case None => throw new RuntimeException("SQL Context could not be initialized.")
     }
-    val resposeData = sqlContext.sql(x).collect
-    for(data <- resposeData)
-      out.println(data)
+    sqlContext.sql(x).map(println)
+//    for(data <- resposeData)
+//      out.println(data)
   }
   
   override def destroy() { 
@@ -83,11 +83,11 @@ class EquinoxLauncher extends HttpServlet {
     * 
     * 
     */
-    EquinoxLauncher.destroy
+    AcumeLauncher.destroy
   }
 }
 
-object EquinoxLauncher { 
+object AcumeLauncher { 
 
   def main(args: Array[String]) = {
     
@@ -96,10 +96,10 @@ object EquinoxLauncher {
     val sparkContextEquinox = new SparkContext(sparkConf)
     val sqlContext = new SQLContext(sparkContextEquinox)
     
+    AcumeSparkOnYarnConfiguration.set("sqlcontext", sqlContext)
+    
+    val orc_searchIngressCustCubeDimension = sparkContextEquinox.newAPIHadoopFile[NullWritable, OrcStruct, OrcNewInputFormat]("/data/intelligentcache/orc/searchIngressCustCubeDimension.orc")
     TableCreator.createTables();
-    
-    EquinoxSparkOnYarnConfiguration.set("sqlcontext", sqlContext)
-    
      val tomcat = new Tomcat();
     tomcat.setPort(38080);
     val _$context = tomcat.addWebapp("", new File("/data/archit/server_testing_scala/solution").getAbsolutePath())
@@ -107,20 +107,11 @@ object EquinoxLauncher {
     _$context.setLoader(solrLoader);
     tomcat.start();
     tomcat.getServer().await();
-//    val orcFile1 = sparkContextEquinox.newAPIHadoopFile[NullWritable, OrcStruct, OrcNewInputFormat]("/data/archit/orc/searchIngressCustCubeDimension.orc")
-//    val orcFile2 = sparkContextEquinox.newAPIHadoopFile[NullWritable, OrcStruct, OrcNewInputFormat]("/data/archit/orc/searchIngressCustCubeMeasure.orc")
-//    import sqlContext._
-//    
-//    val dimensionRdd = orcFile1.map(iSearchPRI_InteractionEgressDimension).registerAsTable("isearchIngressCustCubeDimension")
-//    val measureRdd = orcFile2.map(iSearchPRI_InteractionEgressMeasure).registerAsTable("isearchIngressCustCubeMeasure")
-//    
-//    cacheTable("isearchIngressCustCubeDimension")
-//    cacheTable("isearchIngressCustCubeMeasure")
   }
   
   def destroy = { 
     
-    val config = EquinoxSparkOnYarnConfiguration.get("sqlcontext")
+    val config = AcumeSparkOnYarnConfiguration.get("sqlcontext")
     val sqlContext = config match { 
       
       case Some(sqlContext) => config.asInstanceOf[SQLContext]
@@ -128,32 +119,6 @@ object EquinoxLauncher {
     }
     sqlContext.sparkContext.stop
   }
-  
-  def stringToLong(str: String) = {
-    
-    try{
-      str.toLong
-    } catch {
-      case ex: NumberFormatException => Int.MinValue 	
-    }
-  }
-   
-//  def iSearchPRI_InteractionEgressDimension(tuple: (NullWritable, OrcStruct)) = { 
-//      
-//    val struct = tuple._2
-//    val field = struct.toString.substring(1)
-//    val l = field.length
-//    val token = field.substring(0, field.length - 2).split(',').map(_.trim)
-//    searchIngressCustCubeDimension(stringToLong(token(0)), stringToLong(token(1)), stringToLong(token(2)), stringToLong(token(3)), stringToLong(token(4)), stringToLong(token(5)), stringToLong(token(6)), stringToLong(token(7)), stringToLong(token(8)))
-//  }
-//  
-//  def iSearchPRI_InteractionEgressMeasure(tuple: (NullWritable, OrcStruct)) = { 
-//    val struct = tuple._2
-//    val field = struct.toString.substring(1)
-//    val l = field.length
-//    val token = field.substring(0, field.length - 2).split(',').map(_.trim)
-//    searchIngressCustCubeMeasure(stringToLong(token(0)), stringToLong(token(1)), stringToLong(token(2)), stringToLong(token(3)), stringToLong(token(4)), stringToLong(token(5)), stringToLong(token(6)), stringToLong(token(7)), stringToLong(token(8)), stringToLong(token(9)), stringToLong(token(10)))
-//  }
 }
 
 

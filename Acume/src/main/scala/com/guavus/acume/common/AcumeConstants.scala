@@ -1,6 +1,6 @@
 package com.guavus.acume.common
 
-object EquinoxConstants {
+object AcumeConstants {
 
   val QUERY_RESPONSE = "queryresponse";
   val EXPORT_AGGREGATE_DATA = "exportaggregate";

@@ -13,7 +13,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.guavus.acume.common.EquinoxConstants;
+import com.guavus.acume.common.*;
 import com.guavus.acume.configuration.AcumeConfiguration;
 import com.guavus.acume.query.data.Table;
 
@@ -219,11 +219,11 @@ public class AggregateResponse implements Serializable {
 		for (AggregateResultSet resultSet : results) {
 			
 			for (Integer encryptedDimensionIndex : encryptedDimensionIndexes) {
-				resultSet.getRecord().set(encryptedDimensionIndex, EquinoxConstants.ENCRYPTION_VALUE());
+				resultSet.getRecord().set(encryptedDimensionIndex, AcumeConstants.ENCRYPTION_VALUE());
 			}
 			
 			for (Integer encryptedMeasureIndex : encryptedMeasureIndexes) {
-				resultSet.getMeasures().set(encryptedMeasureIndex, EquinoxConstants.ENCRYPTION_VALUE());
+				resultSet.getMeasures().set(encryptedMeasureIndex, AcumeConstants.ENCRYPTION_VALUE());
 			}
 		} 
 	}

@@ -13,7 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
-import com.guavus.acume.common.EquinoxConstants;
+import com.guavus.acume.common.*;
 
 public enum AcumeConfiguration {
     DataDir("dataDir", "data"),

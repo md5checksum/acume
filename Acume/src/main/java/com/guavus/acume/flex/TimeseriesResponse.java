@@ -11,7 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.guavus.acume.common.EquinoxConstants;
+import com.guavus.acume.common.*;
 import com.guavus.acume.configuration.AcumeConfiguration;
 
 
@@ -136,7 +136,7 @@ public class TimeseriesResponse  implements Serializable{
 		for (TimeseriesResultSet resultSet : results) {
 			
 			for (Integer encryptedDimensionIndex : encryptedDimensionIndexes) {
-				resultSet.getRecord().set(encryptedDimensionIndex, EquinoxConstants.ENCRYPTION_VALUE());
+				resultSet.getRecord().set(encryptedDimensionIndex, AcumeConstants.ENCRYPTION_VALUE());
 			}
 			
 			List<List<Object>> measures = resultSet.getMeasures();
@@ -144,7 +144,7 @@ public class TimeseriesResponse  implements Serializable{
 			for (Integer encryptedMeasureIndex : encryptedMeasureIndexes) {
 				List<Object> measure = measures.get(encryptedMeasureIndex);
 				for (int i = 0; i < measure.size(); ++i) {
-					measure.set(i, EquinoxConstants.ENCRYPTION_VALUE());
+					measure.set(i, AcumeConstants.ENCRYPTION_VALUE());
 				}
 			}
 		} 

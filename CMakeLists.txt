@@ -1,5 +1,10 @@
 INCLUDE(${CMAKE_SOURCE_DIR}/version.cmake)
 
+add_subdirectory(Acume)
+add_subdirectory(Acume-war)
+
+execute_process(COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/opt/tms/acume/lib))
+execute_process(COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/opt/tms/acume/classes))
 add_custom_target(Acume
                   ALL
                   COMMAND ./pom.py ${SUPER_NAME}${SUPER_VERSION}
