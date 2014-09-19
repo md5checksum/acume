@@ -1,0 +1,54 @@
+<Acume>
+    <Fields>
+        <Field>
+            <Name>
+                
+            </Name>
+            <Type>
+                
+            </Type>
+            <Function>
+                <Class>
+                    
+                </Class>
+                <DependentField>
+                    
+                </DependentField>
+            </Function>
+        </Field>
+        <Field>
+            <Name>
+                
+            </Name>
+            <Type>
+                
+            </Type>
+            <Function>
+                <Class>
+                    
+                </Class>
+                <DependentField>
+                    
+                </DependentField>
+            </Function>
+        </Field>
+    </Fields>
+    <Cubes>
+        <Cube>
+            <Name>
+                
+            </Name>
+            <Fields>
+                
+            </Fields>
+        </Cube>
+        <Cube>
+            <Name>
+                
+            </Name>
+            <Fields>
+                
+            </Fields>
+        </Cube>
+    </Cubes>
+</Acume>

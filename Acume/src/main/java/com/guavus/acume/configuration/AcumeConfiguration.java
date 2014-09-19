@@ -30,7 +30,8 @@ public enum AcumeConfiguration {
     Main_Jar("MainJar", "/data/archit/Equinox.jar"),
     Runmode("RunMode", "SPARK_YARN"),
     StaticCubes("StaticCubes", "/opt/tms/acume/classes/StaticCubes.xml"),
-    SchedulerInterval("SchedulerInterval","15"), 
+    SchedulerInterval("SchedulerInterval","15"),
+    VariableRetentionMap("VariableRetentionMap", "1h:24"), 
     InstaInstanceId("InstaInstanceId", "0"), 
     ORCBasePath("BaseInstaPath","/data/insta"), 
     CubeXml("CubeDefinitionXMLPath","/opt/tomcat/classes/CubeDefinition.xml");

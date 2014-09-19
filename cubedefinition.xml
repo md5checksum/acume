@@ -1,0 +1,48 @@
+<AcumeCubes>
+    <ORCCube>
+        <CubeName>
+            abc
+        </CubeName>
+        <DimensionSet>
+            def
+        </DimensionSet>
+        <MeasureSet>
+            ghi
+        </MeasureSet>
+    </ORCCube>
+    
+    <ORCCube>
+        <CubeName>
+            jkl
+        </CubeName>
+        <DimensionSet>
+            mno
+        </DimensionSet>
+        <MeasureSet>
+            pqr
+        </MeasureSet>
+    </ORCCube>
+    
+    <Cube>
+        <CubeName>
+            stu
+        </CubeName>
+        <DimensionSet>
+            vwx
+        </DimensionSet>
+        <MeasureSet>
+            yz
+        </MeasureSet>
+    </Cube>
+    <Cube>
+        <CubeName>
+            abc
+        </CubeName>
+        <DimensionSet>
+            def
+        </DimensionSet>
+        <MeasureSet>
+            ghi
+        </MeasureSet>
+    </Cube>
+</AcumeCubes>
