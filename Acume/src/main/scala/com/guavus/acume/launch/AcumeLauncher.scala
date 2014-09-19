@@ -20,70 +20,29 @@ import java.lang.RuntimeException
 import org.apache.catalina.startup.Tomcat
 import org.apache.catalina.loader.WebappLoader
 
-class AcumeLauncher extends HttpServlet {
-  
-  @throws[ServletException]
-  override def init() { 
-    
-    
-  }
-  
+class AcumeLauncher extends HttpServlet  with Log {
+
   @throws[IOException]
   @throws[ServletException]
   override def doGet(request: HttpServletRequest, response: HttpServletResponse) {
     response.setContentType("text/html")
     val out = response.getWriter
-    
-//    EquinoxConfiguration.Runmode.getValue() match { 
-//      
-//      case _ => { 
-//        
-//        val acumeLocal = request.getParameter("sqlQuery")
-//        AcumeSparkOnYarnConfiguration.set("sqlquery", acumeLocal)
-//        AcumeSparkOnYarnConfiguration.set("tx", out)
-//        SparkSubmitLauncher.submit
-//      }
-//      case EquinoxConstants.SPARK_YARN => { 
-//        
-//        val acumeLocal = request.getParameter("sqlQuery")
-//        AcumeSparkOnYarnConfiguration.set("sqlquery", acumeLocal)
-//        SparkSubmitLauncher.submit
-//      }
-//      case x => throw new RuntimeException("The mode " + EquinoxConfiguration.Runmode.getValue() +" is not supported yet.")
-//    }
-//    for(td <- baseRdd.collect)
-//      out.println(td)
-//    out.println("-----")
-//    out.println(baseRdd.count)
-//    bool = false;
-    
     val x = request.getParameter("sqlQuery")
     AcumeSparkOnYarnConfiguration.set("sqlquery", x)
+    val list = SQLHelper.getTables(x)
     val _$SQLContext = AcumeSparkOnYarnConfiguration.get("sqlcontext")
     val sqlContext = _$SQLContext match { 
       
       case Some(x) => _$SQLContext.get.asInstanceOf[SQLContext]
       case None => throw new RuntimeException("SQL Context could not be initialized.")
     }
-    sqlContext.sql(x).map(println)
-//    for(data <- resposeData)
-//      out.println(data)
-  }
-  
-  override def destroy() { 
-    
-    /*
-     * 
-    
-    EquinoxConfiguration.Runmode.getValue() match { 
-      
-      case EquinoxConstants.SPARK_YARN => SparkSubmitLauncher.destroy
-      case x => throw new RuntimeException("The mode" + EquinoxConfiguration.Runmode.getValue() +" is not supported yet.")
-    }
-    * 
-    * 
-    */
-    AcumeLauncher.destroy
+    val data = sqlContext.sql(x).collect
+    for(_data <- data)
+      out.println(_data)
+//    val y = request.getParameter("newTable")
+//    if(y.equals("y")){
+//      TableCreator._create()
+//    }
   }
 }
 
@@ -92,19 +51,23 @@ object AcumeLauncher {
   def main(args: Array[String]) = {
     
     val sparkConf = new SparkConf
-    sparkConf.set("spark.app.name", "Equinox")
-    val sparkContextEquinox = new SparkContext(sparkConf)
-    val sqlContext = new SQLContext(sparkContextEquinox)
+    sparkConf.set("spark.app.name", "Acume")
+    val sparkContext = new SparkContext(sparkConf)
+    val sqlContext = new SQLContext(sparkContext)
     
     AcumeSparkOnYarnConfiguration.set("sqlcontext", sqlContext)
     
-    val orc_searchIngressCustCubeDimension = sparkContextEquinox.newAPIHadoopFile[NullWritable, OrcStruct, OrcNewInputFormat]("/data/intelligentcache/orc/searchIngressCustCubeDimension.orc")
-    TableCreator.createTables();
+//    TableCreator.createTables();
      val tomcat = new Tomcat();
     tomcat.setPort(38080);
-    val _$context = tomcat.addWebapp("", new File("/data/archit/server_testing_scala/solution").getAbsolutePath())
+    val _$context = //tomcat.addContext("", "/data/context")
+       tomcat.addWebapp("", new File("/data/archit/server_testing_scala/solution").getAbsolutePath())
     val solrLoader = new WebappLoader(classOf[WebappLoader].getClassLoader());
     _$context.setLoader(solrLoader);
+    
+//    tomcat.addServlet("", "servletName", "com.guavus.acume.launch.AcumeLauncher")
+//    _$context.addServletMapping("/url","servletName")
+    
     tomcat.start();
     tomcat.getServer().await();
   }

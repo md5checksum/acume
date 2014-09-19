@@ -25,5 +25,7 @@ object AcumeConstants {
   val ENCRYPTION_VALUE = "Encrypted";
   val RUN_CONFIG = "RUN_CONFIG"
   val SPARK_YARN = "SPARK_YARN"
-
+  val TRIPLE_DOLLAR_SSC = "\\$\\$\\$" //SSC = SpecialSymbolConsidered.
+  val TRIPLE_DOLLAR = "$$$"
+  val DELIMITED_TAB = "\t"
 }

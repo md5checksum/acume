@@ -16,20 +16,25 @@ import com.google.common.collect.Maps;
 import com.guavus.acume.common.*;
 
 public enum AcumeConfiguration {
-    DataDir("dataDir", "data"),
-    ClusterName("cluster.name", ""),
-    LastModified("lastModified",""+System.currentTimeMillis()),
-    File("File", "ORC"),
-    MaxLength("maxLength", "10"),
+    DataDir("DataDir", "data"),
+    ClusterName("ClusterName", ""),
+    LastModified("LastModified",""+System.currentTimeMillis()),
+    FileType("FileType", "ORC"),
+    MaxLength("MaxLength", "10"),
     SPARK_HOME("SPARK_HOME", "/opt/spark/"),
     HADOOP_HOME("HADOOP_HOME", "/opt/hadoop/"),
     CATALINA_HOME("CATALINA_HOME", "/data/tomcat/"),
-    DOC_BASE("docbase", "/data/solution/"),
-    EncryptedMeasures("encryptedMeasures", ""),
-    EncryptedDimensions("encryptedDimensions", ""),
-    Main_Jar("mainjar", "/data/archit/Equinox.jar"),
-    Runmode("runmode", "SPARK_YARN"),
-    CubeXml("cubedefxml","/opt/tomcat/classes/CubeDefinition.xml");
+    DOC_BASE("DocBase", "/data/solution/"),
+    EncryptedMeasures("EncryptedMeasures", ""),
+    EncryptedDimensions("EncryptedDimensions", ""),
+    Main_Jar("MainJar", "/data/archit/Equinox.jar"),
+    Runmode("RunMode", "SPARK_YARN"),
+    StaticCubes("StaticCubes", "/opt/tms/acume/classes/StaticCubes.xml"),
+    SchedulerInterval("SchedulerInterval","15"), 
+    InstaInstanceId("InstaInstanceId", "0"), 
+    ORCBasePath("BaseInstaPath","/data/insta"), 
+    CubeXml("CubeDefinitionXMLPath","/opt/tomcat/classes/CubeDefinition.xml");
+    
     
     public static class RPObservable extends Observable {
         public void setChanged() {
@@ -65,7 +70,6 @@ public enum AcumeConfiguration {
             logger.info("Using Equinox Configuration {}",
                     Arrays.toString(AcumeConfiguration.values()));
         }
-        
     }
 
     private static Map<String, AcumeConfiguration> key2Property;

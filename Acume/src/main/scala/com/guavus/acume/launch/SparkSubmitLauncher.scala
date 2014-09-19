@@ -18,8 +18,10 @@ import com.guavus.acume.xml.Cube
 import com.guavus.acume.xml.Cube.StaticCubes.StaticCube
 import com.guavus.acume.core.CubeORC
 import com.guavus.acume.configuration.AcumeConfiguration
-
-
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+import scala.collection._
+import org.apache.spark.sql.catalyst.plans.logical.InsertIntoTable
 
 object ApplicationLauncher { 
   
@@ -47,21 +49,38 @@ object ApplicationLauncher {
 }
 object TableCreator { 
   
+  def _create() = { 
+    
+    val sqlContext = AcumeSparkOnYarnConfiguration.get("sqlcontext") match { 
+      
+      case Some(localContext) => localContext.asInstanceOf[SQLContext]
+      case None => throw new RuntimeException("SQLContext has not been initialized yet.")
+    }
+    import sqlContext._
+    val sparkContext = sqlContext.sparkContext
+    val orc_searchIngressCustCubeDimension = sparkContext.newAPIHadoopFile[NullWritable, OrcStruct, OrcNewInputFormat]("/data/intelligentcache/orc/searchIngressCustCubeDimension2.orc")
+    val orc_searchIngressCustCubeMeasure = sparkContext.newAPIHadoopFile[NullWritable, OrcStruct, OrcNewInputFormat]("/data/intelligentcache/orc/searchIngressCustCubeMeasure2.orc")
+    val searchIngressCustCubeDimensionTable = orc_searchIngressCustCubeDimension.map(CubeORC._$isearchIngressCustCubeDimension).registerAsTable("searchIngressCustCubeDimension2")
+    val searchIngressCustCubeMeasureTable = orc_searchIngressCustCubeMeasure.map(CubeORC._$isearchIngressCustCubeMeasure).registerAsTable("searchIngressCustCubeMeasure2")
+    
+    cacheTable("searchIngressCustCubeDimension2")
+    cacheTable("searchIngressCustCubeMeasure2")
+    sqlContext.sql("select * from searchIngressCustCubeDimension2 UNION ALL select * from searchIngressCustCubeDimension").registerAsTable("searchIngressCustCubeDimension")
+    sqlContext.sql("select * from searchIngressCustCubeMeasure2 UNION ALL select * from searchIngressCustCubeMeasure").registerAsTable("searchIngressCustCubeMeasure")
+  }
+  
+//  def createCubes(): Unit = { 
+//    
+//    val jc = JAXBContext.newInstance("com.guavus.acume.gen.AcumeCubes");
+//    val unmarsh = jc.createUnmarshaller()
+//    val list = unmarsh.unmarshal(new FileInputStream(AcumeConfiguration.StaticCubes.getValue)).asInstanceOf[AcumeCubes].getCube();
+//    for(cube <- list) { 
+//      
+//      cube
+//    }
+//  }
   def createTables(): Unit = { 
  
-    
-//    val jc: JAXBContext = JAXBContext.newInstance("com.guavus.acume.xml")
-//    val unmarsh: Unmarshaller = jc.createUnmarshaller()
-//    val cube = unmarsh.unmarshal(new FileInputStream(EquinoxConfiguration.CubeXml.getValue())).asInstanceOf[Cube]
-//    val list = cube.getStaticCubes().getStaticCube()
-//    
-//    for(c <- list.toArray()) { 
-//      
-//      val cubeId = c.asInstanceOf[StaticCube].getCubeId()
-//      val dimensionSet = c.asInstanceOf[StaticCube].getDimnesionSet()
-//      val measureSet = c.asInstanceOf[StaticCube].getMeasureSet()
-//    }
-    
     val sqlContext = AcumeSparkOnYarnConfiguration.get("sqlcontext") match { 
       
       case Some(localContext) => localContext.asInstanceOf[SQLContext]
