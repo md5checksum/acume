@@ -5,17 +5,28 @@ import org.apache.spark.sql._
 
 class BaseCubeUtility {
 
-  def getSize(cubeName: String): Int = { 
+  def getSize(baseCubeName: String): Int = { 
     
-    //return sthe no. of fields in the cube.
+    //returns the no. of fields in the cube.
+    //will come from base cube xml.
     0
   }
-  def getORCFieldNames(cubeName: String): String = { 
+  def getORCDFieldNames(baseCubeName: String): String = { 
     
     //returns the (comma separated) field names. 
     null
   }
-  def getFieldType(fieldname: String, cubeName: String): DataType = { 
+  def getORCMFieldNames(baseCubeName: String): String = { 
+    
+    //returns the (comma separated) field names. 
+    null
+  }
+  def getDFieldType(fieldname: String, cubeName: String): DataType = { 
+    
+    ///returns the field types.
+    null
+  }
+  def getMFieldType(fieldname: String, cubeName: String): DataType = { 
     
     ///returns the field types.
     null
@@ -30,7 +41,7 @@ class BaseCubeUtility {
   }
   def getORCMap(businessCubeList: List[Cube]): Map[String, String] = { 
     
-    //returns the map of business cube vs. orc's to be read.  
+    //returns the map of business cube vs. base cube of orc. 	
     //TBD
     null
   }

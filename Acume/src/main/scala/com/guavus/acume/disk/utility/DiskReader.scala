@@ -12,45 +12,111 @@ import com.guavus.crux.core.Fields
 import com.guavus.crux.core.WritableTuple
 import com.guavus.crux.df.operations.core.CopyAnnotation
 import com.guavus.crux.df.stream._
+import com.guavus.crux.df.operations.wrappers._
 import org.apache.spark.sql.catalyst.expressions.GenericRow
+import com.guavus.acume.core.CacheLevel
+import com.guavus.acume.configuration.AcumeConfiguration
+import java.util.UUID
+import java.util.Random
 
 
-class DiskReader { 
+class DiskReader(sqlContext: SQLContext, acumeCube: Acume) { 
   
-  def initDiskReader(sqlContext: SQLContext, fieldsNCubes: Acume) = { 
+  val baseCubeUtility: BaseCubeUtility = new BaseCubeUtility()
+  val businessCubeUtility: BusinessCubeUtility = new BusinessCubeUtility()
+  val businessCubeAggregationUtility: BusinessCubeAggregationUtility = new BusinessCubeAggregationUtility();
+  def initDiskReader(sqlContext: SQLContext, acumeCube: Acume) = { 
     
-    val sparkContext = sqlContext.sparkContext
-    val baseCubeUtility: BaseCubeUtility = new BaseCubeUtility();
-    val cubeORCMap = baseCubeUtility.getORCMap(fieldsNCubes.getCubes().getCube().toList)
-    val businessCubeUtility: BusinessCubeUtility = new BusinessCubeUtility();
-    //ORC support
-    //could be extended to Parquet as well.
-    //check it.
-    import sqlContext._
-    val baseRDDList = 
-      for(tuple <- cubeORCMap) yield { 
-        val cube = tuple._1
-        val ORC = tuple._2
-        val rowRDD = sparkContext.newAPIHadoopFile[NullWritable, OrcStruct, OrcNewInputFormat](ORC).map(getRow)
-        val businessCubeDimensionList = businessCubeUtility.getRequiredBaseDimensions();
-        val businessCubeAggregatedMeasureList = businessCubeUtility.getRequiredBaseAggregatedMeasures();
-        val businessCubeMeasureList = businessCubeUtility.getRequiredBaseMeasures();
-        val schema = StructType(
-            baseCubeUtility.getORCFieldNames(ORC).split(",").map(fieldName => { 
-              StructField(fieldName.trim, baseCubeUtility.getFieldType(fieldName.trim, ORC), true)
-            }))
-        //explore hive udfs for aggregation.
-        
-        val schemaRDD = sqlContext.applySchema(rowRDD, schema)
-        schemaRDD.registerTempTable(ORC+"base")
-        val aggregated_data = sqlContext.sql("select " + businessCubeDimensionList + ", " + businessCubeAggregatedMeasureList + " from " + ORC+"base" + " groupBy " + businessCubeDimensionList)
-//        schemaRDD.map(f)
-        val rdd = aggregated_data.map(x => new WritableTuple(x.map(y =>y).toArray))
-        
-        val stream  = new com.guavus.crux.df.operations.wrappers.Transform("x", new Stream(new StreamMetaData("inname", "junk", new Fields((businessCubeDimensionList++businessCubeMeasureList).toArray)), rdd).streamMetaData, new StreamMetaData("outname","junk",new Fields), List(new CopyAnnotation(new Fields(), new Fields()))).operate
-        val finalRdd = stream.iterator.next.rdd.map(x=>new GenericRow(x.getValueArray))
-      }
+//    val aggregated_data = sqlContext.sql("select " + businessCubeDimensionList + ", " + businessCubeAggregatedMeasureList + " from " + ORC+"base" + " groupBy " + businessCubeDimensionList)
+//    val rdd = aggregated_data.map(x => new WritableTuple(x.map(y =>y).toArray))
+//    val stream  = new com.guavus.crux.df.operations.wrappers.Transform("x", new Stream(new StreamMetaData("inname", "junk", new Fields((businessCubeDimensionList++businessCubeMeasureList).toArray)), rdd).streamMetaData, new StreamMetaData("outname","junk",new Fields), List(new CopyAnnotation(new Fields(), new Fields()))).operate
+//    val finalRdd = stream.iterator.next.rdd.map(x=>new GenericRow(x.getValueArray))
+      
   }
+  
+  def getRDDLineage(businessCubeName: String, level: CacheLevel, timestamp: Long, globalDTableName: String) = { 
+
+    
+    val baseCube = baseCubeUtility.getORCMap(acumeCube.getCubes().getCube().toList).get(businessCubeName)
+    val cube = 
+      baseCube match { 
+      
+      case Some(x) => x
+      case None => throw new RuntimeException("Value not found.")
+    }
+    val baseDir = AcumeConfiguration.ORCBasePath.getValue() + "/" + AcumeConfiguration.InstaInstanceId.getValue() + "/" + "bin-class" + "/" + "base-level" + "/" + cube + "/f/" + timestamp
+    // orc/parquet support
+    val sparkContext = sqlContext.sparkContext
+    val rowRDD = sparkContext.newAPIHadoopFile[NullWritable, OrcStruct, OrcNewInputFormat](baseDir).map(getRow)
+    val schema = StructType(
+        baseCubeUtility.getORCMFieldNames(cube).split(",").map(fieldName => { 
+          StructField(fieldName.trim, baseCubeUtility.getMFieldType(fieldName.trim, cube), true)
+        }))
+    
+    val thisCubeName = cube + getUniqueRandomeNo
+    val schemaRDD = sqlContext.applySchema(rowRDD, schema).registerTempTable(thisCubeName)
+    
+    joinDimensionSet(businessCubeName, level, timestamp, globalDTableName, thisCubeName)
+    
+    
+//    val baseCubeDimensionList = businessCubeUtility.getRequiredBaseDimensions();
+//    
+//    val baseCubeAggregatedMeasureList = businessCubeAggregationUtility.getRequiredBaseAggregatedMeasures();
+//    val baseCubeAggregatedMeasureAliasList = businessCubeAggregationUtility.getAggregatedMeasureAlias();
+//    val baseCubeMeasureList = businessCubeUtility.getRequiredBaseMeasures();
+//    
+    //explore hive udfs for aggregation.
+    
+//    val aggregatedRDD = sqlContext.sql("select " + baseCubeDimensionList + ", " + baseCubeAggregatedMeasureList + " from " + thisCubeName + " groupBy " + baseCubeDimensionList)
+    //check if there is a better way to compute aggregatedRDD.
+//    val annotatedRDD = aggregatedRDD.map(x => { 
+//      new WritableTuple(x.toArray) 
+//      })
+    
+    //remove dependency from crux. write things at acume level. 	
+    
+//    val stream  = new Transform("Transform", new Stream(new StreamMetaData("inname", "junk", new Fields((baseCubeDimensionList++baseCubeAggregatedMeasureAliasList).toArray)), annotatedRDD).streamMetaData, new StreamMetaData("outname","junk",new Fields), List(new CopyAnnotation(new Fields(), new Fields()))).operate
+    
+  }
+  
+  def loadDimensionSet(businessCubeName: String, timestamp: Long, globalDTableName: String): Boolean = { 
+    
+    // This loads the dimension set of cube businessCubeName for the particular timestamp into globalDTableName table.
+    try { 
+    val baseCubeUtility: BaseCubeUtility = new BaseCubeUtility()
+    val businessCubeUtility: BusinessCubeUtility = new BusinessCubeUtility()
+    val businessCubeAggregationUtility: BusinessCubeAggregationUtility = new BusinessCubeAggregationUtility();
+    
+    val baseCube = baseCubeUtility.getORCMap(acumeCube.getCubes().getCube().toList).get(businessCubeName)
+    val cube = 
+      baseCube match { 
+      
+      case Some(x) => x
+      case None => throw new RuntimeException("Value not found.")
+    }
+    
+    val baseDir = AcumeConfiguration.ORCBasePath.getValue() + "/" + AcumeConfiguration.InstaInstanceId.getValue() + "/" + "bin-class" + "/" + "base-level" + "/" + cube + "/d/" + timestamp
+    val sparkContext = sqlContext.sparkContext
+    
+    //only orc supported, check for parquet too.
+    val rowRDD = sparkContext.newAPIHadoopFile[NullWritable, OrcStruct, OrcNewInputFormat](baseDir).map(getRow)
+    val schema = StructType(
+        baseCubeUtility.getORCDFieldNames(cube).split(",").map(fieldName => { 
+          StructField(fieldName.trim, baseCubeUtility.getDFieldType(fieldName.trim, cube), true)
+        }))
+        
+    val thisCubeName = cube + getUniqueRandomeNo
+    val schemaRDD = sqlContext.applySchema(rowRDD, schema)
+    schemaRDD.registerTempTable(thisCubeName)
+    sqlContext.sql("select " + businessCubeUtility.getBusinessCubeDimensionList(businessCubeName) + s" from $thisCubeName").insertInto(globalDTableName)
+    true
+    } catch { 
+      case ex => false 
+      
+    }
+  }
+  
+  def getUniqueRandomeNo: String = System.currentTimeMillis() + "" + new Random().nextInt() 	
   
   def getRow(tuple: (NullWritable, OrcStruct)) = {
   
@@ -59,6 +125,23 @@ class DiskReader {
     val l = field.length
     val tokenList = field.substring(0, field.length - 2).split(',').map(_.trim)
     Row(tokenList)
+  }
+  
+  def joinDimensionSet(businessCubeName: String, level: CacheLevel, timestamp: Long, globalDTableName: String, thisCubeName: String) = { 
+    
+    val businessCubeAggregatedMeasureList = businessCubeAggregationUtility.getBusinessCubeAggregatedMeasureList(businessCubeName);
+    val local_thisCubeName = thisCubeName + getUniqueRandomeNo
+    loadDimensionSet(businessCubeName, timestamp, globalDTableName)
+    val aggregatedRDD = sqlContext.sql("select " + thisCubeName + ".tupleid, " + businessCubeAggregatedMeasureList + " from " + thisCubeName + " groupBy " + businessCubeAggregatedMeasureList + ".tupleid").registerTempTable(local_thisCubeName)
+    sqlContext.sql(s"Select * from $globalDTableName INNER JOIN $local_thisCubeName ON $globalDTableName.id = $local_thisCubeName.tupleid")
+    
+    
+    
+    //explore hive udfs for aggregation.
+    //remove dependency from crux. write things at acume level. 	
+    
+//    val stream  = new Transform("Transform", new Stream(new StreamMetaData("inname", "junk", new Fields((baseCubeDimensionList++baseCubeAggregatedMeasureAliasList).toArray)), annotatedRDD).streamMetaData, new StreamMetaData("outname","junk",new Fields), List(new CopyAnnotation(new Fields(), new Fields()))).operate
+    
   }
   def gotNewCube(timestamp: Long) = { 
     
@@ -85,3 +168,7 @@ class DiskReader {
     businessCubeMap
   }
 }
+
+
+
+
