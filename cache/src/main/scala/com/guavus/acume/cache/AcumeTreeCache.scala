@@ -14,23 +14,23 @@ class AcumeTreeCache(name: String , cachePointToTable: MutableMap[LevelTimestamp
 
 //  val evictionDetails = 
   var cacheLevelPolicy: CacheLevelPolicyTrait = null
-  def createTempTable(startTime : Long, tableName: String, endTime : Long, callType : RequestType.Value) = {
-    callType match {
-      case Aggregate => 
-      case Timeseries => 
-    }
-  }
-  
-  def createTableForAggregate(startTime: Long, endTime: Long) {
-    // based on start time end time find the best possible path which depends on the level configured in variableretentionmap.
-    val levels = Array[Long](300, 3600, 86400, 2592000)
-    cacheLevelPolicy = new FixedLevelPolicy(levels, 300)
-    val duration = endTime - startTime
-    cacheLevelPolicy.getRequiredIntervals(startTime, endTime)
-  }
-  
-  def createTableForTimeseries() {
-    //based on timeseries policy use the appropriate level to create list of rdds needed to create the output table 
-  }
+//  def createTempTable(startTime : Long, tableName: String, endTime : Long, callType : RequestType.Value) {
+//    callType match {
+//      case Aggregate => 
+//      case Timeseries => 
+//    }
+//  }
+//  
+//  def createTableForAggregate(startTime: Long, endTime: Long) {
+//    // based on start time end time find the best possible path which depends on the level configured in variableretentionmap.
+//    val levels = Array[Long](300, 3600, 86400, 2592000)
+//    cacheLevelPolicy = new FixedLevelPolicy(levels, 300)
+//    val duration = endTime - startTime
+//    cacheLevelPolicy.getRequiredIntervals(startTime, endTime)
+//  }
+//  
+//  def createTableForTimeseries() {
+//    //based on timeseries policy use the appropriate level to create list of rdds needed to create the output table 
+//  }
   
 }
