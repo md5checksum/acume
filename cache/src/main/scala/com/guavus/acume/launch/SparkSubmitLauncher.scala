@@ -14,8 +14,6 @@ import java.io.PrintWriter
 import javax.xml.bind.JAXBContext
 import javax.xml.bind.Unmarshaller
 import java.io.FileInputStream
-import com.guavus.acume.xml.Cube
-import com.guavus.acume.xml.Cube.StaticCubes.StaticCube
 import com.guavus.acume.core.CubeORC
 import com.guavus.acume.configuration.AcumeConfiguration
 import scala.collection.JavaConversions._

@@ -33,6 +33,7 @@ public enum AcumeConfiguration {
     SchedulerInterval("SchedulerInterval","15"),
     VariableRetentionMap("VariableRetentionMap", "1h:720;1m:5"), 
     InstaInstanceId("InstaInstanceId", "0"), 
+    TimeZoneDBPath("TimeZoneDBPath","/opt/tms/acume/zoneinfo"), 
     ORCBasePath("BaseInstaPath","/data/insta"), 
     CubeXml("CubeDefinitionXMLPath","/opt/tomcat/classes/CubeDefinition.xml");
     

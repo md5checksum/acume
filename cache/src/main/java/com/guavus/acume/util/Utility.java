@@ -464,77 +464,6 @@ public class Utility {
 		return (Map<Collection<Integer>, T>) aggrData.get(trimmerEntity).getAggregate();
 	}
 
-	public static Table transformAggrTableDimensionsOnly(Table table,
-			ICube entity, boolean isAggregate) {
-		// transform data
-		Map<ICube, AggregatedData> transformedData = TransformationEngine
-		.getInstance()
-		.transform(table, Utility.asLinkedHashSet(entity), null);
-
-		if (!isAggregate) {
-			if (Utility.isDoubleDataType(entity.getOutputMeasures())) {
-				ConcurrentHashMap<Collection<Integer>, Map<Long, double[]>> concurrentHashMap = (ConcurrentHashMap<Collection<Integer>, Map<Long, double[]>>) transformedData
-						.get(entity).getTimeseries();
-				TimeseriesTableImpl retVal = new TimeseriesTableImpl(
-						entity.getOutputDimensions(),
-						entity.getOutputMeasures(),
-						table.getDataTimeGranularity(),
-						concurrentHashMap.size(), table.getStartTime(),
-						table.getEndTime());
-				for (Entry<Collection<Integer>, Map<Long, double[]>> e : concurrentHashMap
-						.entrySet())
-					retVal.addTimeSeries(FastInts.toArray(e.getKey()),
-							e.getValue());
-				return retVal;
-			} else {
-				ConcurrentHashMap<Collection<Integer>, Map<Long, ByteBuffer[]>> concurrentHashMap = (ConcurrentHashMap<Collection<Integer>, Map<Long, ByteBuffer[]>>) transformedData
-						.get(entity).getTimeseries();
-				TimeseriesTableImpl retVal = new TimeseriesTableImpl(
-						entity.getOutputDimensions(),
-						entity.getOutputMeasures(),
-						table.getDataTimeGranularity(),
-						concurrentHashMap.size(), table.getStartTime(),
-						table.getEndTime());
-				for (Entry<Collection<Integer>, Map<Long, ByteBuffer[]>> e : concurrentHashMap
-						.entrySet())
-					retVal.addTimeSeriesBitArray(FastInts.toArray(e.getKey()),
-							e.getValue());
-				return retVal;
-			}
-		} else {
-			if (Utility.isDoubleDataType(entity.getOutputMeasures())) {
-				ConcurrentHashMap<Collection<Integer>, double[]> concurrentHashMap = (ConcurrentHashMap<Collection<Integer>, double[]>) transformedData
-						.get(entity).getAggregate();
-				AggrTableImpl retVal = new AggrTableImpl(
-						entity.getOutputDimensions(),
-						entity.getOutputMeasures(),
-						table.getDataTimeGranularity(),
-						concurrentHashMap.size(), table.getStartTime(),
-						table.getEndTime());
-
-				for (Entry<Collection<Integer>, double[]> e : concurrentHashMap
-						.entrySet())
-					retVal.addAggregate(FastInts.toArray(e.getKey()),
-							e.getValue());
-				return retVal;
-			} else {
-				ConcurrentHashMap<Collection<Integer>, ByteBuffer[]> concurrentHashMap = (ConcurrentHashMap<Collection<Integer>, ByteBuffer[]>) transformedData
-						.get(entity).getAggregate();
-				AggrTableImpl retVal = new AggrTableImpl(
-						entity.getOutputDimensions(),
-						entity.getOutputMeasures(),
-						table.getDataTimeGranularity(),
-						concurrentHashMap.size(), table.getStartTime(),
-						table.getEndTime());
-
-				for (Entry<Collection<Integer>, ByteBuffer[]> e : concurrentHashMap
-						.entrySet())
-					retVal.addAggregate(FastInts.toArray(e.getKey()),
-							e.getValue());
-				return retVal;
-			}
-		}
-	}
 
 	public static <T> T[] getTruncatedResult(long maxCount, T[] result) {
 		if (maxCount < 0 || maxCount >= result.length) {
@@ -1071,7 +1000,7 @@ public class Utility {
 	}
 	
 	/*
-	 * This method uses timezone specified in RubixProperties
+	 * This method uses timezone specified in AcumeConfiguration
 	 */
 	public static long floorToTimeZone(long time, TimeGranularity timeGrnaularity) {
 		Calendar instance = newCalendar();
@@ -1435,189 +1364,6 @@ public class Utility {
 		}
 	}
 
-	public static IndexedTable mergeTables(IRequest request,
-			Map<IRequest, IndexedTable> dependentTables,
-			IMeasure outputMeasure, IMeasure dependentMeasure,
-			Set<IMeasure> allMeasures) {
-		IndexedTable iTable = null;
-		if (request.getRequestDataType() == RequestDataType.Aggregate) {
-			iTable = mergeAggregate(request, dependentTables, outputMeasure,
-					dependentMeasure, allMeasures);
-		} else {
-			iTable = mergeTimeSeries(request, dependentTables, outputMeasure,
-					dependentMeasure, allMeasures);
-		}
-		iTable.generateDimensionalKey();
-		return iTable;
-	}
-
-	private static <T> T compareValues(T obj1, T obj2) {
-		if (obj1 == null) {
-			obj1 = obj2;
-		} else if (!obj1.equals(obj2)) {
-			throw new IllegalStateException(String.format("obj1 %s and obj2 %s are not equivalent", obj1.toString(), obj2.toString()));
-		}
-		return obj1;
-	}
-
-	private static IndexedTable mergeTimeSeries(IRequest request,
-			Map<IRequest, IndexedTable> dependentTables,
-			IMeasure outputMeasure, IMeasure dependentMeasure,
-			Set<IMeasure> allMeasures) {
-		Map<Collection<Integer>, Map<Long, double[]>> dimToTsToMeasureMap = new HashMap<Collection<Integer>, Map<Long, double[]>>();
-
-		Collection<IDimension> finalDimensions = null;
-		TimeGranularity timeGran = null;
-		for (IndexedTable currTable : dependentTables.values()) {
-			// iterate over all the indexed tables for the given measure
-			IRecord currIter = currTable.iterator(0,
-					currTable.getNumberOfRecords());
-			/*
-			 * map of dimension to timeStamp to their index map for finding
-			 * index of measure for the matched record.
-			 */
-			List<IDimension> currDimensions = new ArrayList<IDimension>(
-					currTable.getDimensions());
-			finalDimensions = compareValues(finalDimensions, currDimensions);
-			timeGran = compareValues(timeGran,
-					currTable.getDataTimeGranularity());
-
-			while (currIter.hasNext()) {
-				/* iterate over each record in the table */
-				IRecord currRecord = currIter.next();
-				Collection<Integer> dKey = currRecord.getDimensionValues();
-
-				Map<Long, double[]> recordValues = dimToTsToMeasureMap
-						.get(dKey);
-				if (recordValues == null) {
-					recordValues = new HashMap<Long, double[]>();
-					dimToTsToMeasureMap.put(dKey, recordValues);
-				}
-				// iterate over all the timestamps & set measure values in
-				// response table
-				int srcSTIndex = 0;
-				for (long ts : currRecord.getSampleTimes()) {
-					if (recordValues.containsKey(ts)) {
-						throw new IllegalStateException(
-								"multiple measure values for timestamps");
-					}
-					double currentMeasure = currRecord.getMeasureValue(
-							dependentMeasure, srcSTIndex);
-					recordValues.put(ts, new double[] { currentMeasure });
-					srcSTIndex++;
-				}
-			}
-		}
-
-		TimeseriesTableImpl indexedTable = new TimeseriesTableImpl(
-				finalDimensions, allMeasures, timeGran,
-				dimToTsToMeasureMap.size(), request.getStartTime(),
-				request.getEndTime());
-
-		for (Entry<Collection<Integer>, Map<Long, double[]>> entry : dimToTsToMeasureMap
-				.entrySet()) {
-			Map<Long, double[]> tsTomeasure = entry.getValue();
-
-			indexedTable
-			.addTimeSeries(FastInts.toArray(entry.getKey()),
-					tsTomeasure, new int[] { indexedTable
-				.getIndexForMeasure(outputMeasure) });
-
-		}
-		return new IndexedTable(indexedTable);
-	}
-
-	private static IndexedTable mergeAggregate(IRequest request,
-			Map<IRequest, IndexedTable> dependentTables,
-			IMeasure outputMeasure, IMeasure dependentMeasure,
-			Set<IMeasure> allMeasures) {
-
-		Map<Collection<Integer>, Double> dimToTsToMeasureMap = new HashMap<Collection<Integer>, Double>();
-
-		Collection<IDimension> finalDimensions = null;
-		TimeGranularity timeGran = null;
-		for (IndexedTable currTable : dependentTables.values()) {
-			IRecord currIter = currTable.iterator(0,
-					currTable.getNumberOfRecords());
-
-			List<IDimension> currDimensions = new ArrayList<IDimension>(
-					currTable.getDimensions());
-			finalDimensions = compareValues(finalDimensions, currDimensions);
-			timeGran = compareValues(timeGran,
-					currTable.getDataTimeGranularity());
-
-			while (currIter.hasNext()) {
-				IRecord currRecord = currIter.next();
-				Collection<Integer> dKey = currRecord.getDimensionValues();
-				Double recordValues = dimToTsToMeasureMap.get(dKey);
-
-				double currentMeasure = currRecord.getMeasureValue(
-						dependentMeasure, 0);
-				if (recordValues != null) { // record exists in response table
-					// update value
-					dimToTsToMeasureMap
-					.put(dKey, recordValues + currentMeasure);
-
-				} else {
-					dimToTsToMeasureMap.put(dKey, currentMeasure);
-				}
-			}
-		}
-		AggrTableImpl indexedTable = new AggrTableImpl(finalDimensions,
-				allMeasures, timeGran, dimToTsToMeasureMap.size(),
-				request.getStartTime(), request.getEndTime());
-		for (Entry<Collection<Integer>, Double> entry : dimToTsToMeasureMap
-				.entrySet()) {
-			indexedTable
-			.addAggregate(FastInts.toArray(entry.getKey()),
-					new double[] { entry.getValue() },
-					new int[] { indexedTable
-				.getIndexForMeasure(outputMeasure) });
-		}
-		return new IndexedTable(indexedTable);
-
-	}
-
-	public static LinkedHashSet<IMeasure> deriveDependentMeasures(
-			List<IMeasure> measures, IMeasureProcessorMap processorMap) {
-
-		LinkedHashSet<IMeasure> retMeasures = new LinkedHashSet<IMeasure>();
-
-		if (measures == null) {
-			return retMeasures;
-		}
-
-		for (IMeasure measure : measures) {
-			retMeasures.addAll(deriveDependentMeasures(measure, processorMap));
-		}
-
-		return retMeasures;
-
-	}
-
-	public static LinkedHashSet<IMeasure> deriveDependentMeasures(
-			IMeasure measure, IMeasureProcessorMap processorMap) {
-		if (measure.getType() == BASIC) {
-			return Utility.<IMeasure> asLinkedHashSet(measure);
-		} else {
-			LinkedHashSet<IMeasure> measures = new LinkedHashSet<IMeasure>();
-
-			IMeasureProcessor processor = processorMap.getProcessor(measure);
-
-			if (null == processor) {
-				return measures;
-			}
-
-			List<IMeasure> dependentMeasures = processor.getDependentMeasures();
-
-			for (IMeasure each : dependentMeasures) {
-				measures.addAll(deriveDependentMeasures(each, processorMap));
-			}
-			measures.addAll(dependentMeasures);
-			return measures;
-		}
-	}
-
     public static boolean isAVSMeasure(Collection<IMeasure> measures) {
         if (!isNullOrEmpty(measures)) {
             return measures.iterator().next().isAttributeValueSketch();
@@ -1767,35 +1513,6 @@ public class Utility {
 		logger.warn(trace.toString());
 	}
 
-	public static List<Integer> getSelectedValues(int[] indices,
-			Collection<Integer> collection) {
-		int[] dimensionValues = FastInts.toArray(collection);
-		int[] trimmedDimensionValues = new int[indices.length];
-		int i = 0;
-		for (int dimensionIndex : indices) {
-			trimmedDimensionValues[i++] = dimensionValues[dimensionIndex];
-		}
-		List<Integer> trimmedDimensionsValueList = FastInts
-				.asList(trimmedDimensionValues);
-		return trimmedDimensionsValueList;
-	}
-
-	public static Integer getSelectedValue(int index,
-			Collection<Integer> collection) {
-		int[] dimensionValues = FastInts.toArray(collection);
-		return dimensionValues[index];
-	}
-
-	// Use following to not create unnecessary Object[] when using
-	// Lists.newArryaList(Arrays.fill)
-	public static <V> List<V> newInitializedArrayList(int initialCapacity) {
-		List<V> newArrayList = new ArrayList<V>(initialCapacity);
-		for (int i = 0; i < initialCapacity; i++) {
-			newArrayList.add(null);
-		}
-		return newArrayList;
-	}
-
 	public static Map<IDimension, IGenericDimension> createDimensionsMap(
 			Set<IGenericDimension> dims) {
 		Map<IDimension, IGenericDimension> dimensionsMap = new HashMap<IDimension, IGenericDimension>();
@@ -1808,13 +1525,7 @@ public class Utility {
 
 		return dimensionsMap;
 	}
-
-	/**
-	 * Returns a filtered set of dimensions which are non cached
-	 * 
-	 * @param dims
-	 * @return
-	 */
+	
 	public static Set<IGenericDimension> getNonCachedDimension(
 			Set<IGenericDimension> dims) {
 		Set<IGenericDimension> returnSet = new HashSet<IGenericDimension>();

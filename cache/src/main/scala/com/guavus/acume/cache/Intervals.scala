@@ -1,10 +1,5 @@
 package com.guavus.acume.cache
 
-import java.util.ArrayList
-import java.util.Collections
-import java.util.HashMap
-import java.util.Iterator
-import java.util.Map
 import Intervals._
 import scala.collection.JavaConversions._
 
@@ -27,9 +22,9 @@ private [cache] class Intervals(val intervals: List[Interval]) extends Iterable[
     this(ranges.toList)
   }
 
-  def isEmpty(): Boolean = intervals.isEmpty
+  override def isEmpty(): Boolean = intervals.isEmpty
 
-  def size(): Int = intervals.size
+  override def size(): Int = intervals.size
 
   def add(r: Interval): Intervals = new Intervals(intervals ++ List(r))
 

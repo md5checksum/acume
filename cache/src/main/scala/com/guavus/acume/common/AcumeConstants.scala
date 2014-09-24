@@ -28,4 +28,7 @@ object AcumeConstants {
   val TRIPLE_DOLLAR_SSC = "\\$\\$\\$" //SSC = SpecialSymbolConsidered.
   val TRIPLE_DOLLAR = "$$$"
   val DELIMITED_TAB = "\t"
+  val LINE_DELIMITED = "\\|"
+  val LINE = "|"
+  
 }

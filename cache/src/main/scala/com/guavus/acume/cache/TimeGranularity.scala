@@ -1,7 +1,6 @@
 package com.guavus.acume.cache
 
-import java.util.HashMap
-import java.util.Map
+import scala.collection.mutable.Map
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
 import scala.collection.JavaConversions._
 
@@ -47,36 +46,36 @@ object TimeGranularity extends Enumeration {
   private var granTovariableRetentionName: Map[Long, String] = _
 
   private def getNameToTimeGranMap(): Map[String, TimeGranularity] = {
-    if (nameToTimeGran == null) nameToTimeGran = new HashMap[String, TimeGranularity]()
+    if (nameToTimeGran == null) nameToTimeGran = Map[String, TimeGranularity]()
     nameToTimeGran
   }
 
   private def getSecondsToTimeGranMap(): Map[Long, TimeGranularity] = {
-    if (secondsToTimeGran == null) secondsToTimeGran = new HashMap[Long, TimeGranularity]()
+    if (secondsToTimeGran == null) secondsToTimeGran = Map[Long, TimeGranularity]()
     secondsToTimeGran
   }
 
   private def getVariableRetentionNameToTimeGranMap(): Map[String, TimeGranularity] = {
-    if (variableRetentionNameToTimeGran == null) variableRetentionNameToTimeGran = new HashMap[String, TimeGranularity]()
+    if (variableRetentionNameToTimeGran == null) variableRetentionNameToTimeGran = Map[String, TimeGranularity]()
     variableRetentionNameToTimeGran
   }
 
   private def getGranToVariableRetentionNameMap(): Map[Long, String] = {
-    if (granTovariableRetentionName == null) granTovariableRetentionName = new HashMap[Long, String]()
+    if (granTovariableRetentionName == null) granTovariableRetentionName = Map[Long, String]()
     granTovariableRetentionName
   }
 
-  def getGranToVariableRetentionName(gran: Long): String = {
+  def getGranToVariableRetentionName(gran: Long): Option[String] = {
     getGranToVariableRetentionNameMap.get(gran)
   }
 
-  def getTimeGranularity(value: Long): TimeGranularity = secondsToTimeGran.get(value)
+  def getTimeGranularity(value: Long): Option[TimeGranularity] = secondsToTimeGran.get(value)
 
-  def getTimeGranularityForVariableRetentionName(name: String): TimeGranularity = {
+  def getTimeGranularityForVariableRetentionName(name: String): Option[TimeGranularity] = {
     getVariableRetentionNameToTimeGranMap.get(name)
   }
 
-  def getTimeGranularityByName(name: String): TimeGranularity = nameToTimeGran.get(name)
+  def getTimeGranularityByName(name: String): Option[TimeGranularity] = nameToTimeGran.get(name)
   
   implicit def convertValue(v: Value): TimeGranularity = v.asInstanceOf[TimeGranularity]
 }

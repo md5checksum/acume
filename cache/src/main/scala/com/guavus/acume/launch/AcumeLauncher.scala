@@ -13,7 +13,6 @@ import java.io.IOException
 import org.apache.hadoop.hive.ql.io.orc.OrcStruct
 import org.apache.hadoop.hive.ql.io.orc.OrcNewInputFormat
 import org.apache.spark.deploy.SparkSubmit
-import com.guavus.acume.utils.CustomClasspathModificationEngine
 import java.io.File
 import com.guavus.acume.common.AcumeConstants
 import java.lang.RuntimeException

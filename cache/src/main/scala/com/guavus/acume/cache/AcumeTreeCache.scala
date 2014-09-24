@@ -13,41 +13,20 @@ import com.guavus.acume.configuration.AcumeConfiguration
 class AcumeTreeCache(name: String , cachePointToTable: MutableMap[LevelTimestamp, String], dimensionTable: String, variableRetentionMap: String, timeSeriesPolicyMap: String) extends AcumeCache(name) {
 
 //  val evictionDetails = 
-  val cahceLevelPolicy: CacheLevelPolicyTrait = null
-  def createTempTable(startTime : Long, endTime : Long, callType : RequestType.Value) = {
+  var cacheLevelPolicy: CacheLevelPolicyTrait = null
+  def createTempTable(startTime : Long, tableName: String, endTime : Long, callType : RequestType.Value) = {
     callType match {
       case Aggregate => 
       case Timeseries => 
     }
   }
   
-  def createTableForAggregate(startTime: Long, endTine: Long, requestDataType: RequestType.Value, queryOptionalParams: QueryOptionalParam) {
+  def createTableForAggregate(startTime: Long, endTime: Long) {
     // based on start time end time find the best possible path which depends on the level configured in variableretentionmap.
-    
-    
-    val variableRetentionMap = AcumeConfiguration.VariableRetentionMap.getValue()
-		val levels = new Long[variableRetentionMap.size()];
-		List<Long> allLevels = new ArrayList<Long>();
-		int i = 0;
-		boolean containsBaseLevel = false;
-		for(Entry<Long, Integer>entry:variableRetentionMap.entrySet()){
-			if(entry.getKey() < timeGranularity.getGranularity()){
-				logger.error("Error in retention map for cube {} . " +
-						"Level specified in retention map is smaller than base level",
-						cacheIdentifier);
-				throw new IllegalArgumentException("Error in retention map for cube "+cacheIdentifier+" . " +
-						"Level specified in retention map is smaller than base level");
-			}
-			if(entry.getKey() == timeGranularity.getGranularity()){
-				containsBaseLevel = true;
-			}
-			levels[i] = entry.getKey();
-			allLevels.add(entry.getKey());
-			i++;
-		}
-		cacheLevelPolicy = new FixedLevelPolicy(levels, timeGranularity.getGranularity());
-	
-    val requiredIntervals = shortestPath(startTime, endTime);
+    val levels = Array[Long](300, 3600, 86400, 2592000)
+    cacheLevelPolicy = new FixedLevelPolicy(levels, 300)
+    val duration = endTime - startTime
+    cacheLevelPolicy.getRequiredIntervals(startTime, endTime)
   }
   
   def createTableForTimeseries() {
