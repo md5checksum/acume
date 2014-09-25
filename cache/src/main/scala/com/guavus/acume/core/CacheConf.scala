@@ -34,7 +34,7 @@ class CacheConf(loadDefaults: Boolean) extends Cloneable with Serializable {
 
   if (loadDefaults) {
     // Load any Cache.* system properties
-    for ((k, v) <- System.getProperties.asScala if k.toLowerCase.startsWith("Cache.")) {
+    for ((k, v) <- System.getProperties.asScala if k.toLowerCase.startsWith("cache.")) {
       settings(k) = v
     }
   }
