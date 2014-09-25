@@ -1,11 +1,10 @@
 package com.guavus.acume.utility
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import org.apache.spark.Logging
 
-object ThreadPool extends Log { 
+object ThreadPool extends Logging { 
   
   var exservice: Option[ExecutorService] = None
   

@@ -1,6 +1,6 @@
 package com.guavus.acume.util
 
-import scala.collection.JavaConversions._
+
 import scala.collection.mutable.MutableList
 import scala.collection.mutable.{Map => MutableMap}
 import java.util.TimeZone
@@ -10,12 +10,12 @@ import com.guavus.acume.cache.EvictionDetails
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import com.guavus.acume.common.AcumeConstants
-import com.guavus.acume.utility.Log
 import scala.collection.SortedMap
-import java.util.StringTokenizer
 import com.guavus.acume.cache.TimeGranularity
+import org.apache.spark.Logging
+import java.util.StringTokenizer
 
-object Utility12345 extends Log {
+object Utility12345 extends Logging {
 
   def createEvictionDetailsMapFromFile(): MutableMap[String, EvictionDetails] = {
     val evictionDetailsMap = MutableMap[String, EvictionDetails]()
@@ -35,7 +35,7 @@ object Utility12345 extends Log {
           val valuesArr = value.split(AcumeConstants.LINE_DELIMITED)
           if (valuesArr.length == 1 && !value.contains(AcumeConstants.LINE)) {
             try {
-              val memoryEvictionCount = valuesArr(0).toInt
+              val memoryEvictionCount = Integer.parseInt(valuesArr(0))
               val evictionDetails = new EvictionDetails()
               evictionDetails.setMemoryEvictionThresholdCount(memoryEvictionCount)
               evictionDetailsMap += key -> evictionDetails
@@ -81,13 +81,13 @@ object Utility12345 extends Log {
     evictionDetailsMap
   }
   
-  def getLevelPointMap(mapString: String): SortedMap[Long, Int] = {
-    val result = SortedMap[Long, Int]()
+  def getLevelPointMap(mapString: String) : java.util.SortedMap[Long, Int] = {
+    val result = new java.util.TreeMap[Long, Int]()
     val tok = new StringTokenizer(mapString, ";")
     while (tok.hasMoreTokens()) {
       val currentMapElement = tok.nextToken()
       val gran: String = currentMapElement.substring(0, currentMapElement.indexOf(':'))
-      val points: Int = currentMapElement.substring(currentMapElement.indexOf(':') + 1).toInt
+      val points: Int = Integer.parseInt(currentMapElement.substring(currentMapElement.indexOf(':') + 1))
       val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(gran) match{
         case None => throw new IllegalArgumentException("Unsupported Granularity  " + gran)
         case Some(value) => value
