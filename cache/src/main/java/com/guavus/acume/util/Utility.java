@@ -1,7 +1,5 @@
 package com.guavus.acume.util;
 
-import static com.guavus.acume.core.MeasureType$.MODULE$;
-
 import java.io.BufferedInputStream;
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -47,6 +45,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import rubix.exception.RubixException;
+import scala.Function0;
 import sun.misc.Cleaner;
 import sun.nio.ch.DirectBuffer;
 import util.io.IoUtil;
@@ -59,318 +58,68 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.guavus.acume.cache.TimeGranularity..TimeGranularity;
+import com.guavus.acume.configuration.AcumeConfiguration;
+import com.guavus.acume.utility.Log;
 import com.guavus.bloomfilter.BloomFilterOperatorStaticFactory;
 import com.guavus.bloomfilter.IBloomFilterOperator;
-import com.guavus.rubix.cache.CacheType;
-import com.guavus.rubix.cache.DataStore;
-import com.guavus.rubix.cache.Interval;
-import com.guavus.rubix.cache.Intervals;
-import com.guavus.rubix.cache.RubixCache;
-import com.guavus.rubix.cache.TimeGranFinder;
-import com.guavus.rubix.cache.TimeGranularity;
-import com.guavus.rubix.cds.AggrTableImpl;
-import com.guavus.rubix.cds.ByteBuffer;
-import com.guavus.rubix.cds.Table;
-import com.guavus.rubix.cds.TimeseriesTableImpl;
-import com.guavus.rubix.configuration.BinSource;
-import com.guavus.rubix.configuration.ConfigFactory;
-import com.guavus.rubix.configuration.IGenericConfig;
-import com.guavus.rubix.configuration.RubixProperties;
-import com.guavus.rubix.core.AggregationContext;
-import com.guavus.rubix.core.Controller;
-import com.guavus.rubix.core.DataMergeType;
-import com.guavus.rubix.core.ICacheType;
-import com.guavus.rubix.core.ICube;
-import com.guavus.rubix.core.IDimension;
-import com.guavus.rubix.core.IMeasure;
-import com.guavus.rubix.core.INumericFunction;
-import com.guavus.rubix.core.IRecord;
-import com.guavus.rubix.core.PrefetchConfiguration;
-import com.guavus.rubix.core.distribution.TopologyMismatchException;
-import com.guavus.rubix.distributed.query.DataServiceUtil;
-import com.guavus.rubix.filter.FilterOperation;
-import com.guavus.rubix.parameters.FilterObject.SingleFilter;
-import com.guavus.rubix.parameters.FilterRequest;
-import com.guavus.rubix.query.IGenericDimension;
-import com.guavus.rubix.query.IQueryRequest;
-import com.guavus.rubix.query.QueryRequestMode;
-import com.guavus.rubix.query.SubQueryFilter;
-import com.guavus.rubix.query.remote.flex.TimeZoneInfo;
-import com.guavus.rubix.rules.IRule;
-import com.guavus.rubix.rules.TimeBasedRuleServiceUtility;
-import com.guavus.rubix.search.Operator;
-import com.guavus.rubix.search.SearchCriterion;
-import com.guavus.rubix.transform.AggregatedData;
-import com.guavus.rubix.transform.TransformationEngine;
-import com.guavus.rubix.workflow.Flow;
-import com.guavus.rubix.workflow.IDependentMeasuresContainer;
-import com.guavus.rubix.workflow.IMeasureProcessor;
-import com.guavus.rubix.workflow.IMeasureProcessorMap;
-import com.guavus.rubix.workflow.IRequest;
-import com.guavus.rubix.workflow.IndexedTable;
-import com.guavus.rubix.workflow.Request;
-import com.guavus.rubix.workflow.RequestDataType;
+//import com.guavus.rubix.cache.CacheType;
+//import com.guavus.rubix.cache.DataStore;
+//import com.guavus.rubix.cache.Interval;
+//import com.guavus.rubix.cache.Intervals;
+//import com.guavus.rubix.cache.RubixCache;
+//import com.guavus.rubix.cache.TimeGranFinder;
+//import com.guavus.rubix.cache.TimeGranularity;
+//import com.guavus.rubix.cds.ByteBuffer;
+//import com.guavus.rubix.cds.Table;
+//import com.guavus.rubix.configuration.BinSource;
+//import com.guavus.rubix.configuration.ConfigFactory;
+//import com.guavus.rubix.configuration.IGenericConfig;
+//import com.guavus.rubix.configuration.RubixProperties;
+//import com.guavus.rubix.core.AggregationContext;
+//import com.guavus.rubix.core.Controller;
+//import com.guavus.rubix.core.DataMergeType;
+//import com.guavus.rubix.core.ICacheType;
+//import com.guavus.rubix.core.ICube;
+//import com.guavus.rubix.core.IDimension;
+//import com.guavus.rubix.core.IMeasure;
+//import com.guavus.rubix.core.INumericFunction;
+//import com.guavus.rubix.core.PrefetchConfiguration;
+//import com.guavus.rubix.core.distribution.TopologyMismatchException;
+//import com.guavus.rubix.distributed.query.DataServiceUtil;
+//import com.guavus.rubix.filter.FilterOperation;
+//import com.guavus.rubix.parameters.FilterObject.SingleFilter;
+//import com.guavus.rubix.parameters.FilterRequest;
+//import com.guavus.rubix.query.IGenericDimension;
+//import com.guavus.rubix.query.IQueryRequest;
+//import com.guavus.rubix.query.QueryRequestMode;
+//import com.guavus.rubix.query.SubQueryFilter;
+//import com.guavus.rubix.query.remote.flex.TimeZoneInfo;
+//import com.guavus.rubix.rules.IRule;
+//import com.guavus.rubix.rules.TimeBasedRuleServiceUtility;
+//import com.guavus.rubix.search.Operator;
+//import com.guavus.rubix.search.SearchCriterion;
+//import com.guavus.rubix.transform.AggregatedData;
+//import com.guavus.rubix.transform.TransformationEngine;
+//import com.guavus.rubix.workflow.Flow;
+//import com.guavus.rubix.workflow.IDependentMeasuresContainer;
+//import com.guavus.rubix.workflow.IMeasureProcessor;
+//import com.guavus.rubix.workflow.IMeasureProcessorMap;
+//import com.guavus.rubix.workflow.IRequest;
+//import com.guavus.rubix.workflow.Request;
+//import com.guavus.rubix.workflow.RequestDataType;
 
-public class Utility {
+public class Utility implements Log {
 
-	public static Logger logger = LoggerFactory.getLogger(Utility.class);
-	
-	public static String[] validThreadPatternNames = 
-			RubixProperties.ThreadPatternsForMemoryReading.getStringArray(",");
-	public static TimeZone timeZone = Utility.getTimeZone(RubixProperties.TimeZone.getValue());
-	public static TimeZone utcTimeZone = Utility.getTimeZone("UTC");
-	private static Calendar calendar = Calendar.getInstance(timeZone);
-	public static Calendar utcCalendar = Calendar.getInstance(utcTimeZone);
-
+	public static TimeZone timeZone = Utility.getTimeZone(AcumeConfiguration.TimeZone.getValue());
 
 	private static final int MILLIS_IN_SECOND = 1000;
 	private static final int SECS_IN_HOUR = 3600;
 	private static final int HOUR_MAX = 24;
-	private static Timer timerService = new Timer();
 	
-	
-	public static void refreshTimeZoneInfo(){
-		timeZone = Utility.getTimeZone(RubixProperties.TimeZone.getValue());
-		utcTimeZone = Utility.getTimeZone("UTC");
-		calendar = Calendar.getInstance(timeZone);
-		utcCalendar = Calendar.getInstance(utcTimeZone);
-	}
-
 	public static final java.nio.ByteBuffer EMPTY_NIO_BUFFER;
 	public static final ByteBuffer EMPTY_BUFFER;
     public static IBloomFilterOperator BLOOM_FILTER_OP = BloomFilterOperatorStaticFactory.create();
-	
-	static {
-		EMPTY_NIO_BUFFER = java.nio.ByteBuffer.allocate(8);
-		EMPTY_NIO_BUFFER.put(0, (byte)-2);
-		EMPTY_BUFFER = new ByteBuffer(EMPTY_NIO_BUFFER);
-		RubixProperties.TimeZone.addObserver(new Observer() {
-			
-			@Override
-			public void update(Observable o, Object arg) {
-				refreshTimeZoneInfo();
-				
-			}
-		});
-	}
-	
-	public static Timer getTimerService() {
-		return Utility.timerService;
-	}
-	
-    /**
-     * Method to differentiate between query from scheduler or UI.
-     *
-     * @return false if query is from scheduler true if query from UI.
-     */
-    public static boolean isSchedulerSession() {
-        try{
-        	if(SecurityUtils.getSubject().getSession(false) == null)
-        		return true;
-        	} catch(Exception e) {
-        		return true;
-        	}
-        return false;
-    }
-    
-    public static boolean isTreeCache(ICube cube) {
-    	
-    	if(cube.isAggregate() && (cube.getOutputMeasures().isEmpty() || cube.getOutputMeasures().iterator().next().isSubtractible())) {
-    		return false;
-    	}
-    	return true;
-    }
-
-	
-    /**
-     * Method to differentiate between query from scheduler or UI.
-     *
-     * @return false if query is from scheduler true if query from UI.
-     */
-    public static boolean isSchedulerQuery(QueryRequestMode reqMode) {
-        return reqMode.equals(QueryRequestMode.SCHEDULER);
-    }
-    
-	public static Function<double[], String> doubleArrayToStringFunction = new Function<double[], String>() {
-		@Override
-		public String apply(double[] from) {
-			return Arrays.toString(from);
-		}
-
-	};
-
-	public static Function<int[], String> intArrayToStringFunction = new Function<int[], String>() {
-		@Override
-		public String apply(int[] from) {
-			return Arrays.toString(from);
-		}
-
-	};
-
-	public static Function<Object, String> identityFunction = new Function<Object, String>() {
-		@Override
-		public String apply(Object from) {
-			return from != null ? from.toString() : null;
-		}
-
-	};
-
-	public static <E, T> Iterator<T> iterator(Collection<E> collection,
-			Function<E, Iterator<T>> function) {
-		Iterator<T> itr = null;
-		for (E e : collection) {
-			if (itr == null) {
-				itr = function.apply(e);
-			} else {
-				itr = Iterators.concat(itr, function.apply(e));
-			}
-		}
-		return itr;
-	}
-
-	public static <E, T> LinkedHashSet<T> asLinkedHashSet(
-			Collection<E> collection, Function<E, Collection<T>> function) {
-		LinkedHashSet<T> set = new LinkedHashSet<T>();
-		for (E e : collection) {
-			set.addAll(function.apply(e));
-		}
-		return set;
-	}
-
-	public static <E, T> Set<T> asSet(
-			Collection<E> collection, Function<E, T> function) {
-		Set<T> set = new HashSet<T>();
-		for (E e : collection) {
-			set.add(function.apply(e));
-		}
-		return set;
-	}
-	
-	public static <E, T, Z> Map<T, Z> asMap(
-			Collection<E> collection, Function<E, Map.Entry<T, Z>> function) {
-		Map<T, Z> map = new HashMap<T, Z>();
-		for (E e : collection) {
-			Map.Entry<T, Z> entry = function.apply(e);
-			map.put(entry.getKey(), entry.getValue());
-		}
-		return map;
-	}
-
-	public static <T> LinkedHashSet<T> asLinkedHashSet(
-			Collection<T>... collections) {
-		LinkedHashSet<T> set = new LinkedHashSet<T>();
-		for (Collection<T> e : collections) {
-			set.addAll(e);
-		}
-		return set;
-	}
-
-	public static <T> LinkedHashSet<T> asLinkedHashSet() {
-		return new LinkedHashSet<T>();
-	}
-
-	public static <T> LinkedHashSet<T> asLinkedHashSet(T... collection) {
-		LinkedHashSet<T> set = new LinkedHashSet<T>();
-		for (T e : collection) {
-			set.add(e);
-		}
-		return set;
-	}
-	    
-    public static long[] mergeSampleTimes(long[] sampleTimes1, long[] sampleTimes2) {
-    	List<Long> samples = new ArrayList<Long>();
-    	int j=0;
-    	int i=0;
-    	for(i=0;i<sampleTimes1.length && j<sampleTimes2.length;){
-    		if(sampleTimes1[i] == sampleTimes2[j]) {
-    			samples.add(sampleTimes1[i]);
-    			i++;j++;
-    		} else if(sampleTimes1[i]>sampleTimes2[j]) {
-    			samples.add(sampleTimes2[j]);
-    			j++;
-    		} else {
-    			samples.add(sampleTimes1[i]);
-    			i++;
-    		}
-    	}
-    	
-    	if (i==sampleTimes1.length && j!=sampleTimes2.length) {
-    		for(;j<sampleTimes2.length;j++) {
-    			samples.add(sampleTimes2[j]);
-    		}
-    	} else if (i!=sampleTimes1.length && j==sampleTimes2.length) {
-    		for(;i<sampleTimes1.length;i++) {
-    			samples.add(sampleTimes1[i]);
-    		}
-    	}
-    	long[] returnedSamples = new long[samples.size()];
-    	int k=0;
-    	for (Long sample : samples) {
-			returnedSamples[k] = sample;
-					k++;
-		}
-    	return returnedSamples;
-    }
-	    
-	public static <A, F> String toString(Map<A, F> tuples, int maxLen) {
-		return toString(tuples, maxLen, identityFunction);
-	}
-	
-	/**
-	 * Returns the bytebuffer based upon the datastore heap or offheap
-	 * @param size
-	 * @param store
-	 * @return
-	 */
-	public static ByteBuffer getByteBuffer(int size, DataStore store) {
-		if(store == DataStore.HEAP) {
-			return new ByteBuffer(java.nio.ByteBuffer.allocate(size));
-		} else if(store == DataStore.OS){
-			return new ByteBuffer(java.nio.ByteBuffer.allocateDirect(size));
-		}
-		else throw new IllegalArgumentException("Writing to store : "+store +" is not supported");
-	}
-
-	public static <A, F, T extends F> String toString(Map<A, T> map,
-			int maxLen, final Function<F, String> f) {
-		if (map == null)
-			return null;
-		return toString(map.entrySet(), maxLen,
-				new Function<Map.Entry<A, T>, String>() {
-
-			@Override
-			public String apply(Entry<A, T> from) {
-				StringBuilder builder = new StringBuilder();
-				builder.append(from.getKey());
-				builder.append("=");
-				builder.append(f.apply(from.getValue()));
-				return builder.toString();
-			}
-		});
-	}
-
-	public static <F> String toString(Collection<F> collection, int maxLen) {
-		return toString(collection, maxLen, identityFunction);
-	}
-
-	public static <F, T extends F> String toString(Collection<T> collection,
-			int maxLen, Function<F, String> f) {
-		if (collection == null)
-			return null;
-		StringBuilder builder = new StringBuilder();
-		builder.append("{size=");
-		builder.append(collection.size());
-		builder.append(", [");
-		int i = 0;
-		for (Iterator<T> iterator = collection.iterator(); iterator.hasNext()
-				&& i < maxLen; i++) {
-			if (i > 0)
-				builder.append(", ");
-			builder.append(f.apply(iterator.next()));
-		}
-		builder.append("]}");
-		return builder.toString();
-	}
 	
 	@Deprecated
 	public static long getFloorToLevel(long time, long level) {
@@ -427,144 +176,7 @@ public class Utility {
 		}
 		return retVal;
 	}
-
-	public static Map<Collection<Integer>, double[]> getCombinedMeasures(
-			Map<Collection<Integer>, double[]> dimMeasureMap,
-			Map<Collection<Integer>, double[]> otherDimMeasureMap,
-			Integer measureIndex, Integer otherMeasureIndex) {
-		Map<Collection<Integer>, double[]> combinedDimMeasureMap = new HashMap<Collection<Integer>, double[]>();
-		for (Map.Entry<Collection<Integer>, double[]> entry : dimMeasureMap
-				.entrySet()) {
-			Collection<Integer> key = entry.getKey();
-			double[] measureVals = entry.getValue();
-			double[] combinedMeasures = new double[2];
-
-			combinedMeasures[0] = measureVals[measureIndex];
-			double[] otherMeasuresVals = otherDimMeasureMap.get(key);
-			if (otherMeasuresVals != null) {
-				combinedMeasures[1] = otherMeasuresVals[otherMeasureIndex];
-			}
-			combinedDimMeasureMap.put(key, combinedMeasures);
-		}
-		return combinedDimMeasureMap;
-	}
-
-	public static <T> Map<Collection<Integer>, ConcurrentHashMap<Long, T>> getTimeseriesData(
-			Table table, ICube trimmerEntity) {
-		Map<ICube, AggregatedData> aggrData = TransformationEngine.getInstance().transform(
-				table, Arrays.<ICube> asList(trimmerEntity), null);
-		return (Map<Collection<Integer>, ConcurrentHashMap<Long, T>>) 
-				aggrData.get(trimmerEntity).getTimeseries();
-	}
-
-	public static <T> Map<Collection<Integer>, T> getAggrData(Table table,
-			ICube trimmerEntity) {
-		Map<ICube, AggregatedData> aggrData = TransformationEngine.getInstance().transform(
-				table, Arrays.<ICube> asList(trimmerEntity), null);
-		return (Map<Collection<Integer>, T>) aggrData.get(trimmerEntity).getAggregate();
-	}
-
-
-	public static <T> T[] getTruncatedResult(long maxCount, T[] result) {
-		if (maxCount < 0 || maxCount >= result.length) {
-			return result;
-		}
-		return Arrays.copyOfRange(result, 0, (int) maxCount);
-	}
-
-	public static <T> T[] getResult(T[] responses, long length, long offset) {
-
-		if (responses == null || responses.length <= offset) {
-			return Arrays.copyOfRange(responses, 0, 0);
-		}
-
-		if (responses.length <= (offset + length)) {
-			return Arrays
-					.copyOfRange(responses, (int) offset, responses.length);
-		}
-
-		if (length == -1) {
-			return Arrays.copyOfRange(responses, (int) offset, responses.length);
-		}
-
-		return Arrays.copyOfRange(responses, (int) offset,
-				(int) (offset + length));
-
-	}
-
-	@SuppressWarnings("unchecked")
-	public static <T> T[] nullArray(T[] responses) {
-		T[] result = (T[]) java.lang.reflect.Array.newInstance(responses
-				.getClass().getComponentType(), 0);
-		return result;
-	}
-
-	public static <K> Map<K, Integer> getIndexMap(Collection<K> collection) {
-		Map<K, Integer> indexMap = new HashMap<K, Integer>();
-		int index = 0;
-		for (K measure : collection) {
-			indexMap.put(measure, index);
-			index++;
-		}
-		return indexMap;
-	}
-
-	public static <K> Map<K, Integer> getIndexMap(Set<K> set,
-			Collection<K> collectionReference) {
-		Map<K, Integer> indexMap = new HashMap<K, Integer>();
-		int index = 0;
-		for (K k : collectionReference) {
-			if (set.contains(k)) {
-				indexMap.put(k, index);
-			}
-			index++;
-		}
-		Preconditions.checkState(indexMap.size() == set.size(),
-				"collectionReference %s should contain set %s",
-				collectionReference, set);
-		return indexMap;
-	}
-
-	public static <K> int[] getIndices(Collection<K> collection,
-			Collection<K> collectionReference) {
-		Map<K, Integer> indexMap = getIndexMap(Sets.newHashSet(collection),
-				collectionReference);
-		int[] result = new int[collection.size()];
-		int index = 0;
-		for (K k : collection) {
-			result[index++] = indexMap.get(k);
-		}
-		return result;
-	}
-
-	public static <K> int getIndex(K key, Collection<K> collectionReference) {
-		int index = 0;
-		for (K k : collectionReference) {
-			if (key.equals(k)) {
-				return index;
-			}
-			index++;
-		}
-		throw new IllegalArgumentException(key + " not found in "
-				+ collectionReference);
-	}
-
-	public static String toString(int[][] array2d) {
-		StringBuilder sb = new StringBuilder("[");
-		boolean first = true;
-		for (int[] array1d : array2d) {
-			if (first) {
-				first = false;
-				sb.append(Arrays.toString(array1d));
-			} else {
-				sb.append(", ");
-				sb.append(Arrays.toString(array1d));
-			}
-		}
-		sb.append("]");
-		return sb.toString();
-	}
-
+	
 	public static String humanReadableTimeInterval(long startTime, long endTime) {
 		return humanReadableTime(endTime - startTime);
 	}
@@ -582,146 +194,10 @@ public class Utility {
 		return sb.toString();
 	}
 
-	// DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.FULL);
-
 	public static String humanReadableTimeStamp(long timestampInSeconds) {
 		DateFormat dateFormat = new SimpleDateFormat("MMM dd, yyyy HH:mm:ss z");
 		dateFormat.setTimeZone(utcTimeZone);
 		return dateFormat.format(new Date(timestampInSeconds * 1000));
-	}
-
-	public static Method deriveMethod(Class<?> T, String fieldName) {
-		if (null == T)
-			return null;
-		String methodName = getterMethodName(fieldName);
-		Method[] methods = T.getMethods();
-		for (Method method : methods) {
-			if (method.getName().equalsIgnoreCase(methodName)) {
-				return method;
-			}
-		}
-		return deriveMethod(T.getSuperclass(), fieldName);
-	}
-
-	private static String getterMethodName(String field) {
-		return "get" + field.substring(0, 1).toUpperCase() + field.substring(1);
-	}
-
-	public static Iterable<Map<IDimension, Integer>> addToAllFilters(
-			final List<Map<IDimension, Integer>> filters,
-			final IDimension dimension, final List<Integer> values) {
-		return Iterables.concat(Iterables.transform(values,
-				new Function<Integer, Iterable<Map<IDimension, Integer>>>() {
-
-			@Override
-			public Iterable<Map<IDimension, Integer>> apply(
-					Integer value) {
-				return addToAllFilters(filters, dimension, value);
-			}
-		}));
-	}
-
-	public static int getTimeExcludingWeekends(long startTime, long endTime,
-			TimeGranularity dataTimeGranularity) {
-		return (int) (getTimestampCountExcludingWeekends(startTime, endTime,
-				dataTimeGranularity) * dataTimeGranularity.getGranularity());
-	}
-
-	public static int getTimestampCountExcludingWeekends(long startTime,
-			long endTime, TimeGranularity dataTimeGranularity) {
-		int[] timeStamps = getHourlyTimestampCountExcludingWeekends(startTime,
-				endTime, dataTimeGranularity);
-		int total = 0;
-		for (int ts : timeStamps) {
-			total += ts;
-		}
-		return total;
-	}
-
-	// public static long getCurrentTimestampInSeconds(){
-	// return System.currentTimeMillis()/1000;
-	// }
-
-	/**
-	 * calculates number of bin intervals on an hourly basis excluding weekends
-	 * 
-	 * @param startTime
-	 * @param endTime
-	 * @param dataTimeGranularity
-	 * @return
-	 */
-	public static int[] getHourlyTimestampCountExcludingWeekends(
-			long startTime, long endTime, TimeGranularity dataTimeGranularity) {
-
-		int[] hourlyIntervals = new int[HOUR_MAX];
-
-		Calendar startCal = Utility.newCalendar();
-		startCal.setTimeInMillis(startTime * MILLIS_IN_SECOND);
-
-		Calendar endCal = Utility.newCalendar();
-		endCal.setTimeInMillis(endTime * MILLIS_IN_SECOND);
-
-		int startDay = startCal.get(Calendar.DAY_OF_WEEK);
-		int endDay = endCal.get(Calendar.DAY_OF_WEEK);
-
-		/*
-		 * if start time and end time are for the same day, then return
-		 * immediately if it is weekend, else compute bin intervals for this day
-		 */
-		if (startCal.get(Calendar.YEAR) == endCal.get(Calendar.YEAR)
-				&& startCal.get(Calendar.MONTH) == endCal.get(Calendar.MONTH)
-				&& startCal.get(Calendar.DATE) == endCal.get(Calendar.DATE)) {
-
-			if (startDay == Calendar.SATURDAY || startDay == Calendar.SUNDAY)
-				return hourlyIntervals;
-			else
-				return getTimestampCount(startCal, endCal, dataTimeGranularity);
-		}
-
-		int[] startDayHourlyIntervals = new int[HOUR_MAX]; // ensure this is not
-		// null
-		int[] endDayHourlyIntervals = new int[HOUR_MAX]; // ensure this is not
-		// null
-
-		/*
-		 * compute bin intervals between start time and end of the day if it is
-		 * not a weekend
-		 */
-		if (startDay != Calendar.SATURDAY && startDay != Calendar.SUNDAY) {
-			Calendar startCalEnd = getDayAfterGivenTime(startCal, 1);
-			startDayHourlyIntervals = getTimestampCount(startCal, startCalEnd,
-					dataTimeGranularity);
-		}
-
-		/*
-		 * compute bin intervals between start of the day and end time if it is
-		 * not a weekend
-		 */
-		if (endDay != Calendar.SATURDAY && endDay != Calendar.SUNDAY) {
-			Calendar endCalStart = getDayAfterGivenTime(endCal, 0);
-			endDayHourlyIntervals = getTimestampCount(endCalStart, endCal,
-					dataTimeGranularity);
-		}
-
-		/*
-		 * compute number of weekdays from the end of day of start time to the
-		 * start of day of end time
-		 */
-		startCal = getDayAfterGivenTime(startCal, 1);
-		endCal = getDayAfterGivenTime(endCal, 0);
-
-		int numCompleteWeekdays = getWeekdayCount(startCal, endCal);
-
-		int intervalsInHour = SECS_IN_HOUR
-				/ (int) dataTimeGranularity.getGranularity();
-
-		int intervals = numCompleteWeekdays * intervalsInHour;
-
-		for (int i = 0; i < HOUR_MAX; i++)
-			hourlyIntervals[i] = startDayHourlyIntervals[i]
-					+ endDayHourlyIntervals[i] + intervals;
-
-		return hourlyIntervals;
 	}
 
 	private static int[] getTimestampCount(Calendar start, Calendar end,
@@ -779,97 +255,9 @@ public class Utility {
 		return (destDay == currDay) ? maxDays : (destDay - currDay + maxDays)
 				% maxDays;
 	}
-
-	/**
-	 * <code>entityIdDimension</code>
-	 * 
-	 * @param filters
-	 * @param dimension
-	 * @param value
-	 * @return
-	 */
-	public static List<Map<IDimension, Integer>> addToAllFilters(
-			List<Map<IDimension, Integer>> filters, final IDimension dimension,
-			final int value) {
-
-		if (filters == null || filters.size() == 0) {
-			filters = new ArrayList<Map<IDimension, Integer>>();
-			filters.add(new HashMap<IDimension, Integer>());
-		}
-
-		return Lists
-				.transform(
-						filters,
-						new Function<Map<IDimension, Integer>, Map<IDimension, Integer>>() {
-
-							@Override
-							public Map<IDimension, Integer> apply(
-									Map<IDimension, Integer> filtermap) {
-								Map<IDimension, Integer> retVal = new HashMap<IDimension, Integer>(
-										filtermap);
-								retVal.put(dimension, value);
-								return retVal;
-							}
-						});
-	}
-
-	public static Collection<Map<IDimension, Integer>> addToAllFilters(
-			Collection<Map<IDimension, Integer>> filters,
-			final Map<IDimension, Integer> filter) {
-		if ((filters == null || filters.size() == 0)
-				&& (filter != null && filters.size() > 0)) {
-			filters = new ArrayList<Map<IDimension, Integer>>();
-			filters.add(new HashMap<IDimension, Integer>());
-		}
-
-		return Collections2
-				.transform(
-						filters,
-						new Function<Map<IDimension, Integer>, Map<IDimension, Integer>>() {
-
-							@Override
-							public Map<IDimension, Integer> apply(
-									Map<IDimension, Integer> filtermap) {
-								Map<IDimension, Integer> retVal = new HashMap<IDimension, Integer>(
-										filtermap);
-								retVal.putAll(filter);
-								return retVal;
-							}
-						});
-	}
-
-	public static Collection<Map<IDimension, Integer>> removeFromAllFilters(
-			Collection<Map<IDimension, Integer>> filters,
-			final Map<IDimension, Integer> filter) {
-		Collection<Map<IDimension, Integer>> retvals = new ArrayList<Map<IDimension, Integer>>();
-		Set<Map.Entry<IDimension, Integer>> keyMapEntrySet = filter.entrySet();
-		for (Map<IDimension, Integer> filtermap : filters) {
-			Map<IDimension, Integer> tempMap = null;
-			if (filtermap.entrySet().containsAll(keyMapEntrySet)) {
-				tempMap = new HashMap<IDimension, Integer>();
-				tempMap.putAll(filtermap);
-				Set<Map.Entry<IDimension, Integer>> tempMapEntrySet = tempMap
-						.entrySet();
-				tempMapEntrySet.removeAll(keyMapEntrySet);
-			}
-			if (tempMap != null && !tempMap.isEmpty())
-				retvals.add(tempMap);
-		}
-		return retvals;
-
-	}
-
-	public static <V> long size(Iterable<V> collection,
-			Function<V, Long> function) {
-		long total = 0;
-		for (V v : collection) {
-			total += function.apply(v);
-		}
-		return total;
-	}
-
+	
 	public static void printMemoryStats() {
-		logger.info("FreeMemory before calling GC: {}", Runtime.getRuntime()
+		logInfo("FreeMemory before calling GC: {}", Runtime.getRuntime()
 				.freeMemory());
 		System.gc();
 		System.gc();
@@ -877,38 +265,10 @@ public class Utility {
 				.freeMemory());
 	}
 
-	public static <K, V> Map<K, V> toMap(Collection<K> keys, V value) {
-		Map<K, V> map = Maps.newHashMap();
-		for (K key : keys) {
-			map.put(key, value);
-		}
-		return map;
-	}
-	
-    public static <K, V> Map<K, Map<K, V>> toMap(Map<K, Set<K>> keys, V value) {
-        Map<K, Map<K, V>> map = new HashMap<K, Map<K,V>>((int) (keys.size()/.75 + 1));
-        for(Entry<K, Set<K>> entry : keys.entrySet()) {
-            Map<K, V> innerMap = new HashMap<K, V>((int) (entry.getValue().size()/.75 + 1));
-            map.put(entry.getKey(), innerMap);
-            for(K key : entry.getValue()) {
-                innerMap.put(key, value);
-            }
-        }
-        return map;
-    }
-
-    public static <K, V> Map<K, Set<K>> toMapRevert(Map<K, Map<K, V>> map) {
-        Map<K, Set<K>> keys = new HashMap<K, Set<K>>();
-        for (Entry<K, Map<K, V>> entry : map.entrySet()) {
-            keys.put(entry.getKey(), entry.getValue().keySet());
-        }
-        return keys;
-    }
-
 	public static double computePercentage(double numerator, double denominator) {
 		return (numerator / denominator) * 100;
 	}
-
+	
 	public static double computeGrowth(double numerator, double denominator) {
 		if (denominator == 0) {
 			return -200d;
@@ -916,22 +276,6 @@ public class Utility {
 			double growth = ((numerator - denominator) / denominator) * 100;
 			return growth;
 		}
-	}
-
-	public static Set<LinkedHashMap<IDimension, Integer>> getKeyMap(
-			FilterRequest filterRequest, ICube cube) {
-		Collection<IDimension> keys = cube.getKeys();
-		if (isNullOrEmpty(keys))
-			return null;
-		Set<LinkedHashMap<IDimension, Integer>> keyMapList = new HashSet<LinkedHashMap<IDimension, Integer>>();
-		for (Map<IDimension, Integer> filterMap : filterRequest.getLegacyFilterMap()) {
-			LinkedHashMap<IDimension, Integer> keyMap = new LinkedHashMap<IDimension, Integer>();
-			for (IDimension key : keys) {
-				keyMap.put(key, filterMap.get(key));
-			}
-			keyMapList.add(keyMap);
-		}
-		return keyMapList;
 	}
 
 	public static long[] getPreviousMonthStartEndTime(long startTime) {
@@ -999,9 +343,6 @@ public class Utility {
 		return floorToTimezone(time, timeGrnaularity, instance);
 	}
 	
-	/*
-	 * This method uses timezone specified in AcumeConfiguration
-	 */
 	public static long floorToTimeZone(long time, TimeGranularity timeGrnaularity) {
 		Calendar instance = newCalendar();
 		return floorToTimezone(time, timeGrnaularity, instance);
@@ -1364,13 +705,6 @@ public class Utility {
 		}
 	}
 
-    public static boolean isAVSMeasure(Collection<IMeasure> measures) {
-        if (!isNullOrEmpty(measures)) {
-            return measures.iterator().next().isAttributeValueSketch();
-        }
-        return false;
-    }
-
 	public static boolean isDoubleDataType(Collection<IMeasure> measureNames) {
 		if (measureNames == null || measureNames.isEmpty())
 			return true;
@@ -1390,16 +724,12 @@ public class Utility {
 	}
 	
 	public static double getStringSizeInBytes(int length) {
-		//Experimentally calculated overhead for string
 		double size = 56;
 		
-		//Allocates bytes for string characters in multiple of 4
-		//(experimentally seen)
 		if(length%4 != 0) {
 			length = ((length / 4) + 1) * 4;
 		}
 		
-		//Each character takes 2 bytes
 		size += length*2;
 		return size;
 	}
@@ -1454,16 +784,7 @@ public class Utility {
 			}
 		return array;
 	}
-	
-	
 
-	/**
-	 * it allocated full backed array without checking its limit. but copies
-	 * till its limit
-	 * 
-	 * @param buf
-	 * @return
-	 */
 	public static byte[] byteBufferToByteArray(ByteBuffer buf) {
 		java.nio.ByteBuffer buffer = buf.getJavaByteBuffer();
 		byte[] bytes = new byte[buffer.limit()];
@@ -1587,78 +908,8 @@ public class Utility {
 
 	}
 
-	public static boolean isRequestValidForGrowth(Request req,
-			long[] previousMonthStartEndTime, String binClass) {
-		boolean isValid = false;
-		ArrayList<IRequest> reqList = null;
-		if (previousMonthStartEndTime[0] >= Controller.getInstance().getFirstBinPersistedTime(
-				binClass, BinSource.getDefault().name())) {
-			isValid = true;
-		}
-		return isValid;
-	}
-
-	public static boolean isRequestValidForGrowth(Request req,
-			long[] previousMonthStartEndTime) {
-		boolean isValid = false;
-		ArrayList<IRequest> reqList = null;
-		if (previousMonthStartEndTime[0] >= Controller.getInstance().getFirstBinPersistedTime(
-				req.getTimeGranularity() != null ? req.getTimeGranularity().getName() 
-						: ConfigFactory.getInstance() 
-						.getBean(TimeGranularity.class).getName(), BinSource.getDefault().name())) {
-			isValid = true;
-		}
-		return isValid;
-	}
-
-	public static IRequest getRequestForGrowth(Request req,
-			long[] previousMonthStartEndTime) {
-		Flow flow = ConfigFactory.getInstance().getBean(Flow.class);
-		Collection<ICube> cubeCollection = flow.getCube(req);
-		if (cubeCollection != null && cubeCollection.size() > 0) {
-			ICube bCube = cubeCollection.iterator().next();
-			if (bCube.getBinClass() != null) {
-				if (Utility.isRequestValidForGrowth(req,
-						previousMonthStartEndTime, bCube.getBinClass())) {
-					return req;
-				}
-			} else {
-				if (Utility.isRequestValidForGrowth(req,
-						previousMonthStartEndTime)) {
-					return req;
-				}
-			}
-		} else {
-			if (Utility.isRequestValidForGrowth(req, previousMonthStartEndTime)) {
-				return req;
-			}
-		}
-		return null;
-	}
-
-	public static IQueryRequest getRequestForGrowth(IQueryRequest queryRequest,
-			long[] previousMonthStartEndTime) {
-		Request reqFlow = DataServiceUtil.getRequestConvertFunction(
-				RequestDataType.Aggregate, new HashSet<IGenericDimension>())
-				.apply(queryRequest);
-
-		SubQueryFilter subQueryFilter = DataServiceUtil
-				.convertToFlowReadableFilterMap(queryRequest.getFilterRequest());
-		reqFlow.setFilterRequest(subQueryFilter.getFilterRequest());
-		IRequest requestGrowth = getRequestForGrowth(reqFlow,
-				previousMonthStartEndTime);
-		if (requestGrowth != null)
-			return queryRequest;
-		return null;
-
-	}
-
-	public static final String defaultTimeZoneStr = "0:0";
-
-	public static int calendarField = Calendar.HOUR_OF_DAY;
-
 	public static String getTimeZone(Object timeZone) {
-		return timeZone != null ? timeZone.toString() : RubixProperties.TimeZone.getValue();
+		return timeZone != null ? timeZone.toString() : AcumeConfiguration.TimeZone.getValue();
 	}
 
 	public static int getHour(long sampleTime, Calendar cal) {
@@ -1772,69 +1023,6 @@ public class Utility {
 		return mList;
 	}
 
-	public static Criterion buildSearchCriteria(List<List<SearchCriterion>> subqueryCriteria) {
-
-		Criterion subQueryCriterion = null;
-		for (List<SearchCriterion> orList:subqueryCriteria) {
-			Criterion lastCriterion = null;
-			for (SearchCriterion searchCriterion:orList) {
-
-				Criterion orCriterion = Operator.valueOf(searchCriterion.getOperator())
-						.getCriteriaConverter().apply(searchCriterion);
-				if (lastCriterion == null)
-					lastCriterion = orCriterion;
-				else
-					lastCriterion = Restrictions.and(lastCriterion, orCriterion);
-			}
-			if (subQueryCriterion == null)
-				subQueryCriterion = lastCriterion;
-			else 
-				subQueryCriterion = Restrictions.or(lastCriterion, subQueryCriterion);
-			//			criteria.add(Operator.valueOf(searchCriterion.getOperator())
-			//					.getCriteriaConverter().apply(searchCriterion));
-		}
-		return subQueryCriterion;
-
-	}
-	
-	public static boolean useAggregate(Collection<IMeasure> measures, boolean isAggregate, ICacheType type){
-		//if range cache is enabled, then use the isAggregate property
-		if(type == CacheType.ALL_HOUR_BY_DAY) {
-			return false;
-		}
-		
-		if(RubixProperties.BinReplay.getBooleanValue()){
-			/*
-			 * in case of bin replay don't use aggregate cache
-			 * as point rubix cache bin replay is not supported
-			 */
-			return false;
-		}
-	
-		if(!measures.isEmpty() && !measures.iterator().next().isSubtractible())
-			return false;
-		
-		return isAggregate;
-	}
-	
-	public static <N,M> Map<Integer, M> mergeMulti(boolean isDoubleDataType, List<Map<Integer, N>> tupleMaps, int[] measureIndices,
-			List<IMeasure> measures, Long granularity, Map<Integer, ArrayList<Integer>> tupleIds, DataMergeType mergeType, Integer segmentId, RubixCache<?, ?> cache){
-		if(isDoubleDataType)
-			return operationMulti(onDoubleMulti, tupleMaps, measureIndices, tupleIds, measures, granularity,mergeType, segmentId, cache);
-		else
-			return operationMulti(onByteBufferMulti, tupleMaps, measureIndices, tupleIds, measures, granularity,mergeType, segmentId, cache);
-	}
-	
-	private interface Operation<N,M> {
-    	Map<Integer, M> apply(Map<Integer, M> resultTupleMeasureMap,
-        		Map<Integer, N> sourceTupleMeasureMap, Collection<IMeasure> measureNames);
-    }
-	
-	private interface OperationMulti<N,M> {
-    	Map<Integer, M> apply(List<Map<Integer, N>> tupleMeasureMaps, int[] measureIndices, Map<Integer, ArrayList<Integer>> tupleIds, 
-    			List<IMeasure> requestedMeasures, Long granularity, DataMergeType mergeType, Integer segmentId, RubixCache<?, ?> cache);
-    }
-	
 	public static Double mergeDoubles(INumericFunction function, 
 			Collection<Double> values, Collection<Integer> dimensionValues, Collection<IDimension> dimensions) {
 		Double result = 0.0;
@@ -1843,141 +1031,7 @@ public class Utility {
 		}
 		return result;
 	}
-    
-    static OperationMulti<ByteBuffer,double[]> onDoubleMulti = new OperationMulti<ByteBuffer, double[]>() {
-        public Map<Integer, double[]> apply(List<Map<Integer, ByteBuffer>> tupleMeasureMaps, int[] measureIndices, Map<Integer, ArrayList<Integer>> tupleIds
-        		, List<IMeasure> requestedMeasures, Long granularity, DataMergeType mergeType, Integer segmentId, RubixCache<?, ?> cache) {
-        	Map<Integer, double[]> resultTupleMap = new HashMap<Integer, double[]>(getMaxSize(tupleMeasureMaps),1f);
-        	
-        	for(int i=0; i<tupleMeasureMaps.size(); i++){
-        		Map<Integer, ByteBuffer> tupleMap = tupleMeasureMaps.get(i);
-        		for (Entry<Integer, ByteBuffer> tupleMapEntry : tupleMap.entrySet()) {
-        			Integer tupleID = tupleMapEntry.getKey();
-					if (resultTupleMap.containsKey(tupleID)
-							|| (tupleIds != null && !tupleIds.keySet().contains(tupleID)))
-        				continue;
-        			
-        			List<ByteBuffer> allTupleMeasures = new ArrayList<ByteBuffer>(tupleMeasureMaps.size() - i);
-        			allTupleMeasures.add(tupleMapEntry.getValue());
-        			
-        			//get the same tuple from all the maps which are being merged
-        			for(int j = i+1; j < tupleMeasureMaps.size(); j++){
-        				Map<Integer, ByteBuffer> currentTupleMap = tupleMeasureMaps.get(j);
-        				ByteBuffer measures = currentTupleMap.get(tupleID);
-        				if (measures != null) {
-        					allTupleMeasures.add(measures);
-                		}
-        			}
-        			
-        			//merge all measures for the current tuple
-    				double[] resultMeasures = null;
-    				for(ByteBuffer measures: allTupleMeasures){
-    					if(resultMeasures == null){
-//    						resultMeasures = Arrays.copyOf(measures, measures.length);
-    						resultMeasures = new double[requestedMeasures.size()];
-    						for (int measureCounter = 0 ; measureCounter < measureIndices.length ; measureCounter++) {
-    							resultMeasures[measureCounter] = measures.getDouble(measureIndices[measureCounter]*8);
-    						}
-    					} else{
-	    					Iterator<IMeasure> itr = requestedMeasures.iterator();
-	    					for (int measureCounter = 0 ; measureCounter < measureIndices.length ; measureCounter++) {
-	    	        			IMeasure measureName = itr.next();
-	    	        			resultMeasures[measureCounter] = 
-	    	        					measureName.getAggregationFunction().compute(
-	    	        							resultMeasures[measureCounter], measures.getDouble(measureIndices[measureCounter]*8)
-	    	        							, new AggregationContext(cache.getDimensionValuesForTupleId(tupleID, segmentId), cache.getDimensions(), mergeType));
-	    	        		}
-    					}
-    				}
-        			resultTupleMap.put(tupleID, resultMeasures);
-        		}
-        	}
-        	
-        	return resultTupleMap;
-        }
-        
-        @SuppressWarnings("rawtypes")
-    	private int getMaxSize(List<Map<Integer, ByteBuffer>> tupleMaps){
-    		
-    		int max = 0;
-    		for(Map tupleMap: tupleMaps)
-    			if(tupleMap.size() > max)
-    				max = tupleMap.size();
-    		
-    		return max;
-    	}
-
-        public String toString() {
-            return "onDoubleMulti";
-        }
-    };
-    
-    static OperationMulti<ByteBuffer[],ByteBuffer[]> onByteBufferMulti = new OperationMulti<ByteBuffer[],ByteBuffer[]>() {
-        public Map<Integer, ByteBuffer[]> apply(List<Map<Integer, ByteBuffer[]>> tupleMeasureMaps, int[] measureIndices, Map<Integer, ArrayList<Integer>> tupleIds
-        		, List<IMeasure> requestedMeasures, Long granularity, DataMergeType mergeType, Integer segmentId, RubixCache<?, ?> cache) {
-        	
-        	Set<Integer> allTupleIds = new HashSet<Integer>();
-        	for (Map<Integer, ByteBuffer[]> tupleMeasureMap : tupleMeasureMaps) {
-        		if (allTupleIds == null) {
-        			allTupleIds = Sets.newHashSet(tupleMeasureMap.size());
-        		}
-        		allTupleIds.addAll(tupleMeasureMap.keySet());
-        	}
-        	Map<Integer, ByteBuffer[]> resultTupleMap = new HashMap<Integer, ByteBuffer[]>(allTupleIds.size(),1f);
-        	for(int i=0; i<tupleMeasureMaps.size(); i++){
-        		Map<Integer, ByteBuffer[]> tupleMap = tupleMeasureMaps.get(i);
-        		for (Integer tupleID : tupleMap.keySet()) {
-					if (resultTupleMap.containsKey(tupleID)
-							|| (tupleIds != null && !tupleIds.containsKey(tupleID)))
-        				continue;
-        			
-					int counter;
-					byte[] emptyBuffersPosition = new byte[tupleMeasureMaps.size()];
-        			for (counter = 0; counter < i ; counter++) {
-        				emptyBuffersPosition[counter] = 1;
-        			}
-        			emptyBuffersPosition[counter] = 0;
-					List<ByteBuffer[]> allTupleMeasures = new ArrayList<ByteBuffer[]>(tupleMeasureMaps.size() - i);
-        			allTupleMeasures.add(tupleMap.get(tupleID));
-        			
-        			//get the same tuple from all the maps which are being merged
-        			for(int j = i+1; j < tupleMeasureMaps.size(); j++){
-        				Map<Integer, ByteBuffer[]> currentTupleMap = tupleMeasureMaps.get(j);
-        				ByteBuffer[] measures = currentTupleMap.get(tupleID);
-        				if (measures != null) {
-        					allTupleMeasures.add(measures);
-        					emptyBuffersPosition[j] = 0;
-                		} else {
-                			emptyBuffersPosition[j] = 1;
-                		}
-        			}
-        			resultTupleMap.put(tupleID, computeAll(requestedMeasures, allTupleMeasures,
-        					measureIndices, mergeType,
-        					emptyBuffersPosition, granularity,
-        					tupleIds != null ? tupleIds.get(tupleID) : null));
-        		}
-        	}
-        	
-        	
-        	return resultTupleMap;
-        }
-        
-        @SuppressWarnings("rawtypes")
-    	private int getMaxSize(List<Map<Integer, ByteBuffer[]>> tupleMaps){
-    		
-    		int max = 0;
-    		for(Map tupleMap: tupleMaps)
-    			if(tupleMap.size() > max)
-    				max = tupleMap.size();
-    		
-    		return max;
-    	}
-
-        public String toString() {
-            return "onByteBufferMulti";
-        }
-    };
-  
+	
 	public static ByteBuffer[] computeAll(List<IMeasure> measureNames, final List<ByteBuffer[]> allTupleMeasures, int[] measureIndices, 
 			DataMergeType mergeType, byte[] emptyBuffersPosition, Long granularity, ArrayList<Integer> compDimFilterValues) {
 		ByteBuffer[] resultMeasures = new ByteBuffer[measureIndices.length];
@@ -2636,8 +1690,7 @@ public class Utility {
             output.write(buffer, 0, bytesRead);
         }
     }
-
-}
+    }
 
 class ByteBufferIterator implements Iterator<java.nio.ByteBuffer> {
 
