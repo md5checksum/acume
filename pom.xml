@@ -10,8 +10,8 @@
 
 	<modules>
 		<module>cache</module>
-		<module>core</module>
-		<module>war</module>
+<!--		<module>core</module>
+		<module>war</module>    --> 
 	</modules>
 </project>
 

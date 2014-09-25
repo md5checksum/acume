@@ -27,12 +27,12 @@ public enum AcumeConfiguration {
     DOC_BASE("DocBase", "/data/solution/"),
     EncryptedMeasures("EncryptedMeasures", ""),
     EncryptedDimensions("EncryptedDimensions", ""),
-    Main_Jar("MainJar", "/data/archit/Equinox.jar"),
     Runmode("RunMode", "SPARK_YARN"),
     StaticCubes("StaticCubes", "/opt/tms/acume/classes/StaticCubes.xml"),
     SchedulerInterval("SchedulerInterval","15"),
     VariableRetentionMap("VariableRetentionMap", "1h:720;1m:5"), 
     InstaInstanceId("InstaInstanceId", "0"), 
+    TimeZone("timeZone", "GMT"),
     TimeZoneDBPath("TimeZoneDBPath","/opt/tms/acume/zoneinfo"), 
     ORCBasePath("BaseInstaPath","/data/insta"), 
     CubeXml("CubeDefinitionXMLPath","/opt/tomcat/classes/CubeDefinition.xml");
