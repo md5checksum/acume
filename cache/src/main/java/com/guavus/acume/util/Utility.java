@@ -58,69 +58,119 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.guavus.acume.cache.TimeGranularity..TimeGranularity;
+//import com.guavus.acume.cache.TimeGranularity..TimeGranularity;
 import com.guavus.acume.configuration.AcumeConfiguration;
 import com.guavus.acume.utility.Log;
 import com.guavus.bloomfilter.BloomFilterOperatorStaticFactory;
 import com.guavus.bloomfilter.IBloomFilterOperator;
-//import com.guavus.rubix.cache.CacheType;
-//import com.guavus.rubix.cache.DataStore;
-//import com.guavus.rubix.cache.Interval;
-//import com.guavus.rubix.cache.Intervals;
-//import com.guavus.rubix.cache.RubixCache;
-//import com.guavus.rubix.cache.TimeGranFinder;
-//import com.guavus.rubix.cache.TimeGranularity;
-//import com.guavus.rubix.cds.ByteBuffer;
-//import com.guavus.rubix.cds.Table;
-//import com.guavus.rubix.configuration.BinSource;
-//import com.guavus.rubix.configuration.ConfigFactory;
-//import com.guavus.rubix.configuration.IGenericConfig;
-//import com.guavus.rubix.configuration.RubixProperties;
-//import com.guavus.rubix.core.AggregationContext;
-//import com.guavus.rubix.core.Controller;
-//import com.guavus.rubix.core.DataMergeType;
-//import com.guavus.rubix.core.ICacheType;
-//import com.guavus.rubix.core.ICube;
-//import com.guavus.rubix.core.IDimension;
-//import com.guavus.rubix.core.IMeasure;
-//import com.guavus.rubix.core.INumericFunction;
-//import com.guavus.rubix.core.PrefetchConfiguration;
-//import com.guavus.rubix.core.distribution.TopologyMismatchException;
-//import com.guavus.rubix.distributed.query.DataServiceUtil;
-//import com.guavus.rubix.filter.FilterOperation;
-//import com.guavus.rubix.parameters.FilterObject.SingleFilter;
-//import com.guavus.rubix.parameters.FilterRequest;
-//import com.guavus.rubix.query.IGenericDimension;
-//import com.guavus.rubix.query.IQueryRequest;
-//import com.guavus.rubix.query.QueryRequestMode;
-//import com.guavus.rubix.query.SubQueryFilter;
-//import com.guavus.rubix.query.remote.flex.TimeZoneInfo;
-//import com.guavus.rubix.rules.IRule;
-//import com.guavus.rubix.rules.TimeBasedRuleServiceUtility;
-//import com.guavus.rubix.search.Operator;
-//import com.guavus.rubix.search.SearchCriterion;
-//import com.guavus.rubix.transform.AggregatedData;
-//import com.guavus.rubix.transform.TransformationEngine;
-//import com.guavus.rubix.workflow.Flow;
-//import com.guavus.rubix.workflow.IDependentMeasuresContainer;
-//import com.guavus.rubix.workflow.IMeasureProcessor;
-//import com.guavus.rubix.workflow.IMeasureProcessorMap;
-//import com.guavus.rubix.workflow.IRequest;
-//import com.guavus.rubix.workflow.Request;
-//import com.guavus.rubix.workflow.RequestDataType;
+import com.guavus.rubix.cache.CacheType;
+import com.guavus.rubix.cache.DataStore;
+import com.guavus.rubix.cache.Interval;
+import com.guavus.rubix.cache.Intervals;
+import com.guavus.rubix.cache.RubixCache;
+import com.guavus.rubix.cache.TimeGranFinder;
+import com.guavus.rubix.cache.TimeGranularity;
+import com.guavus.rubix.cds.ByteBuffer;
+import com.guavus.rubix.cds.Table;
+import com.guavus.rubix.configuration.BinSource;
+import com.guavus.rubix.configuration.ConfigFactory;
+import com.guavus.rubix.configuration.IGenericConfig;
+import com.guavus.rubix.configuration.RubixProperties;
+import com.guavus.rubix.core.AggregationContext;
+import com.guavus.rubix.core.Controller;
+import com.guavus.rubix.core.DataMergeType;
+import com.guavus.rubix.core.ICacheType;
+import com.guavus.rubix.core.ICube;
+import com.guavus.rubix.core.IDimension;
+import com.guavus.rubix.core.IMeasure;
+import com.guavus.rubix.core.INumericFunction;
+import com.guavus.rubix.core.PrefetchConfiguration;
+import com.guavus.rubix.core.distribution.TopologyMismatchException;
+import com.guavus.rubix.distributed.query.DataServiceUtil;
+import com.guavus.rubix.filter.FilterOperation;
+import com.guavus.rubix.parameters.FilterObject.SingleFilter;
+import com.guavus.rubix.parameters.FilterRequest;
+import com.guavus.rubix.query.IGenericDimension;
+import com.guavus.rubix.query.IQueryRequest;
+import com.guavus.rubix.query.QueryRequestMode;
+import com.guavus.rubix.query.SubQueryFilter;
+import com.guavus.rubix.query.remote.flex.TimeZoneInfo;
+import com.guavus.rubix.rules.IRule;
+import com.guavus.rubix.rules.TimeBasedRuleServiceUtility;
+import com.guavus.rubix.search.Operator;
+import com.guavus.rubix.search.SearchCriterion;
+import com.guavus.rubix.transform.AggregatedData;
+import com.guavus.rubix.transform.TransformationEngine;
+//import com.guavus.rubix.util.Utility;
+import com.guavus.rubix.workflow.Flow;
+import com.guavus.rubix.workflow.IDependentMeasuresContainer;
+import com.guavus.rubix.workflow.IMeasureProcessor;
+import com.guavus.rubix.workflow.IMeasureProcessorMap;
+import com.guavus.rubix.workflow.IRequest;
+import com.guavus.rubix.workflow.Request;
+import com.guavus.rubix.workflow.RequestDataType;
 
-public class Utility implements Log {
+public class Utility {
 
-	public static TimeZone timeZone = Utility.getTimeZone(AcumeConfiguration.TimeZone.getValue());
+public static Logger logger = LoggerFactory.getLogger(Utility.class);
+	
+	public static String[] validThreadPatternNames = 
+			RubixProperties.ThreadPatternsForMemoryReading.getStringArray(",");
+	public static TimeZone timeZone = Utility.getTimeZone(RubixProperties.TimeZone.getValue());
+	public static TimeZone utcTimeZone = Utility.getTimeZone("UTC");
+	private static Calendar calendar = Calendar.getInstance(timeZone);
+	public static Calendar utcCalendar = Calendar.getInstance(utcTimeZone);
+
 
 	private static final int MILLIS_IN_SECOND = 1000;
 	private static final int SECS_IN_HOUR = 3600;
 	private static final int HOUR_MAX = 24;
+	private static Timer timerService = new Timer();
 	
+	
+	public static void refreshTimeZoneInfo(){
+		timeZone = Utility.getTimeZone(RubixProperties.TimeZone.getValue());
+		utcTimeZone = Utility.getTimeZone("UTC");
+		calendar = Calendar.getInstance(timeZone);
+		utcCalendar = Calendar.getInstance(utcTimeZone);
+	}
+
 	public static final java.nio.ByteBuffer EMPTY_NIO_BUFFER;
 	public static final ByteBuffer EMPTY_BUFFER;
     public static IBloomFilterOperator BLOOM_FILTER_OP = BloomFilterOperatorStaticFactory.create();
 	
+	static {
+		EMPTY_NIO_BUFFER = java.nio.ByteBuffer.allocate(8);
+		EMPTY_NIO_BUFFER.put(0, (byte)-2);
+		EMPTY_BUFFER = new ByteBuffer(EMPTY_NIO_BUFFER);
+		RubixProperties.TimeZone.addObserver(new Observer() {
+			
+			@Override
+			public void update(Observable o, Object arg) {
+				refreshTimeZoneInfo();
+				
+			}
+		});
+	}
+	
+	public static Timer getTimerService() {
+		return Utility.timerService;
+	}
+	
+    /**
+     * Method to differentiate between query from scheduler or UI.
+     *
+     * @return false if query is from scheduler true if query from UI.
+     */
+    public static boolean isSchedulerSession() {
+        try{
+        	if(SecurityUtils.getSubject().getSession(false) == null)
+        		return true;
+        	} catch(Exception e) {
+        		return true;
+        	}
+        return false;
+    }
 	@Deprecated
 	public static long getFloorToLevel(long time, long level) {
 		long parentInterval = (time/level) * level;
@@ -257,8 +307,8 @@ public class Utility implements Log {
 	}
 	
 	public static void printMemoryStats() {
-		logInfo("FreeMemory before calling GC: {}", Runtime.getRuntime()
-				.freeMemory());
+//		logInfo("FreeMemory before calling GC: {}", Runtime.getRuntime()
+//				.freeMemory());
 		System.gc();
 		System.gc();
 		logger.info("FreeMemory after calling GC:  {}", Runtime.getRuntime()
@@ -889,24 +939,24 @@ public class Utility implements Log {
         }		
         return sets;
     }
-	
-	public static Set<IGenericDimension> getGenericDimensions(
-			Set<IDimension> dimensions) {
-		final Map<IDimension, IGenericDimension> dimensionToGenericDimensionMap = ConfigFactory
-				.getInstance().getBean(IGenericConfig.class)
-				.getDimensionToGenericDimensionMap();
-		Set<IGenericDimension> genericDimensions = asSet(dimensions,
-				new Function<IDimension, IGenericDimension>() {
-			@Override
-			public IGenericDimension apply(IDimension input) {
-				return dimensionToGenericDimensionMap.get(input);
-			}
-
-		});
-
-		return genericDimensions;
-
-	}
+//	
+//	public static Set<IGenericDimension> getGenericDimensions(
+//			Set<IDimension> dimensions) {
+//		final Map<IDimension, IGenericDimension> dimensionToGenericDimensionMap = ConfigFactory
+//				.getInstance().getBean(IGenericConfig.class)
+//				.getDimensionToGenericDimensionMap();
+//		Set<IGenericDimension> genericDimensions = asSet(dimensions,
+//				new Function<IDimension, IGenericDimension>() {
+//			@Override
+//			public IGenericDimension apply(IDimension input) {
+//				return dimensionToGenericDimensionMap.get(input);
+//			}
+//
+//		});
+//
+//		return genericDimensions;
+//
+//	}
 
 	public static String getTimeZone(Object timeZone) {
 		return timeZone != null ? timeZone.toString() : AcumeConfiguration.TimeZone.getValue();
@@ -1204,18 +1254,18 @@ public class Utility implements Log {
 		return daysBetween;
 	}
 
-    private static <N,M> Map<Integer, M> operation(Operation operation,
-    		Map<Integer, M> resultTupleMeasureMap,
-    		Map<Integer, N> sourceTupleMeasureMap, Collection<IMeasure> measureNames) {
-    	return operation.apply(resultTupleMeasureMap, sourceTupleMeasureMap, measureNames);
-    }
-    
-    private static <N,M> Map<Integer, M> operationMulti(OperationMulti operation,
-    		List<Map<Integer, N>> tupleMaps, int[] measureIndices, Map<Integer, ArrayList<Integer>> tupleIds,
-    		List<IMeasure> measures, Long granularity, DataMergeType mergeType, Integer segmentId, RubixCache<?, ?> cache) {
-    	return operation.apply(tupleMaps, measureIndices, tupleIds, measures, granularity,mergeType, segmentId, cache);
-    	
-    }
+//    private static <N,M> Map<Integer, M> operation(Operation operation,
+//    		Map<Integer, M> resultTupleMeasureMap,
+//    		Map<Integer, N> sourceTupleMeasureMap, Collection<IMeasure> measureNames) {
+//    	return operation.apply(resultTupleMeasureMap, sourceTupleMeasureMap, measureNames);
+//    }
+//    
+//    private static <N,M> Map<Integer, M> operationMulti(OperationMulti operation,
+//    		List<Map<Integer, N>> tupleMaps, int[] measureIndices, Map<Integer, ArrayList<Integer>> tupleIds,
+//    		List<IMeasure> measures, Long granularity, DataMergeType mergeType, Integer segmentId, RubixCache<?, ?> cache) {
+//    	return operation.apply(tupleMaps, measureIndices, tupleIds, measures, granularity,mergeType, segmentId, cache);
+//    	
+//    }
     
     public static LinkedHashSet<IDimension> getNonStaticKeys(ICube profileCube){
     	PrefetchConfiguration prefetchConfiguration = profileCube.getPrefetchConfiguration();

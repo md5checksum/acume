@@ -9,7 +9,7 @@ public class ConfigurationValidator {
 		for(AcumeConfiguration config: configurationValues) { 
 			
 			switch(config){
-			case Main_Jar: 
+			case CubeXml: 
 				if(config.getValue() == "") { 
 					
 					isOK = false; 

@@ -210,7 +210,7 @@ object SparkSubmitLauncher extends Launcher {
     sparkConf.setJars(FileWrapper.commaSeparatedFile(AcumeConfiguration.DOC_BASE.getValue() + "/WEB-INF/lib/").split(","))
     val sparkContext = new SparkContext(sparkConf)
     val sqlContext = new SQLContext(sparkContext)
-    val conf = "--class com.guavus.acume.launch.ApplicationLauncher --master local " + AcumeConfiguration.Main_Jar.getValue
+    val conf = "--class com.guavus.acume.launch.ApplicationLauncher --master local "// + AcumeConfiguration.Main_Jar.getValue
     AcumeSparkOnYarnConfiguration.set("sqlcontext", sqlContext)
     AcumeSparkOnYarnConfiguration.set("conf", conf)
     TableCreator.createTables()
