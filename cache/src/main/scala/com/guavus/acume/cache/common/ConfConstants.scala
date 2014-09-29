@@ -12,7 +12,7 @@ private [acume] object ConfConstants {
   val whichcachetouse = "acume.cache.core.cachename"
   val instabase = "acume.cache.baselayer.instabase"
   val cubedefinitionxml = "acume.cache.baselayer.cubedefinitionxml"
-  val ishql = "acume.cache.execute.ishql"
+  val qltype = "acume.cache.execute.qltype"
   
 }
 

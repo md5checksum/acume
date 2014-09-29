@@ -22,7 +22,7 @@ import scala.collection.mutable.MutableList
 /**
  * Saves the dimension table till date and all fact tables as different tableNames for each levelTimestamp
  */
-class AcumeTreeCache(name: String, baseLevel: Long, acumeCube: Acume, sqlContext: SQLContext, conf: AcumeCacheConf, variableRetentionMap: String, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy) extends AcumeCache(name) {
+class AcumeTreeCache(name: String, baseLevel: Long, acumeCube: Acume, sqlContext: SQLContext, conf: AcumeCacheConf, variableRetentionMap: String, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy) extends AcumeCache {
 
   val cachePointToTable: MutableMap[LevelTimestamp, String] = MutableMap[LevelTimestamp, String]()
   val dimensionTable: String = name + "CacheGlobalDimensionTable"
@@ -39,7 +39,7 @@ class AcumeTreeCache(name: String, baseLevel: Long, acumeCube: Acume, sqlContext
   
   def createTableForAggregate(startTime: Long, endTime: Long, tableName: String) {
     // based on start time end time find the best possible path which depends on the level configured in variableretentionmap.
-    val diskUtility = new DiskUtility(sqlContext, acumeCube)
+    val diskUtility = new DiskUtility(sqlContext, null, null, acumeCube)
     val levels = Array[Long](300, 3600, 86400, 2592000, 5184000, 10368000)
     cacheLevelPolicy = new FixedLevelPolicy(levels, baseLevel)
     val duration = endTime - startTime

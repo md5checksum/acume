@@ -16,7 +16,30 @@ import scala.collection.JavaConversions._
 
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) { 
   
-  def acql(sql: String, qltype: QLType) = { 
+  private def checkQLValidation(sqlContext: SQLContext, qltype: QLType) = { 
+    
+    sqlContext match{
+      case hiveContext: HiveContext =>
+        qltype match{
+          case QLType.hql | QLType.sql => true
+          case rest => false
+        }
+      case sqlContext: SQLContext => 
+        qltype match{
+          case QLType.sql => true
+          case rest => false
+        }
+      case rest => throw new RuntimeException("this type of $sqlContext is not supported")
+    }
+  }
+  
+  private def getQLType() = QLType.getQLType(conf.get(ConfConstants.qltype)) 	
+  
+  def acql(sql: String, qltype: String) = { 
+    
+    val ql = QLType.getQLType(qltype)
+    if(!checkQLValidation(sqlContext, ql))
+      throw new RuntimeException(s"$ql not supported with $sqlContext")
     
     val parsedSQL = parseSql(sql)
     val tableList = parsedSQL._1
@@ -27,6 +50,9 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
   
   def acql(sql: String) = { 
     
+    val ql = getQLType()
+    if(!checkQLValidation(sqlContext, ql))
+      throw new RuntimeException(s"$ql not supported with $sqlContext")
     val parsedSQL = parseSql(sql)
     val tableList = parsedSQL._1
     val (startTime, endTime) = parsedSQL._2
@@ -45,47 +71,20 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
     (list, (startTime, endTime))
   }
   
-  private[cache] def ACQL(ishql: Boolean) = { 
+  private[cache] def ACQL(qltype: QLType, sqlContext: SQLContext) = { 
     
     if(sqlContext.isInstanceOf[HiveContext]){
     
-      ishql match{
-      case true => sqlContext.asInstanceOf[HiveContext].hql(_)
-      case false => sqlContext.sql(_)
+      qltype match{
+      case QLType.hql => sqlContext.asInstanceOf[HiveContext].hql(_)
+      case QLType.sql => sqlContext.sql(_)
       }
     }
     else if(sqlContext.isInstanceOf[SQLContext]) { 
       
-      ishql match{
-      case true => throw new UnsupportedOperationException("hql is not supported on SQLContext object.")
-      case false => sqlContext.sql(_)
+      qltype match{
+      case QLType.sql => sqlContext.sql(_)
       }
-    }
-    else { 
-      
-      throw new UnsupportedOperationException("object has to be HiveContext or SQLContext object.")
-    }
-  }
-  
-  private[cache] def ACQL = { 
-    
-    if(sqlContext.isInstanceOf[HiveContext]){
-    
-      conf.get(ConfConstants.ishql) match{
-      case "true" => sqlContext.asInstanceOf[HiveContext].hql(_)
-      case "false" => sqlContext.sql(_)
-      }
-    }
-    else if(sqlContext.isInstanceOf[SQLContext]) { 
-      
-      conf.get(ConfConstants.ishql) match{
-      case "true" => throw new UnsupportedOperationException("hql is not supported on SQLContext object.")
-      case "false" => sqlContext.sql(_)
-      }
-    }
-    else { 
-      
-      throw new UnsupportedOperationException("object has to be HiveContext or SQLContext object.")
     }
   }
 }
