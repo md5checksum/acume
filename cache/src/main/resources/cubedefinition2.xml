@@ -1,0 +1,55 @@
+<Acume>
+    <Fields>
+        <Field>
+            <Info>
+                IngressAS:long:dimension
+            </Info>
+            <AnnotationFunction>
+                <Class>te3</Class>
+                <DependentField>4dfg4</DependentField>
+            </AnnotationFunction>
+        </Field>
+        <Field>
+            <Info>
+                IngressCustomerEntityId:long:dimension
+            </Info>
+            <AnnotationFunction>
+                <Class>123hs</Class>
+                <DependentField>g4</DependentField>
+            </AnnotationFunction>
+        </Field>
+    </Fields>
+    <!--
+    All Tag Names are camel-case.
+    Dimension and Field names are solution defined could be in any form.
+    properties names, datatype name, field type dimension/measure all are small.
+    
+    Basically except Field names and tag names everything is small.
+    Annotation function in Field, 
+    aggregation function in Cube.
+    -->
+    <Cubes>
+        <Cube>
+            <Name>
+                cube124
+            </Name>
+            <Fields>
+                IngressAS, Measure:sum
+            </Fields>
+            <Properties>
+                basegranularity:hour, cubetype:normal, variableretentionmap: "1h:53;1d:78"
+            </Properties>
+        </Cube>
+        <Cube>
+            <Name>
+                cube124
+            </Name>
+            <Fields>
+                KIngressAS, DMeasure:sum
+            </Fields>
+            <Properties>
+                basegranularity:hour, cubetype:normal
+            </Properties>
+        </Cube>
+    </Cubes>
+</Acume>
