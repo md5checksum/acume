@@ -12,9 +12,6 @@ class QueryOptionalParam {
   var aggregationPolicyPeak: AnyRef = _
 
   @BeanProperty
-  var useBaseGran: Boolean = _
-
-  @BeanProperty
   var timeSeriesGranularity: Long = _
 
   @BeanProperty
@@ -27,8 +24,6 @@ class QueryOptionalParam {
 
   @BeanProperty
   var sqlQueryTimeout: Int = _
-
-  setUseBaseGran(false)
 
   setAggregateFromTS(false)
 

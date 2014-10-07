@@ -2,7 +2,7 @@ package com.guavus.acume.cache.core
 
 object AcumeCacheType extends Enumeration {
 
-  val treeCache = new AcumeCacheType("com.guavus.acume.cache.core.AcumeTreeCache", classOf[AcumeTreeCache])
+  val TreeCache = new AcumeCacheType("com.guavus.acume.cache.core.AcumeTreeCache", classOf[AcumeTreeCache])
   
   def getAcumeCacheType(name: String): AcumeCacheType = { 
     
@@ -10,7 +10,7 @@ object AcumeCacheType extends Enumeration {
       if(name equals actualName.name)
         return actualName
     }
-    treeCache
+    TreeCache
   }
   class AcumeCacheType(val name: String, val acumeCache: Class[_<:AcumeCache]) extends Val
   implicit def convertValue(v: Value): AcumeCacheType = v.asInstanceOf[AcumeCacheType]

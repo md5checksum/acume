@@ -5,21 +5,20 @@
         <xs:element name="Fields">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="Field" maxOccurs="unbounded" minOccurs="0">
-                <xs:complexType>
-                  <xs:sequence>
-                    <xs:element type="xs:string" name="Name"/>
-                    <xs:element type="xs:string" name="Type"/>
-                    <xs:element name="Function" minOccurs="0" maxOccurs="1">
+				  <xs:element name="Field" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType mixed="true">
+                   <xs:sequence>
+						   <xs:element type="xs:string" name="Info" minOccurs="0"/>
+                     <xs:element name="Function" minOccurs="0">
                       <xs:complexType>
-                        <xs:sequence>
-                          <xs:element type="xs:string" name="Class"/>
+                         <xs:sequence>
+                           <xs:element type="xs:string" name="Class"/>
                           <xs:element type="xs:string" name="DependentField"/>
-                        </xs:sequence>
-                      </xs:complexType>
+                          </xs:sequence>
+                        </xs:complexType>
                     </xs:element>
-                  </xs:sequence>
-                </xs:complexType>
+                    </xs:sequence>
+                  </xs:complexType>
               </xs:element>
             </xs:sequence>
           </xs:complexType>

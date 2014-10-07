@@ -1,20 +1,10 @@
 <Acume>
     <Fields>
         <Field>
-            <Name>
-                IngressAS
-            </Name>
-            <Type>
-                Dimension
-            </Type>
+          IngressAS:Long:Dimension
         </Field>
         <Field>
-            <Name>
-                IngressCustomerEntityId
-            </Name>
-            <Type>
-                Dimension
-            </Type>
+          IngressCustomerEntityId:Long:Dimension
         </Field>
         <Field>
             <Name>

@@ -7,7 +7,6 @@ import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import com.guavus.acume.cache.util.Utility
 import com.guavus.acume.cache.util.Utility12345
-import com.guavus.acume.cache.core.CacheLevelPolicyTrait
 
 abstract class AbstractCacheLevelPolicy(protected var baseLevel: Long) extends CacheLevelPolicyTrait {
 

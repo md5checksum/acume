@@ -6,7 +6,7 @@ import scala.collection.mutable.MutableList
 import com.guavus.acume.cache.util.Utility
 import java.util.Calendar
 
-class CacheTimeSeriesLevelPolicy(val levelMap: SortedMap[Long, Int]) extends CacheTimeSeriesPolicyTrait {
+class CacheTimeSeriesLevelPolicy(levelMap: SortedMap[Long, Int]) extends CacheTimeSeriesPolicyTrait {
 
   override def getAggregationIntervals(): HashMap[MutableList[Long], Long] = {
     val aggregationIntervals = HashMap[MutableList[Long], Long]()

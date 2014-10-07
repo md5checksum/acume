@@ -2,14 +2,14 @@ package com.guavus.acume.cache.disk.utility
 
 class BusinessCubeUtility {
 
-  def getRequiredBaseDimensions(): List[String] = { 
+  def getRequiredBaseDimensions(businessCubeName: String): List[String] = { 
     
     //returns the comma separated base dimensions required in the cube. 	
     
     null
   }
   
-  def getRequiredBaseMeasures(): List[String] = { 
+  def getRequiredBaseMeasures(businessCubeName: String): List[String] = { 
     
     //returns the comma separated base measures required in the cube.
     null

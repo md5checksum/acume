@@ -13,7 +13,7 @@ private [acume] object ConfConstants {
   val instabase = "acume.cache.baselayer.instabase"
   val cubedefinitionxml = "acume.cache.baselayer.cubedefinitionxml"
   val qltype = "acume.cache.execute.qltype"
-  
+ 
 }
 
 
