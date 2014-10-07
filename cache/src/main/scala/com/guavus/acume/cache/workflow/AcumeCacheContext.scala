@@ -24,6 +24,7 @@ import com.guavus.acume.cache.core.AcumeCacheType
 import com.guavus.acume.cache.core.TimeGranularity._
 import com.guavus.acume.cache.core.TimeGranularity
 import scala.collection.mutable.MutableList
+import com.guavus.rubix.query.data.MeasureMapper
 
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) { 
   sqlContext match{
@@ -62,13 +63,52 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
 
 object AcumeCacheContext{
   
-  var cubeName = "getCubeName"
-  val dimensionMap = new HashMap[String, Dimension]
-  val measureMap = new HashMap[String, Measure]
-  val cubeMap = HashMap[String, Cube]()
-  val cubeList = MutableList[Cube]()
-  val baseCubeMap = HashMap[String, BaseCube]()
-  val baseCubeList = MutableList[BaseCube]()
+  private [cache] var cubeName = "getCubeName"
+  private [cache] val dimensionMap = new HashMap[String, Dimension]
+  private [cache] val measureMap = new HashMap[String, Measure]
+  private [cache] val cubeMap = HashMap[String, Cube]()
+  private [cache] val cubeList = MutableList[Cube]()
+  private [cache] val baseCubeMap = HashMap[String, BaseCube]()
+  private [cache] val baseCubeList = MutableList[BaseCube]()
+  
+  private [acume] def getCubeList = cubeList
+  private [acume] def isDimension(name: String) = 
+    if(dimensionMap.contains(name)) true 
+    else if(measureMap.contains(name)) false 
+    else throw new RuntimeException("Field nither in Dimension Map nor in Measure Map.")
+  private [acume] def getFieldsForCube(name: String) = {
+      
+    val cube = cubeMap.getOrElse(name, throw new RuntimeException(s"Cube $name Not in AcumeCache knowledge."))
+    cube.dimension.dimensionSet.map(_.getName) ++ cube.measure.measureSet.map(_.getName)
+  }
+  
+  private [acume] def getDefaultAggregateFunction(stringname: String) = {
+    val measure = measureMap.getOrElse(stringname, throw new RuntimeException(s"Measure $stringname not in Acume knowledge."))
+    measure.getFunction.functionName
+  }
+  
+  private [acume] def getCubeListContainingFields(lstfieldNames: List[String]) = {
+    
+    val dimensionSet = scala.collection.mutable.Set[Dimension]()
+    val measureSet = scala.collection.mutable.Set[Measure]()
+    for(field <- lstfieldNames)
+      if(isDimension(field))
+        dimensionSet.+=(dimensionMap.get(field).get)
+      else
+        measureSet.+=(measureMap.get(field).get)
+      val kCube = 
+        for(cube <- cubeList if(dimensionSet.subsetOf(cube.dimension.dimensionSet) && measureSet.subsetOf(cube.measure.measureSet))) yield {
+          //todo how will you take care of derived measure here?
+          //todo take care of annotated measure as well here.
+          cube
+        }
+    kCube.toList
+  }
+    
+  private [workflow] def loadBaseXML(filedir: String) = {
+    
+    
+  }
   
   private [workflow] def loadXML(xml: String) = { 
     
@@ -85,7 +125,7 @@ object AcumeCacheContext{
         case FieldType.Dimension => 
           dimensionMap.put(name, new Dimension(name, datatype))
         case FieldType.Measure => 
-          measureMap.put(name, new Measure(name, datatype))
+          measureMap.put(name, new Measure(name, datatype, Function("", info(3))))
       }
     }
     

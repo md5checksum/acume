@@ -85,6 +85,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     import acumeCacheContext.sqlContext._
     var flag = false
     val diskUtility = DataLoader.getDataLoader(acumeCacheContext, conf, cube)
+    val businessCube = AcumeCacheContext.cubeMap.getOrElse(getCubeName(tableName), throw new RuntimeException("Cube " + tableName + " doesn't exist."))
     for(levelTsMapEntry <- levelTimestampMap){
       val (level, ts) = levelTsMapEntry
       val cachelevel = CacheLevel.getCacheLevel(level)
@@ -93,7 +94,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
         val _$tableName = cube.toString + levelTimestamp.toString
         val diskread = 
           if(!cachePointToTable.contains(levelTimestamp)){
-            diskUtility.loadData(getCubeName(tableName), levelTimestamp, dimensionTable)
+            diskUtility.loadData(businessCube, levelTimestamp, dimensionTable)
           } else{
             acumeCacheContext.sqlContext.sql("select * from " + cachePointToTable.get(LevelTimestamp(cachelevel, item)))
           }
