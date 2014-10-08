@@ -14,6 +14,11 @@ private [acume] object ConfConstants {
   val cubedefinitionxml = "acume.cache.baselayer.cubedefinitionxml"
   val qltype = "acume.cache.execute.qltype"
  
+  val basegranularity = "basegranularity"
+  val cubetype = "cubetype"
+  val levelpolicymap = "levelpolicymap"
+  val timeserieslevelpolicymap = "timeserieslevelpolicymap"
+  
 }
 
 

@@ -1,6 +1,6 @@
 package com.guavus.acume.cache.core
 
-import scala.collection.SortedMap
+import scala.collection.immutable.SortedMap
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
 import com.guavus.acume.cache.util.Utility

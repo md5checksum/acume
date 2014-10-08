@@ -13,7 +13,6 @@ import net.sf.jsqlparser.expression.CastExpression;
 import net.sf.jsqlparser.expression.DateValue;
 import net.sf.jsqlparser.expression.DoubleValue;
 import net.sf.jsqlparser.expression.Expression;
-import net.sf.jsqlparser.expression.ExpressionVisitor;
 import net.sf.jsqlparser.expression.ExtractExpression;
 import net.sf.jsqlparser.expression.Function;
 import net.sf.jsqlparser.expression.IntervalExpression;
@@ -46,7 +45,6 @@ import net.sf.jsqlparser.expression.operators.relational.GreaterThan;
 import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.expression.operators.relational.IsNullExpression;
-import net.sf.jsqlparser.expression.operators.relational.ItemsListVisitor;
 import net.sf.jsqlparser.expression.operators.relational.LikeExpression;
 import net.sf.jsqlparser.expression.operators.relational.Matches;
 import net.sf.jsqlparser.expression.operators.relational.MinorThan;
@@ -55,20 +53,17 @@ import net.sf.jsqlparser.expression.operators.relational.MultiExpressionList;
 import net.sf.jsqlparser.expression.operators.relational.NotEqualsTo;
 import net.sf.jsqlparser.schema.Column;
 import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.FromItemVisitor;
-import net.sf.jsqlparser.statement.select.Join;
 import net.sf.jsqlparser.statement.select.LateralSubSelect;
 import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SelectVisitor;
 import net.sf.jsqlparser.statement.select.SetOperationList;
 import net.sf.jsqlparser.statement.select.SubJoin;
 import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.ValuesList;
 import net.sf.jsqlparser.statement.select.WithItem;
 
-
-public class SQLTableGetter implements SelectVisitor, FromItemVisitor, ExpressionVisitor, ItemsListVisitor {
+public class SQLTableGetter extends AbstractVisitor { 
+	
 	private List tables;
 
 	public List getTableList(Select select) {
@@ -88,16 +83,21 @@ public class SQLTableGetter implements SelectVisitor, FromItemVisitor, Expressio
 	}
 
 	public void visit(PlainSelect plainSelect) {
-		plainSelect.getFromItem().accept(this);
+//		plainSelect.getFromItem().accept(this);
+//		
+//		if (plainSelect.getJoins() != null) {
+//			for (Iterator joinsIt = plainSelect.getJoins().iterator(); joinsIt.hasNext();) {
+//				Join join = (Join) joinsIt.next();
+//				join.getRightItem().accept(this);
+//			}
+//		}
+//		
+//		FromItem fromItem = plainSelect.getFromItem();
 		
-		if (plainSelect.getJoins() != null) {
-			for (Iterator joinsIt = plainSelect.getJoins().iterator(); joinsIt.hasNext();) {
-				Join join = (Join) joinsIt.next();
-				join.getRightItem().accept(this);
-			}
-		}
-		if (plainSelect.getWhere() != null)
-			plainSelect.getWhere().accept(this);
+		Expression where = plainSelect.getWhere();
+		where.accept(new QueryWhereClauseVisitor());
+//		if (plainSelect.getWhere() != null)
+//			plainSelect.getWhere().accept(this);
 
 	}
 

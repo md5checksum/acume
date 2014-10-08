@@ -2,6 +2,7 @@ package com.guavus.acume.cache.core
 
 import scala.reflect.runtime.universe.TypeTag
 import scala.reflect.runtime.universe
+import scala.collection.immutable.SortedMap
 import scala.collection.mutable.Map
 import com.guavus.acume.cache.core.AcumeCacheType._
 import com.guavus.acume.cache.core.TimeGranularity._
@@ -22,7 +23,8 @@ object AcumeCacheFactory {
       val cacheLevelPolicy = new FixedLevelPolicy(levels, cube.baseGran.getGranularity)
       //todo check which cache to use based on the cube configuration and use reflection to create cache object.
       //todo fill below cahcetimelevelmap from cube.
-      val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(null)
+      //todo check if there is a better way for `SortedMap` creation belw.
+      val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]() ++ cube.cacheTimeseriesLevelPolicyMap)
       val _$instance = new AcumeTreeCache(acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy)
       caches.put(cacheIdentifier, _$instance)
       _$instance

@@ -41,7 +41,6 @@ class ORCDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, 
     val timestamp = levelTimestamp.timestamp
     val baseCube = CubeUtil.getCubeMap(AcumeCacheContext.cubeList.toList).getOrElse(businessCube, throw new RuntimeException("Value not found."))
     val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube + "/f/" + timestamp
-    //todo orc/parquet support
     val sparkContext = acumeCacheContext.sqlContext.sparkContext
     val rowRDD = sparkContext.newAPIHadoopFile[NullWritable, OrcStruct, OrcNewInputFormat](baseDir).map(getRow)
     val schema = StructType(
@@ -78,7 +77,6 @@ class ORCDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, 
       val baseCube = CubeUtil.getCubeMap(AcumeCacheContext.cubeList.toList).getOrElse(businessCube, throw new RuntimeException("Value not found."))
       val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube + "/d/" + timestamp
 
-      //todo only orc supported, check for parquet too.
       val rowRDD = sparkContext.newAPIHadoopFile[NullWritable, OrcStruct, OrcNewInputFormat](baseDir).map(getRow)
       val schema = StructType(
           CubeUtil.getDimensionSet(baseCube).toArray.map(field => { 

@@ -25,6 +25,7 @@ import com.guavus.acume.cache.core.TimeGranularity._
 import com.guavus.acume.cache.core.TimeGranularity
 import scala.collection.mutable.MutableList
 import com.guavus.rubix.query.data.MeasureMapper
+import com.guavus.acume.cache.util.Utility12345
 
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) { 
   sqlContext match{
@@ -34,6 +35,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
   }
  
 //  AcumeCacheContext.loadXML
+  AcumeCacheContext.loadVRMap(conf)
   
   def acql(sql: String, qltype: String) = { 
     
@@ -66,6 +68,7 @@ object AcumeCacheContext{
   private [cache] var cubeName = "getCubeName"
   private [cache] val dimensionMap = new HashMap[String, Dimension]
   private [cache] val measureMap = new HashMap[String, Measure]
+  private [cache] val vrmap = HashMap[Long, Int]()
   private [cache] val cubeMap = HashMap[String, Cube]()
   private [cache] val cubeList = MutableList[Cube]()
   private [cache] val baseCubeMap = HashMap[String, BaseCube]()
@@ -104,6 +107,11 @@ object AcumeCacheContext{
         }
     kCube.toList
   }
+  
+  private [cache] def loadVRMap(conf: AcumeCacheConf) = {
+    val vrmapstring = conf.get(ConfConstants.variableretentionmap)
+    vrmap.++=(Utility12345.getLevelPointMap(vrmapstring))
+  }
     
   private [workflow] def loadBaseXML(filedir: String) = {
     
@@ -128,6 +136,13 @@ object AcumeCacheContext{
           measureMap.put(name, new Measure(name, datatype, Function("", info(3))))
       }
     }
+    
+    val defaultPropertyTuple = acumeCube.getDefault.split(",").map(_.trim).map(kX => {
+          val xtoken = kX.split(":")
+          (xtoken(0).trim, xtoken(1).trim)
+        })
+        
+    val defaultPropertyMap = defaultPropertyTuple.toMap
     
     val list = 
       for(c <- acumeCube.getCubes().getCube().toList) yield {
@@ -159,14 +174,26 @@ object AcumeCacheContext{
         }
         
         val _$cubeProperties = c.getProperties()
-        val propertyMap = _$cubeProperties.split(",").map(x => (x(0),x(1))).toMap
-        //get properties like BaseGranularity etc from this map of cube properties.
-        //todo compute levelpolicymap and timeserieslevelpolicymap from cube configuration.
-        val cube = Cube(cubeName, DimensionSet(dimensionSet.toSet), MeasureSet(measureSet.toSet), TimeGranularity.HOUR, true, null, null)
+        val _$propertyMap = _$cubeProperties.split(",").map(x => {
+          val xtoken = x.split(":")
+          (xtoken(0).trim, xtoken(1).trim)
+        })
+        val propertyMap = _$propertyMap.toMap
+        
+        val levelpolicymap = Utility12345.getLevelPointMap(getProperty(propertyMap, defaultPropertyMap, ConfConstants.levelpolicymap, cubeName))
+        val timeserieslevelpolicymap = Utility12345.getLevelPointMap(getProperty(propertyMap, defaultPropertyMap, ConfConstants.timeserieslevelpolicymap, cubeName))
+        val Gnx = getProperty(propertyMap, defaultPropertyMap, ConfConstants.basegranularity, cubeName)
+        val granularity = TimeGranularity.getTimeGranularityByName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
+        val cube = Cube(cubeName, DimensionSet(dimensionSet.toSet), MeasureSet(measureSet.toSet), granularity, true, levelpolicymap, timeserieslevelpolicymap)
         cubeMap.put(cubeName, cube)
         cube
       }
     cubeList.++=(list)
+  }
+  
+  private def getProperty(propertyMap: Map[String, String], defaultPropertyMap: Map[String, String], name: String, nmCube: String) = {
+    
+    propertyMap.getOrElse(name, defaultPropertyMap.getOrElse(name, throw new RuntimeException(s"The configurtion $name should be done for cube $nmCube")))
   }
   
   private [workflow] def parseSql(sql: String) = { 

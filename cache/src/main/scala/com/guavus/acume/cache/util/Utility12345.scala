@@ -83,21 +83,23 @@ object Utility12345 extends Logging {
     evictionDetailsMap
   }
   
-  def getLevelPointMap(mapString: String) : java.util.SortedMap[Long, Int] = {
-    val result = new java.util.TreeMap[Long, Int]()
+  
+  def getLevelPointMap(mapString: String): Map[Long, Int] = {
+    val result = MutableMap[Long, Int]()
     val tok = new StringTokenizer(mapString, ";")
     while (tok.hasMoreTokens()) {
       val currentMapElement = tok.nextToken()
-      val gran: String = currentMapElement.substring(0, currentMapElement.indexOf(':'))
-      val points: Int = Integer.parseInt(currentMapElement.substring(currentMapElement.indexOf(':') + 1))
+      val token = currentMapElement.split(":")
+      val gran: String = token(0)
+      val nmx = token(1).toInt
       val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(gran) match{
         case None => throw new IllegalArgumentException("Unsupported Granularity  " + gran)
         case Some(value) => value
       }
       val level = granularity.getGranularity
-      result.put(level, points)
+      result.put(level, nmx)
     }
-    result
+    result.toMap
   }
   
   def getAllIntervals(startTime: Long, endTime: Long, gran: Long): MutableList[Long] = {

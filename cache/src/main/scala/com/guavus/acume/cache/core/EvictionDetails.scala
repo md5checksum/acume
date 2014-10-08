@@ -1,18 +1,16 @@
 package com.guavus.acume.cache.core
 
-import java.util.TreeMap
-
-class EvictionDetails(var evictionPolicyName: String, var variableRetentionMap: java.util.SortedMap[Long, Int]) {
+class EvictionDetails(var evictionPolicyName: String, var variableRetentionMap: Map[Long, Int]) {
 
   private var memoryEvictionThresholdCount: Int = Int.MinValue
   def this(){
-    this("", new TreeMap[Long, Int]())
+    this("", Map[Long, Int]())
   }
   def this(evictionDetails: EvictionDetails){
     this(evictionDetails.evictionPolicyName, evictionDetails.variableRetentionMap)
   }
   
-  def setVariableRetentionMap(variableRetentionMap: java.util.SortedMap[Long, Int]) {
+  def setVariableRetentionMap(variableRetentionMap: Map[Long, Int]) {
     this.variableRetentionMap = variableRetentionMap;
   }
   
