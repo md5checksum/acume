@@ -1,22 +1,17 @@
 package com.guavus.acume.core.servlet
-
-import java.io.IOException
 import java.io.OutputStream
 import java.lang.annotation.Annotation
 import java.lang.reflect.Type
-
-import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.MultivaluedMap
 import javax.ws.rs.ext.MessageBodyWriter
 import javax.ws.rs.ext.Provider
-
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.guavus.rubix.search.SearchCriterion
 import com.sun.jersey.spi.resource.Singleton
-
 import MessageBodyWriterJSON._
+import com.guavus.rubix.search.SearchCriterion
 
 object MessageBodyWriterJSON {
 
@@ -25,9 +20,6 @@ object MessageBodyWriterJSON {
 
 @Provider
 @Singleton
-/**
- * This class converts object to json for rest Apis
- */
 class MessageBodyWriterJSON extends MessageBodyWriter[Any] {
 
   def getSize(t: AnyRef, `type`: Class[_], genericType: Type, annotations: Array[Annotation], mediaType: MediaType): Long = {
@@ -38,7 +30,7 @@ class MessageBodyWriterJSON extends MessageBodyWriter[Any] {
     mediaType.isCompatible(MediaType.APPLICATION_JSON_TYPE)
   }
 
-  override def writeTo(t: AnyRef, `type`: Class[_], genericType: Type, annotations: Array[Annotation], mediaType: MediaType, httpHeaders: MultivaluedMap[String, Any], entityStream: OutputStream) {
+  override def writeTo(t: AnyRef, `type`: Class[_], genericType: Type, annotations: Array[Annotation], mediaType: MediaType, httpHeaders: MultivaluedMap[String, AnyRef], entityStream: OutputStream) {
     entityStream.write(gson.toJson(t).toString.getBytes)
   }
 

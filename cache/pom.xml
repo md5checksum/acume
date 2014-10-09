@@ -30,7 +30,7 @@
 		<dependency>
 			<groupId>com.guavus.rubix</groupId>
 			<artifactId>rubix</artifactId>
-			<version>4.8</version>
+			<version>4.6</version>
 			<exclusions>
 				<exclusion>
 					<groupId>edu.berkeley.cs.shark</groupId>

@@ -15,6 +15,11 @@ import scala.reflect.{BeanProperty, BooleanBeanProperty}
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
 
+/**
+ * @author pankaj.arora
+ * Timeseries result set represent one row of acume timeseries result. it measures double array for representing each measures each timestamp's value.
+ * This table is dense table and timestamps are present in TimeseriesResponse
+ */
 object TimeseriesResultSet {
 
   object JsonAdaptor {
@@ -28,7 +33,7 @@ object TimeseriesResultSet {
   class JsonAdaptor extends JsonDeserializer[TimeseriesResultSet] {
 
     override def deserialize(jsonElement: JsonElement, typeOfT: Type, context: JsonDeserializationContext): TimeseriesResultSet = {
-      val record = new ArrayBuffer[String]()
+      val record = new ArrayBuffer[Any]()
       val json = jsonElement.asInstanceOf[JsonObject]
       val measures = JsonAdaptor.gson.fromJson(json.get("measures"), JsonAdaptor.listOfDouble)
       val jsonArray = json.get("record").getAsJsonArray
@@ -40,7 +45,7 @@ object TimeseriesResultSet {
   }
 }
 
-class TimeseriesResultSet(@BeanProperty var record: ArrayBuffer[String], @BeanProperty var measures: ArrayBuffer[ArrayBuffer[Any]]) extends Serializable() {
+class TimeseriesResultSet(@BeanProperty var record: ArrayBuffer[Any], @BeanProperty var measures: ArrayBuffer[ArrayBuffer[Any]]) extends Serializable() {
 
   override def toString(): String = {
     val builder = new StringBuilder()

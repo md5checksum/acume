@@ -9,9 +9,9 @@
    <name>Acume Project Parent POM</name>
 
 	<modules>
-		<module>cache</module>
-<!--		<module>core</module>
-		<module>war</module>    --> 
+		<!--module>cache</module>
+		<module>core</module>
+		<module>war</module--> 
 	</modules>
 </project>
 

@@ -26,6 +26,7 @@ import com.guavus.acume.cache.core.TimeGranularity
 import scala.collection.mutable.MutableList
 import com.guavus.rubix.query.data.MeasureMapper
 import com.guavus.acume.cache.util.Utility12345
+import org.apache.spark.sql.SchemaRDD
 
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) { 
   sqlContext match{
@@ -37,7 +38,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
   AcumeCacheContext.loadXML(conf.get(ConfConstants.businesscubexml))
   AcumeCacheContext.loadVRMap(conf)
   
-  def acql(sql: String, qltype: String) = { 
+  def acql(sql: String, qltype: String) : SchemaRDD = { 
     
     val ql = QLType.getQLType(qltype)
     if(!AcumeCacheContext.checkQLValidation(sqlContext, ql))
@@ -49,9 +50,10 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
     val tblCbeMap = tableList.map(string => (string, string.substring(0, string.indexOf("_")+1))).toMap
 //    val systemloader = AcumeCacheFactory.getAcumeCache(name, conf.get(ConfConstants.whichcachetouse))
     val cacheLoader = AcumeCacheFactory.getInstance(this, conf, cacheIdentifier, cube)
+    null
   }
   
-  def acql(sql: String) = { 
+  def acql(sql: String) : SchemaRDD = { 
     
     val ql = AcumeCacheContext.getQLType(conf)
     if(!AcumeCacheContext.checkQLValidation(sqlContext, ql))
@@ -61,6 +63,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
     val (startTime, endTime) = parsedSQL._2
     val tblCbeMap = tableList.map(string => (string, string.substring(0, string.indexOf("_")+1))).toMap
 //    val systemloader = AcumeCacheFactory.getAcumeCache(name, conf.get(ConfConstants.whichcachetouse))
+    null
   }
 }
 

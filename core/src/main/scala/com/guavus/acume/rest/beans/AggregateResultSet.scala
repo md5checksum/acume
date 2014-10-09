@@ -3,8 +3,6 @@ package com.guavus.acume.rest.beans
 import java.io.Serializable
 import java.lang.reflect.Type
 import java.text.DecimalFormat
-import java.util.ArrayList
-import java.util.List
 import javax.xml.bind.annotation.XmlElement
 import com.google.gson.Gson
 import com.google.gson.JsonArray
@@ -16,9 +14,12 @@ import com.google.gson.JsonParseException
 import com.google.gson.reflect.TypeToken
 import AggregateResultSet._
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
-//remove if not needed
 import scala.collection.JavaConversions._
+import scala.collection.mutable.ArrayBuffer
 
+/**
+ * Aggregate result set represent one row of acume aggregate result. 
+ */
 object AggregateResultSet {
 
   object JsonAdaptor {
@@ -33,7 +34,7 @@ object AggregateResultSet {
   }.getType
   
     override def deserialize(jsonElement: JsonElement, typeOfT: Type, context: JsonDeserializationContext): AggregateResultSet = {
-      val record = new ArrayList[Any]()
+      val record = new ArrayBuffer[Any]()
       val json = jsonElement.asInstanceOf[JsonObject]
       val measures = JsonAdaptor.gson.fromJson(json.get("measures"), listOfDouble)
       val jsonArray = json.get("record").getAsJsonArray
@@ -49,12 +50,12 @@ object AggregateResultSet {
 class AggregateResultSet extends Serializable {
 
   @BeanProperty
-  var record: List[Any] = _
+  var record: ArrayBuffer[Any] = _
 
   @BeanProperty
-  var measures: List[Any] = _
+  var measures: ArrayBuffer[Any] = _
 
-  def this(record: List[Any], measures: List[Any]) {
+  def this(record: ArrayBuffer[Any], measures: ArrayBuffer[Any]) {
     this()
     this.record = record
     this.measures = measures
@@ -62,7 +63,7 @@ class AggregateResultSet extends Serializable {
 
   override def toString(): String = {
     val format = new DecimalFormat("#.000000")
-    val duplicateMeasureList = new ArrayList[String]()
+    val duplicateMeasureList = new ArrayBuffer[String]()
     for (i <- 0 until measures.size) {
       duplicateMeasureList.add(format.format(measures.get(i)))
     }

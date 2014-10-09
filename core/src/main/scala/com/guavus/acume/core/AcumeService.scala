@@ -1,6 +1,7 @@
 package com.guavus.acume.core
 
 import com.guavus.acume.rest.beans.QueryRequest
+import com.guavus.acume.core.AcumeService._
 import com.guavus.acume.rest.beans.AggregateResponse
 import com.guavus.acume.rest.beans.TimeseriesResponse
 
@@ -20,10 +21,18 @@ class AcumeService {
    * Serves only aggregate request. if request type is timeseries this method fails.
    */
   def  servAggregateQuery(queryRequest : QueryRequest) : AggregateResponse = {
-    null
+    dataService.servAggregate(queryRequest)
   }
   
   def servTimeseriesQuery(queryRequest : QueryRequest) : TimeseriesResponse = {
     null
   }
+}
+
+
+object AcumeService {
+  
+  val acumeService = new AcumeService()
+  
+  val dataService = new DataService()
 }
