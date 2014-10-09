@@ -9,14 +9,15 @@ import net.sf.jsqlparser.schema.Column;
 
 public class QueryWhereClauseVisitor extends AbstractVisitor {
     
-	Pair<Long,Long> pair = new Pair<Long,Long>(0L, 0L);
+	Pair<Long,Long> pair = null;
 	boolean istimestamp = false;
 	
 	public Pair<Long,Long> getPair(){
 		return pair;
 	}
 	
-	public QueryWhereClauseVisitor() {
+	public QueryWhereClauseVisitor(Pair<Long,Long> pair) {
+		this.pair = pair;
 	}
 	
 	public void visit(AndExpression andExpression) {
