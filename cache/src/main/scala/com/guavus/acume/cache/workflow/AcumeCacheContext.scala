@@ -34,7 +34,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
   case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
  
-//  AcumeCacheContext.loadXML
+  AcumeCacheContext.loadXML(conf.get(ConfConstants.businesscubexml))
   AcumeCacheContext.loadVRMap(conf)
   
   def acql(sql: String, qltype: String) = { 
@@ -48,6 +48,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
     val (startTime, endTime) = parsedSQL._2
     val tblCbeMap = tableList.map(string => (string, string.substring(0, string.indexOf("_")+1))).toMap
 //    val systemloader = AcumeCacheFactory.getAcumeCache(name, conf.get(ConfConstants.whichcachetouse))
+    val cacheLoader = AcumeCacheFactory.getInstance(this, conf, cacheIdentifier, cube)
   }
   
   def acql(sql: String) = { 
@@ -65,12 +66,12 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
 
 object AcumeCacheContext{
   
-  private [cache] var cubeName = "getCubeName"
   private [cache] val dimensionMap = new HashMap[String, Dimension]
   private [cache] val measureMap = new HashMap[String, Measure]
   private [cache] val vrmap = HashMap[Long, Int]()
   private [cache] val cubeMap = HashMap[String, Cube]()
   private [cache] val cubeList = MutableList[Cube]()
+  //todo how will this be done
   private [cache] val baseCubeMap = HashMap[String, BaseCube]()
   private [cache] val baseCubeList = MutableList[BaseCube]()
   
@@ -101,8 +102,6 @@ object AcumeCacheContext{
         measureSet.+=(measureMap.get(field).get)
       val kCube = 
         for(cube <- cubeList if(dimensionSet.subsetOf(cube.dimension.dimensionSet) && measureSet.subsetOf(cube.measure.measureSet))) yield {
-          //todo how will you take care of derived measure here?
-          //todo take care of annotated measure as well here.
           cube
         }
     kCube.toList
@@ -160,6 +159,7 @@ object AcumeCacheContext{
           if(!functionName.isEmpty()){
             measureMap.get(fieldName) match{
             case None => throw new RuntimeException("Aggregation functions are not supported on Dimension.")
+            case _ => 		
             }  
           }
           dimensionMap.get(fieldName) match{

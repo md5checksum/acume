@@ -16,7 +16,7 @@ abstract class DataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCache
 object DataLoader{
   def getDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) = {
     
-    val dataLoaderClass = StorageType.getStorageType(conf.get(ConfConstants.storagetype)).Clx
+    val dataLoaderClass = StorageType.getStorageType(conf.get(ConfConstants.storagetype)).dataClass
     val loadedClass = Class.forName(dataLoaderClass)
     val newInstance = loadedClass.getConstructor(classOf[AcumeCacheContext], classOf[AcumeCacheConf], classOf[Cube]).newInstance(acumeCacheContext, conf, cube)
     newInstance.asInstanceOf[DataLoader]
