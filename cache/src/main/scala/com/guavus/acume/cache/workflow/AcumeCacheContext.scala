@@ -8,7 +8,7 @@ import java.lang.UnsupportedOperationException
 import com.guavus.acume.cache.common.QLType
 import com.guavus.acume.cache.common.QLType._
 import com.guavus.acume.cache.utility.SQLParserFactory
-import com.guavus.acume.cache.utility.SQLTableGetter
+//import com.guavus.acume.cache.utility.SQLTableGetter
 import com.guavus.acume.cache.core.AcumeCacheFactory
 import java.io.StringReader
 import net.sf.jsqlparser.statement.select.Select
@@ -201,10 +201,10 @@ object AcumeCacheContext{
   
   private [workflow] def parseSql(sql: String) = { 
     
-    val sqlTableGetter = new SQLTableGetter
+//    val del_SQLTableGetter = new SQLTableGetter
     val pm = SQLParserFactory.getParserManager();
     val statement = pm.parse(new StringReader(sql));
-    val list = sqlTableGetter.getTableList(statement.asInstanceOf[Select]).toList.asInstanceOf[List[String]]
+    val list = List("1","2","3")//sqlTableGetter.getTableList(statement.asInstanceOf[Select]).toList.asInstanceOf[List[String]]
     val startTime = 0l // getStartTime
     val endTime = 0l // getEndTime
     (list, (startTime, endTime))
