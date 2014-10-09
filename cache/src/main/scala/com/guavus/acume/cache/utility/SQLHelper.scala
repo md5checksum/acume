@@ -9,10 +9,10 @@ object SQLHelper {
 
   def getTables(sqlQuery: String) = { 
     
-    val sqlTableGetter = new SQLTableGetter();
+    val QuerySelectClauseVisitor = new QuerySelectClauseVisitor();
     val pm: CCJSqlParserManager = SQLParserFactory.getParserManager();
     val statement: Statement = pm.parse(new StringReader(sqlQuery));
-    val list = sqlTableGetter.getTableList(statement.asInstanceOf[Select])
+    val list = Nil//sqlTableGetter.getTableList(statement.asInstanceOf[Select])
     list
   }
 }
