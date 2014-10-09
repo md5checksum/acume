@@ -1,59 +1,35 @@
 package com.guavus.acume.cache.utility;
 
-import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
-import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
-import net.sf.jsqlparser.expression.operators.relational.MinorThan;
-import net.sf.jsqlparser.schema.Column;
+import java.util.LinkedList;
+import java.util.List;
 
-public class QueryFromClauseVisitor {
+import net.sf.jsqlparser.schema.Table;
+import net.sf.jsqlparser.statement.select.PlainSelect;
+import net.sf.jsqlparser.statement.select.SubJoin;
+import net.sf.jsqlparser.statement.select.SubSelect;
 
-	Pair<Long,Long> pair = new Pair<Long,Long>(0L, 0L);
+public class QueryFromClauseVisitor extends AbstractVisitor {
+
+	List<String> list = new LinkedList<String>();
 	boolean istimestamp = false;
-
-	public Pair<Long,Long> getPair(){
-		return pair;
-	}
-
+	
+	//majorly dependent on the implementation of QueryBuilder style.
+	//todo implement other methods in next build.
 	public QueryFromClauseVisitor() {
 	}
 
-	public void visit(AndExpression andExpression) {
-		andExpression.getRightExpression().accept(this);
-		andExpression.getLeftExpression().accept(this);
+	public void visit(Table tableName){
+		list.add(tableName.getName());
 	}
 
-	public void visit(OrExpression orExpression) {
-		orExpression.getRightExpression().accept(this);
-		orExpression.getLeftExpression().accept(this);
+	public void visit(SubSelect subSelect){
+		Pair<Long,Long> pair = new Pair<Long, Long>(0l, 0l);
+		PlainSelect plainSelect = (PlainSelect)subSelect.getSelectBody();
+		plainSelect.getFromItem().accept(this);
+		plainSelect.getWhere().accept(new QueryWhereClauseVisitor(pair));
 	}
 
-	public void visit(EqualsTo equalsTo) {
-		equalsTo.getLeftExpression().accept(this);
+	public void visit(SubJoin subjoin){
+		subjoin.se
 	}
-
-	public void visit(MinorThan lessThan) {
-		lessThan.getLeftExpression().accept(this);
-		if(istimestamp)
-		{
-			pair.setV(Long.parseLong(lessThan.getRightExpression().toString()));
-			istimestamp = false;
-		}
-	}
-
-	public void visit(GreaterThanEquals greaterThanEquals) {
-		greaterThanEquals.getLeftExpression().accept(this);
-		if(istimestamp)
-		{
-			pair.setU(Long.parseLong(greaterThanEquals.getRightExpression().toString()));
-			istimestamp = false;
-		}
-	}
-
-	public void visit(Column tableColumn) {
-		if(tableColumn.getColumnName().equalsIgnoreCase("ts"))
-			istimestamp = true;
-	}
-
 }
