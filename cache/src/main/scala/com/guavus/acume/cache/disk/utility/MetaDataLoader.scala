@@ -7,18 +7,18 @@ import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.AcumeCacheConf
 
-abstract class DataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) {
+abstract class MetaDataLoader {
 
-  def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: String): SchemaRDD
-  def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: String, instabase: String, instainstanceid: String): SchemaRDD
+  def loadMetaData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: String): SchemaRDD
+//  def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: String, instabase: String, instainstanceid: String): SchemaRDD
 }
 
-object DataLoader{
+object MetaDataLoader {
   def getDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) = {
     
-    val dataLoaderClass = StorageType.getStorageType(conf.get(ConfConstants.storagetype)).dataClass
+    val dataLoaderClass = StorageType.getStorageType(conf.get(ConfConstants.storagetype)).metaDataClass
     val loadedClass = Class.forName(dataLoaderClass)
     val newInstance = loadedClass.getConstructor(classOf[AcumeCacheContext], classOf[AcumeCacheConf], classOf[Cube]).newInstance(acumeCacheContext, conf, cube)
-    newInstance.asInstanceOf[DataLoader]
+    newInstance.asInstanceOf[MetaDataLoader]
   }
 }

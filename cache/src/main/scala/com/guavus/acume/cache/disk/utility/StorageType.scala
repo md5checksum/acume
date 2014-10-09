@@ -2,8 +2,12 @@ package com.guavus.acume.cache.disk.utility
 
 object StorageType extends Enumeration {
 
-  val Orc = new StorageType("orc", "com.guavus.acume.cache.disk.utility.ORCDataLoader")
-//  val Parquet = new StorageType("parquet")
+  val Text = new StorageType("text", "com.guavus.acume.cache.disk.utility.TextDataLoader", "com.guavus.acume.cache.disk.utility.DummyMetaDataLoader")
+  
+  val Parquet = new StorageType("parquet", "com.guavus.acume.cache.disk.utility.ParquetDataLoader", "com.guavus.acume.cache.disk.utility.DummyMetaDataLoader")
+  
+  val Orc = new StorageType("orc", "com.guavus.acume.cache.disk.utility.ORCDataLoader", "com.guavus.acume.cache.disk.utility.DummyMetaDataLoader")
+  
   
   def getStorageType(name: String): StorageType = { 
     
@@ -14,7 +18,7 @@ object StorageType extends Enumeration {
     Orc
   }
   
-  class StorageType(val strid: String, val Clx: String) extends Val
+  class StorageType(val strid: String, val dataClass: String, val metaDataClass: String) extends Val
 
   implicit def convertValue(v: Value): StorageType = v.asInstanceOf[StorageType]
 }

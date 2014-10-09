@@ -28,6 +28,9 @@
     Annotation function in Field, 
     aggregation function in Cube.
     -->
+    <Default>
+        levelpolicymap: 5h:53;5d:78, timeserieslevelpolicymap: 5h:53;5d:78 
+    </Default>
     <Cubes>
         <Cube>
             <Name>
@@ -37,7 +40,7 @@
                 IngressAS, Measure:sum
             </Fields>
             <Properties>
-                basegranularity:hour, cubetype:normal, variableretentionmap: "1h:53;1d:78"
+                basegranularity:1h, cubetype:normal, levelpolicymap:5h:53;5d:78, timeserieslevelpolicymap:5h:53;5y:78
             </Properties>
         </Cube>
         <Cube>
@@ -48,7 +51,7 @@
                 KIngressAS, DMeasure:sum
             </Fields>
             <Properties>
-                basegranularity:hour, cubetype:normal
+                basegranularity:1h, cubetype:normal
             </Properties>
         </Cube>
     </Cubes>

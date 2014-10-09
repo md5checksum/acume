@@ -56,21 +56,14 @@ object CubeUtil {
       }
     }
     cube.toMap
-  }
-  
-  def getORCList(businessCubeList: List[Cube]): List[String] = { 
-    
-    //returns the list of orc's to be read.  
-    //TBD
-    null
-  }
+  } 	
   
   def getStringMeasureOrFunction(cube: CubeTrait): String = { 
     
     //returns the comma separated business measures required in the cube.
     //eg, sum(M1), avg(M2) ... or some other aggregator etc etc.
     val fieldMap = AcumeCacheContext.measureMap
-    val keyItr = for(key <- fieldMap.keys) yield s"${fieldMap(key).getFunction.functionName}($key) as $key"
-    keyItr.mkString(",")
+    val keyset = for(key <- fieldMap.keySet) yield s"${fieldMap(key).getFunction.functionName}($key) as $key"
+    keyset.toSet.+("timestamp").mkString(",")
   }
 }

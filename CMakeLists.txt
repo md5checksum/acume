@@ -1,7 +1,7 @@
 #INCLUDE(${CMAKE_SOURCE_DIR}/version.cmake)
 #
-#add_subdirectory(Acume)
-#add_subdirectory(Acume-war)
+#add_subdirectory(cache)
+#add_subdirectory(core)
 #
 #execute_process(COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/opt/tms/acume/lib))
 #execute_process(COMMAND mkdir -p ${CMAKE_INSTALL_PREFIX}/opt/tms/acume/classes))

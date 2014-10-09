@@ -25,6 +25,7 @@ import com.guavus.acume.cache.core.TimeGranularity._
 import com.guavus.acume.cache.core.TimeGranularity
 import scala.collection.mutable.MutableList
 import com.guavus.rubix.query.data.MeasureMapper
+import com.guavus.acume.cache.util.Utility12345
 
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) { 
   sqlContext match{
@@ -33,7 +34,8 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
   case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
  
-//  AcumeCacheContext.loadXML
+  AcumeCacheContext.loadXML(conf.get(ConfConstants.businesscubexml))
+  AcumeCacheContext.loadVRMap(conf)
   
   def acql(sql: String, qltype: String) = { 
     
@@ -46,6 +48,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
     val (startTime, endTime) = parsedSQL._2
     val tblCbeMap = tableList.map(string => (string, string.substring(0, string.indexOf("_")+1))).toMap
 //    val systemloader = AcumeCacheFactory.getAcumeCache(name, conf.get(ConfConstants.whichcachetouse))
+    val cacheLoader = AcumeCacheFactory.getInstance(this, conf, cacheIdentifier, cube)
   }
   
   def acql(sql: String) = { 
@@ -63,11 +66,12 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
 
 object AcumeCacheContext{
   
-  private [cache] var cubeName = "getCubeName"
   private [cache] val dimensionMap = new HashMap[String, Dimension]
   private [cache] val measureMap = new HashMap[String, Measure]
+  private [cache] val vrmap = HashMap[Long, Int]()
   private [cache] val cubeMap = HashMap[String, Cube]()
   private [cache] val cubeList = MutableList[Cube]()
+  //todo how will this be done
   private [cache] val baseCubeMap = HashMap[String, BaseCube]()
   private [cache] val baseCubeList = MutableList[BaseCube]()
   
@@ -98,11 +102,14 @@ object AcumeCacheContext{
         measureSet.+=(measureMap.get(field).get)
       val kCube = 
         for(cube <- cubeList if(dimensionSet.subsetOf(cube.dimension.dimensionSet) && measureSet.subsetOf(cube.measure.measureSet))) yield {
-          //todo how will you take care of derived measure here?
-          //todo take care of annotated measure as well here.
           cube
         }
     kCube.toList
+  }
+  
+  private [cache] def loadVRMap(conf: AcumeCacheConf) = {
+    val vrmapstring = conf.get(ConfConstants.variableretentionmap)
+    vrmap.++=(Utility12345.getLevelPointMap(vrmapstring))
   }
     
   private [workflow] def loadBaseXML(filedir: String) = {
@@ -129,6 +136,13 @@ object AcumeCacheContext{
       }
     }
     
+    val defaultPropertyTuple = acumeCube.getDefault.split(",").map(_.trim).map(kX => {
+          val xtoken = kX.split(":")
+          (xtoken(0).trim, xtoken(1).trim)
+        })
+        
+    val defaultPropertyMap = defaultPropertyTuple.toMap
+    
     val list = 
       for(c <- acumeCube.getCubes().getCube().toList) yield {
         val cubeName = c.getName()
@@ -145,6 +159,7 @@ object AcumeCacheContext{
           if(!functionName.isEmpty()){
             measureMap.get(fieldName) match{
             case None => throw new RuntimeException("Aggregation functions are not supported on Dimension.")
+            case _ => 		
             }  
           }
           dimensionMap.get(fieldName) match{
@@ -159,14 +174,26 @@ object AcumeCacheContext{
         }
         
         val _$cubeProperties = c.getProperties()
-        val propertyMap = _$cubeProperties.split(",").map(x => (x(0),x(1))).toMap
-        //get properties like BaseGranularity etc from this map of cube properties.
-        //todo compute levelpolicymap and timeserieslevelpolicymap from cube configuration.
-        val cube = Cube(cubeName, DimensionSet(dimensionSet.toSet), MeasureSet(measureSet.toSet), TimeGranularity.HOUR, true, null, null)
+        val _$propertyMap = _$cubeProperties.split(",").map(x => {
+          val xtoken = x.split(":")
+          (xtoken(0).trim, xtoken(1).trim)
+        })
+        val propertyMap = _$propertyMap.toMap
+        
+        val levelpolicymap = Utility12345.getLevelPointMap(getProperty(propertyMap, defaultPropertyMap, ConfConstants.levelpolicymap, cubeName))
+        val timeserieslevelpolicymap = Utility12345.getLevelPointMap(getProperty(propertyMap, defaultPropertyMap, ConfConstants.timeserieslevelpolicymap, cubeName))
+        val Gnx = getProperty(propertyMap, defaultPropertyMap, ConfConstants.basegranularity, cubeName)
+        val granularity = TimeGranularity.getTimeGranularityByName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
+        val cube = Cube(cubeName, DimensionSet(dimensionSet.toSet), MeasureSet(measureSet.toSet), granularity, true, levelpolicymap, timeserieslevelpolicymap)
         cubeMap.put(cubeName, cube)
         cube
       }
     cubeList.++=(list)
+  }
+  
+  private def getProperty(propertyMap: Map[String, String], defaultPropertyMap: Map[String, String], name: String, nmCube: String) = {
+    
+    propertyMap.getOrElse(name, defaultPropertyMap.getOrElse(name, throw new RuntimeException(s"The configurtion $name should be done for cube $nmCube")))
   }
   
   private [workflow] def parseSql(sql: String) = { 

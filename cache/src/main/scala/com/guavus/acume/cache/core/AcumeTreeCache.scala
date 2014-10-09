@@ -1,7 +1,7 @@
 package com.guavus.acume.cache.core
 
+import scala.collection.immutable.SortedMap
 import scala.collection.mutable.{ Map => MutableMap }
-import java.util.SortedMap
 import com.guavus.acume.cache.util.Utility
 import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.workflow.RequestType
@@ -56,13 +56,13 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
       case Some(param) =>
         if(param.getTimeSeriesGranularity() != null) {
           var level = Math.max(baseLevel, param.getTimeSeriesGranularity());
-			val variableRetentionMap = getVariableRetentionMap(conf.get(ConfConstants.variableretentionmap))
-			if(!variableRetentionMap.containsKey(level)) {
-				val headMap = variableRetentionMap.headMap(level);
-				if(headMap.size() == 0) {
+			val variableRetentionMap = getVariableRetentionMap
+			if(!variableRetentionMap.contains(level)) {
+				val headMap = variableRetentionMap.filterKeys(_<level);
+				if(headMap.size == 0) {
 					throw new IllegalArgumentException("Wrong granularity " + level + " passed in request which is not present in variableRetentionMap ");
 				}
-				level = headMap.lastKey();
+				level = headMap.lastKey
 			}
 			level
         }
@@ -79,7 +79,10 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     buildTableForIntervals(intervals, tableName)
   }
   
-  private def getVariableRetentionMap(variableRetentionMap: String): SortedMap[Long, Int] = null 
+  private def getVariableRetentionMap: SortedMap[Long, Int] = {
+    val contextCollection = AcumeCacheContext.vrmap
+    SortedMap[Long, Int]() ++ contextCollection
+  }
   
   private def buildTableForIntervals(levelTimestampMap: MutableMap[Long, MutableList[Long]], tableName: String) {
     import acumeCacheContext.sqlContext._

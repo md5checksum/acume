@@ -26,7 +26,7 @@ import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.ConversionToSpark
 import com.guavus.rubix.core.CubeUtils
 
-class ORCDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) extends DataLoader(acumeCacheContext, conf, cube) { 
+class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) extends DataLoader(acumeCacheContext, conf, cube) { 
   
   override def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, DTableName: String) = { 
     
@@ -42,7 +42,7 @@ class ORCDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, 
     val baseCube = CubeUtil.getCubeMap(AcumeCacheContext.cubeList.toList).getOrElse(businessCube, throw new RuntimeException("Value not found."))
     val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube + "/f/" + timestamp
     val sparkContext = acumeCacheContext.sqlContext.sparkContext
-    val rowRDD = sparkContext.newAPIHadoopFile[NullWritable, OrcStruct, OrcNewInputFormat](baseDir).map(getRow)
+    val rowRDD = sparkContext.textFile(baseDir).map(getRow)
     val schema = StructType(
         CubeUtil.getMeasureSet(baseCube).toArray.map(field => { 
           StructField(field.getName, ConversionToSpark.convertToSparkDataType(CubeUtil.getFieldType(field)), true)
@@ -77,7 +77,7 @@ class ORCDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, 
       val baseCube = CubeUtil.getCubeMap(AcumeCacheContext.cubeList.toList).getOrElse(businessCube, throw new RuntimeException("Value not found."))
       val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube + "/d/" + timestamp
 
-      val rowRDD = sparkContext.newAPIHadoopFile[NullWritable, OrcStruct, OrcNewInputFormat](baseDir).map(getRow)
+      val rowRDD = sparkContext.textFile(baseDir).map(getRow)
       val schema = StructType(
           CubeUtil.getDimensionSet(baseCube).toArray.map(field => { 
             StructField(field.getName, ConversionToSpark.convertToSparkDataType(CubeUtil.getFieldType(field)), true)
@@ -94,6 +94,8 @@ class ORCDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, 
   }
   
   def getUniqueRandomeNo: String = System.currentTimeMillis() + "" + new Random().nextInt() 	
+  
+  def getRow(row: String) = Row(row.split("\t"))
   
   def getRow(tuple: (NullWritable, OrcStruct)) = {
   
