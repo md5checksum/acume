@@ -36,7 +36,7 @@ public class QueryFromClauseVisitor extends AbstractVisitor {
 		t.setTableName("");
 		list_ti.add(t);
 		plainSelect.getFromItem().accept(this);
-		plainSelect.getWhere().accept(new QueryWhereClauseVisitor(pair));
+//		plainSelect.getWhere().accept(new QueryWhereClauseVisitor(pair));
 	}
 
 	public void visit(SubJoin subjoin){
