@@ -8,10 +8,6 @@ import org.apache.catalina.startup.Catalina
  */
 object TomcatMain {
 
-  def main(args: Array[String]) {
-    startTomcatAndWait()
-  }
-
   /**
    * Uses standard way to start tomcat. Directory struture of tomcat is followed to get configuration from conf. It looks for conf folder in catalina.base directory to load server.xml and other properties
    * This must be called as the last as it does not return the control back

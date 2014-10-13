@@ -122,8 +122,7 @@
         <Interceptor className="org.apache.catalina.tribes.group.interceptors.TcpFailureDetector" />
         <Interceptor className="org.apache.catalina.tribes.group.interceptors.StaticMembershipInterceptor">
             	
-<Member className="org.apache.catalina.tribes.membership.StaticMember" port="4070" host="192.168.160.175" uniqueId="{1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,1}"/>
-<Member className="org.apache.catalina.tribes.membership.StaticMember" port="4070" host="192.168.160.177" uniqueId="{1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,1}"/>
+<Member className="org.apache.catalina.tribes.membership.StaticMember" port="4070" host="localhost" uniqueId="{1,1,1,1,1,0,0,0,0,0,1,1,1,1,1,1}"/>
 	    </Interceptor>
 
 	  </Channel>

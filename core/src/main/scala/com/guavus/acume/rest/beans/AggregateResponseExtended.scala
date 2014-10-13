@@ -2,11 +2,12 @@ package com.guavus.acume.rest.beans
 
 import javax.xml.bind.annotation.XmlRootElement
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
-import scala.collection.mutable.ArrayBuffer
+import java.util.ArrayList
+import java.util.List
 
 @SerialVersionUID(622337018807038280L)
 @XmlRootElement
-class AggregateResponseExtended(results: ArrayBuffer[AggregateResultSet], responseDimensions: ArrayBuffer[String], responseMeasures: ArrayBuffer[String], totalRecords: Int, @BeanProperty var executionTime: Long = 0) extends AggregateResponse(results, responseDimensions, responseMeasures, totalRecords) {
+class AggregateResponseExtended(results: List[AggregateResultSet], responseDimensions: List[String], responseMeasures: List[String], totalRecords: Int, @BeanProperty var executionTime: Long = 0) extends AggregateResponse(results, responseDimensions, responseMeasures, totalRecords) {
  
   def this(aggregateResponse: AggregateResponse, executionTime: Long) {
     this(aggregateResponse.getResults, aggregateResponse.getResponseDimensions, aggregateResponse.getResponseMeasures, aggregateResponse.getTotalRecords)

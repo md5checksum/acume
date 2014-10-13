@@ -2,7 +2,7 @@ package com.guavus.acume.rest.beans
 
 import java.io.Serializable
 
-import scala.collection.mutable.ArrayBuffer
+import java.util.ArrayList
 import scala.reflect.BeanProperty
 
 import javax.xml.bind.annotation.XmlElement
@@ -12,21 +12,21 @@ import javax.xml.bind.annotation.XmlRootElement
 @XmlRootElement
 class MultiFilter extends Serializable {
 
-  var singleFilters: ArrayBuffer[MeasureSingleFilter] = _
+  var singleFilters: ArrayList[MeasureSingleFilter] = _
 
   @BeanProperty
   var measure: String = _
 
-  def this(measure: String, singleFilters: ArrayBuffer[MeasureSingleFilter]) {
+  def this(measure: String, singleFilters: ArrayList[MeasureSingleFilter]) {
     this()
     this.measure = measure
     this.singleFilters = singleFilters
   }
 
-  @XmlElement(`type` = classOf[ArrayBuffer[MeasureSingleFilter]])
-  def getSingleFilters(): ArrayBuffer[MeasureSingleFilter] = singleFilters
+  @XmlElement(`type` = classOf[ArrayList[MeasureSingleFilter]])
+  def getSingleFilters(): ArrayList[MeasureSingleFilter] = singleFilters
 
-  def setSingleFilters(singleFilters: ArrayBuffer[MeasureSingleFilter]) {
+  def setSingleFilters(singleFilters: ArrayList[MeasureSingleFilter]) {
     this.singleFilters = singleFilters
   }
 }
@@ -36,7 +36,7 @@ class MultiFilter extends Serializable {
 class MeasureFilterData extends Serializable {
 
   @BeanProperty
-  var filters: ArrayBuffer[MultiFilter] = _
+  var filters: ArrayList[MultiFilter] = _
 
   /*
 Original Java:

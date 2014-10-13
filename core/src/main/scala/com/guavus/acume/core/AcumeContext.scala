@@ -21,27 +21,32 @@ import com.guavus.acume.cache.common.AcumeCacheConf
  *
  * This will keep the sparkcontext and hive context.
  */
-class AcumeContext(appName: String) {
+class AcumeContext(confFilePath: String) {
 
   //Properties will be loaded from spark-defaults.conf
-  val conf = new SparkConf().setAppName(appName)
+  val conf = new SparkConf()
     .set("spark.io.compression.codec", "org.apache.spark.io.SnappyCompressionCodec")
     .set("spark.kryo.registrator", "com.guavus.crux.core.SerializerRegistrator")
     .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
 
-  val acumeConf = new AcumeConf(true, this.getClass.getResourceAsStream("acume.conf"))  
+  val acumeConfiguration = new AcumeConf(true, this.getClass.getResourceAsStream(confFilePath))  
     
   val sparkContext = new SparkContext(conf)
 
-  val hc = new HiveContext(sparkContext)
+//  val hc = new HiveContext(sparkContext)
+  val _sqlContext = new SQLContext(sparkContext)
   
-  val acumeContext = new AcumeCacheContext(hc, new AcumeCacheConf)
+  val acumeContext = new AcumeCacheContext(sqlContext, new AcumeCacheConf)
   
   def sc() = sparkContext
   
   def ac() = acumeContext
   
-  def hqlContext() = hc
+  def acumeConf() = acumeConfiguration
+  
+//  def hqlContext() = hc
+  
+  def sqlContext() = _sqlContext
   
 }
 
@@ -49,12 +54,7 @@ object AcumeContext {
   val logger: Logger = LoggerFactory.getLogger(AcumeContext.getClass)
   var acumeContext: Option[AcumeContext] = None
   val accumulatorMap = new LinkedHashMap[String, Accumulator[Long]]
-  def init(appName: String) = acumeContext.getOrElse(acumeContext = Some(new AcumeContext(appName)))
-
-  def init(appName: String, sparkMaster: String = "local") = {
-    System.setProperty("spark.master", sparkMaster)
-    acumeContext.getOrElse(acumeContext = Some(new AcumeContext(appName)))
-  }
+  def init(confFilePath : String) = acumeContext.getOrElse(acumeContext = Some(new AcumeContext(confFilePath)))
 
   def stop() {
     logger.info("Destroying Acume Context")

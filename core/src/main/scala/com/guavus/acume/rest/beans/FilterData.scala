@@ -4,14 +4,14 @@ import java.io.Serializable
 import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlRootElement
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
-import scala.collection.mutable.ArrayBuffer
+import java.util.ArrayList
 
 @SerialVersionUID(-4945096459581562055L)
 @XmlRootElement
 class FilterData extends Serializable {
 
   @BeanProperty
-  var filters: ArrayBuffer[SingleFilter] = _
+  var filters: ArrayList[SingleFilter] = _
 
   override def hashCode(): Int = {
     val prime = 31

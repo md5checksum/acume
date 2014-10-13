@@ -8,7 +8,11 @@ import com.google.gson.GsonBuilder
 import AggregateResponse._
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
 import scala.collection.JavaConversions._
-import scala.collection.mutable.ArrayBuffer
+import scala.collection.JavaConverters._
+import java.util.ArrayList
+import com.guavus.acume.core.AcumeConf
+import com.guavus.acume.core.AcumeContext
+import java.util.List
 
 object AggregateResponse {
 
@@ -28,15 +32,15 @@ object AggregateResponse {
 class AggregateResponse extends Serializable {
 
   @BeanProperty
-  var results: ArrayBuffer[AggregateResultSet] = _
+  var results: List[AggregateResultSet] = _
 
   @BeanProperty
-  var responseDimensions: ArrayBuffer[String] = _
+  var responseDimensions: List[String] = _
 
   @BeanProperty
-  var responseMeasures: ArrayBuffer[String] = _
+  var responseMeasures: List[String] = _
 
-  def this(results: ArrayBuffer[AggregateResultSet], responseDimensions: ArrayBuffer[String], responseMeasures: ArrayBuffer[String], totalRecords: Int) {
+  def this(results: List[AggregateResultSet], responseDimensions: List[String], responseMeasures: List[String], totalRecords: Int) {
     this()
     this.results = results
     this.responseDimensions = responseDimensions
@@ -48,8 +52,8 @@ class AggregateResponse extends Serializable {
   var totalRecords: Int = _
 
   override def toString(): String = {
-    val maxLen = 10
-    val aggResponse = new AggregateResponse(results.take(Math.min(results.size, maxLen)), responseDimensions, responseMeasures, totalRecords)
+    val maxLen = AcumeContext.acumeContext.get.acumeConf.getMaxQueryLogRecords
+    val aggResponse = new AggregateResponse(results.subList(0, Math.min(results.size, maxLen)), responseDimensions, responseMeasures, totalRecords)
     gson.toJson(aggResponse)
   }
 

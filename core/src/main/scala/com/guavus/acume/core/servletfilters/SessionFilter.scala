@@ -17,6 +17,9 @@ import com.guavus.rubix.user.management.UserManagementServiceF
 import com.guavus.rubix.user.management.utils.HttpUtils
 import com.guavus.rubix.usermanagement.UsrManagementService
 import com.sun.jersey.core.util.Base64
+import com.guavus.rubix.user.management.service.UserManagementService
+import com.guavus.acume.core.configuration.ConfigFactory
+import com.guavus.rubix.user.permission.IPermissionTemplate
 
 /**
  * Sets the username into this thread context
@@ -25,7 +28,7 @@ class SessionFilter extends Filter {
 
   private var logger: Logger = LoggerFactory.getLogger(classOf[SessionFilter])
 
-  private var umService: UsrManagementService = new UsrManagementService()
+  private var umService: UserManagementService = new UserManagementService(ConfigFactory.getInstance.getBean(classOf[IPermissionTemplate]))
 
   override def init(filterConfig: FilterConfig) {
   }

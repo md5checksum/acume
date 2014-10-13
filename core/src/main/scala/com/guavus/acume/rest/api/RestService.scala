@@ -3,13 +3,13 @@ package com.guavus.acume.rest.api
 import com.guavus.acume.core.AcumeService
 import com.guavus.acume.core.authenticate.Authentication
 import com.guavus.acume.rest.beans.QueryRequest
-
 import javax.ws.rs.Consumes
 import javax.ws.rs.GET
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
 import javax.ws.rs.QueryParam
 import javax.xml.bind.annotation.XmlRootElement
+import javax.ws.rs.POST
 
 @Path("/" + "queryresponse")
 /**
@@ -18,21 +18,21 @@ import javax.xml.bind.annotation.XmlRootElement
 class RestService {
 	
 
-	@GET
+	@POST
     @Consumes(Array("application/json"))
     @Produces(Array("application/json"))
     @Path("aggregate")
-	def servAggregate(@QueryParam("query") query : QueryRequest, @QueryParam(value = "super") userinfo : String,
+	def servAggregate(query : QueryRequest, @QueryParam(value = "super") userinfo : String,
 			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) = {
 	  servQuery(query, userinfo, user, password, getAdditionalInfo, true)
 	}
 	
 	
-	@GET
+	@POST
     @Consumes(Array("application/json"))
     @Produces(Array("application/json"))
     @Path("timeseries")
-	def servTimeseries(@QueryParam("query") query : QueryRequest, @QueryParam(value = "super") userinfo : String,
+	def servTimeseries(query : QueryRequest, @QueryParam(value = "super") userinfo : String,
 			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) {
 	  servQuery(query, userinfo, user, password, getAdditionalInfo, false)
 	}
