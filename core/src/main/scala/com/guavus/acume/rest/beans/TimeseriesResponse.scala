@@ -8,6 +8,8 @@ import com.google.gson.GsonBuilder
 import TimeseriesResponse._
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
 import scala.collection.mutable.ArrayBuffer
+import com.guavus.acume.core.configuration.ConfigFactory
+import com.guavus.acume.core.AcumeContext
 
 object TimeseriesResponse {
 
@@ -22,7 +24,7 @@ object TimeseriesResponse {
 class TimeseriesResponse(@BeanProperty var results: ArrayBuffer[TimeseriesResultSet], @BeanProperty var responseDimensions: ArrayBuffer[String], @BeanProperty var responseMeasures: ArrayBuffer[String], @BeanProperty var timestamps: ArrayBuffer[Long]) extends Serializable() {
 
   override def toString(): String = {
-    val maxLen = 10
+    val maxLen = ConfigFactory.getInstance.getBean(classOf[AcumeContext]).acumeConf.getMaxQueryLogRecords	
     val tsResponse = new TimeseriesResponse(results.take(Math.min(results.size, maxLen)), responseDimensions, responseMeasures, timestamps)
     gson.toJson(tsResponse)
   }

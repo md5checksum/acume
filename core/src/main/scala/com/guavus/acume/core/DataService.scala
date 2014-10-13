@@ -14,6 +14,7 @@ import com.guavus.acume.rest.beans.AggregateResultSet
 import com.guavus.acume.rest.beans.TimeseriesResultSet
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
+import com.guavus.acume.cache.workflow.AcumeCacheContext
 
 /**
  * This class interacts with query builder and Olap cache.
@@ -35,6 +36,7 @@ class DataService(queryBuilderService : QueryBuilderService, acumeContext : Acum
   }
   
   def servRequest(sql : String) : Any = {
+    
 	val schemaRdd = execute(sql)
     val schema = schemaRdd.schema
     val fields = schema.fieldNames
@@ -100,6 +102,7 @@ class DataService(queryBuilderService : QueryBuilderService, acumeContext : Acum
   }
   
   def execute(sql : String) : SchemaRDD = {
-    acumeContext.ac.acql(sql)
+    val modifiedSql = queryBuilderService.buildQuery(sql)
+    acumeContext.ac.acql(modifiedSql)
   }
 }

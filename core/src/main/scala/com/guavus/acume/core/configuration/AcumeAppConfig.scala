@@ -47,6 +47,7 @@ import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
 import com.guavus.acume.core.DataService
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.qb.conf.QBConf
+import com.guavus.acume.core.converter.AcumeDataSourceSchema
 
 object AcumeAppConfig {
 
@@ -93,8 +94,8 @@ class AcumeAppConfig {
   
   @Bean
   @Autowired
-  def queryBuilderService() : QueryBuilderService = {
-    new QueryBuilderService(null, new QBConf())
+  def queryBuilderService(acumeContext : AcumeContext) : QueryBuilderService = {
+    new QueryBuilderService(new AcumeDataSourceSchema(acumeContext), new QBConf())
   }
 
   @Bean
