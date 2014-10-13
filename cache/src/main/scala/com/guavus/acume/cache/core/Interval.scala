@@ -3,9 +3,9 @@ package com.guavus.acume.cache.core
 import java.io.Serializable
 import java.util.Set
 import java.util.TreeSet
-import com.guavus.acume.cache.util.Utility
 import Interval._
 import scala.collection.JavaConversions._
+import com.guavus.acume.cache.utility.Utility
 
 object Interval {
 
@@ -246,14 +246,10 @@ class Interval extends Comparable[Interval] with Serializable {
   }
 
   override def compareTo(o: Interval): Int = {
-    var result = -1
-    if (this == o) {
-      result = 0
-    } else {
-      if (this.startTime > o.startTime) {
-        result = 1
-      }
+    if (this == o) 0 
+    else {
+      if (this.startTime > o.startTime) 1
+      else -1
     }
-    result
   }
 }

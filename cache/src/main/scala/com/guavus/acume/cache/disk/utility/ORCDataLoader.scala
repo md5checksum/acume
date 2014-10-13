@@ -24,7 +24,6 @@ import com.guavus.acume.cache.workflow.AcumeCacheContext
 import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.ConversionToSpark
-import com.guavus.rubix.core.CubeUtils
 
 class ORCDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) extends DataLoader(acumeCacheContext, conf, cube) { 
   
@@ -39,7 +38,7 @@ class ORCDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, 
     
     val level = levelTimestamp.level
     val timestamp = levelTimestamp.timestamp
-    val baseCube = CubeUtil.getCubeMap(AcumeCacheContext.cubeList.toList).getOrElse(businessCube, throw new RuntimeException("Value not found."))
+    val baseCube = CubeUtil.getCubeMap(acumeCacheContext.baseCubeList.toList, acumeCacheContext.cubeList.toList).getOrElse(businessCube, throw new RuntimeException("Value not found."))
     val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube + "/f/" + timestamp
     val sparkContext = acumeCacheContext.sqlContext.sparkContext
     val rowRDD = sparkContext.newAPIHadoopFile[NullWritable, OrcStruct, OrcNewInputFormat](baseDir).map(getRow)
@@ -74,7 +73,7 @@ class ORCDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, 
       val sqlContext = acumeCacheContext.sqlContext
       val sparkContext = sqlContext.sparkContext
       
-      val baseCube = CubeUtil.getCubeMap(AcumeCacheContext.cubeList.toList).getOrElse(businessCube, throw new RuntimeException("Value not found."))
+      val baseCube = CubeUtil.getCubeMap(acumeCacheContext.baseCubeList.toList, acumeCacheContext.cubeList.toList).getOrElse(businessCube, throw new RuntimeException("Value not found."))
       val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube + "/d/" + timestamp
 
       val rowRDD = sparkContext.newAPIHadoopFile[NullWritable, OrcStruct, OrcNewInputFormat](baseDir).map(getRow)
@@ -107,7 +106,7 @@ class ORCDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, 
   def joinDimensionSet(businessCube: Cube, level: CacheLevel, timestamp: Long, globalDTableName: String, thisCubeName: String, instabase: String, instainstanceid: String) = { 
     
     val sqlContext = acumeCacheContext.sqlContext
-    val businessCubeAggregatedMeasureList = CubeUtil.getStringMeasureOrFunction(cube)
+    val businessCubeAggregatedMeasureList = CubeUtil.getStringMeasureOrFunction(acumeCacheContext.measureMap.toMap, cube)
     val local_thisCubeName = thisCubeName + getUniqueRandomeNo
     loadDimensionSet(businessCube, timestamp, instabase, instainstanceid, globalDTableName)
     val aggregatedRDD = sqlContext.sql("select " + thisCubeName + ".tupleid, " + businessCubeAggregatedMeasureList + " from " + thisCubeName + " groupBy " + thisCubeName + ".tupleid").registerTempTable(local_thisCubeName)

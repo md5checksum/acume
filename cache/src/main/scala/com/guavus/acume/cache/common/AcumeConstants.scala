@@ -27,6 +27,8 @@ object AcumeConstants {
   val SPARK_YARN = "SPARK_YARN"
   val TRIPLE_DOLLAR_SSC = "\\$\\$\\$" //SSC = SpecialSymbolConsidered.
   val TRIPLE_DOLLAR = "$$$"
+  val Aggregate = "Aggregate"
+  val Timeseries = "Timeseries"
   val DELIMITED_TAB = "\t"
   val LINE_DELIMITED = "\\|"
   val LINE = "|"

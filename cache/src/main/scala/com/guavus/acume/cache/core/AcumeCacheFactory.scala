@@ -17,7 +17,7 @@ object AcumeCacheFactory {
   def getInstance(acumeCacheContext: AcumeCacheContext, acumeCacheConf: AcumeCacheConf, cacheIdentifier: CacheIdentifier, cube: Cube) = {
     val instance = caches.get(cacheIdentifier)
     if(instance == null){
-      val levelSet = AcumeCacheContext.vrmap.keySet.+(cube.baseGran.getGranularity)
+      val levelSet = acumeCacheContext.vrmap.keySet.+(cube.baseGran.getGranularity)
       val levels = levelSet.toArray
       //todo check if the cachelevelpolicy used should be configurable.
       val cacheLevelPolicy = new FixedLevelPolicy(levels, cube.baseGran.getGranularity)

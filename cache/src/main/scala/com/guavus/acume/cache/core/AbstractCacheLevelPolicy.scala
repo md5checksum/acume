@@ -5,8 +5,7 @@ import scala.collection.mutable.Map
 import scala.collection.mutable.MutableList
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-import com.guavus.acume.cache.util.Utility
-import com.guavus.acume.cache.util.Utility12345
+import com.guavus.acume.cache.utility.Utility
 
 abstract class AbstractCacheLevelPolicy(protected var baseLevel: Long) extends CacheLevelPolicyTrait {
 
@@ -28,7 +27,7 @@ abstract class AbstractCacheLevelPolicy(protected var baseLevel: Long) extends C
         case None => currentLevels = Some(MutableList[Long]())
         intervals.put(level, new LinkedList[Long]())
       }
-      intervals.get(level).get.addAll(Utility12345.getAllIntervals(startTimeCeiling, endTimeFloor, level))
+      intervals.get(level).get.addAll(Utility.getAllIntervals(startTimeCeiling, endTimeFloor, level))
       if (startTimeCeiling > startTime) {
         addIntervals(intervals, startTime, startTimeCeiling, getLowerLevel(level))
       }
@@ -129,7 +128,7 @@ abstract class AbstractCacheLevelPolicy(protected var baseLevel: Long) extends C
     val childrenLevel = getChildrenLevel(level)
     if (childrenLevel != -1){
       val endTime = Utility.getNextTimeFromGranularity(startTime, level, Utility.newCalendar())
-      children.addAll(Utility12345.getAllIntervals(startTime, endTime, childrenLevel))
+      children.addAll(Utility.getAllIntervals(startTime, endTime, childrenLevel))
     }
     children 	
   }

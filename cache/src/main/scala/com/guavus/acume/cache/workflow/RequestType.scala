@@ -1,7 +1,19 @@
 package com.guavus.acume.cache.workflow
 
 object RequestType extends Enumeration {
-  type RequestType = Value
-  val Aggregate = Value("Aggregate")
-  val Timeseries = Value("Timeseries")
+
+  val Aggregate = new RequestType("Aggregate")
+  val Timeseries = new RequestType("Timeseries")
+  
+  class RequestType(val requestId: String) extends Val
+
+  implicit def convertValue(v: Value): RequestType = v.asInstanceOf[RequestType]
+
+  def getRequestType(ix: String): RequestType = {
+    for(actualName <- RequestType.values){
+      if(ix equals actualName.requestId)
+        return actualName
+    }
+    Aggregate
+  }
 }

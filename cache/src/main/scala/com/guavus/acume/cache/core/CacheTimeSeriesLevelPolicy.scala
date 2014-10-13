@@ -2,8 +2,8 @@ package com.guavus.acume.cache.core
 
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable.HashMap
+import com.guavus.acume.cache.utility.Utility
 import scala.collection.mutable.MutableList
-import com.guavus.acume.cache.util.Utility
 import java.util.Calendar
 
 class CacheTimeSeriesLevelPolicy(levelMap: SortedMap[Long, Int]) extends CacheTimeSeriesPolicyTrait {
@@ -45,7 +45,7 @@ class CacheTimeSeriesLevelPolicy(levelMap: SortedMap[Long, Int]) extends CacheTi
       val rangeEndTime = Utility.floorFromGranularity(lastBinTime, level)
       val rangeStartTime = 
         if (level == TimeGranularity.MONTH.getGranularity) {
-          val cal = Utility.newCalendar()
+          val cal = Utility.newCalendar
           cal.setTimeInMillis(rangeEndTime * 1000)
           cal.add(Calendar.MONTH, -1 * points)
           cal.getTimeInMillis / 1000

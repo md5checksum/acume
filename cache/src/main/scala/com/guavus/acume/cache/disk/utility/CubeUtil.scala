@@ -24,14 +24,13 @@ object CubeUtil {
   
   def getCubeFields(cube: CubeTrait) = cube.superDimension.dimensionSet.map(_.getName) ++ cube.superMeasure.measureSet.map(_.getName)
   
-  def getCubeMap(businessCubeList: List[Cube]): Map[Cube, BaseCube] = { 
+  def getCubeMap(baseCubeList: List[BaseCube], businessCubeList: List[Cube]): Map[Cube, BaseCube] = { 
     
     var flag = true
     val tupleListNotFound = 
       for(k <- businessCubeList) yield
       if(cube.contains(k)) (true, k)
       else (false, k)
-    val baseCubeList = AcumeCacheContext.baseCubeList
     for(key <- tupleListNotFound if(!key._1)) { 
       
       val businessCube = key._2
@@ -58,11 +57,10 @@ object CubeUtil {
     cube.toMap
   } 	
   
-  def getStringMeasureOrFunction(cube: CubeTrait): String = { 
+  def getStringMeasureOrFunction(fieldMap: Map[String, Measure], cube: CubeTrait): String = { 
     
     //returns the comma separated business measures required in the cube.
     //eg, sum(M1), avg(M2) ... or some other aggregator etc etc.
-    val fieldMap = AcumeCacheContext.measureMap
     val keyset = for(key <- fieldMap.keySet) yield s"${fieldMap(key).getFunction.functionName}($key) as $key"
     keyset.toSet.+("timestamp").mkString(",")
   }

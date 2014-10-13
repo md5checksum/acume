@@ -1,9 +1,8 @@
 package com.guavus.acume.cache.core
 import scala.collection.mutable.Map
 import scala.collection.mutable.MutableList
-import com.guavus.acume.cache.util.Utility
 import scala.collection.JavaConversions._
-import com.guavus.acume.cache.util.Utility12345
+import com.guavus.acume.cache.utility.Utility
 import scala.math.Ordering.Implicits._
 
 @SerialVersionUID(1L)
@@ -93,11 +92,11 @@ class FixedLevelPolicy(var levels: Array[Long], baseLevel: Long) extends Abstrac
   override def getParentSiblingMap(level: Long, time: Long): Map[Long, MutableList[Long]] = {
     val resultMap = Map[Long, MutableList[Long]]()
     val parents = getAllParentsLevel(level)
-    val instance = Utility.newCalendar()
+    val instance = Utility.newCalendar
     for (parent <- parents) {
       val startTime = Utility.floorFromGranularity(time, parent)
       val endTime = Utility.getNextTimeFromGranularity(startTime, parent, instance)
-      val intervals = Utility12345.getAllIntervals(startTime, endTime, level)
+      val intervals = Utility.getAllIntervals(startTime, endTime, level)
       resultMap.+=(parent->intervals)
     }
     resultMap

@@ -8,11 +8,11 @@ import java.lang.UnsupportedOperationException
 import com.guavus.acume.cache.common.QLType
 import com.guavus.acume.cache.common.QLType._
 import com.guavus.acume.cache.utility.SQLParserFactory
-//import com.guavus.acume.cache.utility.SQLTableGetter
 import com.guavus.acume.cache.core.AcumeCacheFactory
 import java.io.StringReader
 import net.sf.jsqlparser.statement.select.Select
 import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import javax.xml.bind.JAXBContext
 import com.guavus.acume.cache.gen.Acume
 import java.io.FileInputStream
@@ -24,9 +24,10 @@ import com.guavus.acume.cache.core.AcumeCacheType
 import com.guavus.acume.cache.core.TimeGranularity._
 import com.guavus.acume.cache.core.TimeGranularity
 import scala.collection.mutable.MutableList
-import com.guavus.rubix.query.data.MeasureMapper
-import com.guavus.acume.cache.util.Utility12345
+import com.guavus.acume.cache.utility.Utility
 import org.apache.spark.sql.SchemaRDD
+import com.guavus.acume.cache.core.CacheIdentifier
+import com.guavus.acume.cache.utility.SQLUtility
 
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) { 
   sqlContext match{
@@ -35,8 +36,27 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
   case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
  
-  AcumeCacheContext.loadXML(conf.get(ConfConstants.businesscubexml))
-  AcumeCacheContext.loadVRMap(conf)
+  loadXML(conf.get(ConfConstants.businesscubexml))
+  loadVRMap(conf)
+  
+  private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf(AcumeConstants.TRIPLE_DOLLAR_SSC) + 1)
+  private def utilQL(sql: String, qltype: QLType) = {
+    val tx = AcumeCacheContext.parseSql(sql)
+    val rt = tx._2
+    for(l <- tx._1) {
+      val ty = l.getTableName
+      val startTime = l.getStartTime
+      val endTime = l.getEndTime
+      
+      val id = getCube(getCubeName(ty))
+      val idd = new CacheIdentifier()
+      idd.put("cube", id.hashCode)
+      val instance = AcumeCacheFactory.getInstance(this, conf, idd, id)
+      instance.createTempTable(startTime, endTime, rt, ty,None)
+    }
+    
+    AcumeCacheContext.ACQL(qltype, sqlContext)(sql)
+  }
   
   def acql(sql: String, qltype: String) : SchemaRDD = { 
     
@@ -44,13 +64,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
     if(!AcumeCacheContext.checkQLValidation(sqlContext, ql))
       throw new RuntimeException(s"$ql not supported with $sqlContext")
     
-    val parsedSQL = AcumeCacheContext.parseSql(sql)
-    val tableList = parsedSQL._1
-    val (startTime, endTime) = parsedSQL._2
-    val tblCbeMap = tableList.map(string => (string, string.substring(0, string.indexOf("_")+1))).toMap
-//    val systemloader = AcumeCacheFactory.getAcumeCache(name, conf.get(ConfConstants.whichcachetouse))
-//    val cacheLoader = AcumeCacheFactory.getInstance(this, conf, cacheIdentifier, cube)
-    null
+    utilQL(sql, ql)
   }
   
   def acql(sql: String) : SchemaRDD = { 
@@ -58,16 +72,9 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
     val ql = AcumeCacheContext.getQLType(conf)
     if(!AcumeCacheContext.checkQLValidation(sqlContext, ql))
       throw new RuntimeException(s"$ql not supported with $sqlContext")
-    val parsedSQL = AcumeCacheContext.parseSql(sql)
-    val tableList = parsedSQL._1
-    val (startTime, endTime) = parsedSQL._2
-    val tblCbeMap = tableList.map(string => (string, string.substring(0, string.indexOf("_")+1))).toMap
-//    val systemloader = AcumeCacheFactory.getAcumeCache(name, conf.get(ConfConstants.whichcachetouse))
-    null
+    utilQL(sql, ql)
   }
-}
 
-object AcumeCacheContext{
   
   private [cache] val dimensionMap = new HashMap[String, Dimension]
   private [cache] val measureMap = new HashMap[String, Measure]
@@ -77,8 +84,7 @@ object AcumeCacheContext{
   //todo how will this be done
   private [cache] val baseCubeMap = HashMap[String, BaseCube]()
   private [cache] val baseCubeList = MutableList[BaseCube]()
-  
-  private [acume] def getCubeList = cubeList
+  private [acume] def getCubeList = cubeList.toList
   private [acume] def isDimension(name: String) = 
     if(dimensionMap.contains(name)) true 
     else if(measureMap.contains(name)) false 
@@ -110,9 +116,11 @@ object AcumeCacheContext{
     kCube.toList
   }
   
+  private [cache] def getCube(cube: String) = cubeMap.get(cube).getOrElse(throw new RuntimeException)
+  
   private [cache] def loadVRMap(conf: AcumeCacheConf) = {
     val vrmapstring = conf.get(ConfConstants.variableretentionmap)
-    vrmap.++=(Utility12345.getLevelPointMap(vrmapstring))
+    vrmap.++=(Utility.getLevelPointMap(vrmapstring))
   }
     
   private [workflow] def loadBaseXML(filedir: String) = {
@@ -183,8 +191,8 @@ object AcumeCacheContext{
         })
         val propertyMap = _$propertyMap.toMap
         
-        val levelpolicymap = Utility12345.getLevelPointMap(getProperty(propertyMap, defaultPropertyMap, ConfConstants.levelpolicymap, cubeName))
-        val timeserieslevelpolicymap = Utility12345.getLevelPointMap(getProperty(propertyMap, defaultPropertyMap, ConfConstants.timeserieslevelpolicymap, cubeName))
+        val levelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, defaultPropertyMap, ConfConstants.levelpolicymap, cubeName))
+        val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, defaultPropertyMap, ConfConstants.timeserieslevelpolicymap, cubeName))
         val Gnx = getProperty(propertyMap, defaultPropertyMap, ConfConstants.basegranularity, cubeName)
         val granularity = TimeGranularity.getTimeGranularityByName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
         val cube = Cube(cubeName, DimensionSet(dimensionSet.toSet), MeasureSet(measureSet.toSet), granularity, true, levelpolicymap, timeserieslevelpolicymap)
@@ -198,16 +206,16 @@ object AcumeCacheContext{
     
     propertyMap.getOrElse(name, defaultPropertyMap.getOrElse(name, throw new RuntimeException(s"The configurtion $name should be done for cube $nmCube")))
   }
+  }
+
+object AcumeCacheContext{
   
   private [workflow] def parseSql(sql: String) = { 
     
-//    val del_SQLTableGetter = new SQLTableGetter
-    val pm = SQLParserFactory.getParserManager();
-    val statement = pm.parse(new StringReader(sql));
-    val list = List("1","2","3")//sqlTableGetter.getTableList(statement.asInstanceOf[Select]).toList.asInstanceOf[List[String]]
-    val startTime = 0l // getStartTime
-    val endTime = 0l // getEndTime
-    (list, (startTime, endTime))
+    val util = new SQLUtility();
+    val list = util.getList(sql);
+    val requestType = util.getRequestType(sql);
+    (list, RequestType.getRequestType(requestType))
   }
   
   private def checkQLValidation(sqlContext: SQLContext, qltype: QLType) = { 
@@ -243,6 +251,7 @@ object AcumeCacheContext{
       case QLType.sql => sqlContext.sql(_)
       }
     }
+    sqlContext.sql(_)
   }
 }
 
