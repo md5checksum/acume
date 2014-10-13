@@ -1,6 +1,7 @@
 package com.guavus.acume.core.converter
 
 import com.guavus.querybuilder.cube.schema.QueryBuilderSchema
+import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import com.guavus.querybuilder.cube.schema.ICube
 import com.guavus.acume.core.configuration.ConfigFactory
@@ -19,39 +20,39 @@ class AcumeDataSourceSchema(acumeContext : AcumeContext) extends QueryBuilderSch
   /**
    * return the list of data source cubes.
    */
-  def getCubes(): List[ICube] = {
+  override def getCubes(): java.util.List[ICube] = {
     val cubes  = acumeContext.ac.getCubeList
     cubes.map(cube=> {
     	var dimensions = cube.dimension.dimensionSet.map(field => {
-    		new Field(FieldType.DIMENSION, FieldType.DIMENSION, 0,field.getName, "")
+    		new Field(FieldType.DIMENSION, FieldType.DIMENSION, getDefaultValueForField(field.getName),field.getName, "")
     	}).toList
     	dimensions = dimensions ::: cube.measure.measureSet.map(field => {
-    		new Field(FieldType.MEASURE, FieldType.MEASURE, 0,field.getName, field.getFunction.functionName)}).toList
-      new Cube(dimensions)
+    		new Field(FieldType.MEASURE, FieldType.MEASURE, getDefaultValueForField(field.getName),field.getName, field.getFunction.functionName)}).toList
+      new Cube(cube.cubeName, dimensions)
     })
   }
 
   /**
    * returns true if dimension
    */
-  def isDimension(fieldName: String): Boolean = {
+  override def isDimension(fieldName: String): Boolean = {
     acumeContext.ac.isDimension(fieldName)
   }
   
   /**
    * 
    */
-  def getFieldsForCube(cubeName : String) : List[String] = {
+  override def getFieldsForCube(cubeName : String) : java.util.List[String] = {
     acumeContext.ac.getFieldsForCube(cubeName).toList
   }
   
-  def getDefaultAggregateFunction(field : String) : String  = {
+  override def getDefaultAggregateFunction(field : String) : String  = {
     acumeContext.ac.getDefaultAggregateFunction(field)
   }
 
-  def getCubeListContainingAllFields(fields : List[String]) : List[String] = {
-    acumeContext.ac.getCubeListContainingFields(fields).map(x=> x.cubeName)
+  override def getCubeListContainingAllFields(fields : java.util.List[String]) : java.util.List[String] = {
+    acumeContext.ac.getCubeListContainingFields(fields.asScala.toList).map(x=> x.cubeName)
   }
   
-  def getDefaultValueForField(fieldName : String ) : Object = acumeContext.ac.getDefaultValueForField(fieldName) 
+  override def getDefaultValueForField(fieldName : String ) : Object = acumeContext.ac.getDefaultValueForField(fieldName) 
 }

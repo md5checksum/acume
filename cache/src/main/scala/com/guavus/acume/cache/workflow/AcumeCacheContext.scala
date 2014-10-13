@@ -100,7 +100,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
     measure.getFunction.functionName
   }
   
-  private [acume] def getDefaultValueForField(fieldName: String) = {
+  private [acume] def getDefaultValueForField(fieldName: String) : AnyRef = {
     null
   }
   

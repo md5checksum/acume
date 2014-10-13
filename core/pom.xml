@@ -27,8 +27,15 @@
 		<maven.compiler.target>1.7</maven.compiler.target>
 		<tomcat.version>7.0.34</tomcat.version>
 		<jersey-version>1.4</jersey-version>
+		<org.springframework.version>3.2.0.RELEASE</org.springframework.version>
 	</properties>
 	<dependencies>
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.2.2</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.datanucleus</groupId>
 			<artifactId>datanucleus-core</artifactId>
@@ -39,12 +46,20 @@
 			<groupId>com.guavus</groupId>
 			<artifactId>cache</artifactId>
 			<version>0.1-SNAPSHOT</version>
-	<!--		<exclusions>
-				<exclusion>
-
-				</exclusion>
-			</exclusions>
-	-->	</dependency>
+			<!-- <exclusions> <exclusion> </exclusion> </exclusions> -->
+		</dependency>
+		<!-- Spring dependency -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${org.springframework.version}</version>
+		</dependency>
+		<!-- Spring dependency ends -->
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -81,6 +96,11 @@
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-jsp-api</artifactId>
 			<version>${tomcat.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.guavus.rubix.user.management</groupId>
+			<artifactId>user-management</artifactId>
+			<version>4.9</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
@@ -139,11 +159,11 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-                        <groupId>org.apache.spark</groupId>
-                        <artifactId>spark-hive_2.10</artifactId>
-                        <version>1.1.0</version>
-                  	<scope>provided</scope>
-                </dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-hive_2.10</artifactId>
+			<version>1.1.0</version>
+			<scope>provided</scope>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.hive</groupId>
 			<artifactId>hive-serde</artifactId>

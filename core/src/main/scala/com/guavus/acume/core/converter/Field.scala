@@ -3,7 +3,7 @@ package com.guavus.acume.core.converter
 import com.guavus.querybuilder.cube.schema.IField
 import com.guavus.querybuilder.cube.schema.FieldType
 
-class Field(fieldType : FieldType, dataType : FieldType, defaultValue : Any, name : String, functionName: String) extends IField {
+class Field(fieldType : FieldType, dataType : FieldType, defaultValue : AnyRef, name : String, functionName: String) extends IField {
 
   def getType() : FieldType = {
     fieldType
@@ -13,7 +13,7 @@ class Field(fieldType : FieldType, dataType : FieldType, defaultValue : Any, nam
 	  dataType
 	}
 
-	def getDefaultValue() : Object = {
+	def getDefaultValue() : AnyRef = {
 	  defaultValue
 	}
 

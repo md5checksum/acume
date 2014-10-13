@@ -8,46 +8,14 @@ import org.springframework.context.annotation.Bean
 import util.log.LoggerUtils
 import com.guavus.acume.core.AcumeService
 import com.guavus.qb.services.QueryBuilderService
-import com.guavus.rubix.RubixWebService.RequestValidation
-import com.guavus.rubix.query.data.ExcludedDimensionValuesLoader
-import com.guavus.rubix.scheduler.QueryRequestPrefetchTaskManager
-import com.guavus.rubix.permission.DefaultPermissionTemplate
-import com.guavus.rubix.query.CacheAllPolicyForSubQueryCache
-import com.guavus.rubix.workflow.ICubePropertyToMultiProcessorMap
-import com.guavus.rubix.adaptive.impl.AdaptivePolicyServiceImpl
-import com.guavus.rubix.workflow.SingleNodeConfigurableCubeGenerator
-import com.guavus.rubix.search.SearchDataProvider
-import com.guavus.rubix.query.IRequestValidator
-import com.guavus.rubix.authorize.AuthorisationService
-import com.guavus.rubix.query.CSVDataExporter
 import com.guavus.rubix.user.permission.IPermissionTemplate
-import com.guavus.rubix.core.distribution.RubixAddressGenerator
-import com.guavus.rubix.query.QueryOptimizer
-import com.guavus.rubix.workflow.ICubeManager
-import com.guavus.rubix.adaptive.IAdaptivePolicyService
-import com.guavus.rubix.workflow.ICubeGenerator
-import com.guavus.rubix.authorize.IAuthoriseConfig
-import com.guavus.rubix.query.data.IExcludedDimensionValuesLoader
-import com.guavus.rubix.search.SearchConfiguration
-import com.guavus.rubix.query.remote.flex.IDimensionConvertorMap
-import com.guavus.rubix.util.ConverterService
-import com.guavus.rubix.configuration.IGenericConfig
-import com.guavus.rubix.cache.flash.FlashAllocationManager
-import com.guavus.rubix.configuration.RubixProperties
-import com.guavus.rubix.query.DummyRequestValidator
-import com.guavus.rubix.scheduler.ISchedulerPolicy
 import com.guavus.acume.core.AcumeContext
-import com.guavus.rubix.adaptive.RubixAdaptivePolicyRegister
-import com.guavus.rubix.workflow.IMeasureProcessorMap
-import com.guavus.rubix.query.ISubQueryCachePolicy
-import com.guavus.rubix.workflow.CubeManager
-import com.guavus.rubix.search.ISearchService
-import com.guavus.rubix.RubixWebService.IRequestValidation
 import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
 import com.guavus.acume.core.DataService
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.qb.conf.QBConf
 import com.guavus.acume.core.converter.AcumeDataSourceSchema
+import com.guavus.acume.core.usermanagement.DefaultPermissionTemplate
 
 object AcumeAppConfig {
 

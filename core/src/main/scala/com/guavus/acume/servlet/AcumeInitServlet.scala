@@ -7,12 +7,8 @@ import javax.servlet.ServletException
 import javax.servlet.http.HttpServlet
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import com.guavus.rubix.configuration.RubixProperties
-import com.guavus.rubix.core.distribution.RubixDistribution
 import com.guavus.rubix.hibernate.SessionContext
 import com.guavus.rubix.hibernate.SessionFactory
-import com.guavus.rubix.query.remote.flex.RubixService
-import com.guavus.rubix.scheduler.QueryRequestPrefetchTaskManager
 import com.guavus.rubix.user.management.InitDatabase
 import scala.collection.mutable.ArrayBuffer
 import com.guavus.rubix.user.management.IDML

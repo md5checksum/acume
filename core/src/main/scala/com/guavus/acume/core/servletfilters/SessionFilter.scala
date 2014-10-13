@@ -12,10 +12,8 @@ import org.apache.shiro.SecurityUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import com.google.common.base.Throwables
-import com.guavus.rubix.RubixWebService.Authentication
 import com.guavus.rubix.user.management.UserManagementServiceF
 import com.guavus.rubix.user.management.utils.HttpUtils
-import com.guavus.rubix.usermanagement.UsrManagementService
 import com.sun.jersey.core.util.Base64
 import com.guavus.rubix.user.management.service.UserManagementService
 import com.guavus.acume.core.configuration.ConfigFactory

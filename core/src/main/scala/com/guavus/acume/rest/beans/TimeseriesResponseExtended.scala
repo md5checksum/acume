@@ -2,11 +2,12 @@ package com.guavus.acume.rest.beans
 
 import javax.xml.bind.annotation.XmlRootElement
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
-import scala.collection.mutable.ArrayBuffer
+import java.util.ArrayList
+import java.util.List
 
 @SerialVersionUID(-1764259705886717573L)
 @XmlRootElement
-class TimeseriesResponseExtended(results: ArrayBuffer[TimeseriesResultSet], responseDimensions: ArrayBuffer[String], responseMeasures: ArrayBuffer[String], timestamps: ArrayBuffer[Long], @BeanProperty var executionTime: Long = 0) extends TimeseriesResponse(results, responseDimensions, responseMeasures, timestamps) {
+class TimeseriesResponseExtended(results: List[TimeseriesResultSet], responseDimensions: List[String], responseMeasures: List[String], timestamps: List[Long], @BeanProperty var executionTime: Long = 0) extends TimeseriesResponse(results, responseDimensions, responseMeasures, timestamps) {
 
   def this(response: TimeseriesResponse, executionTime: Long) {
     this(response.getResults, response.getResponseDimensions, response.getResponseMeasures, response.getTimestamps)
