@@ -19,64 +19,62 @@ import com.guavus.acume.cache.workflow.AcumeCacheContext
 /**
  * This class interacts with query builder and Olap cache.
  */
-class DataService(queryBuilderService : QueryBuilderService, acumeContext : AcumeContext) {
+class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeContext) {
 
   /**
-   * Takes QueryRequest i.e. Rubix query and return aggregate Response. 
+   * Takes QueryRequest i.e. Rubix query and return aggregate Response.
    */
-  def servAggregate(queryRequest : QueryRequest) : AggregateResponse = {
+  def servAggregate(queryRequest: QueryRequest): AggregateResponse = {
     servRequest(queryRequest.toSql("")).asInstanceOf[AggregateResponse]
   }
-  
+
   /**
    * Takes QueryRequest i.e. Rubix query and return timeseries Response.
    */
-  def servTimeseries(queryRequest : QueryRequest) : TimeseriesResponse = {
+  def servTimeseries(queryRequest: QueryRequest): TimeseriesResponse = {
     servRequest(queryRequest.toSql("ts,")).asInstanceOf[TimeseriesResponse]
   }
-  
-  def servRequest(sql : String) : Any = {
-    
-	val schemaRdd = execute(sql)
+
+  def servRequest(sql: String): Any = {
+
+    val schemaRdd = execute(sql)
     val schema = schemaRdd.schema
     val fields = schema.fieldNames
     val rows = schemaRdd.collect
-    val acumeSchema : QueryBuilderSchema = null
-	val dimsNames = new ArrayBuffer[String]()
-      val measuresNames = new ArrayBuffer[String]()
-      var j = 0
-      var isTimeseries = false
-      for (field <- fields) {
-        if(field.equalsIgnoreCase("ts")) {
-          isTimeseries = true
-        } else if (acumeSchema.isDimension(field)) {
-          dimsNames += field
-        } else {
-          measuresNames += field
-        }
-        j += 1
+    val acumeSchema: QueryBuilderSchema = null
+    val dimsNames = new ArrayBuffer[String]()
+    val measuresNames = new ArrayBuffer[String]()
+    var j = 0
+    var isTimeseries = false
+    for (field <- fields) {
+      if (field.equalsIgnoreCase("ts")) {
+        isTimeseries = true
+      } else if (acumeSchema.isDimension(field)) {
+        dimsNames += field
+      } else {
+        measuresNames += field
       }
-	
-	
-    if(isTimeseries) {
-//      val list = new ArrayBuffer[TimeseriesResultSet](rows.size)
-//      for (row <- rowArray) {
-//        val dims = new ArrayBuffer[Any]()
-//        val measures = new ArrayBuffer[Any]()
-//
-//        var i = 0
-//        for (field <- fields) {
-//          if (acumeSchema.isDimension(field)) {
-//            dims += row(i).toString
-//          } else {
-//            measures += row(i)
-//          }
-//          i += 1
-//        }
-//        list += new TimeseriesResultSet(dims, measures)
-//      }
-//      new AggregateResponse(list, dimsNames, measuresNames, rows.size)
-//      //aggregate query
+      j += 1
+    }
+    if (isTimeseries) {
+      //      val list = new ArrayBuffer[TimeseriesResultSet](rows.size)
+      //      for (row <- rowArray) {
+      //        val dims = new ArrayBuffer[Any]()
+      //        val measures = new ArrayBuffer[Any]()
+      //
+      //        var i = 0
+      //        for (field <- fields) {
+      //          if (acumeSchema.isDimension(field)) {
+      //            dims += row(i).toString
+      //          } else {
+      //            measures += row(i)
+      //          }
+      //          i += 1
+      //        }
+      //        list += new TimeseriesResultSet(dims, measures)
+      //      }
+      //      new AggregateResponse(list, dimsNames, measuresNames, rows.size)
+      //      //aggregate query
 
       //ts query
       null
@@ -87,21 +85,30 @@ class DataService(queryBuilderService : QueryBuilderService, acumeContext : Acum
         val measures = new ArrayBuffer[Any]()
 
         var i = 0
+        var dimIndex, measureIndex = 0
         for (field <- fields) {
           if (acumeSchema.isDimension(field)) {
-            dims += row(i).toString
+            if(row(i) != null)
+            	dims += row(i).toString
+            else
+              dims += queryBuilderService.getQbSchema.getDefaultValueForField(dimsNames(dimIndex))
+              dimIndex+=1
           } else {
-            measures += row(i)
+            if(row(i) != null)
+            	measures += row(i)
+            else
+              measures += queryBuilderService.getQbSchema.getDefaultValueForField(measuresNames(measureIndex))
+              measureIndex+=1
           }
           i += 1
         }
         list += new AggregateResultSet(dims, measures)
       }
       new AggregateResponse(list, dimsNames, measuresNames, rows.size)
-    }	  
+    }
   }
-  
-  def execute(sql : String) : SchemaRDD = {
+
+  def execute(sql: String): SchemaRDD = {
     val modifiedSql = queryBuilderService.buildQuery(sql)
     acumeContext.ac.acql(modifiedSql)
   }

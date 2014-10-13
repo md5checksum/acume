@@ -52,4 +52,6 @@ class AcumeDataSourceSchema(acumeContext : AcumeContext) extends QueryBuilderSch
   def getCubeListContainingAllFields(fields : List[String]) : List[String] = {
     acumeContext.ac.getCubeListContainingFields(fields).map(x=> x.cubeName)
   }
+  
+  def getDefaultValueForField(fieldName : String ) : Object = acumeContext.ac.getDefaultValueForField(fieldName) 
 }
