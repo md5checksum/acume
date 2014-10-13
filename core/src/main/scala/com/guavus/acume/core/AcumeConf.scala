@@ -50,6 +50,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
 	properties.load(fileName)
 	for ((k, v) <- properties.asScala) {
 		settings(k) = v
+		System.setProperty(k, v)
 	}
   }
 
