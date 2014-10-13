@@ -49,7 +49,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
     val (startTime, endTime) = parsedSQL._2
     val tblCbeMap = tableList.map(string => (string, string.substring(0, string.indexOf("_")+1))).toMap
 //    val systemloader = AcumeCacheFactory.getAcumeCache(name, conf.get(ConfConstants.whichcachetouse))
-    val cacheLoader = AcumeCacheFactory.getInstance(this, conf, cacheIdentifier, cube)
+//    val cacheLoader = AcumeCacheFactory.getInstance(this, conf, cacheIdentifier, cube)
     null
   }
   
