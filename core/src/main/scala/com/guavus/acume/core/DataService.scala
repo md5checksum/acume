@@ -12,11 +12,13 @@ import org.apache.spark.sql.SchemaRDD
 import scala.collection.mutable.ArrayBuffer
 import com.guavus.acume.rest.beans.AggregateResultSet
 import com.guavus.acume.rest.beans.TimeseriesResultSet
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 /**
  * This class interacts with query builder and Olap cache.
  */
-class DataService {
+class DataService(queryBuilderService : QueryBuilderService, acumeContext : AcumeContext) {
 
   /**
    * Takes QueryRequest i.e. Rubix query and return aggregate Response. 
@@ -33,14 +35,11 @@ class DataService {
   }
   
   def servRequest(sql : String) : Any = {
-	val schemaRdd = execute("")
-    val rowArray = schemaRdd.collect
+	val schemaRdd = execute(sql)
     val schema = schemaRdd.schema
     val fields = schema.fieldNames
     val rows = schemaRdd.collect
     val acumeSchema : QueryBuilderSchema = null
-    val queryBuilderService = new QueryBuilderService(acumeSchema, new QBConf)
-	
 	val dimsNames = new ArrayBuffer[String]()
       val measuresNames = new ArrayBuffer[String]()
       var j = 0
@@ -81,7 +80,7 @@ class DataService {
       null
     } else {
       val list = new ArrayBuffer[AggregateResultSet](rows.size)
-      for (row <- rowArray) {
+      for (row <- rows) {
         val dims = new ArrayBuffer[Any]()
         val measures = new ArrayBuffer[Any]()
 
@@ -97,11 +96,10 @@ class DataService {
         list += new AggregateResultSet(dims, measures)
       }
       new AggregateResponse(list, dimsNames, measuresNames, rows.size)
-      //aggregate query
     }	  
   }
   
   def execute(sql : String) : SchemaRDD = {
-    AcumeContext.acumeContext.get.ac.acql(sql)
+    acumeContext.ac.acql(sql)
   }
 }

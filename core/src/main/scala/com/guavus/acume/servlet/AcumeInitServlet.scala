@@ -2,46 +2,34 @@ package com.guavus.acume.servlet
 
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-
 import javax.servlet.ServletConfig
 import javax.servlet.ServletException
 import javax.servlet.http.HttpServlet
-
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import com.guavus.rubix.configuration.RubixProperties
 import com.guavus.rubix.core.distribution.RubixDistribution
 import com.guavus.rubix.hibernate.SessionContext
 import com.guavus.rubix.hibernate.SessionFactory
 import com.guavus.rubix.query.remote.flex.RubixService
 import com.guavus.rubix.scheduler.QueryRequestPrefetchTaskManager
-
-import RubixInitServlet._
-
 import com.guavus.rubix.user.management.InitDatabase
-
 import scala.collection.mutable.ArrayBuffer
-
 import com.guavus.rubix.user.management.IDML
-
 import org.hibernate.internal.util.ConfigHelper
+import com.guavus.acume.core.configuration.ConfigFactory
+import com.guavus.acume.tomcat.core.AcumeMain
 
-object RubixInitServlet {
+object AcumeInitServlet {
 
-  private var logger: Logger = LoggerFactory.getLogger(classOf[RubixInitServlet])
+  private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeInitServlet])
 }
 
 @SerialVersionUID(2452703157821877157L)
-class RubixInitServlet extends HttpServlet {
+class AcumeInitServlet extends HttpServlet {
 
   override def init(servletConfig: ServletConfig) {
-    SessionFactory.getInstance(SessionContext.DISTRIBUTED)
-    logger.info("Called RubixInitServlet")
-    val startTime = System.currentTimeMillis()
-    val timeTaken = (System.currentTimeMillis() - startTime)
-    logger.info("Time taken to fetch data from remote node {} seconds", timeTaken / 1000)
-    InitDatabase.initializeDatabaseTables(ArrayBuffer[IDML]())
+    AcumeMain.startAcume(Array[String]())
   }
 
 /*

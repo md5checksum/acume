@@ -10,14 +10,16 @@ import com.guavus.rubix.search.SearchRequest
 import QueryRequest._
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
 import scala.collection.JavaConversions._
-import scala.collection.mutable.ArrayBuffer
+import java.util.ArrayList
+import com.google.inject.internal.Lists
+import java.util.Arrays
 
 object QueryRequest {
 
   def main(args: Array[String]) {
-    val filterDatas = new ArrayBuffer[FilterData]()
+    val filterDatas = new ArrayList[FilterData]()
     val filterData = new FilterData()
-    val singleFilters = new ArrayBuffer[SingleFilter]()
+    val singleFilters = new ArrayList[SingleFilter]()
     var singleFilter = new SingleFilter()
     singleFilter.setDimension("a")
     singleFilter.setValue("2")
@@ -32,10 +34,10 @@ object QueryRequest {
     filterData.setFilters(singleFilters)
     filterDatas.add(filterData)
     val data = new MeasureFilterData()
-    val multiFilters = new ArrayBuffer[MultiFilter]()
+    val multiFilters = new ArrayList[MultiFilter]()
     for (i <- 0 until 2) {
       val innerFilters = new MultiFilter()
-      val filter = new ArrayBuffer[MeasureSingleFilter]()
+      val filter = new ArrayList[MeasureSingleFilter]()
       for (j <- 0 until 3) {
         filter.add(new MeasureSingleFilter("GREATER_THAN", Array(j.toDouble)))
       }
@@ -47,10 +49,10 @@ object QueryRequest {
     data.setFilters(multiFilters)
     println(gson.toJson(data))
     val queryRequest = new QueryRequest()
-    queryRequest.setResponseDimensions(new ArrayBuffer[String](0))
-    queryRequest.setResponseMeasures(new ArrayBuffer[String](0))
+    queryRequest.setResponseDimensions(new ArrayList[String](0))
+    queryRequest.setResponseMeasures(new ArrayList[String](0))
     queryRequest.setFilterData(filterDatas)
-    queryRequest.setMeasureFilters(ArrayBuffer[MeasureFilterData](data))
+    queryRequest.setMeasureFilters(Lists.newArrayList(Arrays.asList(new MeasureFilterData{data})))
     println(gson.toJson(queryRequest))
     println(gson.fromJson(gson.toJson(queryRequest), classOf[QueryRequest]))
     println(gson.fromJson("{'responseMeasures':['CompUpBytes','CompDownBytes'],'responseDimensions':['Attribute'], 'sortProperty':'CompUpBytes','filters':[],'cubeContextDimensions':[],'sortDirection':'DSC','maxResults':-1,'maxResultOffset':0,'length':50,'offset':0,'startTime':1349917200,'endTime':1349935200,'timeGranularity':0,'filters':[[{'name':'Agony','value':'6'}]],'measureFilters':[{'filters':[{'singleFilters':[{'operand':[0.0],'operator':'GREATER_THAN'},{'operand':[1.0],'operator':'GREATER_THAN'},{'operand':[2.0],'operator':'GREATER_THAN'}],'measure':'CompUpBytes'},{'singleFilters':[{'operand':[0.0],'operator':'GREATER_THAN'},{'operand':[1.0],'operator':'GREATER_THAN'},{'operand':[2.0],'operator':'GREATER_THAN'}],'measure':'CompDownBytes'}]}]}", classOf[QueryRequest]))
@@ -65,21 +67,21 @@ class QueryRequest extends Serializable {
   var subQuery: QueryRequest = _
 
   @BeanProperty
-  var responseMeasures: ArrayBuffer[String] = _
+  var responseMeasures: ArrayList[String] = _
 
   @BeanProperty
-  var responseDimensions: ArrayBuffer[String] = _
+  var responseDimensions: ArrayList[String] = _
 
   @BeanProperty
-  var cubeContextDimensions: ArrayBuffer[String] = _
-
-  @Deprecated
-  @BeanProperty
-  var filterMap: ArrayBuffer[NameValue] = _
+  var cubeContextDimensions: ArrayList[String] = _
 
   @Deprecated
   @BeanProperty
-  var filters: ArrayBuffer[ArrayBuffer[NameValue]] = _
+  var filterMap: ArrayList[NameValue] = _
+
+  @Deprecated
+  @BeanProperty
+  var filters: ArrayList[ArrayList[NameValue]] = _
 
   @BeanProperty
   var filterData: Traversable[FilterData] = _
@@ -91,7 +93,7 @@ class QueryRequest extends Serializable {
   var sortDirection: String = _
 
   @BeanProperty
-  var paramMap: ArrayBuffer[NameValue] = _
+  var paramMap: ArrayList[NameValue] = _
 
   @BeanProperty
   var searchRequest: SearchRequest = _
@@ -118,10 +120,10 @@ class QueryRequest extends Serializable {
   var timeGranularity: Long = _
 
   @BeanProperty
-  var responseFilters: ArrayBuffer[ResponseFilter] = _
+  var responseFilters: ArrayList[ResponseFilter] = _
 
   @BeanProperty
-  var measureFilters: ArrayBuffer[MeasureFilterData] = _
+  var measureFilters: ArrayList[MeasureFilterData] = _
 
   @BeanProperty
   var binSource: String = _
@@ -221,7 +223,7 @@ class QueryRequest extends Serializable {
   }
 
   def toSql(ts1: String): String = {
-    val columns = new ArrayBuffer[String]()
+    val columns = new ArrayList[String]()
     columns.addAll(responseDimensions)
     columns.addAll(responseMeasures)
     if (cubeContextDimensions != null) {
@@ -276,15 +278,15 @@ Original Java:
 package com.guavus.acume.rest.beans;
 
 import java.io.Serializable;
-import java.util.ArrayArrayBuffer;
+import java.util.ArrayArrayList;
 import java.util.Collection;
-import java.util.ArrayBuffer;
+import java.util.ArrayList;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import org.testng.collections.ArrayBuffers;
+import org.testng.collections.ArrayLists;
 
 import com.google.gson.Gson;
 import com.guavus.rubix.query.SortDirection;
@@ -295,7 +297,7 @@ import com.guavus.rubix.search.SearchRequest;
  * This object represents a query criteria for querying streaming data. Details
  * of the member variables
  * <ul>
- * <li>{@link #responseDimensions} - This is the ArrayBuffer of Dimensions which are
+ * <li>{@link #responseDimensions} - This is the ArrayList of Dimensions which are
  * required in the output. For a usecase prespective .
  * <ul>
  * <li></li>A Grid data request can have dimensions as src_PE_name ,
@@ -317,21 +319,21 @@ import com.guavus.rubix.search.SearchRequest;
  * the tab selected. <br/>
  * </li> 
  * 
- * <li> {@link #filterMap} This is a ArrayBuffer of {@link NameValue} containing the
+ * <li> {@link #filterMap} This is a ArrayList of {@link NameValue} containing the
  * Dimension as {@link NameValue#getName()} as name and
  * {@link NameValue#getValue()} as its value. These Dimensions are the exact
  * match selection criteria . The Dimensions sent in this pram should cached
  * types only. A Cached type dimension is the dimension which is stored in
  * cache. This filter works on exact match. For e.g customer_id = 199</li>
  * 
- * <li> {@link #filters} This is a ArrayBuffer, having the ArrayBuffer of {@link NameValue} which  further contain
+ * <li> {@link #filters} This is a ArrayList, having the ArrayList of {@link NameValue} which  further contain
  * the Dimension as {@link NameValue#getName()} as name and
  * {@link NameValue#getValue()} as its value. These Dimensions are the exact
  * match selection criteria . The Dimensions sent in this pram should cached
  * types only. A Cached type dimension is the dimension which is stored in
  * cache. This filter works on exact match. For e.g customer_id = 199
- * The criterion in the inner ArrayBuffer are ANDed together and all such criterion
- * present in each element of outer ArrayBuffer are ORed to get the final selection criteria
+ * The criterion in the inner ArrayList are ANDed together and all such criterion
+ * present in each element of outer ArrayList are ORed to get the final selection criteria
  * 
  * </li>
  * <li> {@link #sortProperty} A dimension on which the results will be
@@ -354,18 +356,18 @@ public class QueryRequest implements Serializable {
 	|**
 	 * Measures names which are required in the response
 	 *|
-	private ArrayBuffer<String> responseMeasures;
+	private ArrayList<String> responseMeasures;
 
 	|**
 	 * Dimension Names which are required in the response
 	 *|
-	private ArrayBuffer<String> responseDimensions;
+	private ArrayList<String> responseDimensions;
 
 	|**
 	 * The dimensions in which contects the qurey is being made. Typically
 	 * derived from a tab
 	 *|
-	private ArrayBuffer<String> cubeContextDimensions;
+	private ArrayList<String> cubeContextDimensions;
 
 	|**
 	 * Section criteria , if a selection is made then the specific values of the
@@ -374,16 +376,16 @@ public class QueryRequest implements Serializable {
 	 * the exact value s of the selected PE-PE pair is to be set in this object
 	 *|
 	@Deprecated
-	private ArrayBuffer<NameValue> filterMap;
+	private ArrayList<NameValue> filterMap;
 	
 	|**
 	 * Selection criteria, the selection criteria is created by ANDing all the NameValue filters
-	 * in the inner ArrayBuffer and ORing all the selection criterion formed by each element of the outer ArrayBuffer
+	 * in the inner ArrayList and ORing all the selection criterion formed by each element of the outer ArrayList
 	 * For backward compatibility, filterMap is also ORed to the final criteria 
 	 * 
 	 *|
 	@Deprecated
-	private ArrayBuffer<ArrayBuffer<NameValue>> filters;
+	private ArrayList<ArrayList<NameValue>> filters;
 	
 	|**
 	 * The filtering criteria should be passed in this
@@ -404,7 +406,7 @@ public class QueryRequest implements Serializable {
 	 * Special params map . As of now this will be used for special params of
 	 * series of N-point moving average
 	 *|
-	private ArrayBuffer<NameValue> paramMap;
+	private ArrayList<NameValue> paramMap;
 
     |**
      * Search request.
@@ -448,12 +450,12 @@ public class QueryRequest implements Serializable {
 	|*
 	 * measure filters for supported operations see operator class
 	 *|
-	private ArrayBuffer<ResponseFilter> responseFilters;
+	private ArrayList<ResponseFilter> responseFilters;
 	
 	|*
 	 * 
 	 *|
-	private ArrayBuffer<MeasureFilterData> measureFilters;
+	private ArrayList<MeasureFilterData> measureFilters;
 	
 	|**
 	 *  Bin class source name SE , DME etc
@@ -483,8 +485,8 @@ public class QueryRequest implements Serializable {
 	|**
 	 * @return the responseMeasures
 	 *|
-	@XmlElement(type=ArrayArrayBuffer.class)
-	public ArrayBuffer<String> getResponseMeasures() {
+	@XmlElement(type=ArrayArrayList.class)
+	public ArrayList<String> getResponseMeasures() {
 		return responseMeasures;
 	}
 
@@ -492,15 +494,15 @@ public class QueryRequest implements Serializable {
 	 * @param responseMeasures
 	 *            the responseMeasures to set
 	 *|
-	public void setResponseMeasures(ArrayBuffer<String> responseMeasures) {
+	public void setResponseMeasures(ArrayList<String> responseMeasures) {
 		this.responseMeasures = responseMeasures;
 	}
 
 	|**
 	 * @return the responseDimensions
 	 *|
-	@XmlElement(type=ArrayArrayBuffer.class)
-	public ArrayBuffer<String> getResponseDimensions() {
+	@XmlElement(type=ArrayArrayList.class)
+	public ArrayList<String> getResponseDimensions() {
 		return responseDimensions;
 	}
 
@@ -508,15 +510,15 @@ public class QueryRequest implements Serializable {
 	 * @param responseDimensions
 	 *            the responseDimensions to set
 	 *|
-	public void setResponseDimensions(ArrayBuffer<String> responseDimensions) {
+	public void setResponseDimensions(ArrayList<String> responseDimensions) {
 		this.responseDimensions = responseDimensions;
 	}
 
 	|**
 	 * @return the cubeContextDimensions
 	 *|
-	@XmlElement(type=ArrayArrayBuffer.class)
-	public ArrayBuffer<String> getCubeContextDimensions() {
+	@XmlElement(type=ArrayArrayList.class)
+	public ArrayList<String> getCubeContextDimensions() {
 		return cubeContextDimensions;
 	}
 
@@ -524,7 +526,7 @@ public class QueryRequest implements Serializable {
 	 * @param cubeContextDimensions
 	 *            the cubeContextDimensions to set
 	 *|
-	public void setCubeContextDimensions(ArrayBuffer<String> cubeContextDimensions) {
+	public void setCubeContextDimensions(ArrayList<String> cubeContextDimensions) {
 		this.cubeContextDimensions = cubeContextDimensions;
 	}
 
@@ -532,8 +534,8 @@ public class QueryRequest implements Serializable {
 	 * @return the filterMap
 	 *|
 	@Deprecated
-	@XmlElement(type=ArrayArrayBuffer.class)
-	public ArrayBuffer<NameValue> getFilterMap() {
+	@XmlElement(type=ArrayArrayList.class)
+	public ArrayList<NameValue> getFilterMap() {
 		return filterMap;
 	}
 
@@ -542,7 +544,7 @@ public class QueryRequest implements Serializable {
 	 *            the filterMap to set
 	 *|
 	@Deprecated
-	public void setFilterMap(ArrayBuffer<NameValue> filterMap) {
+	public void setFilterMap(ArrayList<NameValue> filterMap) {
 		this.filterMap = filterMap;
 	}
 	
@@ -550,8 +552,8 @@ public class QueryRequest implements Serializable {
 	 * @return the filters
 	 *|
 	@Deprecated
-	@XmlElement(type=ArrayArrayBuffer.class)
-	public ArrayBuffer<ArrayBuffer<NameValue>> getFilters() {
+	@XmlElement(type=ArrayArrayList.class)
+	public ArrayList<ArrayList<NameValue>> getFilters() {
 		return filters;
 	}
 
@@ -562,16 +564,16 @@ public class QueryRequest implements Serializable {
 	 * 
 	 *|
 	@Deprecated
-	public void setFilters(ArrayBuffer<ArrayBuffer<NameValue>> filters) {
+	public void setFilters(ArrayList<ArrayList<NameValue>> filters) {
 		this.filters = filters;
 	}
 
-	@XmlElement(type=ArrayArrayBuffer.class)
+	@XmlElement(type=ArrayArrayList.class)
 	public Collection<FilterData> getFilterData() {
 		return filterData;
 	}
 
-	@XmlElement(type=ArrayArrayBuffer.class)
+	@XmlElement(type=ArrayArrayList.class)
 	public void setFilterData(Collection<FilterData> filterData) {
 		this.filterData = filterData;
 	}
@@ -609,8 +611,8 @@ public class QueryRequest implements Serializable {
 	|**
 	 * @return the paramMap
 	 *|
-	@XmlElement(type=ArrayArrayBuffer.class)
-	public ArrayBuffer<NameValue> getParamMap() {
+	@XmlElement(type=ArrayArrayList.class)
+	public ArrayList<NameValue> getParamMap() {
 		return paramMap;
 	}
 
@@ -618,7 +620,7 @@ public class QueryRequest implements Serializable {
 	 * @param paramMap
 	 *            the paramMap to set
 	 *|
-	public void setParamMap(ArrayBuffer<NameValue> paramMap) {
+	public void setParamMap(ArrayList<NameValue> paramMap) {
 		this.paramMap = paramMap;
 	}
 
@@ -737,30 +739,30 @@ public class QueryRequest implements Serializable {
 	|**
 	 * @param measureFilters the measureFilters to set
 	 *|
-	public void setResponseFilters(ArrayBuffer<ResponseFilter> measureFilters) {
+	public void setResponseFilters(ArrayList<ResponseFilter> measureFilters) {
 		this.responseFilters = measureFilters;
 	}
 
 	|**
 	 * @return the measureFilters
 	 *|
-	@XmlElement(type=ArrayArrayBuffer.class)
-	public ArrayBuffer<ResponseFilter> getResponseFilters() {
+	@XmlElement(type=ArrayArrayList.class)
+	public ArrayList<ResponseFilter> getResponseFilters() {
 		return responseFilters;
 	}
 	
 	|**
 	 * @param new measureFilters the measureFilters to set
 	 *|
-	public void setMeasureFilters(ArrayBuffer<MeasureFilterData> measureFilters) {
+	public void setMeasureFilters(ArrayList<MeasureFilterData> measureFilters) {
 		this.measureFilters = measureFilters;
 	}
 
 	|**
 	 * @return the measureFilters
 	 *|
-	@XmlElement(type=ArrayArrayBuffer.class)
-	public ArrayBuffer<MeasureFilterData> getMeasureFilters() {
+	@XmlElement(type=ArrayArrayList.class)
+	public ArrayList<MeasureFilterData> getMeasureFilters() {
 		return measureFilters;
 	}
 	
@@ -981,9 +983,9 @@ public class QueryRequest implements Serializable {
 		return builder.toString();
 	}*|	
     public static void main(String[] args) {
-		ArrayBuffer<FilterData> filterDatas = new ArrayArrayBuffer<FilterData>();
+		ArrayList<FilterData> filterDatas = new ArrayArrayList<FilterData>();
 		FilterData filterData = new FilterData();
-		ArrayBuffer<SingleFilter> singleFilters = new ArrayArrayBuffer<SingleFilter>();
+		ArrayList<SingleFilter> singleFilters = new ArrayArrayList<SingleFilter>();
 		SingleFilter singleFilter = new SingleFilter();
 		singleFilter.setDimension("a");
 		singleFilter.setValue("2");
@@ -998,10 +1000,10 @@ public class QueryRequest implements Serializable {
 		filterData.setFilters(singleFilters);
 		filterDatas.add(filterData);
 		MeasureFilterData data = new MeasureFilterData();
-		ArrayBuffer<MultiFilter> multiFilters = new ArrayArrayBuffer<MultiFilter>();
+		ArrayList<MultiFilter> multiFilters = new ArrayArrayList<MultiFilter>();
 		for (int i = 0; i < 2; i++) {
 			MultiFilter innerFilters=  data.new MultiFilter();
-			ArrayBuffer<MeasureSingleFilter> filter = new ArrayArrayBuffer<MeasureSingleFilter>();
+			ArrayList<MeasureSingleFilter> filter = new ArrayArrayList<MeasureSingleFilter>();
 			for (int j= 0; j< 3 ; j ++) {
 				filter.add(new MeasureSingleFilter("GREATER_THAN", new Double[]{(double) j}));
 			}
@@ -1014,10 +1016,10 @@ public class QueryRequest implements Serializable {
 		data.setFilters(multiFilters);
 		System.out.println(gson.toJson(data));
 		QueryRequest queryRequest = new QueryRequest();
-		queryRequest.setResponseDimensions(ArrayBuffers.<String>newArrayArrayBuffer());
-		queryRequest.setResponseMeasures(ArrayBuffers.<String>newArrayArrayBuffer());
+		queryRequest.setResponseDimensions(ArrayLists.<String>newArrayArrayList());
+		queryRequest.setResponseMeasures(ArrayLists.<String>newArrayArrayList());
 		queryRequest.setFilterData(filterDatas);
-		queryRequest.setMeasureFilters(com.google.common.collect.ArrayBuffers.newArrayArrayBuffer(data));
+		queryRequest.setMeasureFilters(com.google.common.collect.ArrayLists.newArrayArrayList(data));
 		System.out.println(gson.toJson(queryRequest));
 		System.out.println(gson.fromJson(gson.toJson(queryRequest),QueryRequest.class));
 		System.out.println(gson.fromJson("{'responseMeasures':['CompUpBytes','CompDownBytes'],'responseDimensions':['Attribute'], 'sortProperty':'CompUpBytes','filters':[],'cubeContextDimensions':[],'sortDirection':'DSC','maxResults':-1,'maxResultOffset':0,'length':50,'offset':0,'startTime':1349917200,'endTime':1349935200,'timeGranularity':0,'filters':[[{'name':'Agony','value':'6'}]],'measureFilters':[{'filters':[{'singleFilters':[{'operand':[0.0],'operator':'GREATER_THAN'},{'operand':[1.0],'operator':'GREATER_THAN'},{'operand':[2.0],'operator':'GREATER_THAN'}],'measure':'CompUpBytes'},{'singleFilters':[{'operand':[0.0],'operator':'GREATER_THAN'},{'operand':[1.0],'operator':'GREATER_THAN'},{'operand':[2.0],'operator':'GREATER_THAN'}],'measure':'CompDownBytes'}]}]}", QueryRequest.class));
@@ -1030,7 +1032,7 @@ public class QueryRequest implements Serializable {
     public String toSql(String ts1)
  {
 
-		ArrayBuffer<String> columns = new ArrayArrayBuffer<String>();
+		ArrayList<String> columns = new ArrayArrayList<String>();
 		columns.addAll(responseDimensions);
 		columns.addAll(responseMeasures);
 		if (cubeContextDimensions != null) {
@@ -1102,7 +1104,7 @@ public class QueryRequest implements Serializable {
     		return calculateParams(filters.get(0));
     	}
     	String sql = " (";
-    	for(ArrayBuffer<NameValue> filter : filters) {
+    	for(ArrayList<NameValue> filter : filters) {
     		sql+= "(";
     		for(NameValue nameValue : filter) {
     			sql += nameValue.toSql() + " AND ";

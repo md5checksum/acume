@@ -4,11 +4,14 @@ import com.guavus.acume.rest.beans.QueryRequest
 import com.guavus.acume.core.AcumeService._
 import com.guavus.acume.rest.beans.AggregateResponse
 import com.guavus.acume.rest.beans.TimeseriesResponse
+import com.guavus.acume.core.configuration.ConfigFactory
 
 /**
  * Main service of acume which serves the request from UI and rest services. It checks if the response is present in RR cache otherwise fire the query on OLAP cache.
  */
-class AcumeService {
+class AcumeService(dataService: DataService) {
+  
+  def this() = this(null)
 
   /**
    * Any query request can be fired and result of appropriate type is returned, If query is of type aggregate it returns aggregate response else timeseries response.
@@ -32,7 +35,7 @@ class AcumeService {
 
 object AcumeService {
   
-  val acumeService = new AcumeService()
+  val acumeService = ConfigFactory.getInstance().getBean(classOf[AcumeService])
   
-  val dataService = new DataService()
+  val dataService = ConfigFactory.getInstance().getBean(classOf[DataService])
 }

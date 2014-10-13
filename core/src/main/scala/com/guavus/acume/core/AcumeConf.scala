@@ -68,23 +68,23 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
   /**
    * The current bin time to be set for the job. This is basically the start time of the bin
    */
-  def setCurrentBinTime(currentBinTime: String): AcumeConf = {
-    set("Acume.current.bin.time", currentBinTime)
+  def setResolver(resolver : String): AcumeConf = {
+    set("Acume.resolver", resolver)
   }
   
-  def getCurrentBinTime() : Long = {
-    getLong("Acume.current.bin.time", 0)
+  def getResolver() : String = {
+    get("Acume.resolver", "com.guavus.acume.core.spring.AcumeResolver")
   }
   
   /**
    * Sets the input paths for the cubes to be used. Format to use is CubeName1:path1;path2|CubeName2:path1;path2
    */
-  def setInputCubesPaths(inputCubesPaths: String): AcumeConf = {
-    set("Acume.input.cubes.paths", inputCubesPaths)
+  def setMaxQueryLogRecords(maxQueryLogRecords : Int): AcumeConf = {
+    set("Acume.max.query.log.record", maxQueryLogRecords.toString)
   }
 
-  def getInputCubesPaths(): String = {
-    get("Acume.input.cubes.paths")
+  def getMaxQueryLogRecords(): Int = {
+    getInt("Acume.max.query.log.record", 10)
   }
   
   /**

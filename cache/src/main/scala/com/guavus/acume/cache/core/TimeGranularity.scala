@@ -20,7 +20,7 @@ object TimeGranularity extends Enumeration {
   val ONE_MINUTE = new TimeGranularity(60L, "1m")
   val HALF_DAY = new TimeGranularity(12 * 60 * 60L, "12h")
 
-  class TimeGranularity (@BeanProperty var granularity: Long, variableRetentionName: String)
+class TimeGranularity (@BeanProperty var granularity: Long, variableRetentionName: String)
       extends Val {
 
     @BeanProperty
