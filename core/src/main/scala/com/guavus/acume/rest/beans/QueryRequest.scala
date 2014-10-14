@@ -5,13 +5,11 @@ import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlRootElement
 import javax.xml.bind.annotation.XmlTransient
 import com.google.gson.Gson
-import com.guavus.rubix.query.SortDirection
-import com.guavus.rubix.search.SearchRequest
 import QueryRequest._
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
 import scala.collection.JavaConversions._
 import java.util.ArrayList
-import com.google.inject.internal.Lists
+import com.google.common.collect.Lists
 import java.util.Arrays
 
 object QueryRequest {
@@ -231,7 +229,7 @@ class QueryRequest extends Serializable {
         columns.add("c." + dimension)
       }
     }
-    val abs = "select " + ts1 + columns.toString.substring(1, columns.toString.length - 1) + " from global where " + (if (subQuery == null) "" else " (placeholder) in (" + subQuery.toSql("") + ") and ") + " startTime = " + startTime + " and endTime = " + endTime + (if ((filters == null || filters.size == 0 || calculateDimensionFilters().equalsIgnoreCase("  "))) "" else " and " + calculateDimensionFilters()) + (if ((paramMap == null || paramMap.size == 0)) "" else " and " + calculateParams(paramMap)) + (if ((responseFilters == null || responseFilters.size == 0)) "" else " and " + calculateResponseFilters()) + (if ((binSource == null)) "" else " and " + " binSource " + " = '" + binSource + "' ") + " and timeGranularity = " + timeGranularity + (if (searchRequest == null) "" else " and (placeholder) in (" + searchRequest.toSql() + ") ") + (if ((sortProperty == null || sortProperty.isEmpty)) " " else " order by " + sortProperty + " " + ((if (sortDirection == SortDirection.ASC.name()) " asc" else " desc"))) + (if ((length == -1)) "" else "  limit " + length) + (if ((offset == 0)) "" else " offset " + offset + " ")
+    val abs = "select " + ts1 + columns.toString.substring(1, columns.toString.length - 1) + " from global where " + (if (subQuery == null) "" else " (placeholder) in (" + subQuery.toSql("") + ") and ") + " startTime = " + startTime + " and endTime = " + endTime + (if ((filters == null || filters.size == 0 || calculateDimensionFilters().equalsIgnoreCase("  "))) "" else " and " + calculateDimensionFilters()) + (if ((paramMap == null || paramMap.size == 0)) "" else " and " + calculateParams(paramMap)) + (if ((responseFilters == null || responseFilters.size == 0)) "" else " and " + calculateResponseFilters()) + (if ((binSource == null)) "" else " and " + " binSource " + " = '" + binSource + "' ") + " and timeGranularity = " + timeGranularity + (if (searchRequest == null) "" else " and (placeholder) in (" + searchRequest.toSql() + ") ") + (if ((sortProperty == null || sortProperty.isEmpty)) " " else " order by " + sortProperty + " " + ((if (sortDirection == SortDirection.ASC.toString) " asc" else " desc"))) + (if ((length == -1)) "" else "  limit " + length) + (if ((offset == 0)) "" else " offset " + offset + " ")
     abs
   }
 

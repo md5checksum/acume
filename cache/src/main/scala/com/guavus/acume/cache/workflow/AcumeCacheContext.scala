@@ -100,6 +100,10 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
     measure.getFunction.functionName
   }
   
+  private [acume] def getDefaultValueForField(fieldName: String) : AnyRef = {
+    null
+  }
+  
   private [acume] def getCubeListContainingFields(lstfieldNames: List[String]) = {
     
     val dimensionSet = scala.collection.mutable.Set[Dimension]()

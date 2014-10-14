@@ -2,12 +2,10 @@ package com.guavus.acume.core.usermanagement
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
-import com.guavus.rubix.configuration.ConfigFactory
 import com.guavus.rubix.user.permission.IPermissionTemplate
 import com.guavus.rubix.user.shiro.UserRealm
-
 import DefaultUserRealm._
+import com.guavus.acume.core.configuration.ConfigFactory
 
 object DefaultUserRealm {
 

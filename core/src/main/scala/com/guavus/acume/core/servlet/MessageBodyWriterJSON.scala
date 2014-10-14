@@ -8,10 +8,10 @@ import javax.ws.rs.ext.MessageBodyWriter
 import javax.ws.rs.ext.Provider
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.guavus.rubix.search.SearchCriterion
+import com.guavus.acume.rest.beans.SearchCriterion
 import com.sun.jersey.spi.resource.Singleton
 import MessageBodyWriterJSON._
-import com.guavus.rubix.search.SearchCriterion
+import com.guavus.acume.rest.beans.SearchCriterion
 
 object MessageBodyWriterJSON {
 

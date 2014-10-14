@@ -13,6 +13,7 @@ import java.util.ArrayList
 import com.guavus.acume.core.AcumeConf
 import com.guavus.acume.core.AcumeContext
 import java.util.List
+import com.guavus.acume.core.configuration.ConfigFactory
 
 object AggregateResponse {
 
@@ -52,7 +53,7 @@ class AggregateResponse extends Serializable {
   var totalRecords: Int = _
 
   override def toString(): String = {
-    val maxLen = AcumeContext.acumeContext.get.acumeConf.getMaxQueryLogRecords
+    val maxLen = ConfigFactory.getInstance.getBean(classOf[AcumeContext]).acumeConf.getMaxQueryLogRecords
     val aggResponse = new AggregateResponse(results.subList(0, Math.min(results.size, maxLen)), responseDimensions, responseMeasures, totalRecords)
     gson.toJson(aggResponse)
   }

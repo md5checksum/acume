@@ -2,7 +2,6 @@ package com.guavus.acume.rest.beans
 
 import java.io.Serializable
 import java.util.Arrays
-import com.guavus.rubix.filter.Operator
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
 //remove if not needed
 import scala.collection.JavaConversions._
@@ -19,7 +18,7 @@ class ResponseFilter extends Serializable {
   var values: Array[Double] = _
 
   def toSql(): String = {
-    var sql = " " + cubeProperty + " " + Operator.valueOf(operator).getSqlSymbol + " "
+    var sql = " " + cubeProperty + " " + Operator.convertValue(Operator.withName(operator)).sqlSymbol + " "
     for (i <- 0 until values.length) {
       sql += values(i) + " and "
     }

@@ -3,12 +3,12 @@ package com.guavus.acume.core.authenticate
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import util.log.LoggerUtils
-import com.guavus.rubix.exceptions.RubixExceptionConstants
 import com.guavus.rubix.user.management.UserManagementServiceF
 import com.guavus.rubix.user.management.utils.HttpUtils
 import com.sun.jersey.core.util.Base64
-import com.guavus.rubix.RubixWebService.BadRequestException
 import com.guavus.acume.core.webservice.HttpError
+import com.guavus.acume.core.webservice.BadRequestException
+import com.guavus.acume.core.exceptions.AcumeExceptionConstants
 
 object Authentication {
 
@@ -27,7 +27,7 @@ object Authentication {
         case e: Exception => {
           logger.error("Exception when decoding super user info from request parameters")
           LoggerUtils.printStackTraceInError(logger, e)
-          throw new BadRequestException(HttpError.UNAUTHORISED, RubixExceptionConstants.INVALID_CREDENTIALS.name(), "Authentication credentials bad or missing!", null)
+          throw new BadRequestException(HttpError.UNAUTHORISED, AcumeExceptionConstants.INVALID_CREDENTIALS.name, "Authentication credentials bad or missing!", null)
         }
       }
     } else if (user != null && password != null) {
@@ -37,12 +37,12 @@ object Authentication {
       } catch {
         case e: Exception => {
           logger.error("Authentication failed for user : " + user)
-          throw new BadRequestException(HttpError.UNAUTHORISED, RubixExceptionConstants.INVALID_CREDENTIALS.name(), "Authentication credentials bad!", null)
+          throw new BadRequestException(HttpError.UNAUTHORISED, AcumeExceptionConstants.INVALID_CREDENTIALS.name, "Authentication credentials bad!", null)
         }
       }
     } else {
       logger.error("Authentication failed for user")
-      throw new BadRequestException(HttpError.UNAUTHORISED, RubixExceptionConstants.MISSING_CREDENTIALS.name(), "Authentication credentials missing!", null)
+      throw new BadRequestException(HttpError.UNAUTHORISED, AcumeExceptionConstants.MISSING_CREDENTIALS.name, "Authentication credentials missing!", null)
     }
   }
 

@@ -2,7 +2,6 @@ package com.guavus.acume.rest.beans
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.guavus.rubix.search.SearchRequest
 
 object QueryJsonUtil {
 

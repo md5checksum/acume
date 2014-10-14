@@ -2,7 +2,7 @@ package com.guavus.acume.core.exceptions
 //remove if not needed
 import scala.collection.JavaConversions._
 
-object RubixExceptionConstants extends Enumeration {
+object AcumeExceptionConstants extends Enumeration {
 
   val USER_DISABLED = new AcumeExceptionConstants("USER_DISABLED")
 
@@ -44,7 +44,7 @@ object RubixExceptionConstants extends Enumeration {
 
   val ADAPTIVE_EVICTION_IN_PROGRESS = new AcumeExceptionConstants("ADAPTIVE_EVICTION_IN_PROGRESS")
 
-  class AcumeExceptionConstants(val name: String) extends Val {
+  case class AcumeExceptionConstants(val name: String) extends Val {
 
     override def toString(): String = name
   }

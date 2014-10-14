@@ -16,10 +16,7 @@ import org.apache.commons.lang.exception.ExceptionUtils
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.guavus.rubix.RubixWebService.BadRequestException
-import com.guavus.rubix.RubixWebService.HttpError
-import com.guavus.rubix.exceptions.RubixExceptionConstants
-import com.guavus.rubix.search.SearchCriterion
+import com.guavus.acume.rest.beans.SearchCriterion
 import com.sun.jersey.spi.resource.Singleton
 
 import MessageBodyReaderJSON._

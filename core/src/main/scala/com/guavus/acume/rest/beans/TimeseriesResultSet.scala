@@ -13,7 +13,8 @@ import com.google.gson.reflect.TypeToken
 import TimeseriesResultSet._
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
 import scala.collection.JavaConversions._
-import scala.collection.mutable.ArrayBuffer
+import java.util.ArrayList
+import java.util.List
 
 /**
  * @author pankaj.arora
@@ -33,7 +34,7 @@ object TimeseriesResultSet {
   class JsonAdaptor extends JsonDeserializer[TimeseriesResultSet] {
 
     override def deserialize(jsonElement: JsonElement, typeOfT: Type, context: JsonDeserializationContext): TimeseriesResultSet = {
-      val record = new ArrayBuffer[Any]()
+      val record = new ArrayList[Any]()
       val json = jsonElement.asInstanceOf[JsonObject]
       val measures = JsonAdaptor.gson.fromJson(json.get("measures"), JsonAdaptor.listOfDouble)
       val jsonArray = json.get("record").getAsJsonArray
@@ -45,7 +46,7 @@ object TimeseriesResultSet {
   }
 }
 
-class TimeseriesResultSet(@BeanProperty var record: ArrayBuffer[Any], @BeanProperty var measures: ArrayBuffer[ArrayBuffer[Any]]) extends Serializable() {
+class TimeseriesResultSet(@BeanProperty var record: List[Any], @BeanProperty var measures: List[List[Any]]) extends Serializable() {
 
   override def toString(): String = {
     val builder = new StringBuilder()
