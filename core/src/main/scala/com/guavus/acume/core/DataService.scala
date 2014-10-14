@@ -78,13 +78,13 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
             if (row(i) != null)
               dims += row(i).toString
             else
-              dims += queryBuilderService.getQbSchema.getDefaultValueForField(dimsNames(dimIndex))
+              dims += queryBuilderService.getDefaultValueForField(dimsNames(dimIndex))
             dimIndex += 1
           } else {
             if (row(i) != null)
               measures += row(i)
             else
-              measures += queryBuilderService.getQbSchema.getDefaultValueForField(measuresNames(measureIndex))
+              measures += queryBuilderService.getDefaultValueForField(measuresNames(measureIndex))
             measureIndex += 1
           }
           i += 1
@@ -125,13 +125,13 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
             if (row(i) != null)
               dims += row(i).toString
             else
-              dims += queryBuilderService.getQbSchema.getDefaultValueForField(dimsNames(dimIndex))
+              dims += queryBuilderService.getDefaultValueForField(dimsNames(dimIndex))
             dimIndex += 1
           } else {
             if (row(i) != null)
               measures += row(i)
             else
-              measures += queryBuilderService.getQbSchema.getDefaultValueForField(measuresNames(measureIndex))
+              measures += queryBuilderService.getDefaultValueForField(measuresNames(measureIndex))
             measureIndex += 1
           }
           i += 1
