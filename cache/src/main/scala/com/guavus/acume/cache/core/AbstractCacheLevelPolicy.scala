@@ -26,6 +26,7 @@ abstract class AbstractCacheLevelPolicy(protected var baseLevel: Long) extends C
       currentLevels match{
         case None => currentLevels = Some(MutableList[Long]())
         intervals.put(level, new LinkedList[Long]())
+        case _ => 
       }
       intervals.get(level).get.addAll(Utility.getAllIntervals(startTimeCeiling, endTimeFloor, level))
       if (startTimeCeiling > startTime) {
@@ -51,6 +52,7 @@ abstract class AbstractCacheLevelPolicy(protected var baseLevel: Long) extends C
         times match{
           case None => times = Some(MutableList())
           intervals.put(stepSize, times)
+          case _ => 
         }
         intervals.get(stepSize).get.add(time)
         time += stepSize
@@ -72,6 +74,7 @@ abstract class AbstractCacheLevelPolicy(protected var baseLevel: Long) extends C
         times match{
           case None =>
           intervals.put(stepSize, MutableList())
+          case _ => 
         }
         intervals.get(stepSize).get.add(time - stepSize)
         time -= stepSize
@@ -84,6 +87,7 @@ abstract class AbstractCacheLevelPolicy(protected var baseLevel: Long) extends C
       var times = intervals.get(getBaseLevel)
       times match{
         case None => intervals.put(getBaseLevel, MutableList().add(time - getBaseLevel))
+        case _ => 
       }
     }
     intervals

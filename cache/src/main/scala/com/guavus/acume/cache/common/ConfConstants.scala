@@ -10,6 +10,8 @@ private [acume] object ConfConstants {
   val timezone = "acume.cache.core.timezone"
   val timezonedb = "acume.cache.core.timezonedb"
   val whichcachetouse = "acume.cache.core.cachename"
+  val rrcacheconcurrenylevel = "acume.cache.core.rrcacheconcurrenylevel"
+  val rrsize = ("acume.cache.core.rrcahcesize", "10000")
   val instabase = "acume.cache.baselayer.instabase"
   val cubedefinitionxml = "acume.cache.baselayer.cubedefinitionxml"
   val qltype = "acume.cache.execute.qltype"

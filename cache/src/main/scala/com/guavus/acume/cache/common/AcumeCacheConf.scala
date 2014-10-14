@@ -4,6 +4,8 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable.HashMap
 import org.slf4j.LoggerFactory
 import scala.Array.canBuildFrom
+import java.io.InputStream
+import java.util.Properties
 
 /**
  * Configuration for a Cache application. Used to set various Cache parameters as key-value pairs.
@@ -24,17 +26,26 @@ import scala.Array.canBuildFrom
  * @param loadDefaults whether to also load values from Java system properties
  */
 
-class AcumeCacheConf(loadDefaults: Boolean) extends Cloneable with Serializable {
+class AcumeCacheConf(loadDefaults: Boolean, file: InputStream) extends Cloneable with Serializable {
   
   val logger = LoggerFactory.getLogger(this.getClass())
   
   /** Create a AcumeCacheConf that loads defaults from system properties and the classpath */
-  def this() = this(true)
-
+  def this() = this(true, getClass().getResourceAsStream("/acume.cache.properties"))
+  
   private val settings = new HashMap[String, String]()
 
   if (loadDefaults) {
     for ((k, v) <- System.getProperties.asScala if k.toLowerCase.startsWith("acume.cache.")) {
+      settings(k) = v
+    }
+  }
+  
+  if(file != null) {
+    // Load properties from file
+    val properties = new Properties()
+    properties.load(file)
+    for ((k, v) <- properties.asScala) {
       settings(k) = v
     }
   }
@@ -114,7 +125,7 @@ class AcumeCacheConf(loadDefaults: Boolean) extends Cloneable with Serializable 
 
   /** Copy this object */
   override def clone: AcumeCacheConf = {
-    new AcumeCacheConf(false).setAll(settings)
+    new AcumeCacheConf().setAll(settings)
   }
 
   /**

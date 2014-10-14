@@ -3,12 +3,12 @@ package com.guavus.acume.cache.common
 import com.guavus.acume.cache.common.FieldType._
 import com.guavus.acume.cache.common.DataType.DataType
 
-class Measure(name: String, datatype: DataType, function: Function) extends Field { 
+class Measure(name: String, datatype: DataType, function: Function, defaultValue: Any) extends Field { 
   
-  var aggregationFunction = "SUM"
   def getName: String = name
   def getFieldType: FieldType = FieldType.Measure
-  def getDataType: DataType = datatype
+  def getDefaultValue: Any = defaultValue 	
+  def getDataType: DataType = datatype 	
   def getFunction: Function = function
   
   override def equals(ms: Any): Boolean = {

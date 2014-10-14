@@ -100,10 +100,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
     measure.getFunction.functionName
   }
   
-  private [acume] def getDefaultValueForField(fieldName: String) : AnyRef = {
-    null
-  }
-  
   private [acume] def getCubeListContainingFields(lstfieldNames: List[String]) = {
     
     val dimensionSet = scala.collection.mutable.Set[Dimension]()
@@ -145,9 +141,9 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
       val fitype = FieldType.getFieldType(info(2))
       fitype match{
         case FieldType.Dimension => 
-          dimensionMap.put(name, new Dimension(name, datatype))
+          dimensionMap.put(name, new Dimension(name, datatype, 0))
         case FieldType.Measure => 
-          measureMap.put(name, new Measure(name, datatype, Function("", info(3))))
+          measureMap.put(name, new Measure(name, datatype, Function("", info(3)), 0 ))
       }
     }
     

@@ -1,3 +1,4 @@
+
 package com.guavus.acume.cache.core
 
 import scala.collection.immutable.SortedMap
@@ -22,6 +23,9 @@ import com.guavus.acume.cache.core.TimeGranularity._
 import com.guavus.acume.cache.workflow.AcumeCacheContext
 import com.guavus.acume.cache.disk.utility.DataLoader
 import org.apache.spark.sql.SchemaRDD
+import com.google.common.cache.CacheBuilder
+import com.guavus.acume.cache.common.LevelTimestamp
+import com.google.common.cache.CacheLoader
 
 /**
  * Saves the dimension table till date and all fact tables as different tableNames for each levelTimestamp
@@ -29,7 +33,7 @@ import org.apache.spark.sql.SchemaRDD
 private [cache] class AcumeTreeCache(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy) 
 extends AcumeCache(acumeCacheContext, conf, cube) {
 
-  val cachePointToTable: MutableMap[LevelTimestamp, String] = MutableMap[LevelTimestamp, String]()
+//  val cachePointToTable: MutableMap[LevelTimestamp, String] = MutableMap[LevelTimestamp, String]()
   val dimensionTable: String = s"AcumeCacheGlobalDimensionTable${cube.cubeName}"
   def createTempTable(startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
     requestType match {
@@ -37,7 +41,16 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
       case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam)
     }
   }
-  
+		
+  val cachePointToTable = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
+  .maximumSize(conf.get(ConfConstants.rrsize._1).toInt)
+  .build(
+      new CacheLoader[LevelTimestamp, String]() {
+        def load(key: LevelTimestamp): String = {
+          return getData(key);
+        }
+      });
+
   def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf(AcumeConstants.TRIPLE_DOLLAR_SSC) + 1)
   
   def createTableForAggregate(startTime: Long, endTime: Long, tableName: String) {
@@ -84,6 +97,18 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     SortedMap[Long, Int]() ++ contextCollection
   }
   
+  private def getData(levelTimestamp: LevelTimestamp) = {
+
+    import acumeCacheContext.sqlContext._
+    val cacheLevel = levelTimestamp.level
+    val diskUtility = DataLoader.getDataLoader(acumeCacheContext, conf, cube)
+     val diskread = diskUtility.loadData(cube, levelTimestamp, dimensionTable)
+    val _$tableName = cube.toString + levelTimestamp.toString
+    diskread.registerTempTable(_$tableName)
+    cacheTable(_$tableName) 
+    _$tableName
+  }
+  
   private def buildTableForIntervals(levelTimestampMap: MutableMap[Long, MutableList[Long]], tableName: String) {
     import acumeCacheContext.sqlContext._
     var flag = false
@@ -94,13 +119,16 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
       val cachelevel = CacheLevel.getCacheLevel(level)
       for(item <- ts){
         val levelTimestamp = LevelTimestamp(cachelevel, item)
-        val _$tableName = cube.toString + levelTimestamp.toString
-        val diskread = 
-          if(!cachePointToTable.contains(levelTimestamp)){
-            diskUtility.loadData(businessCube, levelTimestamp, dimensionTable)
-          } else{
-            acumeCacheContext.sqlContext.sql("select * from " + cachePointToTable.get(LevelTimestamp(cachelevel, item)))
-          }
+//        val _$tableName = cube.toString + levelTimestamp.toString
+//        val diskread = 
+//          if(!cachePointToTable.contains(levelTimestamp)){
+//            (diskUtility.loadData(businessCube, levelTimestamp, dimensionTable), true)
+//          } else{
+//            (acumeCacheContext.sqlContext.sql("select * from " + cachePointToTable.get(LevelTimestamp(cachelevel, item))), false)
+//          }
+        
+        val tblNm = cachePointToTable.get(levelTimestamp)
+        val diskread = acumeCacheContext.sqlContext.sql(s"select * from $tblNm")
         if(!flag){
           diskread.registerTempTable(tableName)
           flag = true
@@ -108,8 +136,10 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
         else{
           diskread.insertInto(tableName)
         }
-        diskread.registerTempTable(_$tableName)
-        cachePointToTable.put(levelTimestamp, _$tableName)
+//        diskread._1.registerTempTable(_$tableName)
+//        if(diskread._2)
+//          cacheTable(_$tableName) 
+//        cachePointToTable.put(levelTimestamp, _$tableName)
       }
     }
   }

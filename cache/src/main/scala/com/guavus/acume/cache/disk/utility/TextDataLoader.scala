@@ -88,7 +88,7 @@ class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf,
       sqlContext.sql(s"select ${CubeUtil.getDimensionSet(businessCube).map(_.getName).mkString(",")} from $thisCubeName").insertInto(globalDTableName)
       true
     } catch { 
-    case ex => false   
+    case ex: Throwable => false   
     }
   }
   

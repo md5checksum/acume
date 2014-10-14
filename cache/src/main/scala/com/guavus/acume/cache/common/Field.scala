@@ -7,5 +7,6 @@ trait Field {
 
   def getName: String
   def getDataType: DataType
+  def getDefaultValue: Any
   def getFieldType: FieldType
 }
