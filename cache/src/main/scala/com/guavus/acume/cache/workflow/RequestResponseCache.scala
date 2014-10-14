@@ -15,10 +15,8 @@ class RequestResponseCache(acumeCacheContext: AcumeCacheContext, conf: AcumeCach
   val cache = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
     .maximumSize(conf.get(ConfConstants.rrsize._1).toInt)
     .build(
-      new CacheLoader[(PlainSelect, QLType.QLType), SchemaRDD]() {
+      new CacheLoader[(PlainSelect, QLType.QLType), AcumeCacheResponse]() {
         def load(input: (PlainSelect, QLType.QLType)) = {
-          if (!AcumeCacheContext.checkQLValidation(acumeCacheContext.sqlContext, input._2))
-            throw new RuntimeException(s"$input._2 not supported with $acumeCacheContext.sqlContext")
           acumeCacheContext.utilQL(input._1.toString, input._2)
         }
       });
@@ -28,9 +26,8 @@ class RequestResponseCache(acumeCacheContext: AcumeCacheContext, conf: AcumeCach
     val statement = sql.parse(new StringReader(input._1)).asInstanceOf[PlainSelect]
     cache.get((statement, input._2))
   }
-
 }
 
 trait RRCache {
-  def getRdd(input: (String, QLType.QLType)): SchemaRDD
+  def getRdd(input: (String, QLType.QLType)): AcumeCacheResponse
 }

@@ -3,7 +3,6 @@ package com.guavus.acume.cache.workflow
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.sql.SQLContext
 import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.common.ConfConstants
 import java.lang.UnsupportedOperationException
 import com.guavus.acume.cache.common.QLType
 import com.guavus.acume.cache.common.QLType._
@@ -29,6 +28,7 @@ import org.apache.spark.sql.SchemaRDD
 import com.guavus.acume.cache.core.CacheIdentifier
 import com.guavus.acume.cache.utility.SQLUtility
 import org.apache.spark.SparkContext
+import java.util.Random
 
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) { 
   sqlContext match{
@@ -37,38 +37,45 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
   case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
  
-  val rrCacheLoader = Class.forName(conf.get(ConfConstants.rrCacheLoader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]
+  val rrCacheLoader = Class.forName(conf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]
   loadXML(conf.get(ConfConstants.businesscubexml))
   loadVRMap(conf)
   
   private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf(AcumeConstants.TRIPLE_DOLLAR_SSC) + 1)
-  def utilQL(sql: String, qltype: QLType) = {
+  private [acume] def utilQL(sql: String, qltype: QLType) = {
     val tx = AcumeCacheContext.parseSql(sql)
     val rt = tx._2
-    for(l <- tx._1) {
-      val ty = l.getTableName
+    var newsql = sql
+    val list = for(l <- tx._1) yield {
+      val cube = l.getTableName
       val startTime = l.getStartTime
       val endTime = l.getEndTime
       
-      val id = getCube(getCubeName(ty))
+      val i = getTable(cube)
+      val id = getCube(cube)
+      newsql = newsql.replace(s" $cube ", s" $i ")
       val idd = new CacheIdentifier()
       idd.put("cube", id.hashCode)
       val instance = AcumeCacheFactory.getInstance(this, conf, idd, id)
-      instance.createTempTable(startTime, endTime, rt, ty,None)
+      instance.createTempTableAndMetadata(startTime, endTime, rt, i,None)
     }
-    
-    AcumeCacheContext.ACQL(qltype, sqlContext)(sql)
+    val klist = list.flatMap(_.timestamps).toList
+    AcumeCacheResponse(AcumeCacheContext.ACQL(qltype, sqlContext)(sql), MetaData(klist))
   }
   
-  def acql(sql: String, qltype: String) : SchemaRDD = { 
+  def acql(sql: String, qltype: String): AcumeCacheResponse = { 
     
     val ql = QLType.getQLType(qltype)
+    if (!AcumeCacheContext.checkQLValidation(sqlContext, ql))
+      throw new RuntimeException(s"ql not supported with ${sqlContext}");
     executeQl(sql, ql)
   }
   
-  def acql(sql: String) : SchemaRDD = { 
+  def acql(sql: String): AcumeCacheResponse = { 
     
     val ql = AcumeCacheContext.getQLType(conf)
+    if (!AcumeCacheContext.checkQLValidation(sqlContext, ql))
+      throw new RuntimeException(s"ql not supported with ${sqlContext}");
     executeQl(sql, ql)
   }
   
@@ -118,6 +125,10 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
   }
   
   private [cache] def getCube(cube: String) = cubeMap.get(cube).getOrElse(throw new RuntimeException)
+  
+  private [cache] def getTable(cube: String) = s"${cube}_getUniqueRandomeNo"
+  
+  private [cache] def getUniqueRandomeNo: String = System.currentTimeMillis() + "" + new Random().nextInt()
   
   private [cache] def loadVRMap(conf: AcumeCacheConf) = {
     val vrmapstring = conf.get(ConfConstants.variableretentionmap)
@@ -235,7 +246,7 @@ object AcumeCacheContext{
     (list, RequestType.getRequestType(requestType))
   }
   
-  def checkQLValidation(sqlContext: SQLContext, qltype: QLType) = { 
+  private [cache] def checkQLValidation(sqlContext: SQLContext, qltype: QLType) = { 
     
     sqlContext match{
       case hiveContext: HiveContext =>

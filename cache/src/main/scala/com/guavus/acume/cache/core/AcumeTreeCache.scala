@@ -26,6 +26,7 @@ import org.apache.spark.sql.SchemaRDD
 import com.google.common.cache.CacheBuilder
 import com.guavus.acume.cache.common.LevelTimestamp
 import com.google.common.cache.CacheLoader
+import com.guavus.acume.cache.workflow.MetaData
 
 /**
  * Saves the dimension table till date and all fact tables as different tableNames for each levelTimestamp
@@ -35,10 +36,10 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
 
 //  val cachePointToTable: MutableMap[LevelTimestamp, String] = MutableMap[LevelTimestamp, String]()
   val dimensionTable: String = s"AcumeCacheGlobalDimensionTable${cube.cubeName}"
-  def createTempTable(startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
+  override def createTempTable(startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
     requestType match {
-      case Aggregate => createTableForAggregate(startTime, endTime, tableName)
-      case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam)
+      case Aggregate => createTableForAggregate(startTime, endTime, tableName, false)
+      case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam, false)
     }
   }
 		
@@ -51,16 +52,23 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
         }
       });
 
-  def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf(AcumeConstants.TRIPLE_DOLLAR_SSC) + 1)
+  private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf(AcumeConstants.TRIPLE_DOLLAR_SSC) + 1)
   
-  def createTableForAggregate(startTime: Long, endTime: Long, tableName: String) {
+  override def createTempTableAndMetadata(startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData = {
+    requestType match {
+      case Aggregate => createTableForAggregate(startTime, endTime, tableName, true)
+      case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam, true)
+    }
+  }
+  
+  private def createTableForAggregate(startTime: Long, endTime: Long, tableName: String, isMetaData: Boolean): MetaData = {
     // based on start time end time find the best possible path which depends on the level configured in variableretentionmap.
     val duration = endTime - startTime
     val levelTimestampMap = cacheLevelPolicy.getRequiredIntervals(startTime, endTime)
-    buildTableForIntervals(levelTimestampMap, tableName)
+    buildTableForIntervals(levelTimestampMap, tableName, isMetaData)
   }
   
-  def createTableForTimeseries(startTime: Long, endTime: Long, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
+  private def createTableForTimeseries(startTime: Long, endTime: Long, tableName: String, queryOptionalParam: Option[QueryOptionalParam], isMetaData: Boolean): MetaData = {
     //based on timeseries policy use the appropriate level to create list of rdds needed to create the output table
     
     val baseLevel = cube.baseGran.getGranularity
@@ -89,7 +97,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     val endTimeFloor = cacheLevelPolicy.getFloorToLevel(endTime, level)
     val list = Utility.getAllIntervals(startTimeCeiling, endTimeFloor, level)
     val intervals: MutableMap[Long, MutableList[Long]] = MutableMap(level -> list)
-    buildTableForIntervals(intervals, tableName)
+    buildTableForIntervals(intervals, tableName, isMetaData)
   }
   
   private def getVariableRetentionMap: SortedMap[Long, Int] = {
@@ -109,8 +117,9 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     _$tableName
   }
   
-  private def buildTableForIntervals(levelTimestampMap: MutableMap[Long, MutableList[Long]], tableName: String) {
+  private def buildTableForIntervals(levelTimestampMap: MutableMap[Long, MutableList[Long]], tableName: String, isMetaData: Boolean): MetaData = {
     import acumeCacheContext.sqlContext._
+    val timestamps: MutableList[Long] = MutableList[Long]()
     var flag = false
     val diskUtility = DataLoader.getDataLoader(acumeCacheContext, conf, cube)
     val businessCube = acumeCacheContext.cubeMap.getOrElse(getCubeName(tableName), throw new RuntimeException("Cube " + tableName + " doesn't exist."))
@@ -118,6 +127,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
       val (level, ts) = levelTsMapEntry
       val cachelevel = CacheLevel.getCacheLevel(level)
       for(item <- ts){
+        timestamps.+=(item)
         val levelTimestamp = LevelTimestamp(cachelevel, item)
 //        val _$tableName = cube.toString + levelTimestamp.toString
 //        val diskread = 
@@ -142,5 +152,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
 //        cachePointToTable.put(levelTimestamp, _$tableName)
       }
     }
+    val klist = timestamps.toList
+    MetaData(klist)
   }
 }
