@@ -1,7 +1,11 @@
 package com.guavus.acume.cache.common
 
+import scala.collection.mutable.Map
 private [acume] object ConfConstants {
 
+  val defaultValueMap = Map[String, Any]()
+  defaultValueMap += 
+    businesscubexml -> "src/test/resources/cubedefinition1.xml"
   val businesscubexml = "acume.cache.baselayer.businesscubexml"
   val schedularinterval = "acume.cache.core.schedularinterval"
   val variableretentionmap = "acume.cache.core.variableretentionmap"

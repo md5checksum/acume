@@ -28,6 +28,7 @@ import com.guavus.acume.cache.utility.Utility
 import org.apache.spark.sql.SchemaRDD
 import com.guavus.acume.cache.core.CacheIdentifier
 import com.guavus.acume.cache.utility.SQLUtility
+import org.apache.spark.SparkContext
 
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) { 
   sqlContext match{
@@ -209,6 +210,22 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
   }
 
 object AcumeCacheContext{
+  
+  def main(args: Array[String]) { 
+    
+    val sqlContext = new SQLContext(new SparkContext)
+    val conf = new AcumeCacheConf
+    conf.set(ConfConstants.businesscubexml, "/Users/archit.thakur/Documents/Code_Acume_Scala/cache/src/test/resources/cubdefinition.xml")
+    conf.set("acume.cache.core.variableretentionmap", "1h:720")
+    conf.set("acume.cache.baselayer.instainstanceid","0")
+    conf.set("acume.cache.baselayer.storagetype", "orc")
+    conf.set("acume.cache.core.timezone", "GMT")
+    conf.set("acume.cache.baselayer.instabase","instabase")
+    conf.set("acume.cache.baselayer.cubedefinitionxml", "cubexml")
+    conf.set("acume.cache.execute.qltype", "sql")
+    val cntxt = new AcumeCacheContext(sqlContext, conf)
+    cntxt.acql("select * from searchEgressPeerCube_12345")
+  }
   
   private [workflow] def parseSql(sql: String) = { 
     
