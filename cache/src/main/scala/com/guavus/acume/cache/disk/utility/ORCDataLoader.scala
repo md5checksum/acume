@@ -120,6 +120,12 @@ class ORCDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, 
   }
 }
 
+object ORCDataLoader{
+  def main(args: Array[String]) = {
+    
+  }
+}
+
 
 
 

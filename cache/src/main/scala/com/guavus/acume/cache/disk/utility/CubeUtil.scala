@@ -1,14 +1,15 @@
 package com.guavus.acume.cache.disk.utility
 
-import com.guavus.acume.cache.common.DataType._
-import com.guavus.acume.cache.common._
-import com.guavus.acume.cache.common.FieldType.FieldType
-import com.guavus.acume.cache.common.Dimension
-import com.guavus.acume.cache.common.Measure
-import com.guavus.acume.cache.common.Field
 import scala.collection.mutable.HashMap
-import com.guavus.acume.cache.workflow.AcumeCacheContext
 import scala.collection.mutable.MutableList
+
+import com.guavus.acume.cache.common.BaseCube
+import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.CubeTrait
+import com.guavus.acume.cache.common.DataType.DataType
+import com.guavus.acume.cache.common.Dimension
+import com.guavus.acume.cache.common.Field
+import com.guavus.acume.cache.common.Measure
 
 object CubeUtil {
 

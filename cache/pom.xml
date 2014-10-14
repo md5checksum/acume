@@ -47,12 +47,6 @@
 			<artifactId>jsqlparser</artifactId>
 			<version>0.8.5</version>
 		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.10</version>
-			<scope>test</scope>
-		</dependency>
 		<dependency> <!-- Spark dependency -->
       		<groupId>org.apache.spark</groupId>
       		<artifactId>spark-core_2.10</artifactId>
@@ -103,11 +97,6 @@
 			<artifactId>hadoop-mapreduce-client-core</artifactId>
 			<version>2.4.0</version>
 			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>thirdparty</groupId>
-			<artifactId>jgrapht-jdk1.6</artifactId>
-			<version>0.8.1</version>
 		</dependency>
 	</dependencies>
 
