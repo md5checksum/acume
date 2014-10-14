@@ -1,6 +1,8 @@
 package com.guavus.acume.rest.beans
 
 import java.io.Serializable
+import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
 import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlRootElement
 import javax.xml.bind.annotation.XmlTransient
@@ -50,7 +52,7 @@ object QueryRequest {
     queryRequest.setResponseDimensions(new ArrayList[String](0))
     queryRequest.setResponseMeasures(new ArrayList[String](0))
     queryRequest.setFilterData(filterDatas)
-    queryRequest.setMeasureFilters(Lists.newArrayList(Arrays.asList(new MeasureFilterData{data})))
+    queryRequest.setMeasureFilters(Lists.newArrayList(data))
     println(gson.toJson(queryRequest))
     println(gson.fromJson(gson.toJson(queryRequest), classOf[QueryRequest]))
     println(gson.fromJson("{'responseMeasures':['CompUpBytes','CompDownBytes'],'responseDimensions':['Attribute'], 'sortProperty':'CompUpBytes','filters':[],'cubeContextDimensions':[],'sortDirection':'DSC','maxResults':-1,'maxResultOffset':0,'length':50,'offset':0,'startTime':1349917200,'endTime':1349935200,'timeGranularity':0,'filters':[[{'name':'Agony','value':'6'}]],'measureFilters':[{'filters':[{'singleFilters':[{'operand':[0.0],'operator':'GREATER_THAN'},{'operand':[1.0],'operator':'GREATER_THAN'},{'operand':[2.0],'operator':'GREATER_THAN'}],'measure':'CompUpBytes'},{'singleFilters':[{'operand':[0.0],'operator':'GREATER_THAN'},{'operand':[1.0],'operator':'GREATER_THAN'},{'operand':[2.0],'operator':'GREATER_THAN'}],'measure':'CompDownBytes'}]}]}", classOf[QueryRequest]))

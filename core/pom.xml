@@ -11,7 +11,7 @@
 	<groupId>com.guavus</groupId>
 	<artifactId>core</artifactId>
 	<version>0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
+	<packaging>war</packaging>
 	<repositories>
 		<repository>
 			<id>Akka repository</id>
@@ -101,6 +101,12 @@
 			<groupId>com.guavus.rubix.user.management</groupId>
 			<artifactId>user-management</artifactId>
 			<version>4.9</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>servlet-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
