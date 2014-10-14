@@ -34,6 +34,7 @@ class AcumeContext(confFilePath: String) {
   val sparkContext = new SparkContext(conf)
 
 //  val hc = new HiveContext(sparkContext)
+
   val _sqlContext = new SQLContext(sparkContext)
   
   val acumeContext = new AcumeCacheContext(sqlContext, new AcumeCacheConf)

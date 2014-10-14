@@ -19,6 +19,7 @@ private [acume] object ConfConstants {
   val instabase = "acume.cache.baselayer.instabase"
   val cubedefinitionxml = "acume.cache.baselayer.cubedefinitionxml"
   val qltype = "acume.cache.execute.qltype"
+  val rrCacheLoader = "acume.cache.rrcache.loader"
   val basegranularity = "basegranularity"
   val cubetype = "cubetype"
   val levelpolicymap = "levelpolicymap"
