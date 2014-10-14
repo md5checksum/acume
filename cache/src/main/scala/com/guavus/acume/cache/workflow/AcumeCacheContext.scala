@@ -36,11 +36,12 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
   case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
  
+  val rrCacheLoader = Class.forName(conf.get(ConfConstants.rrCacheLoader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]
   loadXML(conf.get(ConfConstants.businesscubexml))
   loadVRMap(conf)
   
   private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf(AcumeConstants.TRIPLE_DOLLAR_SSC) + 1)
-  private def utilQL(sql: String, qltype: QLType) = {
+  def utilQL(sql: String, qltype: QLType) = {
     val tx = AcumeCacheContext.parseSql(sql)
     val rt = tx._2
     for(l <- tx._1) {
@@ -61,18 +62,17 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
   def acql(sql: String, qltype: String) : SchemaRDD = { 
     
     val ql = QLType.getQLType(qltype)
-    if(!AcumeCacheContext.checkQLValidation(sqlContext, ql))
-      throw new RuntimeException(s"$ql not supported with $sqlContext")
-    
-    utilQL(sql, ql)
+    executeQl(sql, ql)
   }
   
   def acql(sql: String) : SchemaRDD = { 
     
     val ql = AcumeCacheContext.getQLType(conf)
-    if(!AcumeCacheContext.checkQLValidation(sqlContext, ql))
-      throw new RuntimeException(s"$ql not supported with $sqlContext")
-    utilQL(sql, ql)
+    executeQl(sql, ql)
+  }
+  
+  def executeQl(sql : String, ql : QLType.QLType) = {
+    rrCacheLoader.getRdd((sql, ql))
   }
 
   
@@ -218,7 +218,7 @@ object AcumeCacheContext{
     (list, RequestType.getRequestType(requestType))
   }
   
-  private def checkQLValidation(sqlContext: SQLContext, qltype: QLType) = { 
+  def checkQLValidation(sqlContext: SQLContext, qltype: QLType) = { 
     
     sqlContext match{
       case hiveContext: HiveContext =>
