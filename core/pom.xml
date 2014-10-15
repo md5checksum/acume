@@ -11,7 +11,7 @@
 	<groupId>com.guavus</groupId>
 	<artifactId>core</artifactId>
 	<version>0.1-SNAPSHOT</version>
-	<packaging>war</packaging>
+	<packaging>jar</packaging>
 	<repositories>
 		<repository>
 			<id>Akka repository</id>

@@ -24,10 +24,10 @@ class AcumeDataSourceSchema(acumeContext : AcumeContext) extends QueryBuilderSch
     val cubes  = acumeContext.ac.getCubeList
     cubes.map(cube=> {
     	var dimensions = cube.dimension.dimensionSet.map(field => {
-    		new Field(FieldType.DIMENSION, FieldType.DIMENSION, getDefaultValueForField(field.getName),field.getName, "")
+    		new Field(FieldType.DIMENSION, FieldType.DIMENSION, new Integer(0),field.getName, "")
     	}).toList
     	dimensions = dimensions ::: cube.measure.measureSet.map(field => {
-    		new Field(FieldType.MEASURE, FieldType.MEASURE, getDefaultValueForField(field.getName),field.getName, field.getFunction.functionName)}).toList
+    		new Field(FieldType.MEASURE, FieldType.MEASURE, new Integer(0),field.getName, field.getFunction.functionName)}).toList
       new Cube(cube.cubeName, dimensions)
     })
   }
@@ -54,5 +54,5 @@ class AcumeDataSourceSchema(acumeContext : AcumeContext) extends QueryBuilderSch
     acumeContext.ac.getCubeListContainingFields(fields.asScala.toList).map(x=> x.cubeName)
   }
   
-  override def getDefaultValueForField(fieldName : String ) : Object = acumeContext.ac.getDefaultValueForField(fieldName) 
+  override def getDefaultValueForField(fieldName : String ) : Object = null//acumeContext.ac.getDefaultValueForField(fieldName) 
 }

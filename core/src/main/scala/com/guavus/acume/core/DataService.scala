@@ -22,6 +22,7 @@ import com.guavus.acume.rest.beans.SearchResponse
 import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
 import com.guavus.acume.rest.beans.SearchRequest
+import com.guavus.acume.cache.workflow.AcumeCacheResponse
 
 /**
  * This class interacts with query builder and Olap cache.
@@ -47,7 +48,7 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
   }
 
   def servSearchRequest(sql : String) : SearchResponse = {
-    val schemaRdd = execute(sql)
+    val schemaRdd = execute(sql).schemaRDD
     val schema = schemaRdd.schema
     val fields = schema.fieldNames
     val rows = schemaRdd.collect
@@ -61,7 +62,8 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
   
   def servRequest(sql: String): Any = {
 
-    val schemaRdd = execute(sql)
+    val cacheResponse = execute(sql)
+    val schemaRdd = cacheResponse.schemaRDD
     val schema = schemaRdd.schema
     val fields = schema.fieldNames
     val rows = schemaRdd.collect
@@ -84,8 +86,10 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
     }
     if (isTimeseries) {
       val sortedRows = rows.sortBy(row => row.getLong(tsIndex))
-      val timestamps = new ArrayBuffer[Long]()
-      val timestampsToIndexMap = new HashMap[Long, Int]()
+      val timestamps = cacheResponse.metadata.timestamps
+      val timestampsToIndexMap = new scala.collection.mutable.HashMap[Long, Int]()
+      var index  = -1
+      timestamps.foreach(x=> {index+=1; timestampsToIndexMap += (x -> index)})
       val rowToMeasureMap = new scala.collection.mutable.HashMap[ArrayBuffer[Any], ArrayBuffer[ArrayBuffer[Any]]]
       for (row <- rows) {
         val dims = new ArrayBuffer[Any]()
@@ -164,7 +168,7 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
     }
   }
 
-  def execute(sql: String): SchemaRDD = {
+  def execute(sql: String): AcumeCacheResponse = {
     val modifiedSql = queryBuilderService.buildQuery(sql)
     acumeContext.ac.acql(modifiedSql)
   }
