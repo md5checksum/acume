@@ -52,7 +52,7 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
     val schema = schemaRdd.schema
     val fields = schema.fieldNames
     val rows = schemaRdd.collect
-    val acumeSchema: QueryBuilderSchema = queryBuilderService.getQbSchema
+    val acumeSchema: QueryBuilderSchema = queryBuilderService.getQueryBuilderSchema
     val dimsNames = new ArrayBuffer[String]()
     for (field <- fields) {
         dimsNames += field
@@ -67,7 +67,7 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
     val schema = schemaRdd.schema
     val fields = schema.fieldNames
     val rows = schemaRdd.collect
-    val acumeSchema: QueryBuilderSchema = queryBuilderService.getQbSchema
+    val acumeSchema: QueryBuilderSchema = queryBuilderService.getQueryBuilderSchema
     val dimsNames = new ArrayBuffer[String]()
     val measuresNames = new ArrayBuffer[String]()
     var j = 0
