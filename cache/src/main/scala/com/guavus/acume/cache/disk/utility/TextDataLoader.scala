@@ -1,29 +1,19 @@
 package com.guavus.acume.cache.disk.utility
 
-import scala.collection.JavaConversions._
-import org.apache.hadoop.hive.ql.io.orc.OrcNewInputFormat
-import org.apache.hadoop.hive.ql.io.orc.OrcStruct
-import org.apache.hadoop.io.NullWritable
-import org.apache.spark.SparkContext
-import org.apache.spark.sql._
-import org.apache.spark.sql.catalyst.expressions.Row
-import com.guavus.acume.cache.gen.Acume
-import com.guavus.crux.core.Fields
-import com.guavus.crux.core.WritableTuple
-import com.guavus.crux.df.operations.core.CopyAnnotation
-import com.guavus.crux.df.stream._
-import com.guavus.crux.df.operations.wrappers._
-import org.apache.spark.sql.catalyst.expressions.GenericRow
-import com.guavus.acume.cache.common.CacheLevel
-import com.guavus.acume.cache.common.CacheLevel._
-import com.guavus.acume.cache.common.AcumeCacheConf
-import java.util.UUID
 import java.util.Random
-import com.guavus.acume.cache.common.Cube
-import com.guavus.acume.cache.workflow.AcumeCacheContext
-import com.guavus.acume.cache.common.LevelTimestamp
+
+import scala.Array.fallbackCanBuildFrom
+
+import org.apache.spark.sql.StructField
+import org.apache.spark.sql.StructType
+import org.apache.spark.sql.catalyst.expressions.Row
+import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.CacheLevel.CacheLevel
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.ConversionToSpark
+import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.workflow.AcumeCacheContext
 
 class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) extends DataLoader(acumeCacheContext, conf, cube) { 
   
@@ -95,15 +85,6 @@ class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf,
   def getUniqueRandomeNo: String = System.currentTimeMillis() + "" + new Random().nextInt() 	
   
   def getRow(row: String) = Row(row.split("\t"))
-  
-  def getRow(tuple: (NullWritable, OrcStruct)) = {
-  
-    val struct = tuple._2
-    val field = struct.toString.substring(1)
-    val l = field.length
-    val tokenList = field.substring(0, field.length - 2).split(',').map(_.trim)
-    Row(tokenList)
-  }
   
   def joinDimensionSet(businessCube: Cube, level: CacheLevel, timestamp: Long, globalDTableName: String, thisCubeName: String, instabase: String, instainstanceid: String) = { 
     

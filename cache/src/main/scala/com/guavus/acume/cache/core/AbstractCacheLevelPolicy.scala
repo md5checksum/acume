@@ -25,10 +25,10 @@ abstract class AbstractCacheLevelPolicy(protected var baseLevel: Long) extends C
       var currentLevels = intervals.get(level)
       currentLevels match{
         case None => currentLevels = Some(MutableList[Long]())
-        intervals.put(level, new LinkedList[Long]())
+        intervals.put(level, new MutableList[Long]())
         case _ => 
       }
-      intervals.get(level).get.addAll(Utility.getAllIntervals(startTimeCeiling, endTimeFloor, level))
+      intervals.get(level).get.++=(Utility.getAllIntervals(startTimeCeiling, endTimeFloor, level))
       if (startTimeCeiling > startTime) {
         addIntervals(intervals, startTime, startTimeCeiling, getLowerLevel(level))
       }

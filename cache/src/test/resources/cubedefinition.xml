@@ -238,7 +238,7 @@
     aggregation function in Cube.
     -->
     <Default>
-        levelpolicymap: 5h:53;5d:78, timeserieslevelpolicymap: 5h:53;5d:78
+        levelpolicymap: 1h:53, timeserieslevelpolicymap: 1h:53
     </Default>
     <Cubes>
         <Cube>
@@ -249,7 +249,7 @@
                 EgressPeerEntityId,EgressAS,EgressIP,EgressRTR,OutgoingIF,EgressRuleId,FlowDirection,TTS_B:SUM,On_net_B:SUM,Off_net_B:SUM,Local_B:SUM,Regional_B:SUM,Continental_B:SUM,XAtlantic_B:SUM,XPacific_B:SUM,XOthers_B:SUM
             </Fields>
             <Properties>
-                basegranularity:1h, cubetype:normal, levelpolicymap:5h:53;5d:78, timeserieslevelpolicymap:5h:53;5y:78
+                basegranularity:1h, cubetype:normal, levelpolicymap:1h:53, timeserieslevelpolicymap:1h:53
             </Properties>
         </Cube>
     </Cubes>

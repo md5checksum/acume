@@ -128,7 +128,7 @@ object Utility extends Logging {
   }
 
   def floorToTimeZone(time: Long, timeGrnaularity: TimeGranularity): Long = {
-    val instance = newCalendar()
+    val instance = newCalendar(TimeZone.getTimeZone("GMT"))
     floorToTimezone(time, timeGrnaularity, instance)
   }
 
@@ -224,8 +224,8 @@ object Utility extends Logging {
     val intervals = MutableList[Long]()
     val instance = newCalendar()
     while (_start < endTime) {
-      intervals.add(startTime)
-      _start = getNextTimeFromGranularity(startTime, gran, instance)
+      intervals.+=(_start)
+      _start = getNextTimeFromGranularity(_start, gran, instance)
     }
     intervals
   }
@@ -233,13 +233,13 @@ object Utility extends Logging {
   def getAllIntervalsAtTZ(startTime: Long, endTime: Long, gran: Long, timezone: TimeZone): MutableList[Long] = {
     var _z = startTime
     if (timezone == null) 
-      getAllIntervals(startTime, endTime, gran)
+      getAllIntervals(_z, endTime, gran)
     else{
       val intervals = MutableList[Long]()
       val instance = newCalendar(timezone)
       while (_z < endTime) {
-        intervals.add(startTime)
-        _z = getNextTimeFromGranularity(startTime, gran, instance)
+        intervals.add(_z)
+        _z = getNextTimeFromGranularity(_z, gran, instance)
       }
       intervals
     }
@@ -274,7 +274,7 @@ object Utility extends Logging {
   }
 
   def ceilingToTimeZone(time: Long, timeGrnaularity: TimeGranularity): Long = {
-    val instance = newCalendar()
+    val instance = newCalendar(TimeZone.getTimeZone("GMT"))
     ceilingToTimezone(time, timeGrnaularity, instance)
   }
   

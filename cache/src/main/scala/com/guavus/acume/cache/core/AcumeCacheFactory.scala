@@ -13,6 +13,7 @@ import com.guavus.acume.cache.common.AcumeCacheConf
 
 object AcumeCacheFactory {
 
+  //todo change it to guava lib. 	
   val caches = new ConcurrentHashMap[CacheIdentifier, AcumeCache]()
   def getInstance(acumeCacheContext: AcumeCacheContext, acumeCacheConf: AcumeCacheConf, cacheIdentifier: CacheIdentifier, cube: Cube) = {
     val instance = caches.get(cacheIdentifier)

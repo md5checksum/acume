@@ -1,28 +1,18 @@
 package com.guavus.acume.cache.disk.utility
 
-import scala.collection.JavaConversions._
-import org.apache.spark.SparkContext
-import org.apache.spark.sql._
-import org.apache.spark.sql.catalyst.expressions.Row
-import com.guavus.acume.cache.gen.Acume
-import com.guavus.crux.core.Fields
-import com.guavus.crux.core.WritableTuple
-import com.guavus.crux.df.operations.core.CopyAnnotation
-import com.guavus.crux.df.stream._
-import com.guavus.crux.df.operations.wrappers._
-import org.apache.spark.sql.catalyst.expressions.GenericRow
-import com.guavus.acume.cache.common.CacheLevel
-import com.guavus.acume.cache.common.CacheLevel._
-import com.guavus.acume.cache.common.AcumeCacheConf
-import java.util.UUID
 import java.util.Random
-import com.guavus.acume.cache.common.Cube
-import com.guavus.acume.cache.workflow.AcumeCacheContext
-import com.guavus.acume.cache.common.LevelTimestamp
+
+import scala.Array.fallbackCanBuildFrom
+
+import org.apache.spark.sql.StructField
+import org.apache.spark.sql.StructType
+
+import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.CacheLevel.CacheLevel
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.ConversionToSpark
-import com.guavus.acume.cache.common.CacheLevel
-import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.workflow.AcumeCacheContext
 
 class ParquetDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) extends DataLoader(acumeCacheContext, conf, cube) { 

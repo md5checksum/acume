@@ -29,6 +29,7 @@ import com.guavus.acume.cache.core.CacheIdentifier
 import com.guavus.acume.cache.utility.SQLUtility
 import org.apache.spark.SparkContext
 import java.util.Random
+import com.guavus.acume.cache.common.CubeMeasureSet
 
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) { 
   sqlContext match{
@@ -38,6 +39,20 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
   }
  
   val rrCacheLoader = Class.forName(conf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]
+  private [cache] val dimensionMap = new HashMap[String, Dimension]
+  private [cache] val measureMap = new HashMap[String, Measure]
+  private [cache] val vrmap = HashMap[Long, Int]()
+  private [cache] val cubeMap = HashMap[String, Cube]()
+  private [cache] val cubeList = MutableList[Cube]()
+  //todo how will this be done
+  private [cache] val baseCubeMap = HashMap[String, BaseCube]()
+  private [cache] val baseCubeList = MutableList[BaseCube]()
+  private [acume] def getCubeList = cubeList.toList
+  private [acume] def isDimension(name: String) = 
+    if(dimensionMap.contains(name)) true 
+    else if(measureMap.contains(name)) false 
+    else throw new RuntimeException("Field nither in Dimension Map nor in Measure Map.")
+
   loadXML(conf.get(ConfConstants.businesscubexml))
   loadVRMap(conf)
   
@@ -82,30 +97,16 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
   def executeQl(sql : String, ql : QLType.QLType) = {
     rrCacheLoader.getRdd((sql, ql))
   }
-
   
-  private [cache] val dimensionMap = new HashMap[String, Dimension]
-  private [cache] val measureMap = new HashMap[String, Measure]
-  private [cache] val vrmap = HashMap[Long, Int]()
-  private [cache] val cubeMap = HashMap[String, Cube]()
-  private [cache] val cubeList = MutableList[Cube]()
-  //todo how will this be done
-  private [cache] val baseCubeMap = HashMap[String, BaseCube]()
-  private [cache] val baseCubeList = MutableList[BaseCube]()
-  private [acume] def getCubeList = cubeList.toList
-  private [acume] def isDimension(name: String) = 
-    if(dimensionMap.contains(name)) true 
-    else if(measureMap.contains(name)) false 
-    else throw new RuntimeException("Field nither in Dimension Map nor in Measure Map.")
   private [acume] def getFieldsForCube(name: String) = {
       
     val cube = cubeMap.getOrElse(name, throw new RuntimeException(s"Cube $name Not in AcumeCache knowledge."))
-    cube.dimension.dimensionSet.map(_.getName) ++ cube.measure.measureSet.map(_.getName)
+    cube.dimension.dimensionSet.map(_.getName) ++ cube.measure.measureSet.map(_.measure.getName)
   }
   
   private [acume] def getDefaultAggregateFunction(stringname: String) = {
     val measure = measureMap.getOrElse(stringname, throw new RuntimeException(s"Measure $stringname not in Acume knowledge."))
-    measure.getFunction.functionName
+    measure.getDefaultAggregationFunction
   }
   
   private [acume] def getCubeListContainingFields(lstfieldNames: List[String]) = {
@@ -118,17 +119,17 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
       else
         measureSet.+=(measureMap.get(field).get)
       val kCube = 
-        for(cube <- cubeList if(dimensionSet.subsetOf(cube.dimension.dimensionSet) && measureSet.subsetOf(cube.measure.measureSet))) yield {
+        for(cube <- cubeList if(dimensionSet.subsetOf(cube.dimension.dimensionSet) && measureSet.subsetOf(cube.measure.measureSet.map(_.measure)))) yield {
           cube
         }
     kCube.toList
   }
   
-  private [cache] def getCube(cube: String) = cubeMap.get(cube).getOrElse(throw new RuntimeException)
+  private [cache] def getCube(cube: String) = cubeMap.get(cube).getOrElse(throw new RuntimeException(s"cube $cube not found."))
   
-  private [cache] def getTable(cube: String) = s"${cube}_getUniqueRandomeNo"
+  private [cache] def getTable(cube: String) = s"${cube}_$getUniqueRandomNo"
   
-  private [cache] def getUniqueRandomeNo: String = System.currentTimeMillis() + "" + new Random().nextInt()
+  private [cache] def getUniqueRandomNo: String = System.currentTimeMillis() + "" + new Random().nextInt()
   
   private [cache] def loadVRMap(conf: AcumeCacheConf) = {
     val vrmapstring = conf.get(ConfConstants.variableretentionmap)
@@ -148,14 +149,15 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
     for(lx <- acumeCube.getFields().getField().toList) { 
 
       val info = lx.getInfo.split(':')
-      val name = info(0)
-      val datatype = DataType.getDataType(info(1))
-      val fitype = FieldType.getFieldType(info(2))
+      val name = info(0).trim
+      val datatype = DataType.getDataType(info(1).trim)
+      val fitype = FieldType.getFieldType(info(2).trim)
+      val functionName = if(info.length<4) "none" else info(3) 	
       fitype match{
         case FieldType.Dimension => 
-          dimensionMap.put(name, new Dimension(name, datatype, 0))
+          dimensionMap.put(name.trim, new Dimension(name, datatype, 0))
         case FieldType.Measure => 
-          measureMap.put(name, new Measure(name, datatype, Function("", info(3)), 0 ))
+          measureMap.put(name.trim, new Measure(name, datatype, functionName, 0 ))
       }
     }
     
@@ -168,22 +170,20 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
     
     val list = 
       for(c <- acumeCube.getCubes().getCube().toList) yield {
-        val cubeName = c.getName()
+        val cubeName = c.getName().trim
         val fields = c.getFields().split(",").map(_.trim)
         val dimensionSet = scala.collection.mutable.Set[Dimension]()
-        val measureSet = scala.collection.mutable.Set[Measure]()
+        val measureSet = scala.collection.mutable.Set[CubeMeasure]()
         for(ex <- fields){
           val array = ex.split(":")
-          val fieldName = array(0)
-          val functionName = array(1) 
+          val fieldName = array(0).trim
+          val function = if(array.length<2) "" else array(1) 	
 
           //only basic functions are supported as of now. 
           //Extend this to support custom udf of hive as well.
-          if(!functionName.isEmpty()){
-            measureMap.get(fieldName) match{
-            case None => throw new RuntimeException("Aggregation functions are not supported on Dimension.")
-            case _ => 		
-            }  
+          if(!function.isEmpty()){
+            if(isDimension(fieldName))
+                throw new RuntimeException("Aggregation functions are not supported on Dimension.")
           }
           dimensionMap.get(fieldName) match{
           case Some(dimension) => 
@@ -191,23 +191,23 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
           case None =>
             measureMap.get(fieldName) match{
             case None => throw new Exception("Field not registered.")
-            case Some(measure) => measureSet.+=(measure)
+            case Some(measure) => measureSet.+=(CubeMeasure(measure, function))
             }
           }
         }
         
         val _$cubeProperties = c.getProperties()
         val _$propertyMap = _$cubeProperties.split(",").map(x => {
-          val xtoken = x.split(":")
-          (xtoken(0).trim, xtoken(1).trim)
+          val i = x.indexOf(":")
+          (x.substring(0, i).trim, x.substring(i+1, x.length).trim)
         })
         val propertyMap = _$propertyMap.toMap
         
         val levelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, defaultPropertyMap, ConfConstants.levelpolicymap, cubeName))
         val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, defaultPropertyMap, ConfConstants.timeserieslevelpolicymap, cubeName))
         val Gnx = getProperty(propertyMap, defaultPropertyMap, ConfConstants.basegranularity, cubeName)
-        val granularity = TimeGranularity.getTimeGranularityByName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
-        val cube = Cube(cubeName, DimensionSet(dimensionSet.toSet), MeasureSet(measureSet.toSet), granularity, true, levelpolicymap, timeserieslevelpolicymap)
+        val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
+        val cube = Cube(cubeName, DimensionSet(dimensionSet.toSet), CubeMeasureSet(measureSet.toSet), granularity, true, levelpolicymap, timeserieslevelpolicymap)
         cubeMap.put(cubeName, cube)
         cube
       }

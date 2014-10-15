@@ -1,29 +1,26 @@
 package com.guavus.acume.cache.disk.utility
 
-import scala.collection.JavaConversions._
+import java.util.Random
+
+import scala.Array.canBuildFrom
+import scala.Array.fallbackCanBuildFrom
+
 import org.apache.hadoop.hive.ql.io.orc.OrcNewInputFormat
 import org.apache.hadoop.hive.ql.io.orc.OrcStruct
 import org.apache.hadoop.io.NullWritable
+import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
-import org.apache.spark.sql._
+import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.StructField
+import org.apache.spark.sql.StructType
 import org.apache.spark.sql.catalyst.expressions.Row
-import com.guavus.acume.cache.gen.Acume
-import com.guavus.crux.core.Fields
-import com.guavus.crux.core.WritableTuple
-import com.guavus.crux.df.operations.core.CopyAnnotation
-import com.guavus.crux.df.stream._
-import com.guavus.crux.df.operations.wrappers._
-import org.apache.spark.sql.catalyst.expressions.GenericRow
-import com.guavus.acume.cache.common.CacheLevel
-import com.guavus.acume.cache.common.CacheLevel._
 import com.guavus.acume.cache.common.AcumeCacheConf
-import java.util.UUID
-import java.util.Random
-import com.guavus.acume.cache.common.Cube
-import com.guavus.acume.cache.workflow.AcumeCacheContext
-import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.common.CacheLevel.CacheLevel
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.ConversionToSpark
+import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.workflow.AcumeCacheContext
 
 class ORCDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) extends DataLoader(acumeCacheContext, conf, cube) { 
   
@@ -121,8 +118,26 @@ class ORCDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, 
 }
 
 object ORCDataLoader{
-  def main(args: Array[String]) = {
+  
+  def main(args: Array[String]) { 
     
+    
+     
+    val conf = new SparkConf
+    conf.set("spark.master", "local")
+    conf.set("spark.app.name", "local")
+    val sqlContext = new SQLContext(new SparkContext(conf))
+    val conf123 = new AcumeCacheConf
+    conf123.set(ConfConstants.businesscubexml, "/Users/archit.thakur/Documents/Code_Acume_Scala/cache/src/test/resources/cubdefinition.xml")
+    conf123.set("acume.cache.core.variableretentionmap", "1h:720")
+    conf123.set("acume.cache.baselayer.instainstanceid","0")
+    conf123.set("acume.cache.baselayer.storagetype", "orc")
+    conf123.set("acume.cache.core.timezone", "GMT")
+    conf123.set("acume.cache.baselayer.instabase","instabase")
+    conf123.set("acume.cache.baselayer.cubedefinitionxml", "cubexml")
+    conf123.set("acume.cache.execute.qltype", "sql")
+    val cntxt = new com.guavus.acume.cache.workflow.AcumeCacheContext(sqlContext, conf123)
+    cntxt.acql("select * from searchEgressPeerCube_12345")
   }
 }
 

@@ -2,7 +2,6 @@ package com.guavus.acume.cache.disk.utility
 
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
-
 import com.guavus.acume.cache.common.BaseCube
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.CubeTrait
@@ -10,6 +9,8 @@ import com.guavus.acume.cache.common.DataType.DataType
 import com.guavus.acume.cache.common.Dimension
 import com.guavus.acume.cache.common.Field
 import com.guavus.acume.cache.common.Measure
+import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.common.CubeMeasure
 
 object CubeUtil {
 
@@ -25,6 +26,12 @@ object CubeUtil {
   
   def getCubeFields(cube: CubeTrait) = cube.superDimension.dimensionSet.map(_.getName) ++ cube.superMeasure.measureSet.map(_.getName)
   
+  def getLevel(level: LevelTimestamp) = {
+    
+    //This should be moved inside metadataloader implementations.
+    //this method returns the leveltimestamp which can serve the current leveltimestamp from metadataloader, currently insta it.
+  }
+  
   def getCubeMap(baseCubeList: List[BaseCube], businessCubeList: List[Cube]): Map[Cube, BaseCube] = { 
     
     var flag = true
@@ -36,7 +43,7 @@ object CubeUtil {
       
       val businessCube = key._2
       val dimensionSet = businessCube.dimension.dimensionSet
-      val measureSet = businessCube.measure.measureSet
+      val measureSet = businessCube.measure.measureSet.map(_.measure)
       val list = MutableList[BaseCube]()
       for(baseCube <- baseCubeList){
         val baseCubeDimensionSet = baseCube.dimension.dimensionSet
@@ -58,11 +65,24 @@ object CubeUtil {
     cube.toMap
   } 	
   
-  def getStringMeasureOrFunction(fieldMap: Map[String, Measure], cube: CubeTrait): String = { 
+  def getStringMeasureOrFunction(fieldMap: Map[String, Measure], businessCube: Cube): String = { 
     
     //returns the comma separated business measures required in the cube.
     //eg, sum(M1), avg(M2) ... or some other aggregator etc etc.
-    val keyset = for(key <- fieldMap.keySet) yield s"${fieldMap(key).getFunction.functionName}($key) as $key"
+    val map = businessCube.measure.measureSet.map(k => (k.measure.getName, k.function)).toMap
+    val keyset = for(key <- fieldMap.keySet) yield {
+      val function = 
+        map.get(key) match {
+        case None => throw new RuntimeException("measure not present in cube.")
+        case Some("") | Some("none") => 
+          fieldMap.get(key) match {
+          case None => throw new RuntimeException("measure not present in map given.")
+          case Some(x) => x.getDefaultAggregationFunction
+          }
+        case Some(y) => y
+      }
+      s"${function}($key) as $key"
+    }
     keyset.toSet.+("timestamp").mkString(",")
   }
 }
