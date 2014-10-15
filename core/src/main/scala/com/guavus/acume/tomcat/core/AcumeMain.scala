@@ -36,7 +36,7 @@ object AcumeMain {
    * Start tomcat
    */
   def main(args: Array[String]) {
-	  AcumeContext.init("acume.conf")
+	  AcumeContext.init("/acume.conf")
 	  TomcatMain.startTomcatAndWait
   }
   

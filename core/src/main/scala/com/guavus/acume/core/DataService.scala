@@ -17,6 +17,12 @@ import scala.collection.JavaConverters._
 import com.guavus.acume.cache.workflow.AcumeCacheContext
 import scala.collection.mutable.HashMap
 import java.util.Arrays
+import com.guavus.acume.rest.beans.SearchResponse
+import com.guavus.acume.rest.beans.SearchResponse
+import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
+import com.guavus.acume.rest.beans.SearchRequest
+import com.guavus.acume.cache.workflow.AcumeCacheResponse
 
 /**
  * This class interacts with query builder and Olap cache.
@@ -36,14 +42,32 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
   def servTimeseries(queryRequest: QueryRequest): TimeseriesResponse = {
     servRequest(queryRequest.toSql("ts,")).asInstanceOf[TimeseriesResponse]
   }
+  
+  def servSearchRequest(queryRequest: SearchRequest): SearchResponse = {
+    servSearchRequest(queryRequest.toSql)
+  }
 
-  def servRequest(sql: String): Any = {
-
-    val schemaRdd = execute(sql)
+  def servSearchRequest(sql : String) : SearchResponse = {
+    val schemaRdd = execute(sql).schemaRDD
     val schema = schemaRdd.schema
     val fields = schema.fieldNames
     val rows = schemaRdd.collect
-    val acumeSchema: QueryBuilderSchema = null
+    val acumeSchema: QueryBuilderSchema = queryBuilderService.getQbSchema
+    val dimsNames = new ArrayBuffer[String]()
+    for (field <- fields) {
+        dimsNames += field
+    }
+    new SearchResponse(dimsNames,rows.map(x=> asJavaList(x.map(y=>y))).toList)
+  }
+  
+  def servRequest(sql: String): Any = {
+
+    val cacheResponse = execute(sql)
+    val schemaRdd = cacheResponse.schemaRDD
+    val schema = schemaRdd.schema
+    val fields = schema.fieldNames
+    val rows = schemaRdd.collect
+    val acumeSchema: QueryBuilderSchema = queryBuilderService.getQbSchema
     val dimsNames = new ArrayBuffer[String]()
     val measuresNames = new ArrayBuffer[String]()
     var j = 0
@@ -62,8 +86,10 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
     }
     if (isTimeseries) {
       val sortedRows = rows.sortBy(row => row.getLong(tsIndex))
-      val timestamps = new ArrayBuffer[Long]()
-      val timestampsToIndexMap = new HashMap[Long, Int]()
+      val timestamps = cacheResponse.metadata.timestamps
+      val timestampsToIndexMap = new scala.collection.mutable.HashMap[Long, Int]()
+      var index  = -1
+      timestamps.foreach(x=> {index+=1; timestampsToIndexMap += (x -> index)})
       val rowToMeasureMap = new scala.collection.mutable.HashMap[ArrayBuffer[Any], ArrayBuffer[ArrayBuffer[Any]]]
       for (row <- rows) {
         val dims = new ArrayBuffer[Any]()
@@ -142,7 +168,7 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
     }
   }
 
-  def execute(sql: String): SchemaRDD = {
+  def execute(sql: String): AcumeCacheResponse = {
     val modifiedSql = queryBuilderService.buildQuery(sql)
     acumeContext.ac.acql(modifiedSql)
   }
