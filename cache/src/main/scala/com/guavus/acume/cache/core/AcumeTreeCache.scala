@@ -36,6 +36,8 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
 
 //  val cachePointToTable: MutableMap[LevelTimestamp, String] = MutableMap[LevelTimestamp, String]()
   val dimensionTable: String = s"AcumeCacheGlobalDimensionTable${cube.cubeName}"
+  val diskUtility = DataLoader.getDataLoader(acumeCacheContext, conf, cube)
+  
   override def createTempTable(startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
     requestType match {
       case Aggregate => createTableForAggregate(startTime, endTime, tableName, false)
@@ -52,7 +54,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
         }
       });
 
-  private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf(AcumeConstants.TRIPLE_DOLLAR_SSC) + 1)
+  private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf("$$$"))
   
   override def createTempTableAndMetadata(startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData = {
     requestType match {
@@ -109,8 +111,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
 
     import acumeCacheContext.sqlContext._
     val cacheLevel = levelTimestamp.level
-    val diskUtility = DataLoader.getDataLoader(acumeCacheContext, conf, cube)
-     val diskread = diskUtility.loadData(cube, levelTimestamp, dimensionTable)
+    val diskread = diskUtility.loadData(cube, levelTimestamp, dimensionTable)
     val _$tableName = cube.toString + levelTimestamp.toString
     diskread.registerTempTable(_$tableName)
     cacheTable(_$tableName) 
@@ -121,8 +122,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     import acumeCacheContext.sqlContext._
     val timestamps: MutableList[Long] = MutableList[Long]()
     var flag = false
-    val diskUtility = DataLoader.getDataLoader(acumeCacheContext, conf, cube)
-    val businessCube = acumeCacheContext.cubeMap.getOrElse(getCubeName(tableName), throw new RuntimeException("Cube " + tableName + " doesn't exist."))
+    val x = getCubeName(tableName)
     for(levelTsMapEntry <- levelTimestampMap){
       val (level, ts) = levelTsMapEntry
       val cachelevel = CacheLevel.getCacheLevel(level)

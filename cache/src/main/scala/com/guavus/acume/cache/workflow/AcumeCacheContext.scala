@@ -31,13 +31,14 @@ import org.apache.spark.SparkContext
 import java.util.Random
 import com.guavus.acume.cache.common.CubeMeasureSet
 
-class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) { 
+class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends Serializable { 
   sqlContext match{
   case hiveContext: HiveContext =>
   case sqlContext: SQLContext => 
   case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
  
+  @transient
   val rrCacheLoader = Class.forName(conf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]
   private [cache] val dimensionMap = new HashMap[String, Dimension]
   private [cache] val measureMap = new HashMap[String, Measure]
@@ -55,6 +56,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
 
   loadXML(conf.get(ConfConstants.businesscubexml))
   loadVRMap(conf)
+  loadXMLCube("")
   
   private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf(AcumeConstants.TRIPLE_DOLLAR_SSC) + 1)
   private [acume] def utilQL(sql: String, qltype: QLType) = {
@@ -109,6 +111,13 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
     measure.getDefaultAggregationFunction
   }
   
+  private [acume] def getDefaultValue(fieldName: String) = {
+    if(isDimension(fieldName))
+      dimensionMap.get(fieldName).get.getDefaultValue
+    else
+      measureMap.get(fieldName).get.getDefaultValue
+  }
+  
   private [acume] def getCubeListContainingFields(lstfieldNames: List[String]) = {
     
     val dimensionSet = scala.collection.mutable.Set[Dimension]()
@@ -127,7 +136,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
   
   private [cache] def getCube(cube: String) = cubeMap.get(cube).getOrElse(throw new RuntimeException(s"cube $cube not found."))
   
-  private [cache] def getTable(cube: String) = s"${cube}_$getUniqueRandomNo"
+  private [cache] def getTable(cube: String) = cube + "$$$" + getUniqueRandomNo 	
   
   private [cache] def getUniqueRandomNo: String = System.currentTimeMillis() + "" + new Random().nextInt()
   
@@ -139,6 +148,12 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) {
   private [workflow] def loadBaseXML(filedir: String) = {
     
     
+  }
+  
+  private [workflow] def loadXMLCube(xml: String) = {
+    
+    baseCubeList.++=(cubeList.map(x => BaseCube(x.cubeName, x.dimension, MeasureSet(x.measure.measureSet.map(y => y.measure)))))
+    baseCubeMap.++=(cubeMap.map(x => (x._1, BaseCube(x._2.cubeName, x._2.dimension, MeasureSet(x._2.measure.measureSet.map(y => y.measure))))))
   }
   
   private [workflow] def loadXML(xml: String) = { 

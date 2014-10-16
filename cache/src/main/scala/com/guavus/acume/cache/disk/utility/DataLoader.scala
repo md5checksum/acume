@@ -7,7 +7,7 @@ import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.AcumeCacheConf
 
-abstract class DataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) {
+abstract class DataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) extends Serializable {
 
   def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: String): SchemaRDD
   def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: String, instabase: String, instainstanceid: String): SchemaRDD

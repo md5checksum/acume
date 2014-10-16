@@ -33,13 +33,13 @@ object AcumeCacheType extends Enumeration {
     conf123.set("acume.cache.baselayer.instainstanceid","0")
     conf123.set("acume.cache.baselayer.storagetype", "orc")
     conf123.set("acume.cache.core.timezone", "GMT")
-    conf123.set("acume.cache.baselayer.instabase","instabase")
+    conf123.set("acume.cache.baselayer.instabase","/Users/archit.thakur/Downloads/instabase")
     conf123.set("acume.cache.baselayer.cubedefinitionxml", "cubexml")
     conf123.set("acume.cache.execute.qltype", "sql")
     conf123.set("acume.cache.rrcache.loader", "com.guavus.acume.cache.workflow.RequestResponseCache")
     conf123.set("acume.cache.core.rrcacheconcurrenylevel", "3")
     conf123.set("acume.cache.core.rrcahcesize", "502")
     val cntxt = new com.guavus.acume.cache.workflow.AcumeCacheContext(sqlContext, conf123)
-    cntxt.acql("select * from searchEgressPeerCube where ts>=1384099200 and ts<1384110000")
+    cntxt.acql("select * from searchEgressPeerCube where ts>=1384750800 and ts<1384754400")
   }
 }

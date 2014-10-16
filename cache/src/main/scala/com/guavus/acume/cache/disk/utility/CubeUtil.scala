@@ -11,6 +11,9 @@ import com.guavus.acume.cache.common.Field
 import com.guavus.acume.cache.common.Measure
 import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.CubeMeasure
+import com.guavus.acume.cache.core.TimeGranularity
+import scala.collection.mutable.MutableList
+import com.guavus.acume.cache.utility.Utility
 
 object CubeUtil {
 
@@ -30,6 +33,11 @@ object CubeUtil {
     
     //This should be moved inside metadataloader implementations.
     //this method returns the leveltimestamp which can serve the current leveltimestamp from metadataloader, currently insta it.
+    val baselevel = TimeGranularity.HOUR // only hourly gran supported for insta layer as yet.
+    val iLevel = level.level
+    val iTs = level.timestamp
+    val nextTs = iTs + iLevel.localId
+    Utility.getAllIntervals(iTs, nextTs, baselevel.getGranularity)
   }
   
   def getCubeMap(baseCubeList: List[BaseCube], businessCubeList: List[Cube]): Map[Cube, BaseCube] = { 
@@ -71,18 +79,16 @@ object CubeUtil {
     //eg, sum(M1), avg(M2) ... or some other aggregator etc etc.
     val map = businessCube.measure.measureSet.map(k => (k.measure.getName, k.function)).toMap
     val keyset = for(key <- fieldMap.keySet) yield {
-      val function = 
         map.get(key) match {
-        case None => throw new RuntimeException("measure not present in cube.")
+        case None => ""
         case Some("") | Some("none") => 
           fieldMap.get(key) match {
           case None => throw new RuntimeException("measure not present in map given.")
-          case Some(x) => x.getDefaultAggregationFunction
+          case Some(x) => s"${x.getDefaultAggregationFunction}($key) as $key"
           }
-        case Some(y) => y
+        case Some(y) => s"${y}($key) as $key"
       }
-      s"${function}($key) as $key"
     }
-    keyset.toSet.+("timestamp").mkString(",")
+    keyset.filter(!_.isEmpty()).toSet.+("distinct ts ").mkString(",")
   }
 }
