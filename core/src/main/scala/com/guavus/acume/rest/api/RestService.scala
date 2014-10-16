@@ -41,7 +41,7 @@ class RestService {
 	@POST
     @Consumes(Array("application/json"))
     @Produces(Array("application/json"))
-    @Path("timeseries")
+    @Path("search")
 	def servSearchQuery(query : SearchRequest, @QueryParam(value = "super") userinfo : String,
 			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) {
 	  Authentication.authenticate(userinfo, user, password)
