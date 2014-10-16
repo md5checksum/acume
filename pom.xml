@@ -11,7 +11,7 @@
 	<modules>
 		<module>cache</module>
 		<module>core</module>
-		<module>acume-war</module> 
+		<module>war</module> 
 	</modules>
 </project>
 
