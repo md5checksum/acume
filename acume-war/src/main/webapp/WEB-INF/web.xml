@@ -111,6 +111,18 @@
 		<servlet-name>RGService</servlet-name>
 		<url-pattern>/queryresponse/aggregate</url-pattern>
 	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>RGService</servlet-name>
+		<url-pattern>/queryresponse/timeseries</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>RGService</servlet-name>
+		<url-pattern>/queryresponse/search</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>RGService</servlet-name>
+		<url-pattern>/queryresponse/sql</url-pattern>
+	</servlet-mapping>
 
 
 

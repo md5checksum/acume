@@ -5,25 +5,14 @@ import com.guavus.querybuilder.cube.schema.FieldType
 
 class Field(fieldType : FieldType, dataType : FieldType, defaultValue : AnyRef, name : String, functionName: String) extends IField {
 
-  def getType() : FieldType = {
-    fieldType
-  }
+	override def getType() = fieldType
 
-	def getDataType() : FieldType = {
-	  dataType
-	}
+	override def getDataType() = dataType
 
-	def getDefaultValue() : AnyRef = {
-	  defaultValue
-	}
+	override def getDefaultValue() = defaultValue
 
-	def getName() : String = {
-	  name
-	}
+	override def getName() = name
 
-	def getFunctionName() : String = {
-	  functionName
-	}
-
+	def getFunctionName() = functionName
   
 }
