@@ -8,7 +8,7 @@
 		<version>0.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<groupId>com.guavus</groupId>
+	<groupId>com.guavus.acume</groupId>
 	<artifactId>cache</artifactId>
 	<packaging>jar</packaging>
 	<name>Acume Cache</name>
