@@ -25,6 +25,8 @@ object CubeUtil {
   
   def getMeasureSet(cube: CubeTrait): Set[Measure] = cube.superMeasure.measureSet
   
+  def getMeasureSetWithTimestampTupleId(cube: CubeTrait): Set[Measure] = cube.superMeasure.measureSet
+  
   def getFieldType(field: Field): DataType = field.getDataType
   
   def getCubeFields(cube: CubeTrait) = cube.superDimension.dimensionSet.map(_.getName) ++ cube.superMeasure.measureSet.map(_.getName)
@@ -89,6 +91,6 @@ object CubeUtil {
         case Some(y) => s"${y}($key) as $key"
       }
     }
-    keyset.filter(!_.isEmpty()).toSet.+("distinct ts ").mkString(",")
+    keyset.filter(!_.isEmpty()).toSet.+("max(ts) ").mkString(",")
   }
 }

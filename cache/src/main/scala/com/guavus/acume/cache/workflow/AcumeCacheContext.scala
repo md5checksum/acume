@@ -1,35 +1,40 @@
 package com.guavus.acume.cache.workflow
 
-import org.apache.spark.sql.hive.HiveContext
-import org.apache.spark.sql.SQLContext
-import com.guavus.acume.cache.common.AcumeCacheConf
-import java.lang.UnsupportedOperationException
-import com.guavus.acume.cache.common.QLType
-import com.guavus.acume.cache.common.QLType._
-import com.guavus.acume.cache.utility.SQLParserFactory
-import com.guavus.acume.cache.core.AcumeCacheFactory
-import java.io.StringReader
-import net.sf.jsqlparser.statement.select.Select
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
-import javax.xml.bind.JAXBContext
-import com.guavus.acume.cache.gen.Acume
 import java.io.FileInputStream
-import com.guavus.acume.cache.common.FieldType
-import com.guavus.acume.cache.common.DataType
-import scala.collection.mutable.HashMap
-import com.guavus.acume.cache.common._
-import com.guavus.acume.cache.core.AcumeCacheType
-import com.guavus.acume.cache.core.TimeGranularity._
-import com.guavus.acume.cache.core.TimeGranularity
-import scala.collection.mutable.MutableList
-import com.guavus.acume.cache.utility.Utility
-import org.apache.spark.sql.SchemaRDD
-import com.guavus.acume.cache.core.CacheIdentifier
-import com.guavus.acume.cache.utility.SQLUtility
-import org.apache.spark.SparkContext
 import java.util.Random
+
+import scala.Array.canBuildFrom
+import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.mutable.HashMap
+import scala.collection.mutable.MutableList
+
+import org.apache.spark.SparkContext
+import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.hive.HiveContext
+
+import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.AcumeConstants
+import com.guavus.acume.cache.common.BaseCube
+import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.CubeMeasure
 import com.guavus.acume.cache.common.CubeMeasureSet
+import com.guavus.acume.cache.common.DataType
+import com.guavus.acume.cache.common.Dimension
+import com.guavus.acume.cache.common.DimensionSet
+import com.guavus.acume.cache.common.FieldType
+import com.guavus.acume.cache.common.Measure
+import com.guavus.acume.cache.common.MeasureSet
+import com.guavus.acume.cache.common.QLType
+import com.guavus.acume.cache.common.QLType.QLType
+import com.guavus.acume.cache.core.AcumeCacheFactory
+import com.guavus.acume.cache.core.CacheIdentifier
+import com.guavus.acume.cache.core.TimeGranularity
+import com.guavus.acume.cache.gen.Acume
+import com.guavus.acume.cache.utility.SQLUtility
+import com.guavus.acume.cache.utility.Utility
+
+import javax.xml.bind.JAXBContext
 
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends Serializable { 
   sqlContext match{
@@ -77,7 +82,9 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       instance.createTempTableAndMetadata(startTime, endTime, rt, i,None)
     }
     val klist = list.flatMap(_.timestamps).toList
-    AcumeCacheResponse(AcumeCacheContext.ACQL(qltype, sqlContext)(sql), MetaData(klist))
+    val kfg = AcumeCacheContext.ACQL(qltype, sqlContext)(newsql)
+    kfg.collect.foreach(println)
+    AcumeCacheResponse(AcumeCacheContext.ACQL(qltype, sqlContext)(newsql), MetaData(klist))
   }
   
   def acql(sql: String, qltype: String): AcumeCacheResponse = { 
@@ -136,7 +143,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   private [cache] def getCube(cube: String) = cubeMap.get(cube).getOrElse(throw new RuntimeException(s"cube $cube not found."))
   
-  private [cache] def getTable(cube: String) = cube + "$$$" + getUniqueRandomNo 	
+  private [cache] def getTable(cube: String) = cube + "_" + getUniqueRandomNo 	
   
   private [cache] def getUniqueRandomNo: String = System.currentTimeMillis() + "" + new Random().nextInt()
   
