@@ -54,7 +54,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
         }
       });
 
-  private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf("$$$"))
+  private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf("_"))
   
   override def createTempTableAndMetadata(startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData = {
     requestType match {
@@ -112,7 +112,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     import acumeCacheContext.sqlContext._
     val cacheLevel = levelTimestamp.level
     val diskread = diskUtility.loadData(cube, levelTimestamp, dimensionTable)
-    val _$tableName = cube.toString + levelTimestamp.toString
+    val _$tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
     diskread.registerTempTable(_$tableName)
     cacheTable(_$tableName) 
     _$tableName

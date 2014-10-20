@@ -188,8 +188,8 @@
 		<!-- Spark dependencies end -->
 		<dependency>
 			<groupId>com.guavus</groupId>
-			<artifactId>SqlQueryBuilder</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<artifactId>QueryBuilder</artifactId>
+			<version>0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.guavus</groupId>
