@@ -2,7 +2,7 @@
 <modelVersion>4.0.0</modelVersion>
 <groupId>com.guauvs</groupId>
 <artifactId>acume-war</artifactId>
-<version>atlas3.4</version>
+<version>1.0-SNAPSHOT</version>
 <packaging>war</packaging>
 <name>Acume-war</name>
 <url>http://maven.apache.org</url>
@@ -13,7 +13,7 @@
 <dependency>
 <groupId>com.guavus.acume</groupId>
 <artifactId>core</artifactId>
-<version>atlas3.4</version>
+<version>0.1-SNAPSHOT</version>
 </dependency>
 </dependencies>
 </project>

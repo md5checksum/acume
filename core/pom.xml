@@ -1,15 +1,16 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>com.guavus</groupId>
 		<artifactId>acume</artifactId>
-		<version>atlas3.4</version>
+		<version>0.1-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<groupId>com.guavus.acume</groupId>
 	<artifactId>core</artifactId>
-	<version>atlas3.4</version>
+	<version>0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 	<repositories>
 		<repository>
@@ -44,7 +45,7 @@
 		<dependency>
 			<groupId>com.guavus.acume</groupId>
 			<artifactId>cache</artifactId>
-			<version>atlas3.4</version>
+			<version>0.1-SNAPSHOT</version>
 		</dependency>
 		<!-- Spring dependency -->
 		<dependency>
@@ -98,7 +99,7 @@
 		<dependency>
 			<groupId>com.guavus.rubix.user.management</groupId>
 			<artifactId>user-management</artifactId>
-			<version>atlas3.4</version>
+			<version>4.9</version>
 			<exclusions>
 				<exclusion>
 					<groupId>javax.servlet</groupId>
@@ -188,12 +189,12 @@
 		<dependency>
 			<groupId>com.guavus</groupId>
         		<artifactId>QueryBuilder</artifactId>
-        		<version>atlas3.4</version>
+        		<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>crux2.0</artifactId>
-			<version>atlas3.4</version>
+			<version>0.1-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 
@@ -368,7 +369,7 @@
 										</goals>
 									</pluginExecutionFilter>
 									<action>
-										<ignore/>
+										<ignore></ignore>
 									</action>
 								</pluginExecution>
 							</pluginExecutions>
@@ -379,3 +380,4 @@
 		</pluginManagement>
 	</build>
 </project>
+
