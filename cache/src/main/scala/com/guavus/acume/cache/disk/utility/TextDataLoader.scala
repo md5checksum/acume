@@ -17,6 +17,10 @@ import com.guavus.acume.cache.workflow.AcumeCacheContext
 import com.guavus.crux.core.TextDelimitedScheme
 import com.guavus.crux.core.Fields
 import com.guavus.acume.cache.common.ConversionToCrux
+import com.guavus.crux.df.core.FieldDataType
+import com.guavus.acume.cache.common.DataType
+import com.guavus.acume.cache.common.LevelTimestamp
+import org.apache.spark.sql.catalyst.plans.Inner
 
 class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) extends DataLoader(acumeCacheContext, conf, cube) { 
   
@@ -32,7 +36,7 @@ class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf,
     val level = levelTimestamp.level
     val list = getLevel(levelTimestamp) //list of timestamps to be loaded on base gran, improve this to support grans in insta . 	
     val baseCube = CubeUtil.getCubeMap(acumeCacheContext.baseCubeList.toList, acumeCacheContext.cubeList.toList).getOrElse(businessCube, throw new RuntimeException("Value not found."))
-    val thisCubeName = baseCube.cubeName + getUniqueRandomeNo
+    val thisCubeName = baseCube.cubeName + "measureset" +levelTimestamp
     val sparkContext = acumeCacheContext.sqlContext.sparkContext
     var flag = false
 
@@ -42,12 +46,12 @@ class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf,
     val latestschema = StructType(StructField("tupleid", LongType, true) +: StructField("timestamp", LongType, true) +: schema.toList)
           
     val baseCubeMeasureSet = CubeUtil.getMeasureSet(baseCube)
-    val fields  = new Fields((1.to(baseCubeMeasureSet.size+2).map(_.toString).toArray))
-    val datatypearray = baseCubeMeasureSet.map(x => ConversionToCrux.convertToCruxFieldDataType(x.getDataType)).toArray
+    val fields  = new Fields((1.to(baseCubeMeasureSet.size + 2).map(_.toString).toArray))
+    val datatypearray = Array(ConversionToCrux.convertToCruxFieldDataType(DataType.ACLong), ConversionToCrux.convertToCruxFieldDataType(DataType.ACLong))  ++ baseCubeMeasureSet.map(x => ConversionToCrux.convertToCruxFieldDataType(x.getDataType))
     for(ts <- list) {
     
       val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube.cubeName + "/f/" + ts
-      val rowRDD = new TextDelimitedScheme(fields, "\\t", datatypearray)._getRdd(baseDir, sparkContext).map(x => Row.fromSeq(x.getValueArray.toSeq))
+      val rowRDD = new TextDelimitedScheme(fields, "\t", datatypearray)._getRdd(baseDir, sparkContext).map(x => Row.fromSeq(x.getValueArray.toSeq))
 //      val rowRDD = sparkContext.textFile(baseDir).map(getRow(_))
       val schemaRDD = acumeCacheContext.sqlContext.applySchema(rowRDD, latestschema)
 
@@ -76,7 +80,7 @@ class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf,
       val sparkContext = sqlContext.sparkContext
       
       val baseCube = CubeUtil.getCubeMap(acumeCacheContext.baseCubeList.toList, acumeCacheContext.cubeList.toList).getOrElse(businessCube, throw new RuntimeException("Value not found."))
-      val thisCubeName = baseCube.cubeName + getUniqueRandomeNo
+      val thisCubeName = baseCube.cubeName + "dimensionset"
       
       val baseCubeDimensionSet = CubeUtil.getDimensionSet(baseCube)
       val schema = 
@@ -87,8 +91,8 @@ class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf,
       val latestschema = StructType(StructField("id", LongType, true) +: StructField("ts", LongType, true) +: schema.toList)
         
       
-      val fields  = new Fields((1.to(baseCubeDimensionSet.size+2).map(_.toString).toArray))
-      val datatypearray = baseCubeDimensionSet.map(x => ConversionToCrux.convertToCruxFieldDataType(x.getDataType)).toArray
+      val fields  = new Fields((1.to(baseCubeDimensionSet.size + 2).map(_.toString).toArray))
+      val datatypearray = Array(ConversionToCrux.convertToCruxFieldDataType(DataType.ACLong), ConversionToCrux.convertToCruxFieldDataType(DataType.ACLong)) ++ baseCubeDimensionSet.map(x => ConversionToCrux.convertToCruxFieldDataType(x.getDataType))
       
       var flag = false
       for(timestamp <- list){
@@ -121,10 +125,10 @@ class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf,
           dimensionRDD.insertInto(globalDTableName)
         else 
           dimensionRDD.registerTempTable(globalDTableName)
-      true
     } catch { 
-    case ex: Throwable => false   
+    case ex: Throwable => throw new IllegalStateException(ex)
     }
+    true
   }
   
   def getUniqueRandomeNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt)

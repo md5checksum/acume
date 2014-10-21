@@ -33,11 +33,11 @@ class AcumeContext(confFilePath: String) {
     
   val sparkContext = new SparkContext(conf)
 
-//  val hc = new HiveContext(sparkContext)
+  val hc = new HiveContext(sparkContext)
 
   val _sqlContext = new SQLContext(sparkContext)
   
-  val acumeContext = new AcumeCacheContext(sqlContext, new AcumeCacheConf)
+  val acumeContext = new AcumeCacheContext(hc, new AcumeCacheConf)
   
   def sc() = sparkContext
   
@@ -45,7 +45,7 @@ class AcumeContext(confFilePath: String) {
   
   def acumeConf() = acumeConfiguration
   
-//  def hqlContext() = hc
+  def hqlContext() = hc
   
   def sqlContext() = _sqlContext
   

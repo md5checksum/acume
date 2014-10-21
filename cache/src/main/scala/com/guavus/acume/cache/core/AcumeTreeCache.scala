@@ -112,11 +112,14 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     import acumeCacheContext.sqlContext._
     val cacheLevel = levelTimestamp.level
     val diskread = diskUtility.loadData(cube, levelTimestamp, dimensionTable)
-    val _$tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
-    acumeCacheContext.sqlContext.applySchema(diskread, diskread.schema)
-    diskread.registerTempTable(_$tableName)
-    cacheTable(_$tableName) 
-    _$tableName
+    val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
+    //acumeCacheContext.sqlContext.applySchema(diskread, diskread.schema)
+   // print(diskread.schema)
+    diskread.registerTempTable(_tableName)
+    acumeCacheContext.sqlContext.table(_tableName).collect.map(print)
+    acumeCacheContext.sqlContext.sql(s"select * from ${_tableName} ").collect.map(print)
+    cacheTable(_tableName) 
+    _tableName
   }
   
   private def buildTableForIntervals(levelTimestampMap: MutableMap[Long, MutableList[Long]], tableName: String, isMetaData: Boolean): MetaData = {

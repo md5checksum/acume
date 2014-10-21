@@ -80,7 +80,9 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       val idd = new CacheIdentifier()
       idd.put("cube", id.hashCode)
       val instance = AcumeCacheFactory.getInstance(this, conf, idd, id)
-      instance.createTempTableAndMetadata(startTime, endTime, rt, i,None)
+      val temp = instance.createTempTableAndMetadata(startTime, endTime, rt, i,None)
+      sqlContext.table(i)
+      temp
     }
     val klist = list.flatMap(_.timestamps).toList
     val kfg = AcumeCacheContext.ACQL(qltype, sqlContext)(newsql)

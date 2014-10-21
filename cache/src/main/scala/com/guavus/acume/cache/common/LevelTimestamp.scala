@@ -2,7 +2,10 @@ package com.guavus.acume.cache.common
 
 import CacheLevel._
 
-case class LevelTimestamp(level: CacheLevel, timestamp:Long)
+case class LevelTimestamp(level: CacheLevel, timestamp:Long) {
+  
+  override def toString = level.localId.toString + timestamp.toString
+}
 
 class AggregationLevel extends Enumeration { 
   

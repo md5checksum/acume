@@ -27,11 +27,11 @@
 		<tomcat.version>7.0.34</tomcat.version>
 	</properties>
 	<dependencies>
-		<dependency>
+		<!--dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>17.0</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>org.apache.hive</groupId>
 			<artifactId>hive-exec</artifactId>
