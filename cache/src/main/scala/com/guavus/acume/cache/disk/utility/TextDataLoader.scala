@@ -42,7 +42,7 @@ class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf,
     val latestschema = StructType(StructField("tupleid", LongType, true) +: StructField("timestamp", LongType, true) +: schema.toList)
           
     val baseCubeMeasureSet = CubeUtil.getMeasureSet(baseCube)
-    val fields  = new Fields((1.to(baseCubeMeasureSet.size).map(_.toString).toArray))
+    val fields  = new Fields((1.to(baseCubeMeasureSet.size+2).map(_.toString).toArray))
     val datatypearray = baseCubeMeasureSet.map(x => ConversionToCrux.convertToCruxFieldDataType(x.getDataType)).toArray
     for(ts <- list) {
     
@@ -87,14 +87,14 @@ class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf,
       val latestschema = StructType(StructField("id", LongType, true) +: StructField("ts", LongType, true) +: schema.toList)
         
       
-      val fields  = new Fields((1.to(baseCubeDimensionSet.size).map(_.toString).toArray))
+      val fields  = new Fields((1.to(baseCubeDimensionSet.size+2).map(_.toString).toArray))
       val datatypearray = baseCubeDimensionSet.map(x => ConversionToCrux.convertToCruxFieldDataType(x.getDataType)).toArray
       
       var flag = false
       for(timestamp <- list){
         val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube.cubeName + "/d/" + timestamp
       
-        val rowRDD = new TextDelimitedScheme(fields, "\\t", datatypearray)._getRdd(baseDir, sparkContext).map(x => Row.fromSeq(x.getValueArray.toSeq))
+        val rowRDD = new TextDelimitedScheme(fields, "\t", datatypearray)._getRdd(baseDir, sparkContext).map(x => Row.fromSeq(x.getValueArray.toSeq))
 //        val rowRDD = sparkContext.textFile(baseDir).map(getRow)
         val schemaRDD = sqlContext.applySchema(rowRDD, latestschema)
       
