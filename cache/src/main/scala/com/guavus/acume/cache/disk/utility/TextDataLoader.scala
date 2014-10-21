@@ -16,7 +16,6 @@ import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.workflow.AcumeCacheContext
 import com.guavus.crux.core.TextDelimitedScheme
 import com.guavus.crux.core.Fields
-import com.guavus.acume.cache.common.ConversionToScala
 import com.guavus.acume.cache.common.ConversionToCrux
 
 class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) extends DataLoader(acumeCacheContext, conf, cube) { 
