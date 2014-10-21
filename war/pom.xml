@@ -11,7 +11,7 @@
 </properties>
 <dependencies>
 <dependency>
-<groupId>com.guavus</groupId>
+<groupId>com.guavus.acume</groupId>
 <artifactId>core</artifactId>
 <version>0.1-SNAPSHOT</version>
 </dependency>
