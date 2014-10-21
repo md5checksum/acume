@@ -13,6 +13,9 @@ import org.apache.spark.sql.catalyst.types.FloatType
 import org.apache.spark.sql.catalyst.types.ShortType
 import java.lang.RuntimeException
 import com.guavus.crux.core.ByteBuffer
+import com.guavus.crux.jaxb.classes.{DataType => CruxDataType}
+import com.guavus.crux.df.core.FieldDataType
+import com.guavus.crux.df.core.FieldDataType._
 
 object DataType extends Enumeration {
 
@@ -63,22 +66,8 @@ object ConversionToSpark {
   }
 }
   
-object ConversionToScala { 
+object ConversionToCrux { 
   
-  def convertToScalaDataType(dataType: DataType.Value) = { 
-    
-    dataType match { 
-      
-      case DataType.ACInt => classOf[Int]
-      case DataType.ACLong => classOf[Long]
-      case DataType.ACString => classOf[String]
-      case DataType.ACFloat => classOf[Float]
-      case DataType.ACDouble => classOf[Double]  
-      case DataType.ACBoolean => classOf[Boolean]
-      case DataType.ACShort => classOf[Short]
-      case DataType.ACByte => classOf[Byte]
-      case DataType.ACByteBuffer => classOf[ByteBuffer]
-      case _ => throw new RuntimeException("Not Supported Datatype: " + dataType)
-    }
-  }
+  def convertToCruxFieldDataType(dataType: com.guavus.acume.cache.common.DataType.DataType): FieldDataType = 
+    FieldDataType(CruxDataType.fromValue(dataType.typeString))
 }

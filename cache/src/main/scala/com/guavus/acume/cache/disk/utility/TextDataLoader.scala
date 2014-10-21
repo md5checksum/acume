@@ -17,6 +17,7 @@ import com.guavus.acume.cache.workflow.AcumeCacheContext
 import com.guavus.crux.core.TextDelimitedScheme
 import com.guavus.crux.core.Fields
 import com.guavus.acume.cache.common.ConversionToScala
+import com.guavus.acume.cache.common.ConversionToCrux
 
 class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) extends DataLoader(acumeCacheContext, conf, cube) { 
   
@@ -39,11 +40,11 @@ class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf,
     val schema = CubeUtil.getMeasureSet(baseCube).map(field => { 
             StructField(field.getName, ConversionToSpark.convertToSparkDataType(CubeUtil.getFieldType(field)), true)
           })
-    val latestschema = StructType(StructField("tupleid", LongType, true) +: StructField("ts", LongType, true) +: schema.toList)
+    val latestschema = StructType(StructField("tupleid", LongType, true) +: StructField("timestamp", LongType, true) +: schema.toList)
           
     val baseCubeMeasureSet = CubeUtil.getMeasureSet(baseCube)
     val fields  = new Fields((1.to(baseCubeMeasureSet.size).map(_.toString).toArray))
-    val datatypearray = baseCubeMeasureSet.map(x => ConversionToScala.convertToScalaDataType(x.getDataType).asInstanceOf[Class[_]]).toArray
+    val datatypearray = baseCubeMeasureSet.map(x => ConversionToCrux.convertToCruxFieldDataType(x.getDataType)).toArray
     for(ts <- list) {
     
       val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube.cubeName + "/f/" + ts
@@ -88,7 +89,7 @@ class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf,
         
       
       val fields  = new Fields((1.to(baseCubeDimensionSet.size).map(_.toString).toArray))
-      val datatypearray = baseCubeDimensionSet.map(x => ConversionToScala.convertToScalaDataType(x.getDataType).asInstanceOf[Class[_]]).toArray
+      val datatypearray = baseCubeDimensionSet.map(x => ConversionToCrux.convertToCruxFieldDataType(x.getDataType)).toArray
       
       var flag = false
       for(timestamp <- list){
@@ -135,13 +136,12 @@ class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf,
     
     val sqlContext = acumeCacheContext.sqlContext
     val businessCubeAggregatedMeasureList = CubeUtil.getStringMeasureOrFunction(acumeCacheContext.measureMap.toMap, cube)
-    val businessCubeDimensionList = CubeUtil.getDimensionSet(cube).map(_.getName)
+    val businessCubeDimensionList = CubeUtil.getDimensionSet(cube).map(_.getName).mkString(",")
     val local_thisCubeName = thisCubeName + getUniqueRandomeNo
     loadDimensionSet(businessCube, list, instabase, instainstanceid, globalDTableName)
     val str = "select " + businessCubeDimensionList + "," + businessCubeAggregatedMeasureList + " from " + local_thisCubeName + " group by " + businessCubeDimensionList
     val join = s"Select * from $globalDTableName INNER JOIN $thisCubeName ON $globalDTableName.id = $thisCubeName.tupleid"
     val aggregatedRDD = sqlContext.sql(join).registerTempTable(local_thisCubeName)
-//    sqlContext.applySchema(aggregatedRDD, aggregatedRDD.schema)//.registerTempTable(local_thisCubeName)
     sqlContext.sql(str)
     
     //explore hive udfs for aggregation.
