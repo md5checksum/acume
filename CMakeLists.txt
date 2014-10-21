@@ -9,4 +9,4 @@ add_custom_target(acume
                   COMMAND ./pom.py ${SUPER_NAME}${SUPER_VERSION}
                   COMMAND mvn clean install -DskipTests=true 
                   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-install(FILES war/target/war-${SUPER_NAME}${SUPER_VERSION} DESTINATION opt/tms/java)
+install(FILES war/target/war-${SUPER_NAME}${SUPER_VERSION}.war DESTINATION opt/tms/java)
