@@ -24,6 +24,7 @@ private [acume] object ConfConstants {
   val cubetype = "cubetype"
   val levelpolicymap = "levelpolicymap"
   val timeserieslevelpolicymap = "timeserieslevelpolicymap"
+  val lastbinpersistedtime = "delete.lastbinpersistedtime"
 }
 
 

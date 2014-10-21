@@ -118,6 +118,7 @@ class ORCDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, 
         case ex: Exception => false
         }
         val dimensionRDD = sqlContext.sql(dimensionSQL)
+        sqlContext.applySchema(dimensionRDD, dimensionRDD.schema)
         if(istableregistered) 
           dimensionRDD.insertInto(globalDTableName)
         else 

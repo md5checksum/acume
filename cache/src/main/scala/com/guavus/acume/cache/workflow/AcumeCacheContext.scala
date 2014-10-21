@@ -68,12 +68,13 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     val tx = AcumeCacheContext.parseSql(sql)
     val rt = tx._2
     var newsql = sql
+    var i = ""
     val list = for(l <- tx._1) yield {
       val cube = l.getTableName
       val startTime = l.getStartTime
       val endTime = l.getEndTime
       
-      val i = getTable(cube)
+      i = getTable(cube)
       val id = getCube(cube)
       newsql = newsql.replace(s" $cube ", s" $i ")
       val idd = new CacheIdentifier()
@@ -84,7 +85,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     val klist = list.flatMap(_.timestamps).toList
     val kfg = AcumeCacheContext.ACQL(qltype, sqlContext)(newsql)
     kfg.collect.foreach(println)
-    AcumeCacheResponse(AcumeCacheContext.ACQL(qltype, sqlContext)(newsql), MetaData(klist))
+    AcumeCacheResponse(AcumeCacheContext.ACQL(qltype, sqlContext)(s"select * from $i"), MetaData(klist))
   }
   
   def acql(sql: String, qltype: String): AcumeCacheResponse = { 
@@ -145,7 +146,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   private [cache] def getTable(cube: String) = cube + "_" + getUniqueRandomNo 	
   
-  private [cache] def getUniqueRandomNo: String = System.currentTimeMillis() + "" + new Random().nextInt()
+  private [cache] def getUniqueRandomNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt())
   
   private [cache] def loadVRMap(conf: AcumeCacheConf) = {
     val vrmapstring = conf.get(ConfConstants.variableretentionmap)

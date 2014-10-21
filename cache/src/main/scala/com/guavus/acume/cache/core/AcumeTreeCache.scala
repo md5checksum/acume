@@ -92,7 +92,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
         else 
           0
       case None => 
-        Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime))
+        Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, conf.get(ConfConstants.lastbinpersistedtime).toLong))
     }
     
     val startTimeCeiling = cacheLevelPolicy.getCeilingToLevel(startTime, level)
@@ -113,6 +113,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     val cacheLevel = levelTimestamp.level
     val diskread = diskUtility.loadData(cube, levelTimestamp, dimensionTable)
     val _$tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
+    acumeCacheContext.sqlContext.applySchema(diskread, diskread.schema)
     diskread.registerTempTable(_$tableName)
     cacheTable(_$tableName) 
     _$tableName
@@ -139,6 +140,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
         
         val tblNm = cachePointToTable.get(levelTimestamp)
         val diskread = acumeCacheContext.sqlContext.sql(s"select * from $tblNm")
+        acumeCacheContext.sqlContext.applySchema(diskread, diskread.schema)
         if(!flag){
           diskread.registerTempTable(tableName)
           flag = true

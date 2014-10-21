@@ -86,11 +86,11 @@ object CubeUtil {
         case Some("") | Some("none") => 
           fieldMap.get(key) match {
           case None => throw new RuntimeException("measure not present in map given.")
-          case Some(x) => s"${x.getDefaultAggregationFunction}($key) as $key"
+          case Some(x) => s"${x.getDefaultAggregationFunction}($key) as ${key}1"
           }
         case Some(y) => s"${y}($key) as $key"
       }
     }
-    keyset.filter(!_.isEmpty()).toSet.+("max(ts) ").mkString(",")
+    keyset.filter(!_.isEmpty()).toSet.+("max(ts) as ts ").mkString(",")
   }
 }

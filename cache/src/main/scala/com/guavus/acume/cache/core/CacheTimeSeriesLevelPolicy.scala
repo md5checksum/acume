@@ -37,8 +37,8 @@ class CacheTimeSeriesLevelPolicy(levelMap: SortedMap[Long, Int]) extends CacheTi
     aggregationIntervals
   }
 
-  override def getLevelToUse(startTime: Long, endTime: Long): Long = {
-    val lastBinTime = 0//Controller.getInstance.getLastBinPersistedTime(binclass, binSource, Controller.RETRY_COUNT)
+  override def getLevelToUse(startTime: Long, endTime: Long, lastbinpersistedtime: Long): Long = {
+    val lastBinTime = lastbinpersistedtime//Controller.getInstance.getLastBinPersistedTime(binclass, binSource, Controller.RETRY_COUNT)
     for ((key, value) <- levelMap) {
       val level = key
       val points = value

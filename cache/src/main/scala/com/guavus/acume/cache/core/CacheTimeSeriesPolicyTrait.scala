@@ -5,7 +5,7 @@ import scala.collection.mutable.MutableList
 
 trait CacheTimeSeriesPolicyTrait extends Serializable {
 
-  def getLevelToUse(startTime: Long, endTime: Long/*, binSource: String, binclass: String*/): Long
+  def getLevelToUse(startTime: Long, endTime: Long, lastBinTime: Long/*, binSource: String, binclass: String*/): Long
   def getAggregationIntervals(/*binSource: String, binclass: String*/): HashMap[MutableList[Long], Long]
   /*def filterMap(baseLevel: Long): Unit*/
   def copy(): CacheTimeSeriesPolicyTrait
