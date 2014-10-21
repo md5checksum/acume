@@ -47,11 +47,11 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		<!-- <dependency>
+		<dependency>
 		<groupId>com.guavus</groupId>
 			<artifactId>crux2.0</artifactId>
 			<version>0.1-SNAPSHOT</version>
-		</dependency> -->
+		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>

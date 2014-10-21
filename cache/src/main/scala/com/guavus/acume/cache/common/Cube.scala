@@ -10,9 +10,9 @@ case class Cube(cubeName: String, dimension: DimensionSet, measure: CubeMeasureS
 case class BaseCube(cubeName: String, dimension: DimensionSet, measure: MeasureSet) extends CubeTrait(cubeName, dimension, measure)
 
 case class Function(functionClass: String, functionName: String) extends Serializable 
-case class DimensionSet(dimensionSet: Set[Dimension]) extends Serializable 
-case class MeasureSet(measureSet: Set[Measure]) extends Serializable 
-case class CubeMeasureSet(measureSet: Set[CubeMeasure]) extends Serializable
+case class DimensionSet(dimensionSet: List[Dimension]) extends Serializable 
+case class MeasureSet(measureSet: List[Measure]) extends Serializable 
+case class CubeMeasureSet(measureSet: List[CubeMeasure]) extends Serializable
 
 
 

@@ -21,11 +21,11 @@ object CubeUtil {
   
   def getSize(cube: CubeTrait): Int = cube.superDimension.dimensionSet.size + cube.superMeasure.measureSet.size
   
-  def getDimensionSet(cube: CubeTrait): Set[Dimension] = cube.superDimension.dimensionSet
+  def getDimensionSet(cube: CubeTrait): List[Dimension] = cube.superDimension.dimensionSet
   
-  def getMeasureSet(cube: CubeTrait): Set[Measure] = cube.superMeasure.measureSet
+  def getMeasureSet(cube: CubeTrait): List[Measure] = cube.superMeasure.measureSet
   
-  def getMeasureSetWithTimestampTupleId(cube: CubeTrait): Set[Measure] = cube.superMeasure.measureSet
+  def getMeasureSetWithTimestampTupleId(cube: CubeTrait): List[Measure] = cube.superMeasure.measureSet
   
   def getFieldType(field: Field): DataType = field.getDataType
   
@@ -60,7 +60,7 @@ object CubeUtil {
         val baseCubeMeasureSet = baseCube.measure.measureSet
         //todo how will you take care of derived measure here?
         //todo take care of annotated measure as well here.
-        if(dimensionSet.subsetOf(baseCubeDimensionSet) && measureSet.subsetOf(baseCubeMeasureSet)){
+        if(dimensionSet.toSet.subsetOf(baseCubeDimensionSet.toSet) && measureSet.toSet.subsetOf(baseCubeMeasureSet.toSet)){
           list.+=(baseCube)
         }
       }

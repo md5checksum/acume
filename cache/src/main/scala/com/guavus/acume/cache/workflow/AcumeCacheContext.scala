@@ -136,7 +136,8 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       else
         measureSet.+=(measureMap.get(field).get)
       val kCube = 
-        for(cube <- cubeList if(dimensionSet.subsetOf(cube.dimension.dimensionSet) && measureSet.subsetOf(cube.measure.measureSet.map(_.measure)))) yield {
+        for(cube <- cubeList if(dimensionSet.toSet.subsetOf(cube.dimension.dimensionSet.toSet) && 
+            measureSet.toSet.subsetOf(cube.measure.measureSet.map(_.measure).toSet))) yield {
           cube
         }
     kCube.toList
@@ -230,7 +231,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
         val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, defaultPropertyMap, ConfConstants.timeserieslevelpolicymap, cubeName))
         val Gnx = getProperty(propertyMap, defaultPropertyMap, ConfConstants.basegranularity, cubeName)
         val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
-        val cube = Cube(cubeName, DimensionSet(dimensionSet.toSet), CubeMeasureSet(measureSet.toSet), granularity, true, levelpolicymap, timeserieslevelpolicymap)
+        val cube = Cube(cubeName, DimensionSet(dimensionSet.toList), CubeMeasureSet(measureSet.toList), granularity, true, levelpolicymap, timeserieslevelpolicymap)
         cubeMap.put(cubeName, cube)
         cube
       }
