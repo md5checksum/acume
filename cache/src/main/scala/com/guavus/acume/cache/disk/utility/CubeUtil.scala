@@ -91,6 +91,6 @@ object CubeUtil {
         case Some(y) => s"${y}($key) as $key"
       }
     }
-    keyset.filter(!_.isEmpty()).toSet.+("max(ts) as ts ").mkString(",")
+    keyset.filter(!_.isEmpty()).toSet.+("min(ts) as ts ").mkString(",")
   }
 }

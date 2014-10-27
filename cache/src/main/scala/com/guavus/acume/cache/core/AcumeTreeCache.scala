@@ -1,32 +1,26 @@
 
 package com.guavus.acume.cache.core
 
+import scala.Array.canBuildFrom
 import scala.collection.immutable.SortedMap
-import scala.collection.mutable.{ Map => MutableMap }
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.workflow.RequestType
-import com.guavus.acume.cache.workflow.RequestType._
-import com.guavus.acume.cache.common.CacheLevel._
-import com.guavus.acume.cache.utility.QueryOptionalParam
-import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.common.ConfConstants
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.disk.utility.ORCDataLoader
-import org.apache.spark.sql.SQLContext
-import com.guavus.acume.cache.gen.Acume
-import com.guavus.acume.cache.common.AcumeConstants
-import com.guavus.acume.cache.common.CacheLevel
-import com.guavus.acume.cache.utility.Utility
+import scala.collection.mutable.{Map => MutableMap}
 import scala.collection.mutable.MutableList
-import com.guavus.acume.cache.common.Cube
-import com.guavus.acume.cache.core.TimeGranularity._
-import com.guavus.acume.cache.workflow.AcumeCacheContext
-import com.guavus.acume.cache.disk.utility.DataLoader
-import org.apache.spark.sql.SchemaRDD
+
 import com.google.common.cache.CacheBuilder
-import com.guavus.acume.cache.common.LevelTimestamp
 import com.google.common.cache.CacheLoader
+import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.CacheLevel
+import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.disk.utility.DataLoader
+import com.guavus.acume.cache.utility.QueryOptionalParam
+import com.guavus.acume.cache.utility.Utility
+import com.guavus.acume.cache.workflow.AcumeCacheContext
 import com.guavus.acume.cache.workflow.MetaData
+import com.guavus.acume.cache.workflow.RequestType.Aggregate
+import com.guavus.acume.cache.workflow.RequestType.RequestType
+import com.guavus.acume.cache.workflow.RequestType.Timeseries
 
 /**
  * Saves the dimension table till date and all fact tables as different tableNames for each levelTimestamp
@@ -115,9 +109,11 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
     //acumeCacheContext.sqlContext.applySchema(diskread, diskread.schema)
    // print(diskread.schema)
+    acumeCacheContext.sqlContext.applySchema(diskread, diskread.schema)
     diskread.registerTempTable(_tableName)
     acumeCacheContext.sqlContext.table(_tableName).collect.map(print)
-    acumeCacheContext.sqlContext.sql(s"select * from ${_tableName} ").collect.map(print)
+    println(table(_tableName).schema)
+//    acumeCacheContext.sqlContext.sql(s"select * from ${_tableName}").collect.map(print)
     cacheTable(_tableName) 
     _tableName
   }
@@ -143,13 +139,13 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
         
         val tblNm = cachePointToTable.get(levelTimestamp)
         val diskread = acumeCacheContext.sqlContext.sql(s"select * from $tblNm")
-        acumeCacheContext.sqlContext.applySchema(diskread, diskread.schema)
+        val _$diskread = acumeCacheContext.sqlContext.applySchema(diskread, diskread.schema)
         if(!flag){
-          diskread.registerTempTable(tableName)
+          _$diskread.registerTempTable(tableName)
           flag = true
         }
         else{
-          diskread.insertInto(tableName)
+          _$diskread.insertInto(tableName)
         }
 //        diskread._1.registerTempTable(_$tableName)
 //        if(diskread._2)

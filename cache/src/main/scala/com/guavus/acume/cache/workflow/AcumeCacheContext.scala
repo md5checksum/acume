@@ -81,13 +81,15 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       idd.put("cube", id.hashCode)
       val instance = AcumeCacheFactory.getInstance(this, conf, idd, id)
       val temp = instance.createTempTableAndMetadata(startTime, endTime, rt, i,None)
-      sqlContext.table(i)
+      println("-------------------")
+      println("table = " + i + " and schmea = " + {sqlContext.table(i).schema})
       temp
     }
     val klist = list.flatMap(_.timestamps).toList
+//    newsql = newsql.substring(0, newsql.indexOf("WHERE"))
     val kfg = AcumeCacheContext.ACQL(qltype, sqlContext)(newsql)
     kfg.collect.foreach(println)
-    AcumeCacheResponse(AcumeCacheContext.ACQL(qltype, sqlContext)(s"select * from $i"), MetaData(klist))
+    AcumeCacheResponse(kfg, MetaData(klist))
   }
   
   def acql(sql: String, qltype: String): AcumeCacheResponse = { 

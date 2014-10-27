@@ -43,7 +43,7 @@ class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf,
     val schema = CubeUtil.getMeasureSet(baseCube).map(field => { 
             StructField(field.getName, ConversionToSpark.convertToSparkDataType(CubeUtil.getFieldType(field)), true)
           })
-    val latestschema = StructType(StructField("tupleid", LongType, true) +: StructField("timestamp", LongType, true) +: schema.toList)
+    val latestschema = StructType(StructField("tupleid", LongType, true) +: StructField("ts", LongType, true) +: schema.toList)
           
     val baseCubeMeasureSet = CubeUtil.getMeasureSet(baseCube)
     val fields  = new Fields((1.to(baseCubeMeasureSet.size + 2).map(_.toString).toArray))
@@ -88,7 +88,7 @@ class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf,
           StructField(field.getName, ConversionToSpark.convertToSparkDataType(CubeUtil.getFieldType(field)), true)
         })
           
-      val latestschema = StructType(StructField("id", LongType, true) +: StructField("ts", LongType, true) +: schema.toList)
+      val latestschema = StructType(StructField("id", LongType, true) +: StructField("timestamp", LongType, true) +: schema.toList)
         
       
       val fields  = new Fields((1.to(baseCubeDimensionSet.size + 2).map(_.toString).toArray))
@@ -110,7 +110,7 @@ class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf,
           schemaRDD.insertInto(thisCubeName)
       }
       val getdimension = CubeUtil.getDimensionSet(businessCube).map(_.getName).mkString(",")
-      val dimensionSQL = s"select id, ts, ${getdimension} from $thisCubeName"
+      val dimensionSQL = s"select id, timestamp, ${getdimension} from $thisCubeName"
       import acumeCacheContext.sqlContext._
       val istableregistered = 
         try{
@@ -137,15 +137,22 @@ class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf,
   
   def joinDimensionSet(businessCube: Cube, level: CacheLevel, list: List[Long], globalDTableName: String, thisCubeName: String, instabase: String, instainstanceid: String) = { 
     
+    import acumeCacheContext.sqlContext._
     val sqlContext = acumeCacheContext.sqlContext
     val businessCubeAggregatedMeasureList = CubeUtil.getStringMeasureOrFunction(acumeCacheContext.measureMap.toMap, cube)
     val businessCubeDimensionList = CubeUtil.getDimensionSet(cube).map(_.getName).mkString(",")
     val local_thisCubeName = thisCubeName + getUniqueRandomeNo
     loadDimensionSet(businessCube, list, instabase, instainstanceid, globalDTableName)
     val str = "select " + businessCubeDimensionList + "," + businessCubeAggregatedMeasureList + " from " + local_thisCubeName + " group by " + businessCubeDimensionList
-    val join = s"Select * from $globalDTableName INNER JOIN $thisCubeName ON $globalDTableName.id = $thisCubeName.tupleid"
-    val aggregatedRDD = sqlContext.sql(join).registerTempTable(local_thisCubeName)
-    sqlContext.sql(str)
+    val join = s"Select * from $globalDTableName INNER JOIN $thisCubeName ON id = tupleid"
+    val globalDTable = table(globalDTableName)
+    sqlContext.applySchema(globalDTable, globalDTable.schema).registerTempTable(globalDTableName)
+    val joinedRDD = sqlContext.sql(join)
+//    joinedRDD.collect.map(println)
+    joinedRDD.registerTempTable(local_thisCubeName)
+    val xRDD = sqlContext.sql(str)
+//    h123.collect.map(println)
+    xRDD
     
     //explore hive udfs for aggregation.
     //remove dependency from crux. write things at acume level. 	
