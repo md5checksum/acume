@@ -102,12 +102,12 @@ class AcumeCacheConf(loadDefaults: Boolean, file: InputStream) extends Cloneable
 
   /** Get a parameter as an integer, falling back to a default if not set */
   def getInt(key: String, defaultValue: Int): Int = {
-    getOption(key).map(_.toInt).getOrElse(defaultValue)
+    getOption(key).map(_.trim.toInt).getOrElse(defaultValue)
   }
 
   /** Get a parameter as a long, falling back to a default if not set */
   def getLong(key: String, defaultValue: Long): Long = {
-    getOption(key).map(_.toLong).getOrElse(defaultValue)
+    getOption(key).map(_.trim.toLong).getOrElse(defaultValue)
   }
 
   /** Get a parameter as a double, falling back to a default if not set */

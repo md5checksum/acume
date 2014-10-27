@@ -35,13 +35,6 @@
 			<artifactId>gson</artifactId>
 			<version>2.2.2</version>
 		</dependency>
-
-		<dependency>
-			<groupId>org.datanucleus</groupId>
-			<artifactId>datanucleus-core</artifactId>
-			<version>4.0.3</version>
-		</dependency>
-
 		<dependency>
 			<groupId>com.guavus.acume</groupId>
 			<artifactId>cache</artifactId>
@@ -170,17 +163,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.hive</groupId>
-			<artifactId>hive-serde</artifactId>
-			<version>0.13.0</version>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.servlet</groupId>
-					<artifactId>servlet-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-library</artifactId>
 			<version>2.10.4</version>
@@ -189,7 +171,7 @@
 		<dependency>
 			<groupId>com.guavus</groupId>
         		<artifactId>QueryBuilder</artifactId>
-        		<version>0.0.1-SNAPSHOT</version>
+        		<version>0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.guavus</groupId>
