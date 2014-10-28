@@ -51,6 +51,13 @@
 		<groupId>com.guavus</groupId>
 			<artifactId>crux2.0</artifactId>
 			<version>0.1-SNAPSHOT</version>
+			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>com.sun.jersey</groupId>
+                                	<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
@@ -117,18 +124,28 @@
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-common</artifactId>
 			<version>${hadoop.version}</version>
+			<scope>provided</scope>
 		<exclusions>
 			<exclusion>
 				<groupId>javax.servlet</groupId>
 				<artifactId>servlet-api</artifactId>
 			</exclusion>
+                                <exclusion>
+                                        <groupId>com.sun.jersey</groupId>
+                                        <artifactId>*</artifactId>
+                                </exclusion>
 		</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-client</artifactId>
 			<version>${hadoop.version}</version>
+			<scope>provided</scope>
 		<exclusions>
+			<exclusion>
+                                        <groupId>com.sun.jersey</groupId>
+                                        <artifactId>*</artifactId>
+                                </exclusion>
 			<exclusion>
 			<groupId>javax.servlet</groupId>
 			<artifactId>servlet-api</artifactId>
@@ -141,6 +158,10 @@
 			<version>2.4.0</version>
 			<scope>provided</scope>
 			<exclusions>
+				<exclusion>
+                                        <groupId>com.sun.jersey</groupId>
+                                        <artifactId>*</artifactId>
+                                </exclusion>
 				<exclusion>
 				<groupId>javax.servlet</groupId>
 				<artifactId>servlet-api</artifactId>
