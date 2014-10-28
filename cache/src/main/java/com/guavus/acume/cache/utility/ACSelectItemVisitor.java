@@ -1,8 +1,5 @@
 package com.guavus.acume.cache.utility;
 
-import com.guavus.acume.cache.common.AcumeConstants;
-import com.guavus.acume.cache.workflow.RequestType;
-
 import net.sf.jsqlparser.expression.AllComparisonExpression;
 import net.sf.jsqlparser.expression.AnalyticExpression;
 import net.sf.jsqlparser.expression.AnyComparisonExpression;
@@ -55,12 +52,20 @@ import net.sf.jsqlparser.statement.select.SelectExpressionItem;
 import net.sf.jsqlparser.statement.select.SelectItemVisitor;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
+import com.guavus.acume.cache.common.AcumeConstants;
+
 public class ACSelectItemVisitor implements SelectItemVisitor {
 
+	RequestType type = null;
+	
+	public ACSelectItemVisitor(RequestType type) { 
+		
+		this.type = type;
+	}
 	@Override
 	public void visit(AllColumns allColumns) {
 		if(allColumns.toString().contains("ts"))
-			SQLUtility.requestType = AcumeConstants.Timeseries();
+			type.setRequestType(AcumeConstants.Timeseries());
 	}
 
 	@Override
@@ -74,7 +79,7 @@ public class ACSelectItemVisitor implements SelectItemVisitor {
 		// TODO Auto-generated method stub
 		
 		
-		ExpressionVisitor expressionVisitor = new CustomExpressionVisitor();
+		ExpressionVisitor expressionVisitor = new CustomExpressionVisitor(type);
 		Expression expression = selectExpressionItem.getExpression();
 		expression.accept(expressionVisitor);
 	}
@@ -85,6 +90,12 @@ public class ACSelectItemVisitor implements SelectItemVisitor {
 
 class CustomExpressionVisitor implements ExpressionVisitor {
 
+	RequestType type = null;
+	
+	public CustomExpressionVisitor(RequestType type) { 
+		
+		this.type = type;
+	}
 	@Override
 	public void visit(NullValue nullValue) {
 		// TODO Auto-generated method stub
@@ -257,7 +268,7 @@ class CustomExpressionVisitor implements ExpressionVisitor {
 	public void visit(Column tableColumn) {
 		
 		if(tableColumn.getColumnName().equals("ts"))
-			SQLUtility.requestType = AcumeConstants.Timeseries();
+			type.setRequestType(AcumeConstants.Timeseries());
 	}
 
 	@Override

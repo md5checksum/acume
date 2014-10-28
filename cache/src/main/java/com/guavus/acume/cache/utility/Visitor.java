@@ -11,9 +11,15 @@ import net.sf.jsqlparser.statement.select.WithItem;
 
 public class Visitor implements SelectVisitor {
 
+	RequestType type = null;
+	
+	public Visitor(RequestType type) { 
+		
+		this.type = type;
+	}
 	@Override
 	public void visit(PlainSelect plainSelect) {
-		SelectItemVisitor xv = new ACSelectItemVisitor();
+		SelectItemVisitor xv = new ACSelectItemVisitor(type);
 		List<SelectItem> itemList = plainSelect.getSelectItems();
 		for(SelectItem xi: itemList) {
 			xi.accept(xv);

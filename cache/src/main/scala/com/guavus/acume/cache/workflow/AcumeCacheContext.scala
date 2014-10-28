@@ -87,7 +87,8 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     }
     val klist = list.flatMap(_.timestamps).toList
 //    newsql = newsql.substring(0, newsql.indexOf("WHERE"))
-    val kfg = AcumeCacheContext.ACQL(qltype, sqlContext)(newsql)
+    val _kfg = AcumeCacheContext.ACQL(qltype, sqlContext)
+    val kfg = _kfg(newsql)
     kfg.collect.foreach(println)
     AcumeCacheResponse(kfg, MetaData(klist))
   }
@@ -307,7 +308,7 @@ object AcumeCacheContext{
       case QLType.sql => sqlContext.sql(_)
       }
     }
-    sqlContext.sql(_)
+    else sqlContext.sql(_)
   }
 }
 
