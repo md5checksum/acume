@@ -23,7 +23,7 @@ object AcumeMain {
 	  //Initiate the session Factory for user management db
     SessionFactory.getInstance(SessionContext.DISTRIBUTED)
     InitDatabase.initializeDatabaseTables(ArrayBuffer[IDML]())
-    logger.info("Called AcumeMain")
+    println("Called AcumeMain")
     val startTime = System.currentTimeMillis()
     //Initialize all components for Acume Core
 //    val config = ConfigFactory.getInstance()

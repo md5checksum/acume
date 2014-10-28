@@ -17,7 +17,7 @@ import com.guavus.acume.core.configuration.ConfigFactory
 
 object AggregateResponse {
 
-  private var gson: Gson = gsonBuilder.create()
+  var gson: Gson = gsonBuilder.create()
 
   val gsonBuilder = new GsonBuilder()
 

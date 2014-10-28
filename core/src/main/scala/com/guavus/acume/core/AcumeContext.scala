@@ -2,11 +2,8 @@ package com.guavus.acume.core
 
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkConf
-import com.guavus.crux.core.BroadCastVariable
 import org.apache.spark.SparkContext
 import org.slf4j.LoggerFactory
-import com.guavus.crux.core.CruxConf
-import com.guavus.crux.df.ibs.IB
 import org.apache.spark.Accumulator
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.LinkedHashMap
@@ -25,9 +22,6 @@ class AcumeContext(confFilePath: String) {
 
   //Properties will be loaded from spark-defaults.conf
   val conf = new SparkConf()
-    .set("spark.io.compression.codec", "org.apache.spark.io.SnappyCompressionCodec")
-    .set("spark.kryo.registrator", "com.guavus.crux.core.SerializerRegistrator")
-    .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
 
   val acumeConfiguration = new AcumeConf(true, this.getClass.getResourceAsStream(confFilePath))  
     
