@@ -20,6 +20,7 @@ object AcumeMain {
   private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeMain])
 
   def startAcume(args: Array[String]) {
+	AcumeContext.init("/acume.conf")
 	  //Initiate the session Factory for user management db
     SessionFactory.getInstance(SessionContext.DISTRIBUTED)
     InitDatabase.initializeDatabaseTables(ArrayBuffer[IDML]())
@@ -36,7 +37,6 @@ object AcumeMain {
    * Start tomcat
    */
   def main(args: Array[String]) {
-	  AcumeContext.init("/acume.conf")
 	  TomcatMain.startTomcatAndWait
   }
   
