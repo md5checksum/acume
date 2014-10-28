@@ -39,14 +39,13 @@ class CacheIdentifier extends Serializable {
   def size(): Int = id.size
 
   override def hashCode(): Int = {
-    val prime = 31
-    var result = 1
-    result = prime * result + (if ((id == null)) 0 else id.hashCode)
+    var result = 31 + id.hashCode
     result
   }
 
   override def equals(obj: Any): Boolean = {
-    if (this == obj) return true
+    if(!obj.isInstanceOf[AnyRef]) return false
+    if (this.eq(obj.asInstanceOf[AnyRef])) return true
     if (obj == null) return false
     if (!(obj.isInstanceOf[CacheIdentifier])) return false
     val other = obj.asInstanceOf[CacheIdentifier]
