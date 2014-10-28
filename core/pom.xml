@@ -26,22 +26,21 @@
 		<maven.compiler.source>1.7</maven.compiler.source>
 		<maven.compiler.target>1.7</maven.compiler.target>
 		<tomcat.version>7.0.34</tomcat.version>
-		<jersey-version>1.4</jersey-version>
+		<jersey-version>1.8</jersey-version>
 		<org.springframework.version>3.2.0.RELEASE</org.springframework.version>
 	</properties>
 	<dependencies>
+		<dependency>
+	<groupId>asm</groupId>
+	<artifactId>asm-all</artifactId>
+	<version>3.3.1</version>
+</dependency>
+
 		<dependency>
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>2.2.2</version>
 		</dependency>
-
-		<dependency>
-			<groupId>org.datanucleus</groupId>
-			<artifactId>datanucleus-core</artifactId>
-			<version>4.0.3</version>
-		</dependency>
-
 		<dependency>
 			<groupId>com.guavus.acume</groupId>
 			<artifactId>cache</artifactId>
@@ -105,6 +104,17 @@
 					<groupId>javax.servlet</groupId>
 					<artifactId>servlet-api</artifactId>
 				</exclusion>
+				<exclusion>
+                                        <groupId>com.google.guava</groupId>
+                                        <artifactId>guava</artifactId>
+                                </exclusion>
+				<exclusion>
+					<groupId>asm</groupId>
+					<artifactId>asm</artifactId>
+				</exclusion>
+				<exclusion>
+                                	<groupId>com.sun.jersey</groupId>
+                                </exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -118,16 +128,25 @@
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-json</artifactId>
 			<version>${jersey-version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-core</artifactId>
 			<version>${jersey-version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-server</artifactId>
 			<version>${jersey-version}</version>
+			<scope>provided</scope>
+			<exclusions>
+			<exclusion>
+                                        <groupId>asm</groupId>
+                                        <artifactId>asm</artifactId>
+                                </exclusion>
+			</exclusions>
 		</dependency>
 		<!-- Rest Service dependencies end -->
 		<dependency>
@@ -170,17 +189,6 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.hive</groupId>
-			<artifactId>hive-serde</artifactId>
-			<version>0.13.0</version>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.servlet</groupId>
-					<artifactId>servlet-api</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
 			<groupId>org.scala-lang</groupId>
 			<artifactId>scala-library</artifactId>
 			<version>2.10.4</version>
@@ -189,13 +197,13 @@
 		<dependency>
 			<groupId>com.guavus</groupId>
         		<artifactId>QueryBuilder</artifactId>
-        		<version>0.0.1-SNAPSHOT</version>
+        		<version>0.1-SNAPSHOT</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>crux2.0</artifactId>
 			<version>0.1-SNAPSHOT</version>
-		</dependency>
+		</dependency-->
 	</dependencies>
 
 	<build>

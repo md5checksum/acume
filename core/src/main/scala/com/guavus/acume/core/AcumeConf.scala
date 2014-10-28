@@ -3,7 +3,6 @@ package com.guavus.acume.core
 import scala.collection.JavaConverters._
 import scala.collection.mutable.HashMap
 import org.slf4j.LoggerFactory
-import com.guavus.crux.util.Utilities._
 import java.net.URL
 import java.io.InputStream
 import java.util.Properties

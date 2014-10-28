@@ -14,7 +14,7 @@ import java.util.List
 
 object TimeseriesResponse {
 
-  private var gson: Gson = gsonBuilder.create()
+   var gson: Gson = gsonBuilder.create()
 
   val gsonBuilder = new GsonBuilder()
 

@@ -14,7 +14,7 @@ import net.sf.jsqlparser.statement.select.Select
 class RequestResponseCache(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf) extends RRCache {
 
   val cache = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
-    .maximumSize(conf.get(ConfConstants.rrsize._1).toInt)
+    .maximumSize(conf.getInt(ConfConstants.rrsize._1, ConfConstants.rrsize._2))
     .build(
       new CacheLoader[(Select, QLType.QLType), AcumeCacheResponse]() {
         def load(input: (Select, QLType.QLType)) = {
