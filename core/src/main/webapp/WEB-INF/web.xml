@@ -89,7 +89,7 @@
 		<filter-name>CacheControlFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
- -->	<servlet>
+ -->	<!-- servlet>
 		<servlet-name>RGService</servlet-name>
 		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
 		<init-param>
@@ -101,20 +101,65 @@
 			<param-value>true</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
-	</servlet>
+	</servlet-->
 	<servlet>
 		<servlet-name>InitServlet</servlet-name>
 		<servlet-class>com.guavus.acume.servlet.AcumeInitServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
-	<servlet-mapping>
+	<!-- servlet-mapping>
 		<servlet-name>RGService</servlet-name>
 		<url-pattern>/queryresponse/aggregate</url-pattern>
 	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>RGService</servlet-name>
+		<url-pattern>/queryresponse/timeseries</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>RGService</servlet-name>
+		<url-pattern>/queryresponse/search</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>RGService</servlet-name>
+		<url-pattern>/queryresponse/sql</url-pattern>
+	</servlet-mapping-->
 
+	<servlet>
+    	<servlet-name>Sql</servlet-name>
+    	<servlet-class>com.guavus.acume.core.servlet.SqlRequestServlet</servlet-class>
+  	</servlet>
+  	<servlet>
+    	<servlet-name>Aggregate</servlet-name>
+    	<servlet-class>com.guavus.acume.core.servlet.AggregateRequestServlet</servlet-class>
+  	</servlet>
+  	<servlet>
+    	<servlet-name>Search</servlet-name>
+    	<servlet-class>com.guavus.acume.core.servlet.SearchRequestServlet</servlet-class>
+  	</servlet>
+  	<servlet>
+    	<servlet-name>TimeSeries</servlet-name>
+    	<servlet-class>com.guavus.acume.core.servlet.TimeSeriesRequestServlet</servlet-class>
+  	</servlet>
+  	
+  	
+  	<servlet-mapping>
+    	<servlet-name>Sql</servlet-name>
+    	<url-pattern>/sql</url-pattern>
+  	</servlet-mapping>
+  	<servlet-mapping>
+    	<servlet-name>Aggregate</servlet-name>
+    	<url-pattern>/aggregate</url-pattern>
+  	</servlet-mapping>
+  	<servlet-mapping>
+    	<servlet-name>Search</servlet-name>
+    	<url-pattern>/search</url-pattern>
+  	</servlet-mapping>
+  	<servlet-mapping>
+    	<servlet-name>TimeSeries</servlet-name>
+    	<url-pattern>/timeseries</url-pattern>
+  	</servlet-mapping>
 
-
-
+  	
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 		<welcome-file>index.jsp</welcome-file>

@@ -24,7 +24,7 @@ class RestService {
     @Produces(Array("application/json"))
     @Path("aggregate")
 	def servAggregate(query : QueryRequest, @QueryParam(value = "super") userinfo : String,
-			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) = {
+			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
 	  servQuery(query, userinfo, user, password, getAdditionalInfo, true)
 	}
 	
@@ -34,7 +34,7 @@ class RestService {
     @Produces(Array("application/json"))
     @Path("timeseries")
 	def servTimeseries(query : QueryRequest, @QueryParam(value = "super") userinfo : String,
-			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) {
+			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
 	  servQuery(query, userinfo, user, password, getAdditionalInfo, false)
 	}
 	
@@ -43,7 +43,7 @@ class RestService {
     @Produces(Array("application/json"))
     @Path("search")
 	def servSearchQuery(query : SearchRequest, @QueryParam(value = "super") userinfo : String,
-			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) {
+			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
 	  Authentication.authenticate(userinfo, user, password)
 		// Submit the request to query builder which will return the actual query to be fired on olap cache. It will also return the type of query it was aggregate/timeseries. After receiving
 	  AcumeService.acumeService.searchRequest(query).asInstanceOf[Serializable]
@@ -71,7 +71,7 @@ class RestService {
 		val startTime = System.currentTimeMillis();
 		Authentication.authenticate(userinfo, user, password)
 		// Submit the request to query builder which will return the actual query to be fired on olap cache. It will also return the type of query it was aggregate/timeseries. After receiving
-		  AcumeService.acumeService.servSqlQuery(query).asInstanceOf[Serializable]
+		AcumeService.acumeService.servSqlQuery(query).asInstanceOf[Serializable]
 	}
 	
 
