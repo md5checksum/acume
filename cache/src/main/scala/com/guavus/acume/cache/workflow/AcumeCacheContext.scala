@@ -54,10 +54,15 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   private [cache] val baseCubeMap = HashMap[String, BaseCube]()
   private [cache] val baseCubeList = MutableList[BaseCube]()
   private [acume] def getCubeList = cubeList.toList
-  private [acume] def isDimension(name: String) = 
-    if(dimensionMap.contains(name)) true 
-    else if(measureMap.contains(name)) false 
-    else throw new RuntimeException("Field nither in Dimension Map nor in Measure Map.")
+  private [acume] def isDimension(name: String) : Boolean =  {
+    if(dimensionMap.contains(name)) {
+      true 
+    } else if(measureMap.contains(name)) {
+      false
+    } else {
+        throw new RuntimeException("Field " + name + " nither in Dimension Map nor in Measure Map.")
+    }
+  }
 
   loadXML(conf.get(ConfConstants.businesscubexml))
   loadVRMap(conf)

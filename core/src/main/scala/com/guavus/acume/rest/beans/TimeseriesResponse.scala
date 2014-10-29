@@ -1,6 +1,5 @@
 package com.guavus.acume.rest.beans
 
-import java.io.Serializable
 import javax.xml.bind.annotation.XmlElement
 import javax.xml.bind.annotation.XmlRootElement
 import com.google.gson.Gson
@@ -14,15 +13,15 @@ import java.util.List
 
 object TimeseriesResponse {
 
-   var gson: Gson = gsonBuilder.create()
+	val gsonBuilder = new GsonBuilder()
+	
+	var gson: Gson = gsonBuilder.create()
 
-  val gsonBuilder = new GsonBuilder()
-
-  gsonBuilder.registerTypeAdapter(classOf[TimeseriesResultSet], new TimeseriesResultSet.JsonAdaptor())
+	gsonBuilder.registerTypeAdapter(classOf[TimeseriesResultSet], new TimeseriesResultSet.JsonAdaptor())
 }
 
 @XmlRootElement
-class TimeseriesResponse(@BeanProperty var results: List[TimeseriesResultSet], @BeanProperty var responseDimensions: List[String], @BeanProperty var responseMeasures: List[String], @BeanProperty var timestamps: List[Long]) extends Serializable() {
+class TimeseriesResponse(@BeanProperty var results: List[TimeseriesResultSet], @BeanProperty var responseDimensions: List[String], @BeanProperty var responseMeasures: List[String], @BeanProperty var timestamps: List[Long]) extends Serializable {
 
   override def toString(): String = {
     val maxLen = ConfigFactory.getInstance.getBean(classOf[AcumeContext]).acumeConf.getMaxQueryLogRecords	

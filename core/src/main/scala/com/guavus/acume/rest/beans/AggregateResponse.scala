@@ -1,25 +1,26 @@
 package com.guavus.acume.rest.beans
 
-import java.io.Serializable
-import javax.xml.bind.annotation.XmlElement
-import javax.xml.bind.annotation.XmlRootElement
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import AggregateResponse._
-import scala.reflect.{BeanProperty, BooleanBeanProperty}
+import java.util.List
+
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-import java.util.ArrayList
+import scala.reflect.BeanProperty
+
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.guavus.acume.core.AcumeConf
 import com.guavus.acume.core.AcumeContext
-import java.util.List
 import com.guavus.acume.core.configuration.ConfigFactory
+
+import AggregateResponse._
+import javax.xml.bind.annotation.XmlRootElement
 
 object AggregateResponse {
 
+  val gsonBuilder = new GsonBuilder()
+	
   var gson: Gson = gsonBuilder.create()
 
-  val gsonBuilder = new GsonBuilder()
 
   gsonBuilder.registerTypeAdapter(classOf[AggregateResultSet], new AggregateResultSet.JsonAdaptor())
 
