@@ -84,7 +84,7 @@ object CubeUtil {
       fieldMap.get(key) match {
       case None => ""
       case Some(measure) => 
-        s"${measure.getDefaultAggregationFunction}($key) as ${key}"
+        s"${measure.getAggregationFunction}($key) as ${key}"
       }
     }
     keyset.filter(!_.isEmpty()).toSet.+("min(ts) as ts ").mkString(",")

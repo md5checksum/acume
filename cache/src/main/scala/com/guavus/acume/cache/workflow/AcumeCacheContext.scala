@@ -114,9 +114,9 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     cube.dimension.dimensionSet.map(_.getName) ++ cube.measure.measureSet.map(_.getName)
   }
   
-  private [acume] def getDefaultAggregateFunction(stringname: String) = {
+  def getAggregationFunction(stringname: String) = {
     val measure = measureMap.getOrElse(stringname, throw new RuntimeException(s"Measure $stringname not in Acume knowledge."))
-    measure.getDefaultAggregationFunction
+    measure.getAggregationFunction
   }
   
   private [acume] def getDefaultValue(fieldName: String) = {
