@@ -26,8 +26,7 @@
     properties names, datatype name, field type dimension/measure all are small.
     
     Basically except Field names and tag names everything is small.
-    Annotation function in Field, 
-    aggregation function in Cube.
+    Annotation function And Default Aggregation Function in the Field. 	
     -->
     <Default>
         levelpolicymap: 5h:53;5d:78, timeserieslevelpolicymap: 5h:53;5d:78 

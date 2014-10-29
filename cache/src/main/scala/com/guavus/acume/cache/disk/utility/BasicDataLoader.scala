@@ -45,7 +45,7 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     modifyDimensionSet(businessCube, baseDimensionSetTable, globalDTableName)
     val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
     dMJoin(globalDTableName, baseMeasureSetTable, joinDimMeasureTableName)
-    getSchemaRDD(joinDimMeasureTableName)
+    getSchemaRDD(businessCube, joinDimMeasureTableName)
   }
   
   private def dMJoin(globalDTableName: String, baseMeasureSetTable: String, finalName: String) = { 
@@ -60,11 +60,12 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     joinedRDD.registerTempTable(finalName)
   }
   
-  private def getSchemaRDD(joinDimMeasureTableName: String) = { 
+  private def getSchemaRDD(businessCube: Cube, joinDimMeasureTableName: String) = { 
     
     import acumeCacheContext.sqlContext._
     val sqlContext = acumeCacheContext.sqlContext
-    val businessCubeAggregatedMeasureList = CubeUtil.getStringMeasureOrFunction(acumeCacheContext.measureMap.toMap, cube)
+    val measureMapThisCube = acumeCacheContext.measureMap.clone.filterKeys(key => businessCube.measure.measureSet.contains(acumeCacheContext.measureMap.get(key).get)) .toMap
+    val businessCubeAggregatedMeasureList = CubeUtil.getStringMeasureOrFunction(measureMapThisCube, cube)
     val businessCubeDimensionList = CubeUtil.getDimensionSet(cube).map(_.getName).mkString(",")
     val str = "select " + businessCubeDimensionList + "," + businessCubeAggregatedMeasureList + " from " + joinDimMeasureTableName + " group by " + businessCubeDimensionList
     val xRDD = sqlContext.sql(str)

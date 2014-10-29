@@ -14,6 +14,7 @@ import com.guavus.acume.cache.common.CubeMeasure
 import com.guavus.acume.cache.core.TimeGranularity
 import scala.collection.mutable.MutableList
 import com.guavus.acume.cache.utility.Utility
+import com.guavus.acume.cache.workflow.AcumeCacheContext
 
 object CubeUtil {
 
@@ -53,7 +54,7 @@ object CubeUtil {
       
       val businessCube = key._2
       val dimensionSet = businessCube.dimension.dimensionSet
-      val measureSet = businessCube.measure.measureSet.map(_.measure)
+      val measureSet = businessCube.measure.measureSet
       val list = MutableList[BaseCube]()
       for(baseCube <- baseCubeList){
         val baseCubeDimensionSet = baseCube.dimension.dimensionSet
@@ -79,16 +80,11 @@ object CubeUtil {
     
     //returns the comma separated business measures required in the cube.
     //eg, sum(M1), avg(M2) ... or some other aggregator etc etc.
-    val map = businessCube.measure.measureSet.map(k => (k.measure.getName, k.function)).toMap
     val keyset = for(key <- fieldMap.keySet) yield {
-        map.get(key) match {
-        case None => ""
-        case Some("") | Some("none") => 
-          fieldMap.get(key) match {
-          case None => throw new RuntimeException("measure not present in map given.")
-          case Some(x) => s"${x.getDefaultAggregationFunction}($key) as ${key}1"
-          }
-        case Some(y) => s"${y}($key) as $key"
+      fieldMap.get(key) match {
+      case None => ""
+      case Some(measure) => 
+        s"${measure.getDefaultAggregationFunction}($key) as ${key}"
       }
     }
     keyset.filter(!_.isEmpty()).toSet.+("min(ts) as ts ").mkString(",")
