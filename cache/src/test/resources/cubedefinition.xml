@@ -169,67 +169,67 @@
         
         <Field>
         <Info>
-        DummyMeasure:long:measure
+        DummyMeasure:long:measure:sum
         </Info>
         </Field>
         
         <Field>
         <Info>
-        XOthers_B:long:measure
+        XOthers_B:long:measure:sum
         </Info>
         </Field>
         
         <Field>
         <Info>
-        On_net_B:long:measure
+        On_net_B:long:measure:sum
         </Info>
         </Field>
         
         <Field>
         <Info>
-        Off_net_B:long:measure
+        Off_net_B:long:measure:sum
         </Info>
         </Field>
         
         <Field>
         <Info>
-        Local_B:long:measure
+        Local_B:long:measure:sum
         </Info>
         </Field>
         
         <Field>
         <Info>
-        Regional_B:long:measure
+        Regional_B:long:measure:sum
         </Info>
         </Field>
         
         <Field>
         <Info>
-        Continental_B:long:measure
+        Continental_B:long:measure:sum
         </Info>
         </Field>
         
         <Field>
         <Info>
-        XAtlantic_B:long:measure
+        XAtlantic_B:long:measure:sum
         </Info>
         </Field>
         
         <Field>
         <Info>
-        TTS_B:long:measure
+        TTS_B:long:measure:sum
         </Info>
         </Field>
         
         <Field>
         <Info>
-        XPacific_B:long:measure
+        XPacific_B:long:measure:sum
         </Info>
         </Field>
         
         <Field>
         <Info>
-        DummyMeasure:long:measure
+        DummyMeasure:long:measure:sum
         </Info>
         </Field>
     </Fields>
@@ -246,7 +246,7 @@
                 searchEgressPeerCube
             </Name>
             <Fields>
-                EgressPeerEntityId,EgressAS,EgressIP,EgressRTR,OutgoingIF,EgressRuleId,FlowDirection,TTS_B:SUM,On_net_B:SUM,Off_net_B:SUM,Local_B:SUM,Regional_B:SUM,Continental_B:SUM,XAtlantic_B:SUM,XPacific_B:SUM,XOthers_B:SUM
+                EgressPeerEntityId,EgressAS,EgressIP,EgressRTR,OutgoingIF,EgressRuleId,FlowDirection,TTS_B,On_net_B,Off_net_B,Local_B,Regional_B,Continental_B,XAtlantic_B,XPacific_B,XOthers_B
             </Fields>
             <Properties>
                 basegranularity:1h, cubetype:normal, levelpolicymap:1h:53, timeserieslevelpolicymap:1h:53

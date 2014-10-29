@@ -2,23 +2,18 @@ package com.guavus.acume.cache.workflow
 
 import java.io.FileInputStream
 import java.util.Random
-
 import scala.Array.canBuildFrom
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
-
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.BaseCube
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
-import com.guavus.acume.cache.common.CubeMeasure
-import com.guavus.acume.cache.common.CubeMeasureSet
 import com.guavus.acume.cache.common.DataType
 import com.guavus.acume.cache.common.Dimension
 import com.guavus.acume.cache.common.DimensionSet
@@ -33,8 +28,8 @@ import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.gen.Acume
 import com.guavus.acume.cache.utility.SQLUtility
 import com.guavus.acume.cache.utility.Utility
-
 import javax.xml.bind.JAXBContext
+import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
 
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends Serializable { 
   sqlContext match{
@@ -45,13 +40,13 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
  
   @transient
   val rrCacheLoader = Class.forName(conf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]
-  private [cache] val dimensionMap = new HashMap[String, Dimension]
-  private [cache] val measureMap = new HashMap[String, Measure]
+  private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
+  private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
   private [cache] val vrmap = HashMap[Long, Int]()
-  private [cache] val cubeMap = HashMap[String, Cube]()
+  private [cache] val cubeMap = new InsensitiveStringKeyHashMap[Cube]
   private [cache] val cubeList = MutableList[Cube]()
   //todo how will this be done
-  private [cache] val baseCubeMap = HashMap[String, BaseCube]()
+  private [cache] val baseCubeMap = new InsensitiveStringKeyHashMap[BaseCube]
   private [cache] val baseCubeList = MutableList[BaseCube]()
   private [acume] def getCubeList = cubeList.toList
   private [acume] def isDimension(name: String) : Boolean =  {
@@ -69,6 +64,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   loadXMLCube("")
   
   private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf(AcumeConstants.TRIPLE_DOLLAR_SSC) + 1)
+  
   private [acume] def utilQL(sql: String, qltype: QLType) = {
     val tx = AcumeCacheContext.parseSql(sql)
     val rt = tx._2
@@ -91,9 +87,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       temp
     }
     val klist = list.flatMap(_.timestamps).toList
-//    newsql = newsql.substring(0, newsql.indexOf("WHERE"))
-    val _kfg = AcumeCacheContext.ACQL(qltype, sqlContext)
-    val kfg = _kfg(newsql)
+    val kfg = AcumeCacheContext.ACQL(qltype, sqlContext)(newsql)
     kfg.collect.foreach(println)
     AcumeCacheResponse(kfg, MetaData(klist))
   }
@@ -121,12 +115,12 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   private [acume] def getFieldsForCube(name: String) = {
       
     val cube = cubeMap.getOrElse(name, throw new RuntimeException(s"Cube $name Not in AcumeCache knowledge."))
-    cube.dimension.dimensionSet.map(_.getName) ++ cube.measure.measureSet.map(_.measure.getName)
+    cube.dimension.dimensionSet.map(_.getName) ++ cube.measure.measureSet.map(_.getName)
   }
   
-  private [acume] def getDefaultAggregateFunction(stringname: String) = {
+  def getAggregationFunction(stringname: String) = {
     val measure = measureMap.getOrElse(stringname, throw new RuntimeException(s"Measure $stringname not in Acume knowledge."))
-    measure.getDefaultAggregationFunction
+    measure.getAggregationFunction
   }
   
   private [acume] def getDefaultValue(fieldName: String) = {
@@ -147,7 +141,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
         measureSet.+=(measureMap.get(field).get)
       val kCube = 
         for(cube <- cubeList if(dimensionSet.toSet.subsetOf(cube.dimension.dimensionSet.toSet) && 
-            measureSet.toSet.subsetOf(cube.measure.measureSet.map(_.measure).toSet))) yield {
+            measureSet.toSet.subsetOf(cube.measure.measureSet.toSet))) yield {
           cube
         }
     kCube.toList
@@ -171,8 +165,10 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   private [workflow] def loadXMLCube(xml: String) = {
     
-    baseCubeList.++=(cubeList.map(x => BaseCube(x.cubeName, x.dimension, MeasureSet(x.measure.measureSet.map(y => y.measure)))))
-    baseCubeMap.++=(cubeMap.map(x => (x._1, BaseCube(x._2.cubeName, x._2.dimension, MeasureSet(x._2.measure.measureSet.map(y => y.measure))))))
+    //This is for loading base cube xml, should be changed as and when finalized where should base cube configuration come from.
+    
+    baseCubeList.++=(cubeList.map(x => BaseCube(x.cubeName, x.dimension, x.measure)))
+    baseCubeMap.++=(cubeMap.map(x => (x._1, BaseCube(x._2.cubeName, x._2.dimension, x._2.measure))))
   }
   
   private [workflow] def loadXML(xml: String) = { 
@@ -207,25 +203,20 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
         val cubeName = c.getName().trim
         val fields = c.getFields().split(",").map(_.trim)
         val dimensionSet = scala.collection.mutable.Set[Dimension]()
-        val measureSet = scala.collection.mutable.Set[CubeMeasure]()
+        val measureSet = scala.collection.mutable.Set[Measure]()
         for(ex <- fields){
-          val array = ex.split(":")
-          val fieldName = array(0).trim
-          val function = if(array.length<2) "" else array(1) 	
+          val fieldName = ex.trim
 
           //only basic functions are supported as of now. 
           //Extend this to support custom udf of hive as well.
-          if(!function.isEmpty()){
-            if(isDimension(fieldName))
-                throw new RuntimeException("Aggregation functions are not supported on Dimension.")
-          }
+          
           dimensionMap.get(fieldName) match{
           case Some(dimension) => 
             dimensionSet.+=(dimension)
           case None =>
             measureMap.get(fieldName) match{
             case None => throw new Exception("Field not registered.")
-            case Some(measure) => measureSet.+=(CubeMeasure(measure, function))
+            case Some(measure) => measureSet.+=(measure)
             }
           }
         }
@@ -241,7 +232,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
         val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, defaultPropertyMap, ConfConstants.timeserieslevelpolicymap, cubeName))
         val Gnx = getProperty(propertyMap, defaultPropertyMap, ConfConstants.basegranularity, cubeName)
         val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
-        val cube = Cube(cubeName, DimensionSet(dimensionSet.toList), CubeMeasureSet(measureSet.toList), granularity, true, levelpolicymap, timeserieslevelpolicymap)
+        val cube = Cube(cubeName, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), granularity, true, levelpolicymap, timeserieslevelpolicymap)
         cubeMap.put(cubeName, cube)
         cube
       }
