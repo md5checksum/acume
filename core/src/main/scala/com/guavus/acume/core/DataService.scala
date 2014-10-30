@@ -135,7 +135,7 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
       }
       val tsResults = new ArrayBuffer[TimeseriesResultSet]()
       for(rowToMap <- rowToMeasureMap) {
-        new TimeseriesResultSet(rowToMap._1, rowToMap._2.map(_.asJava))
+        tsResults += new TimeseriesResultSet(rowToMap._1, rowToMap._2.map(_.asJava))
       }
       new TimeseriesResponse(tsResults, dimsNames, measuresNames, timestamps)
     } else {
