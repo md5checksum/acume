@@ -36,7 +36,7 @@ class AcumeDataSourceSchema(acumeContext : AcumeContext) extends QueryBuilderSch
    * returns true if dimension
    */
   override def isDimension(fieldName: String): Boolean = {
-    acumeContext.ac.isDimension(fieldName) || fieldName.equalsIgnoreCase("ts")
+    fieldName.equalsIgnoreCase("ts") || acumeContext.ac.isDimension(fieldName) 
   }
   
   /**
@@ -51,7 +51,7 @@ class AcumeDataSourceSchema(acumeContext : AcumeContext) extends QueryBuilderSch
   }
 
   override def getCubeListContainingAllFields(fields : java.util.List[String]) : java.util.List[String] = {
-    acumeContext.ac.getCubeListContainingFields(fields.asScala.toList).map(x=> x.cubeName)
+    acumeContext.ac.getCubeListContainingFields(fields.filter(x => !x.equalsIgnoreCase("ts")).toList).map(x=> x.cubeName)
   }
   
   override def getDefaultValueForField(fieldName : String ) : Object = acumeContext.ac.getDefaultValue(fieldName).asInstanceOf[AnyRef]
