@@ -15,4 +15,3 @@ case class MeasureSet(measureSet: List[Measure]) extends Serializable
 //case class CubeMeasureSet(measureSet: List[CubeMeasure]) extends Serializable
 
 
-

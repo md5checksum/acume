@@ -73,7 +73,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       
       i = getTable(cube)
       val id = getCube(cube)
-      newsql = newsql.replace(s" $cube ", s" $i ")
+      newsql = newsql.replaceAll(s"$cube", s"$i")
       val idd = new CacheIdentifier()
       idd.put("cube", id.hashCode)
       val instance = AcumeCacheFactory.getInstance(this, conf, idd, id)
@@ -178,7 +178,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       val name = info(0).trim
       val datatype = DataType.getDataType(info(1).trim)
       val fitype = FieldType.getFieldType(info(2).trim)
-      val functionName = if(info.length<4) "none" else info(3) 	
+      val functionName = if(info.length<4) "none" else info(3).trim	
       fitype match{
         case FieldType.Dimension => 
           dimensionMap.put(name.trim, new Dimension(name, datatype, 0))
