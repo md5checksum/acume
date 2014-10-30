@@ -27,7 +27,7 @@ class AcumeDataSourceSchema(acumeContext : AcumeContext) extends QueryBuilderSch
     		new Field(FieldType.DIMENSION, FieldType.DIMENSION, field.getDefaultValue.asInstanceOf[AnyRef],field.getName, "")
     	}).toList
     	dimensions = dimensions ::: cube.measure.measureSet.map(field => {
-    		new Field(FieldType.MEASURE, FieldType.MEASURE, field.measure.getDefaultValue.asInstanceOf[AnyRef],field.measure.getName, field.function)}).toList
+    		new Field(FieldType.MEASURE, FieldType.MEASURE, field.getDefaultValue.asInstanceOf[AnyRef],field.getName, field.getAggregationFunction)}).toList
       new Cube(cube.cubeName, dimensions)
     })
   }
@@ -47,7 +47,7 @@ class AcumeDataSourceSchema(acumeContext : AcumeContext) extends QueryBuilderSch
   }
   
   override def getDefaultAggregateFunction(field : String) : String  = {
-    acumeContext.ac.getDefaultAggregateFunction(field)
+    acumeContext.ac.getAggregationFunction(field)
   }
 
   override def getCubeListContainingAllFields(fields : java.util.List[String]) : java.util.List[String] = {

@@ -1,6 +1,5 @@
 package com.guavus.acume.rest.beans
 
-import java.io.Serializable
 import java.util._
 import scala.reflect.BeanProperty
 

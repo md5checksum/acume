@@ -48,18 +48,22 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   //todo how will this be done
   private [cache] val baseCubeMap = new InsensitiveStringKeyHashMap[BaseCube]
   private [cache] val baseCubeList = MutableList[BaseCube]()
-  
+  private [acume] def getCubeList = cubeList.toList
+  private [acume] def isDimension(name: String) : Boolean =  {
+    if(dimensionMap.contains(name)) {
+      true 
+    } else if(measureMap.contains(name)) {
+      false
+    } else {
+        throw new RuntimeException("Field " + name + " nither in Dimension Map nor in Measure Map.")
+    }
+  }
 
   loadXML(conf.get(ConfConstants.businesscubexml))
   loadVRMap(conf)
   loadXMLCube("")
   
   private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf(AcumeConstants.TRIPLE_DOLLAR_SSC) + 1)
-  private [acume] def getCubeList = cubeList.toList
-  private [acume] def isDimension(name: String) = 
-    if(dimensionMap.contains(name)) true 
-    else if(measureMap.contains(name)) false 
-    else throw new RuntimeException(s"Field $name nither in Dimension Map nor in Measure Map.")
   
   private [acume] def utilQL(sql: String, qltype: QLType) = {
     val tx = AcumeCacheContext.parseSql(sql)
