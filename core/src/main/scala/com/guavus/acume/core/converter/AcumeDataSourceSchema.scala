@@ -26,7 +26,7 @@ class AcumeDataSourceSchema(acumeContext : AcumeContext) extends QueryBuilderSch
     	var dimensions = cube.dimension.dimensionSet.map(field => {
     		new Field(FieldType.DIMENSION, FieldType.DIMENSION, field.getDefaultValue.asInstanceOf[AnyRef],field.getName, "")
     	}).toList
-    	dimensions = dimensions ::: cube.measure.measureSet.map(field => {
+    	dimensions = dimensions ::: List(new Field(FieldType.DIMENSION, FieldType.DIMENSION, new Integer(0), "ts", "")) ::: cube.measure.measureSet.map(field => {
     		new Field(FieldType.MEASURE, FieldType.MEASURE, field.getDefaultValue.asInstanceOf[AnyRef],field.getName, field.getAggregationFunction)}).toList
       new Cube(cube.cubeName, dimensions)
     })
@@ -36,7 +36,7 @@ class AcumeDataSourceSchema(acumeContext : AcumeContext) extends QueryBuilderSch
    * returns true if dimension
    */
   override def isDimension(fieldName: String): Boolean = {
-    acumeContext.ac.isDimension(fieldName)
+    acumeContext.ac.isDimension(fieldName) || fieldName.equalsIgnoreCase("ts")
   }
   
   /**
