@@ -23,6 +23,8 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.SparkContext
 import com.guavus.acume.cache.common.BaseCube
 import org.apache.spark.sql.SQLContext
+import org.apache.spark.rdd.EmptyRDD
+import org.apache.spark.sql.catalyst.expressions.EmptyRow
 
 abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) extends DataLoader(acumeCacheContext, conf, cube) { 
   
@@ -42,7 +44,7 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     val level = levelTimestamp.level
     loadMeasureSet(baseCube, list, baseMeasureSetTable, instabase, instainstanceid)
     loadDimensionSet(baseCube, list, baseDimensionSetTable, instabase, instainstanceid)
-    modifyDimensionSet(businessCube, baseDimensionSetTable, globalDTableName)
+    modifyDimensionSet(baseCube, businessCube, baseDimensionSetTable, globalDTableName, instabase, instainstanceid)
     val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
     dMJoin(globalDTableName, baseMeasureSetTable, joinDimMeasureTableName)
     getSchemaRDD(businessCube, joinDimMeasureTableName)
@@ -69,6 +71,7 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     val businessCubeDimensionList = CubeUtil.getDimensionSet(cube).map(_.getName).mkString(",")
     val str = "select " + businessCubeDimensionList + "," + businessCubeAggregatedMeasureList + " from " + joinDimMeasureTableName + " group by " + businessCubeDimensionList
     val xRDD = sqlContext.sql(str)
+    xRDD.collect.map(println)
     xRDD
     
     //explore hive udfs for aggregation.
@@ -97,26 +100,39 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     val baseCubeMeasureSet = CubeUtil.getMeasureSet(baseCube)
     val fields  = new Fields((1.to(baseCubeMeasureSet.size + 2).map(_.toString).toArray))
     val datatypearray = Array(ConversionToCrux.convertToCruxFieldDataType(DataType.ACLong), ConversionToCrux.convertToCruxFieldDataType(DataType.ACLong))  ++ baseCubeMeasureSet.map(x => ConversionToCrux.convertToCruxFieldDataType(x.getDataType))
-    for(ts <- list) {
+    val _$list = for(ts <- list) yield {
     
       val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube.cubeName + "/f/" + ts
       val rowRDD = getRowSchemaRDD(sqlContext, baseDir, fields, datatypearray)
       val schemaRDD = acumeCacheContext.sqlContext.applySchema(rowRDD, latestschema)
 
-      if(!flag) {
-        schemaRDD.registerTempTable(baseMeasureSetTable)
-        flag = true
-      } else
-        schemaRDD.insertInto(baseMeasureSetTable)
+//      if(!flag) {
+//        schemaRDD.registerTempTable(baseMeasureSetTable)
+//        flag = true
+//      } else
+//        schemaRDD.insertInto(baseMeasureSetTable)
+      schemaRDD
     }
+    sqlContext.applySchema(_$list.map(_.asInstanceOf[RDD[Row]]).reduce(_.union(_)), latestschema).registerTempTable(baseMeasureSetTable)
     true
   }
   
-  private def modifyDimensionSet(businessCube: Cube, baseDimensionSetTable: String, globalDTableName: String) = {
+  private def getEmptySchemaRDD(sqlContext: SQLContext, schema: StructType)= {
+    
+    val sparkContext = sqlContext.sparkContext
+//    sqlContext.applySchema(sparkContext.parallelize(1 to 1).map(x =>EmptyRow), schema)
+    sqlContext.applySchema(sparkContext.parallelize(1 to 1).map(x =>Row.fromSeq(Array())), schema)
+  }
+  
+  private def modifyDimensionSet(baseCube: BaseCube, businessCube: Cube, 
+      baseDimensionSetTable: String, globalDTableName: String, 
+      instabase: String, instainstanceid: String) = {
     
     val sqlContext = acumeCacheContext.sqlContext
     val getdimension = CubeUtil.getDimensionSet(businessCube).map(_.getName).mkString(",")
-    val dimensionSQL = s"select id, timestamp, ${getdimension} from $baseDimensionSetTable"
+    val baseDimensionSetTableNew = s"${baseDimensionSetTable}New"
+    val baseDimensionSetTableCombined = s"${baseDimensionSetTable}Combined"
+    val dimensionSQL = s"select id, timestamp, ${getdimension} from $baseDimensionSetTableCombined"
     import acumeCacheContext.sqlContext._
     val istableregistered = 
       try{
@@ -125,6 +141,14 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
       } catch{
       case ex: Exception => false
       }
+      
+      //get it from insta service not from config.
+      val completelist = conf.getOption(ConfConstants.completelist).getOrElse("").split(",").filter(!_.isEmpty).map(_.trim).map(_.toLong).toList
+      val unLoadedList = completelist.filterNot(acumeCacheContext.dimensionTimestampLoadedList.toSet)
+      //completelist.split(",").map(_.trim).map(_.toLong).toList
+      loadDimensionSet(baseCube, unLoadedList, s"$baseDimensionSetTableNew", instabase, instainstanceid)
+      sqlContext.sql(s"select * from $baseDimensionSetTableNew UNION ALL select * from $baseDimensionSetTable").registerTempTable(s"$baseDimensionSetTableCombined")
+      
       val dimensionRDD = sqlContext.sql(dimensionSQL)
       sqlContext.applySchema(dimensionRDD, dimensionRDD.schema)
       if(istableregistered) 
@@ -149,7 +173,8 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
       val latestschema = StructType(StructField("id", LongType, true) +: StructField("timestamp", LongType, true) +: schema.toList)
       val fields  = new Fields((1.to(baseCubeDimensionSet.size + 2).map(_.toString).toArray))
       val datatypearray = Array(ConversionToCrux.convertToCruxFieldDataType(DataType.ACLong), ConversionToCrux.convertToCruxFieldDataType(DataType.ACLong)) ++ baseCubeDimensionSet.map(x => ConversionToCrux.convertToCruxFieldDataType(x.getDataType))
-      
+
+      getEmptySchemaRDD(acumeCacheContext.sqlContext, latestschema).registerTempTable(baseDimensionSetTable)
       var flag = false
       for(timestamp <- list){
         val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube.cubeName + "/d/" + timestamp

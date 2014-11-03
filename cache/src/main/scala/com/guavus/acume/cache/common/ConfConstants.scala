@@ -25,6 +25,8 @@ private [acume] object ConfConstants {
   val levelpolicymap = "levelpolicymap"
   val timeserieslevelpolicymap = "timeserieslevelpolicymap"
   val lastbinpersistedtime = "acume.cache.delete.lastbinpersistedtime"
+  val completelist = "acume.cache.delete.completelist"
+    
 }
 
 

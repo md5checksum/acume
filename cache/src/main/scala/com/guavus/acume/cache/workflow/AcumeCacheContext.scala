@@ -48,6 +48,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   //todo how will this be done
   private [cache] val baseCubeMap = new InsensitiveStringKeyHashMap[BaseCube]
   private [cache] val baseCubeList = MutableList[BaseCube]()
+  private [cache] val dimensionTimestampLoadedList = new MutableList[Long]()
   private [acume] def getCubeList = cubeList.toList
   private [acume] def isDimension(name: String) : Boolean =  {
     if(dimensionMap.contains(name)) {
