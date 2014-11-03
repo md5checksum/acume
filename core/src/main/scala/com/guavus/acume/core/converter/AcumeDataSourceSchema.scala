@@ -26,7 +26,7 @@ class AcumeDataSourceSchema(acumeContext : AcumeContext) extends QueryBuilderSch
     	var dimensions = cube.dimension.dimensionSet.map(field => {
     		new Field(FieldType.DIMENSION, FieldType.DIMENSION, field.getDefaultValue.asInstanceOf[AnyRef],field.getName, "")
     	}).toList
-    	dimensions = dimensions ::: cube.measure.measureSet.map(field => {
+    	dimensions = dimensions ::: List(new Field(FieldType.DIMENSION, FieldType.DIMENSION, new Integer(0), "ts", "")) ::: cube.measure.measureSet.map(field => {
     		new Field(FieldType.MEASURE, FieldType.MEASURE, field.getDefaultValue.asInstanceOf[AnyRef],field.getName, field.getAggregationFunction)}).toList
       new Cube(cube.cubeName, dimensions)
     })
@@ -36,7 +36,7 @@ class AcumeDataSourceSchema(acumeContext : AcumeContext) extends QueryBuilderSch
    * returns true if dimension
    */
   override def isDimension(fieldName: String): Boolean = {
-    acumeContext.ac.isDimension(fieldName)
+    fieldName.equalsIgnoreCase("ts") || acumeContext.ac.isDimension(fieldName) 
   }
   
   /**
@@ -51,7 +51,7 @@ class AcumeDataSourceSchema(acumeContext : AcumeContext) extends QueryBuilderSch
   }
 
   override def getCubeListContainingAllFields(fields : java.util.List[String]) : java.util.List[String] = {
-    acumeContext.ac.getCubeListContainingFields(fields.asScala.toList).map(x=> x.cubeName)
+    acumeContext.ac.getCubeListContainingFields(fields.filter(x => !x.equalsIgnoreCase("ts")).toList).map(x=> x.cubeName)
   }
   
   override def getDefaultValueForField(fieldName : String ) : Object = acumeContext.ac.getDefaultValue(fieldName).asInstanceOf[AnyRef]

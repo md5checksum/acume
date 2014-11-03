@@ -15,7 +15,8 @@ import com.google.gson.reflect.TypeToken
 import AggregateResultSet._
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
 import scala.collection.JavaConversions._
-import scala.collection.mutable.ArrayBuffer
+import java.util.List
+import java.util.ArrayList
 
 /**
  * Aggregate result set represent one row of acume aggregate result. 
@@ -34,7 +35,7 @@ object AggregateResultSet {
   }.getType
   
     override def deserialize(jsonElement: JsonElement, typeOfT: Type, context: JsonDeserializationContext): AggregateResultSet = {
-      val record = new ArrayBuffer[Any]()
+      val record = new ArrayList[Any]()
       val json = jsonElement.asInstanceOf[JsonObject]
       val measures = JsonAdaptor.gson.fromJson(json.get("measures"), listOfDouble)
       val jsonArray = json.get("record").getAsJsonArray
@@ -50,12 +51,12 @@ object AggregateResultSet {
 class AggregateResultSet extends Serializable {
 
   @BeanProperty
-  var record: ArrayBuffer[Any] = _
+  var record: List[Any] = _
 
   @BeanProperty
-  var measures: ArrayBuffer[Any] = _
+  var measures: List[Any] = _
 
-  def this(record: ArrayBuffer[Any], measures: ArrayBuffer[Any]) {
+  def this(record: List[Any], measures: List[Any]) {
     this()
     this.record = record
     this.measures = measures
@@ -63,7 +64,7 @@ class AggregateResultSet extends Serializable {
 
   override def toString(): String = {
     val format = new DecimalFormat("#.000000")
-    val duplicateMeasureList = new ArrayBuffer[String]()
+    val duplicateMeasureList = new ArrayList[String]()
     for (i <- 0 until measures.size) {
       duplicateMeasureList.add(format.format(measures.get(i)))
     }
