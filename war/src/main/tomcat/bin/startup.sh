@@ -99,6 +99,6 @@ fi
 ############
 cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $ARG_PROPERTIES_FILE --class com.guavus.acume.tomcat.core.AcumeMain $DOCBASE/WEB-INF/lib/$core_jar"
 echo "Starting Spark..."
-$cmd
+$cmd &
 echo "Spark started successfully..."
 
