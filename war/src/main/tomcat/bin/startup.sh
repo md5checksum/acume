@@ -49,6 +49,30 @@ $NAVIGATE_CMD
 DOCBASE=$(cat server.xml | grep -oPm1 '(?<=docBase=\")[^\"]+')
 echo "Docbase = $DOCBASE"
 
+############
+Finding crux jar
+############
+num_crux_jars=$(ls -d /opt/tms/java/crux2.0-*-jar-with-dependencies.jar)
+
+
+if [ "$num_crux_jars" -eq "0" ]; then
+   echo "Failed to find crux jar in /opt/tms/java/"
+   exit 1
+fi
+
+if [ "$num_crux_jars" -gt "1" ]; then
+   jars_list=$(ls -d /opt/tms/java/crux2.0-*-jar-with-dependencies.jar)
+   echo "Found multiple crux jars in /opt/tms/java/"
+   echo "$jars_list"
+   echo "Please remove all but one jar."
+   exit 1
+fi
+
+if [ "$num_crux_jars" -eq "1" ]; then
+   crux_jar=$(ls -d /opt/tms/java/crux2.0-*-jar-with-dependencies.jar)
+   echo "Found crux jar $crux_jar"
+fi
+
 
 ############
 # Set SPARK_JAVA_OPTS
@@ -63,7 +87,7 @@ echo "SPARK_JAVA_OPTS = $SPARK_JAVA_OPTS"
 # Set SPARK_JAVA_CLASSPATH
 ############
 echo "Setting SPARK_CLASSPATH..."
-export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:/opt/spark/lib/*"
+export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:/opt/spark/lib/*:$SCRIPT_DIR/../lib/*:$crux_jar"
 echo "SPARK_CLASSPATH = $SPARK_CLASSPATH"
 
 
@@ -72,15 +96,15 @@ echo "SPARK_CLASSPATH = $SPARK_CLASSPATH"
 ############
 
 assembly_folder="$DOCBASE/WEB-INF/lib/"
-num_jars=$(ls "$assembly_folder" | grep "^core-*.*jar" | wc -l)
+num_core_jars=$(ls "$assembly_folder" | grep "^core-*.*jar" | wc -l)
 
 
-if [ "$num_jars" -eq "0" ]; then
+if [ "$num_core_jars" -eq "0" ]; then
   echo "Failed to find core jar in $assembly_folder"
   exit 1
 fi
 
-if [ "$num_jars" -gt "1" ]; then
+if [ "$num_core_jars" -gt "1" ]; then
   jars_list=$(ls "$assembly_folder" | grep "^core-*.*jar")
   echo "Found multiple core jars in $assembly_folder:"
   echo "$jars_list"
@@ -88,7 +112,7 @@ if [ "$num_jars" -gt "1" ]; then
   exit 1
 fi
 
-if [ "$num_jars" -eq "1" ]; then
+if [ "$num_core_jars" -eq "1" ]; then
   core_jar=$(ls "$assembly_folder" | grep "^core-*.*jar")
   echo "Found core jar $core_jar"
 fi
