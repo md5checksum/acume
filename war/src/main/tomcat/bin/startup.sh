@@ -111,13 +111,22 @@ if [ "$num_crux_jars" -eq "1" ]; then
    echo "Found crux jar $crux_jar"
 fi
 
+############
+#Set the env variables from setenv.sh
+############
+CATALINA_BASE="$SCRIPT_DIR/.."
+if [ -r "$CATALINA_BASE/bin/setenv.sh" ]; then
+  . "$CATALINA_BASE/bin/setenv.sh"
+else
+  echo "[WARNING] setenv.sh not present. "
+fi
 
 ############
 # Set SPARK_JAVA_OPTS
 ############
 echo "Setting SPARK_JAVA_OPTS..."
 CATALINA_BASE="$SCRIPT_DIR/.."
-export SPARK_JAVA_OPTS="-Dcatalina.base=$CATALINA_BASE $JAVA_OPTS"
+export SPARK_JAVA_OPTS="-Dcatalina.base=$CATALINA_BASE $ACUME_JAVA_OPTS"
 echo "SPARK_JAVA_OPTS = $SPARK_JAVA_OPTS"
 
 
