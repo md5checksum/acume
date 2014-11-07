@@ -1,13 +1,16 @@
-#!/bin/bash
+#!/bin/sh
 
-if [ "$#" -ne 6 ] && [ "$#" -ne 4 ]; then
-  echo "Usage: ./startup.sh --master run_mode --property-file config_location --name app_name"
-  exit 1
-fi
 
-ARG_MASTER_MODE=" --master local"
+############
+#The default values of the arguments in case args not provided
+############
+ARG_MASTER_MODE=" --master yarn-client"
 ARG_PROPERTIES_FILE=""
 ARG_APP_NAME=" --name DEFAULT_NAME"
+
+master_mode=-1
+app_name=-1
+prop_loc=-1
 
 ############
 # Take command line arguments 
@@ -15,16 +18,51 @@ ARG_APP_NAME=" --name DEFAULT_NAME"
 while (($#)); do
   if [ "$1" = "--master" ]; then
     ARG_MASTER_MODE=" --master $2"
+    master_mode="$2"
     echo "ARG_MASTER_MODE = $ARG_MASTER_MODE"
   elif [ "$1" = "--properties-file" ]; then
     ARG_PROPERTIES_FILE=" --properties-file $2"
+    prop_loc="$2"
     echo "ARG_PROPERTIES_FILE = $ARG_PROPERTIES_FILE"
   elif [ "$1" = "--name" ]; then
     ARG_APP_NAME=" --name $2"
+    app_name="$2"
     echo "ARG_APP_NAME = $ARG_APP_NAME"
   fi
   shift
 done
+
+
+############
+#Assigning app name
+ #read the value of app name from property file
+############
+if [[ $app_name -eq -1 ]] && [[ $prop_loc -ne -1 ]]; then
+    
+    grep_cmd_output=$(cat "$prop_loc" 2>/dev/null | grep "spark.app.name" )    
+   
+    if [[ $( "$grep_cmd_output" | awk -F" " '{print $1}' ) != "#" ]]; then
+            echo "Picking app name from the spark conf"
+	    app_name=$( $grep_cmd_output | awk -F" " '{print $2}' )
+	    ARG_APP_NAME=" --name $app_name" 
+    fi
+fi
+
+
+############
+# Assigning master mode
+#read master mode from property location
+############
+if [[ $master_mode -eq -1 ]] && [[ $prop_loc -ne -1 ]]; then
+    
+    grep_cmd_output=$(cat "$prop_loc" 2>/dev/null  | grep "spark.master" )    
+            
+    if [[ $(echo "$grep_cmd_output" | awk -F" " '{print $1}') != "#" ]]; then
+       echo "Picking master mode from the spark conf" 
+       master_mode=$( echo "$grep_cmd_output" | awk -F" " '{print $2}' )
+       ARG_MASTER_MODE=" --master $master_mode"
+    fi
+fi
 
 
 ############
@@ -50,9 +88,9 @@ DOCBASE=$(cat server.xml | grep -oPm1 '(?<=docBase=\")[^\"]+')
 echo "Docbase = $DOCBASE"
 
 ############
-Finding crux jar
+#Finding crux jar
 ############
-num_crux_jars=$(ls -d /opt/tms/java/crux2.0-*-jar-with-dependencies.jar)
+num_crux_jars=$(ls -d /opt/tms/java/crux2.0-*-jar-with-dependencies.jar 2>/dev/null | wc -l )
 
 
 if [ "$num_crux_jars" -eq "0" ]; then
