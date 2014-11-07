@@ -1,4 +1,4 @@
-package core
+package com.guavus.acume.cache.core
 
 import java.io.File
 import java.io.FileInputStream
