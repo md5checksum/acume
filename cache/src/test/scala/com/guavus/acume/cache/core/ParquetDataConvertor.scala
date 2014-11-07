@@ -37,8 +37,8 @@ object ParquetDataConvertor {
   def main(args: Array[String]) {
 	//args = srcFilepath, cubename,   
     
-    loadXML("/Users/kashish.jain/Documents/work/githome/acume/cache/src/test/resources/cubedefinition.xml")
-	copyDirectory(args(0), args(1))
+    loadXML("src/test/resources/cubedefinition.xml")
+	copyDirectory(args(0))
   }
   
   def getRow(row: String) = Row.fromSeq(row.split("\t").toSeq)
@@ -72,7 +72,7 @@ object ParquetDataConvertor {
       
   }
   
-  def copyDirectory(filePath: String, cubeName: String) {
+  def copyDirectory(filePath: String) {
    
    val src = new File(filePath);
    val dest = new File(filePath + "/../parquetInstabase")
@@ -86,11 +86,11 @@ object ParquetDataConvertor {
    if(!src.exists())
      System.exit(0)
    else {
-     copyFolder(src, dest, cubeName, sqlContext)
+     copyFolder(src, dest, sqlContext)
    } 
  }
  
-  def copyFolder(src: File, dest: File, cubeName: String, sqlContext: SQLContext) {
+  def copyFolder(src: File, dest: File, sqlContext: SQLContext) {
     
 	if(src.isDirectory()){
  
@@ -105,14 +105,19 @@ object ParquetDataConvertor {
     	var files = src.list()
     	for (file <- files) {
 		  //construct the src and dest file structure
-		  copyFolder(new File(src, file), new File(dest, file), cubeName, sqlContext);
+		  copyFolder(new File(src, file), new File(dest, file), sqlContext);
 		}
  
     }else{
-      if(src.getAbsolutePath().indexOf("/d/") != -1) 
-    	getNewFile(src.getAbsolutePath(), dest.getAbsolutePath(), cubeName, "d", sqlContext)
-      else if (src.getAbsolutePath().indexOf("/f/") != -1)
+      val fileName = src.getName()
+      if(src.getAbsolutePath().indexOf("/d/") != -1) {
+    	val cubeName = fileName.substring(0, fileName.length() - "Dimension".length() - 4)
+        getNewFile(src.getAbsolutePath(), dest.getAbsolutePath(), cubeName, "d", sqlContext)
+      }
+      else if (src.getAbsolutePath().indexOf("/f/") != -1) {
+        val cubeName = fileName.substring(0, fileName.length() - "Measure".length() - 4)
         getNewFile(src.getAbsolutePath(), dest.getAbsolutePath(), cubeName, "f", sqlContext)
+      }
     }
   }
   
