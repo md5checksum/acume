@@ -2,12 +2,14 @@ package com.guavus.acume.cache.disk.utility
 
 import java.util.Random
 import scala.Array.canBuildFrom
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.StructField
 import org.apache.spark.sql.StructType
 import org.apache.spark.sql.catalyst.expressions.Row
 import org.apache.spark.sql.catalyst.types.LongType
 import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.common.CacheLevel.CacheLevel
+import com.guavus.acume.cache.common.BaseCube
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.ConversionToCrux
 import com.guavus.acume.cache.common.ConversionToSpark
@@ -16,15 +18,8 @@ import com.guavus.acume.cache.common.DataType
 import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.workflow.AcumeCacheContext
 import com.guavus.crux.core.Fields
-import com.guavus.crux.core.TextDelimitedScheme
-import org.apache.spark.sql.SchemaRDD
-import com.guavus.crux.df.core.FieldDataType._
-import org.apache.spark.rdd.RDD
-import org.apache.spark.SparkContext
-import com.guavus.acume.cache.common.BaseCube
-import org.apache.spark.sql.SQLContext
-import org.apache.spark.rdd.EmptyRDD
-import org.apache.spark.sql.catalyst.expressions.EmptyRow
+import com.guavus.crux.df.core.FieldDataType.FieldDataType
+import com.guavus.acume.cache.utility.Utility
 
 abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) extends DataLoader(acumeCacheContext, conf, cube) { 
   
@@ -105,23 +100,13 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
       val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube.cubeName + "/f/" + ts
       val rowRDD = getRowSchemaRDD(sqlContext, baseDir, fields, datatypearray)
       val schemaRDD = acumeCacheContext.sqlContext.applySchema(rowRDD, latestschema)
-
-//      if(!flag) {
-//        schemaRDD.registerTempTable(baseMeasureSetTable)
-//        flag = true
-//      } else
-//        schemaRDD.insertInto(baseMeasureSetTable)
       schemaRDD
     }
-    sqlContext.applySchema(_$list.map(_.asInstanceOf[RDD[Row]]).reduce(_.union(_)), latestschema).registerTempTable(baseMeasureSetTable)
+    if(!_$list.isEmpty)
+      sqlContext.applySchema(_$list.map(_.asInstanceOf[RDD[Row]]).reduce(_.union(_)), latestschema).registerTempTable(baseMeasureSetTable)
+    else
+      Utility.getEmptySchemaRDD(sqlContext, latestschema).registerTempTable(baseMeasureSetTable)
     true
-  }
-  
-  private def getEmptySchemaRDD(sqlContext: SQLContext, schema: StructType)= {
-    
-    val sparkContext = sqlContext.sparkContext
-//    sqlContext.applySchema(sparkContext.parallelize(1 to 1).map(x =>EmptyRow), schema)
-    sqlContext.applySchema(sparkContext.parallelize(1 to 1).map(x =>Row.fromSeq(Array())), schema)
   }
   
   private def modifyDimensionSet(baseCube: BaseCube, businessCube: Cube, 
@@ -174,7 +159,7 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
       val fields  = new Fields((1.to(baseCubeDimensionSet.size + 2).map(_.toString).toArray))
       val datatypearray = Array(ConversionToCrux.convertToCruxFieldDataType(DataType.ACLong), ConversionToCrux.convertToCruxFieldDataType(DataType.ACLong)) ++ baseCubeDimensionSet.map(x => ConversionToCrux.convertToCruxFieldDataType(x.getDataType))
 
-      getEmptySchemaRDD(acumeCacheContext.sqlContext, latestschema).registerTempTable(baseDimensionSetTable)
+      Utility.getEmptySchemaRDD(sqlContext, latestschema).registerTempTable(baseDimensionSetTable)
       var flag = false
       for(timestamp <- list){
         val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube.cubeName + "/d/" + timestamp
@@ -187,6 +172,8 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
           flag = true
         } else
           schemaRDD.insertInto(baseDimensionSetTable)
+          
+        acumeCacheContext.dimensionTimestampLoadedList.+=(timestamp)
       }
     } catch { 
     case ex: Throwable => throw new IllegalStateException(ex)

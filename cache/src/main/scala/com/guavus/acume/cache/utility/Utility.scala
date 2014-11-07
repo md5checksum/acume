@@ -11,6 +11,9 @@ import scala.collection.JavaConverters._
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.core.TimeGranularity._
+import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.catalyst.types.StructType
+import org.apache.spark.sql.catalyst.expressions.Row
 import org.apache.spark.Logging
 import java.util.StringTokenizer
 import java.util.Calendar
@@ -19,6 +22,13 @@ import java.util.Date
 
 object Utility extends Logging {
 
+  def getEmptySchemaRDD(sqlContext: SQLContext, schema: StructType)= {
+    
+    val sparkContext = sqlContext.sparkContext
+    val _$rdd = sparkContext.parallelize(1 to 1).map(x =>Row.fromSeq(Nil)).filter(x => false)
+    sqlContext.applySchema(_$rdd, schema)
+  }
+  
   def createEvictionDetailsMapFromFile(): MutableMap[String, EvictionDetails] = {
     val evictionDetailsMap = MutableMap[String, EvictionDetails]()
     try {
@@ -269,7 +279,7 @@ object Utility extends Logging {
   }
   
   def ceilingFromGranularity(time: Long, gran: Long): Long = {
-    val timeGranularity = TimeGranularity.getTimeGranularity(gran).getOrElse(throw new RuntimeException("TimeGranularity does not exist for gran"))
+    val timeGranularity = TimeGranularity.getTimeGranularity(gran).getOrElse(throw new RuntimeException("TimeGranularity does not exist for gran" + gran))
     ceilingToTimeZone(time, timeGranularity)
   }
 

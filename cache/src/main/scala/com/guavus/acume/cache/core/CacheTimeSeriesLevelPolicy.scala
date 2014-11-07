@@ -1,10 +1,10 @@
 package com.guavus.acume.cache.core
 
+import java.util.Calendar
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable.HashMap
-import com.guavus.acume.cache.utility.Utility
 import scala.collection.mutable.MutableList
-import java.util.Calendar
+import com.guavus.acume.cache.utility.Utility
 
 class CacheTimeSeriesLevelPolicy(levelMap: SortedMap[Long, Int]) extends CacheTimeSeriesPolicyTrait {
 

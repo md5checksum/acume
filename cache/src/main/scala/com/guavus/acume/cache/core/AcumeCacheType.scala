@@ -1,15 +1,16 @@
 package com.guavus.acume.cache.core
 
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
+import org.apache.spark.sql.hive.HiveContext
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
-import org.apache.spark.SparkConf
-import org.apache.spark.sql.hive.HiveContext
+import com.guavus.acume.cache.eviction.EvictionPolicy
+import com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy
 
 object AcumeCacheType extends Enumeration {
 
-  val TreeCache = new AcumeCacheType("com.guavus.acume.cache.core.AcumeTreeCache", classOf[AcumeTreeCache])
+  val TreeCache = new AcumeCacheType("com.guavus.acume.cache.core.AcumeTreeCache", classOf[AcumeTreeCache], classOf[AcumeTreeCacheEvictionPolicy])
   
   def getAcumeCacheType(name: String): AcumeCacheType = { 
     
@@ -19,7 +20,10 @@ object AcumeCacheType extends Enumeration {
     }
     TreeCache
   }
-  class AcumeCacheType(val name: String, val acumeCache: Class[_<:AcumeCache]) extends Val
+  
+  def getEvictionPolicy(name: String): Class[_ <: EvictionPolicy] = getAcumeCacheType(name).evictionPolicy
+
+  class AcumeCacheType(val name: String, val acumeCache: Class[_<:AcumeCache], val evictionPolicy: Class[_<: EvictionPolicy]) extends Val
   implicit def convertValue(v: Value): AcumeCacheType = v.asInstanceOf[AcumeCacheType]
   
   def main(args: Array[String]) { 
@@ -43,9 +47,10 @@ object AcumeCacheType extends Enumeration {
     conf123.set(ConfConstants.lastbinpersistedtime, "1384772400")
     val cntxt = new com.guavus.acume.cache.workflow.AcumeCacheContext(sqlContext, conf123)
 //    cntxt.acql("select egressruleid from searchEgressPeerCube where ts >=1384750800 and ts <1384754400")
-    cntxt.acql("SELECT tx.sum_TTS_B AS TTS_B FROM (SELECT sum(TTS_B) AS sum_TTS_B FROM searchEgressPeerCube WHERE ts < 1384754400 AND ts >= 1384750800) tx")
-    cntxt.acql("SELECT (T1.sum_TTS_B/T2.totalsum) * T3.total1 AS percent_TTS_B, (T1.sum_TTS_B - T1.sum_Off_net_B)/T1.sum_Off_net_B * 100 AS growth_TTS_B, T1.FlowDirection AS FlowDirection, T1.EgressAS AS EgressAS FROM (SELECT sum(TTS_B) AS sum_TTS_B, sum(Off_net_B) AS sum_Off_net_B, FlowDirection, EgressAS FROM searchEgressPeerCube GROUP BY FlowDirection, EgressAS) T1 FULL JOIN (SELECT totalsum FROM (SELECT SUM(TTS_B) AS totalsum FROM searchEgressPeerCube) T1) T2 FULL JOIN (SELECT T1.FlowDirection, total1 FROM (SELECT FlowDirection, SUM(TTS_B) AS total1 FROM searchEgressPeerCube GROUP BY FlowDirection) T1) T3 ON T1.FlowDirection = T3.FlowDirection WHERE T1.sum_TTS_B > 5 and ts >=1384750800 and ts <1384754400")
+//    cntxt.acql("SELECT tx.sum_TTS_B AS TTS_B FROM (SELECT sum(TTS_B) AS sum_TTS_B FROM searchEgressPeerCube WHERE ts < 1384761600 AND ts >= 1384750800) tx")
+//    cntxt.acql("SELECT (T1.sum_TTS_B/T2.totalsum) * T3.total1 AS percent_TTS_B, (T1.sum_TTS_B - T1.sum_Off_net_B)/T1.sum_Off_net_B * 100 AS growth_TTS_B, T1.FlowDirection AS FlowDirection, T1.EgressAS AS EgressAS FROM (SELECT sum(TTS_B) AS sum_TTS_B, sum(Off_net_B) AS sum_Off_net_B, FlowDirection, EgressAS FROM searchEgressPeerCube GROUP BY FlowDirection, EgressAS) T1 FULL JOIN (SELECT totalsum FROM (SELECT SUM(TTS_B) AS totalsum FROM searchEgressPeerCube) T1) T2 FULL JOIN (SELECT T1.FlowDirection, total1 FROM (SELECT FlowDirection, SUM(TTS_B) AS total1 FROM searchEgressPeerCube GROUP BY FlowDirection) T1) T3 ON T1.FlowDirection = T3.FlowDirection WHERE T1.sum_TTS_B > 5 and ts >=1384750800 and ts <1384754400")
 //    cntxt.acql("SELECT T1.sum_TTS_B AS percent_TTS_B, T1.FlowDirection AS FlowDirection, T1.EgressAS AS EgressAS FROM (SELECT sum(TTS_B) AS sum_TTS_B, sum(Off_net_B) AS sum_Off_net_B, FlowDirection, EgressAS FROM searchEgressPeerCube GROUP BY FlowDirection, EgressAS) T1 WHERE T1.sum_TTS_B > 5 and ts >=1384750800 and ts <1384754400")
+    cntxt.acql("SELECT (T1.sum_TTS_B/T2.totalsum) AS percent_TTS_B, T1.IngressAS AS IngressAS, T1.EgressAS AS EgressAS FROM (SELECT sum(TTS_B) AS sum_TTS_B, IngressAS, EgressAS, ts FROM searchEgressPeerCube GROUP BY IngressAS, EgressAS, ts) T1 FULL JOIN (SELECT totalsum, T1.ts AS ts FROM (SELECT SUM(TTS_B) AS totalsum, ts FROM searchEgressPeerCube GROUP BY ts) T1) T2 ON T1.ts = T2.ts WHERE T1.ts >= 1384750800 AND T1.ts < 1384754400 AND T1.sum_TTS_B >  5")
   }
 }
 
