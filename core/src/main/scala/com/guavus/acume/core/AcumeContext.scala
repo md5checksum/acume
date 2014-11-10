@@ -22,6 +22,7 @@ class AcumeContext(confFilePath: String) {
 
   //Properties will be loaded from spark-defaults.conf
   val conf = new SparkConf()
+  conf.set("spark.app.name", "Acume")
 
   val acumeConfiguration = new AcumeConf(true, this.getClass.getResourceAsStream(confFilePath))  
     
