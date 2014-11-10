@@ -4,4 +4,4 @@ else
         DEBUG_OPTS=" -Xdebug -Xrunjdwp:transport=dt_socket,address=$CLI_REPLACE_DEBUGPORT$,server=y,suspend=n"
 fi
 
-export JAVA_OPTS=$DEBUG_OPTS
+export ACUME_JAVA_OPTS=$DEBUG_OPTS
