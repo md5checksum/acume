@@ -12,6 +12,5 @@ case class BaseCube(cubeName: String, dimension: DimensionSet, measure: MeasureS
 case class Function(functionClass: String, functionName: String) extends Serializable 
 case class DimensionSet(dimensionSet: List[Dimension]) extends Serializable 
 case class MeasureSet(measureSet: List[Measure]) extends Serializable 
-//case class CubeMeasureSet(measureSet: List[CubeMeasure]) extends Serializable
-
+case class DimensionTable(var tblnm: String) extends Serializable 	
 

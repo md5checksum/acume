@@ -20,17 +20,18 @@ import com.guavus.acume.cache.workflow.AcumeCacheContext
 import com.guavus.crux.core.Fields
 import com.guavus.crux.df.core.FieldDataType.FieldDataType
 import com.guavus.acume.cache.utility.Utility
+import com.guavus.acume.cache.common.DimensionTable
 
 abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) extends DataLoader(acumeCacheContext, conf, cube) { 
   
-  override def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, DTableName: String) = { 
+  override def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, DTableName: DimensionTable) = { 
     
     val instabase = conf.get(ConfConstants.instabase)
     val instainstanceid = conf.get(ConfConstants.instainstanceid)
     loadData(businessCube, levelTimestamp, DTableName, instabase, instainstanceid)
   }
   
-  override def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, globalDTableName: String, instabase: String, instainstanceid: String) = { 
+  override def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, globalDTableName: DimensionTable, instabase: String, instainstanceid: String) = { 
     
     val list = getLevel(levelTimestamp).toList //list of timestamps to be loaded on base gran, improve this to support grans in insta .
     val baseCube = CubeUtil.getCubeMap(acumeCacheContext.baseCubeList.toList, acumeCacheContext.cubeList.toList).getOrElse(businessCube, throw new RuntimeException("Value not found."))
@@ -45,14 +46,15 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     getSchemaRDD(businessCube, joinDimMeasureTableName)
   }
   
-  private def dMJoin(globalDTableName: String, baseMeasureSetTable: String, finalName: String) = { 
+  private def dMJoin(globalDTableName: DimensionTable, baseMeasureSetTable: String, finalName: String) = { 
     
     import acumeCacheContext.sqlContext._
     val sqlContext = acumeCacheContext.sqlContext
 
-    val join = s"Select * from $globalDTableName INNER JOIN $baseMeasureSetTable ON id = tupleid"
-    val globalDTable = table(globalDTableName)
-    sqlContext.applySchema(globalDTable, globalDTable.schema).registerTempTable(globalDTableName)
+    val join = s"Select * from ${globalDTableName.tblnm} INNER JOIN $baseMeasureSetTable ON id = tupleid"
+    val globaldtblnm = globalDTableName.tblnm
+    val globalDTable = table(globaldtblnm)
+    sqlContext.applySchema(globalDTable, globalDTable.schema).registerTempTable(globaldtblnm)
     val joinedRDD = sqlContext.sql(join)
     joinedRDD.registerTempTable(finalName)
   }
@@ -110,7 +112,7 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
   }
   
   private def modifyDimensionSet(baseCube: BaseCube, businessCube: Cube, 
-      baseDimensionSetTable: String, globalDTableName: String, 
+      baseDimensionSetTable: String, globalDTableName: DimensionTable, 
       instabase: String, instainstanceid: String) = {
     
     val sqlContext = acumeCacheContext.sqlContext
@@ -118,10 +120,11 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     val baseDimensionSetTableNew = s"${baseDimensionSetTable}New"
     val baseDimensionSetTableCombined = s"${baseDimensionSetTable}Combined"
     val dimensionSQL = s"select id, timestamp, ${getdimension} from $baseDimensionSetTableCombined"
+    val globaldtblnm = globalDTableName.tblnm
     import acumeCacheContext.sqlContext._
     val istableregistered = 
       try{
-        table(globalDTableName)
+        table(globaldtblnm)
         true
       } catch{
       case ex: Exception => false
@@ -135,11 +138,20 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
       sqlContext.sql(s"select * from $baseDimensionSetTableNew UNION ALL select * from $baseDimensionSetTable").registerTempTable(s"$baseDimensionSetTableCombined")
       
       val dimensionRDD = sqlContext.sql(dimensionSQL)
+      println(dimensionRDD.schema)
+      dimensionRDD.collect.map(println)
       sqlContext.applySchema(dimensionRDD, dimensionRDD.schema)
-      if(istableregistered) 
-        dimensionRDD.insertInto(globalDTableName)
+      if(istableregistered) {
+//        val dimrdd = sqlContext.sql(s"select * from $globalDTableName")
+//        dimrdd.collect.map(println)
+//        println(dimrdd.schema)
+        val unioned = table(globaldtblnm).union(dimensionRDD)
+        globalDTableName.tblnm = globalDTableName.tblnm+"new"
+        sqlContext.applySchema(unioned, dimensionRDD.schema).registerTempTable(globalDTableName.tblnm)
+//        dimensionRDD.insertInto(globaldtblnm)
+      }
       else 
-        dimensionRDD.registerTempTable(globalDTableName)
+        dimensionRDD.registerTempTable(globaldtblnm)
   }
   
   private def loadDimensionSet(baseCube: BaseCube, list: List[Long], baseDimensionSetTable: String, instabase: String, instainstanceid: String): Boolean = { 
@@ -159,22 +171,25 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
       val fields  = new Fields((1.to(baseCubeDimensionSet.size + 2).map(_.toString).toArray))
       val datatypearray = Array(ConversionToCrux.convertToCruxFieldDataType(DataType.ACLong), ConversionToCrux.convertToCruxFieldDataType(DataType.ACLong)) ++ baseCubeDimensionSet.map(x => ConversionToCrux.convertToCruxFieldDataType(x.getDataType))
 
-      Utility.getEmptySchemaRDD(sqlContext, latestschema).registerTempTable(baseDimensionSetTable)
+      Utility.getEmptySchemaRDD(sqlContext, latestschema).registerTempTable(baseDimensionSetTable)//sqlContext.sql(s"select * from $baseDimensionSetTable").collect
       var flag = false
-      for(timestamp <- list){
+      val _list = for(timestamp <- list) yield {
         val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube.cubeName + "/d/" + timestamp
         val rowRDD = getRowSchemaRDD(sqlContext, baseDir, fields, datatypearray)
-        val schemaRDD = sqlContext.applySchema(rowRDD, latestschema)
-      
-        if(!flag) { 
-      
-          schemaRDD.registerTempTable(baseDimensionSetTable)
-          flag = true
-        } else
-          schemaRDD.insertInto(baseDimensionSetTable)
-          
+//        val schemaRDD = sqlContext.applySchema(rowRDD, latestschema)
+//      
+//        if(!flag) { 
+//      
+//          schemaRDD.registerTempTable(baseDimensionSetTable)
+//          flag = true
+//        } else
+//          schemaRDD.insertInto(baseDimensionSetTable)
+//          
         acumeCacheContext.dimensionTimestampLoadedList.+=(timestamp)
+        rowRDD
       }
+      if(!_list.isEmpty)
+        sqlContext.applySchema(_list.reduce(_.union(_)), latestschema).registerTempTable(baseDimensionSetTable)
     } catch { 
     case ex: Throwable => throw new IllegalStateException(ex)
     }

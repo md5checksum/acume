@@ -19,6 +19,7 @@ import java.util.StringTokenizer
 import java.util.Calendar
 import java.text.SimpleDateFormat
 import java.util.Date
+import org.apache.spark.sql.SchemaRDD
 
 object Utility extends Logging {
 
@@ -27,6 +28,12 @@ object Utility extends Logging {
     val sparkContext = sqlContext.sparkContext
     val _$rdd = sparkContext.parallelize(1 to 1).map(x =>Row.fromSeq(Nil)).filter(x => false)
     sqlContext.applySchema(_$rdd, schema)
+  }
+  
+  def insertInto(sqlContext: SQLContext, schema: StructType, newrdd: SchemaRDD, tbl: String, newtbl: String) = {
+    
+    import sqlContext._
+    sqlContext.applySchema(sqlContext.table(tbl).union(newrdd), schema).registerTempTable(newtbl)
   }
   
   def createEvictionDetailsMapFromFile(): MutableMap[String, EvictionDetails] = {

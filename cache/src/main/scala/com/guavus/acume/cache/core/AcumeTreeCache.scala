@@ -5,7 +5,6 @@ import scala.Array.canBuildFrom
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable.{Map => MutableMap}
 import scala.collection.mutable.MutableList
-
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import com.guavus.acume.cache.common.AcumeCacheConf
@@ -21,6 +20,10 @@ import com.guavus.acume.cache.workflow.MetaData
 import com.guavus.acume.cache.workflow.RequestType.Aggregate
 import com.guavus.acume.cache.workflow.RequestType.RequestType
 import com.guavus.acume.cache.workflow.RequestType.Timeseries
+import com.guavus.acume.cache.common.DimensionTable
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.catalyst.expressions.Row
+import org.apache.spark.sql.catalyst.types.StructType
 
 /**
  * Saves the dimension table till date and all fact tables as different tableNames for each levelTimestamp
@@ -29,7 +32,7 @@ private [cache] class AcumeTreeCache(acumeCacheContext: AcumeCacheContext, conf:
 extends AcumeCache(acumeCacheContext, conf, cube) {
 
 //  val cachePointToTable: MutableMap[LevelTimestamp, String] = MutableMap[LevelTimestamp, String]()
-  val dimensionTable: String = s"AcumeCacheGlobalDimensionTable${cube.cubeName}"
+  val dimensionTable: DimensionTable = DimensionTable("AcumeCacheGlobalDimensionTable" + cube.cubeName)
   val diskUtility = DataLoader.getDataLoader(acumeCacheContext, conf, cube)
   
   override def createTempTable(startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
@@ -121,38 +124,25 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
   private def buildTableForIntervals(levelTimestampMap: MutableMap[Long, MutableList[Long]], tableName: String, isMetaData: Boolean): MetaData = {
     import acumeCacheContext.sqlContext._
     val timestamps: MutableList[Long] = MutableList[Long]()
-    var flag = false
+    var finalSchema = null.asInstanceOf[StructType]
     val x = getCubeName(tableName)
-    for(levelTsMapEntry <- levelTimestampMap){
+    val levelTime = for(levelTsMapEntry <- levelTimestampMap) yield {
       val (level, ts) = levelTsMapEntry
       val cachelevel = CacheLevel.getCacheLevel(level)
-      for(item <- ts){
+      val timeIterated = for(item <- ts) yield {
         timestamps.+=(item)
         val levelTimestamp = LevelTimestamp(cachelevel, item)
-//        val _$tableName = cube.toString + levelTimestamp.toString
-//        val diskread = 
-//          if(!cachePointToTable.contains(levelTimestamp)){
-//            (diskUtility.loadData(businessCube, levelTimestamp, dimensionTable), true)
-//          } else{
-//            (acumeCacheContext.sqlContext.sql("select * from " + cachePointToTable.get(LevelTimestamp(cachelevel, item))), false)
-//          }
-        
         val tblNm = cachePointToTable.get(levelTimestamp)
         val diskread = acumeCacheContext.sqlContext.sql(s"select * from $tblNm")
-        val _$diskread = acumeCacheContext.sqlContext.applySchema(diskread, diskread.schema)
-        if(!flag){
-          _$diskread.registerTempTable(tableName)
-          flag = true
-        }
-        else{
-          _$diskread.insertInto(tableName)
-        }
-//        diskread._1.registerTempTable(_$tableName)
-//        if(diskread._2)
-//          cacheTable(_$tableName) 
-//        cachePointToTable.put(levelTimestamp, _$tableName)
+        finalSchema = diskread.schema
+        val _$diskread = acumeCacheContext.sqlContext.applySchema(diskread, finalSchema)
+        
+        _$diskread
       }
+      timeIterated
     }
+    val schemarddlist = levelTime.flatten
+    applySchema(schemarddlist.map(_.asInstanceOf[RDD[Row]]).reduce(_.union(_)), finalSchema).registerTempTable(tableName)
     val klist = timestamps.toList
     MetaData(klist)
   }
