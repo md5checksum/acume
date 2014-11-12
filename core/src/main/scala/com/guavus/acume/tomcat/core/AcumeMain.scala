@@ -11,6 +11,7 @@ import scala.collection.JavaConverters._
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import com.guavus.acume.core.AcumeContext
+import org.apache.spark.sql.hive.thriftserver.AcumeThriftServer
 
 /**
  * Entry point to start the tomcat. this must be called by spark or command line to start the application
@@ -21,6 +22,9 @@ object AcumeMain {
 
   def startAcume(args: Array[String]) {
 	AcumeContext.init("/acume.conf")
+	
+	AcumeThriftServer.main(Array[String]())
+	
 	  //Initiate the session Factory for user management db
     SessionFactory.getInstance(SessionContext.DISTRIBUTED)
     InitDatabase.initializeDatabaseTables(ArrayBuffer[IDML]())
