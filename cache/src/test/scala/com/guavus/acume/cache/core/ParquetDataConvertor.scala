@@ -35,10 +35,9 @@ object ParquetDataConvertor {
   val baseCubeMap = new InsensitiveStringKeyHashMap[BaseCube]
   
   def main(args: Array[String]) {
-	//args = srcFilepath, cubename,   
-    
+	//args = srcFilepath   
     loadXML("src/test/resources/cubedefinition.xml")
-	copyDirectory(args(0))
+    copyDirectory(args(0))
   }
   
   def getRow(row: String) = Row.fromSeq(row.split("\t").toSeq)
@@ -50,7 +49,7 @@ object ParquetDataConvertor {
       val cube = baseCubeMap.get(cubename).get
       val d = cube.dimension.dimensionSet
       val m = cube.measure.measureSet
-
+       
 	  val (schema, fields, _datatype) = if(ttype == "d") { 
 	    (StructType(cube.dimension.dimensionSet.map(field => { 
 	      StructField(field.getName, ConversionToSpark.convertToSparkDataType(field.getDataType), true)
@@ -74,8 +73,8 @@ object ParquetDataConvertor {
   
   def copyDirectory(filePath: String) {
    
-   val src = new File(filePath);
-   val dest = new File(filePath + "/../parquetInstabase")
+   val src = filePath
+   val dest = filePath + "/../parquetInstabase"
    
    val sparkConf = new SparkConf
    sparkConf.set("spark.master","local")
@@ -83,40 +82,39 @@ object ParquetDataConvertor {
    val sc = new SparkContext(sparkConf)
    val sqlContext = new SQLContext(sc)
    
-   if(!src.exists())
+   if(!(new File(src)).exists())
      System.exit(0)
    else {
      copyFolder(src, dest, sqlContext)
    } 
  }
  
-  def copyFolder(src: File, dest: File, sqlContext: SQLContext) {
+  def copyFolder(srcPath: String, destPath: String, sqlContext: SQLContext) {
     
-	if(src.isDirectory()){
- 
-    	//if directory not exists, create it
-    	if(!dest.exists()){
-    	   dest.mkdir();
-    	   System.out.println("Directory copied from " 
-                + src + "  to " + dest);
-    	}
+    var srcFile = new File(srcPath)
+    
+	if(srcFile.isDirectory()){
  
     	//list all the directory contents
-    	var files = src.list()
+    	var files = srcFile.listFiles()
+    	
     	for (file <- files) {
 		  //construct the src and dest file structure
-		  copyFolder(new File(src, file), new File(dest, file), sqlContext);
+		  copyFolder(file.getAbsolutePath(), destPath+"/"+(file.getName()), sqlContext);
 		}
  
     }else{
-      val fileName = src.getName()
-      if(src.getAbsolutePath().indexOf("/d/") != -1) {
+      
+      var dest = destPath.substring(0, destPath.lastIndexOf("/") -1)
+      
+      val fileName = srcFile.getName()
+      if(srcFile.getAbsolutePath().indexOf("/d/") != -1) {
     	val cubeName = fileName.substring(0, fileName.length() - "Dimension".length() - 4)
-        getNewFile(src.getAbsolutePath(), dest.getAbsolutePath(), cubeName, "d", sqlContext)
+        getNewFile(srcFile.getAbsolutePath(), dest, cubeName, "d", sqlContext)
       }
-      else if (src.getAbsolutePath().indexOf("/f/") != -1) {
+      else if (srcFile.getAbsolutePath().indexOf("/f/") != -1) {
         val cubeName = fileName.substring(0, fileName.length() - "Measure".length() - 4)
-        getNewFile(src.getAbsolutePath(), dest.getAbsolutePath(), cubeName, "f", sqlContext)
+        getNewFile(srcFile.getAbsolutePath(), dest, cubeName, "f", sqlContext)
       }
     }
   }
