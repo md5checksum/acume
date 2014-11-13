@@ -1,0 +1,21 @@
+SELECT (T1.sum_TTS_B / T2.totalsum) * T3.total1 AS percent_TTS_B, (T1.sum_TTS_B - T1.sum_Off_net_B) / T1.sum_Off_net_B * 100 AS growth_TTS_B, T1.FlowDirection AS FlowDirection, T1.EgressAS AS EgressAS FROM 
+
+(SELECT sum(TTS_B) AS sum_TTS_B, sum(Off_net_B) AS sum_Off_net_B, FlowDirection, EgressAS FROM searchEgressPeerCube_14144732757591522838892 GROUP BY FlowDirection, EgressAS) AS T1 
+
+FULL JOIN 
+
+(SELECT totalsum FROM (SELECT SUM(TTS_B) AS totalsum FROM searchEgressPeerCube) AS T1) AS T2 
+
+FULL JOIN 
+
+(SELECT T1.FlowDirection, total1 FROM (SELECT FlowDirection, SUM(TTS_B) AS total1 FROM searchEgressPeerCube_14144732757591522838892 GROUP BY FlowDirection) AS T1) AS T3 ON T1.FlowDirection = T3.FlowDirection WHERE T1.sum_TTS_B > 5 AND ts >= 1384750800 AND ts < 1384754400
+
+
+SELECT (T1.sum_TTS_B / T2.totalsum) * T3.total1 AS percent_TTS_B, (T1.sum_TTS_B - T1.sum_Off_net_B) / T1.sum_Off_net_B * 100 AS growth_TTS_B, T1.FlowDirection AS FlowDirection, T1.EgressAS AS EgressAS FROM (SELECT sum(TTS_B) AS sum_TTS_B, sum(Off_net_B) AS sum_Off_net_B, FlowDirection, EgressAS FROM searchEgressPeerCube_14144732757591522838892 GROUP BY FlowDirection, EgressAS) AS T1 
+FULL JOIN 
+
+(SELECT totalsum FROM (SELECT SUM(TTS_B) AS totalsum FROM searchEgressPeerCube) AS T1) AS T2 
+
+FULL JOIN 
+
+(SELECT T1.FlowDirection, total1 FROM (SELECT FlowDirection, SUM(TTS_B) AS total1 FROM searchEgressPeerCube_14144732757591522838892 GROUP BY FlowDirection) AS T1) AS T3 ON T1.FlowDirection = T3.FlowDirection WHERE T1.sum_TTS_B > 5 AND ts >= 1384750800 AND ts < 1384754400
