@@ -1,5 +1,9 @@
 package com.guavus.acume.cache.common
 
+/**
+ * @author archit.thakur
+ * 
+ */
 object AcumeConstants {
 
   val QUERY_RESPONSE = "queryresponse";

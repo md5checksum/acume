@@ -1,6 +1,11 @@
 package com.guavus.acume.cache.common
 
 import scala.collection.mutable.Map
+
+/**
+ * @author archit.thakur
+ * 
+ */
 private [acume] object ConfConstants {
 
   val defaultValueMap = Map[String, Any]()
@@ -22,10 +27,12 @@ private [acume] object ConfConstants {
   val rrloader = "acume.cache.rrcache.loader"
   val basegranularity = "basegranularity"
   val cubetype = "cubetype"
+  val evictionpolicy = "evictionpolicyclass"
   val levelpolicymap = "levelpolicymap"
   val timeserieslevelpolicymap = "timeserieslevelpolicymap"
   val lastbinpersistedtime = "acume.cache.delete.lastbinpersistedtime"
   val completelist = "acume.cache.delete.completelist"
+  val acumecacheevictionpolicy = "acume.cache.eviction.evictionpolicy"
     
 }
 

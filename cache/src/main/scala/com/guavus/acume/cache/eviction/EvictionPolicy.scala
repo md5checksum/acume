@@ -7,17 +7,24 @@ import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.core.AcumeCacheType
 import com.guavus.acume.cache.core.AcumeCacheType._
 
-trait EvictionPolicy {
+abstract class EvictionPolicy(conf: AcumeCacheConf) {
 
-  def getEvictableCandidate(cache: List[LevelTimestamp], newPoint: LevelTimestamp): LevelTimestamp
+  def getEvictableCandidate(cache: List[LevelTimestamp], evictionoptional: Any*): LevelTimestamp
 }
 
 object EvictionPolicy{
   
-  def getEvictionPolicy(acumeCacheType: AcumeCacheType): EvictionPolicy = {
+  def getEvictionPolicy(_$eviction: Class[_<:EvictionPolicy], conf: AcumeCacheConf): EvictionPolicy = {
     
-    val evictionPolicyClass = acumeCacheType.evictionPolicy
-    val newInstance = evictionPolicyClass.newInstance
+    val newInstance = _$eviction.getConstructor(classOf[AcumeCacheConf]).newInstance(conf)
     newInstance.asInstanceOf[EvictionPolicy]
   }
 }
+
+
+
+
+
+
+
+
