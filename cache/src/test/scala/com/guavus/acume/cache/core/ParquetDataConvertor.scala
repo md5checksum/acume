@@ -105,7 +105,7 @@ object ParquetDataConvertor {
  
     }else{
       
-      var dest = destPath.substring(0, destPath.lastIndexOf("/") -1)
+      var dest = destPath.substring(0, destPath.lastIndexOf("/"))
       
       val fileName = srcFile.getName()
       if(srcFile.getAbsolutePath().indexOf("/d/") != -1) {
