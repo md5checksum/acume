@@ -14,8 +14,25 @@ object QLType extends Enumeration {
     throw new RuntimeException(s"QLType $ty not supported.")
   }
   
-  class QLType(val QLName: String) extends Val{
+  class QLType(val QLName: String) extends Val with Equals {
     override def toString() = QLName
+    
+    def canEqual(other: Any) = {
+      other.isInstanceOf[com.guavus.acume.cache.common.QLType.QLType]
+    }
+    
+    override def equals(other: Any) = {
+      other match {
+        case that: com.guavus.acume.cache.common.QLType.QLType => that.canEqual(QLType.this) && QLName.equals(that.QLName)
+        case _ => false
+      }
+    }
+    
+    override def hashCode() = {
+      val prime = 41
+      prime + QLName.hashCode
+    }
+    
   }
   
   implicit def convertValue(v: Value): QLType = v.asInstanceOf[QLType]
