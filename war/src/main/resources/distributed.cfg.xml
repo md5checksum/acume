@@ -1,22 +1,22 @@
 <hibernate-configuration>
 <session-factory>
 <!--  Database connection settings  -->
-<property name="connection.driver_class">org.hsqldb.jdbcDriver</property>
-<property name="connection.url">jdbc:hsqldb:mem:rubixuserdb</property>
-<property name="connection.username">sa</property>
-<property name="connection.password"/>
+<property name="connection.driver_class">$CLI_REPLACE_DISTRIBUTEDCONNECTIONDRIVERCLASS$</property>
+<property name="connection.url">$CLI_REPLACE_DISTRIBUTEDCONNECTIONURL$</property>
+<property name="connection.username">$CLI_REPLACE_DISTRIBUTEDCONNECTIONUSERNAME$</property>
+<property name="connection.password">$CLI_REPLACE_DISTRIBUTEDCONNECTIONPASSWORD$</property>
 <!--  JDBC connection pool (use the built-in)  -->
-<property name="connection.pool_size">2</property>
+<property name="connection.pool_size">$CLI_REPLACE_CONNECTIONPOOLSIZE$</property>
 <!--  SQL dialect  -->
-<property name="dialect">org.hibernate.dialect.HSQLDialect</property>
+<property name="dialect">$CLI_REPLACE_DISTRIBUTEDDIALECT$</property>
 <!--
  Enable Hibernate's automatic session context management 
 -->
-<property name="current_session_context_class">thread</property>
+<property name="current_session_context_class">$CLI_REPLACE_CURRENTSESSIONCONTEXTCLASS$</property>
 <!--
  If using to Hibernate, add to your hibernate.cfg.xml 
 -->
-<property name="cache.use_second_level_cache">false</property>
+<property name="cache.use_second_level_cache">$CLI_REPLACE_HIBERNATESECONDLEVELCACHE$</property>
 <!--
  <property name="hibernate.cache.region.factory_class">
 		   org.hibernate.cache.infinispan.InfinispanRegionFactory</property>
@@ -34,8 +34,9 @@
 -->
 <!--  Drop and re-create the database schema on startup  -->
 <!--  <property name="hbm2ddl.auto">update</property>  -->
-<property name="hbm2ddl.rubix_files">um.sql</property>
-<property name="hbm2ddl.solution_files">solution.sql</property>
+<property name="hbm2ddl.rubix_files">$CLI_REPLACE_HIBERNATERUBIXFILE$</property>
+<property name="hbm2ddl.solution_files">$CLI_REPLACE_HIBERNATESOLUTIONFILE$</property>
+    
 <!--  Echo all executed SQL to stdout  -->
 <property name="show_sql">true</property>
 <mapping class="com.guavus.rubix.user.management.pojo.UserInfo"/>
