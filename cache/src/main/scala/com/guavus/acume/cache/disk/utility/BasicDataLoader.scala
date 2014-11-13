@@ -68,7 +68,7 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     val businessCubeDimensionList = CubeUtil.getDimensionSet(cube).map(_.getName).mkString(",")
     val str = "select " + businessCubeDimensionList + "," + businessCubeAggregatedMeasureList + " from " + joinDimMeasureTableName + " group by " + businessCubeDimensionList
     val xRDD = sqlContext.sql(str)
-    xRDD.collect.map(println)
+//    xRDD.collect.map(println)
     xRDD
     
     //explore hive udfs for aggregation.

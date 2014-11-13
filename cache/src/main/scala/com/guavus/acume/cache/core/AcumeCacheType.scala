@@ -6,11 +6,11 @@ import org.apache.spark.sql.hive.HiveContext
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.eviction.EvictionPolicy
-import com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy
+import com.guavus.acume.cache.eviction.VREvictionPolicy
 
 object AcumeCacheType extends Enumeration {
 
-  val TreeCache = new AcumeCacheType("com.guavus.acume.cache.core.AcumeTreeCache", classOf[AcumeTreeCache], classOf[AcumeTreeCacheEvictionPolicy])
+  val TreeCache = new AcumeCacheType("com.guavus.acume.cache.core.AcumeTreeCache", classOf[AcumeTreeCache])
   
   def getAcumeCacheType(name: String): AcumeCacheType = { 
     
@@ -21,9 +21,7 @@ object AcumeCacheType extends Enumeration {
     TreeCache
   }
   
-  def getEvictionPolicy(name: String): Class[_ <: EvictionPolicy] = getAcumeCacheType(name).evictionPolicy
-
-  class AcumeCacheType(val name: String, val acumeCache: Class[_<:AcumeCache], val evictionPolicy: Class[_<: EvictionPolicy]) extends Val
+  class AcumeCacheType(val name: String, val acumeCache: Class[_<:AcumeCache]) extends Val
   implicit def convertValue(v: Value): AcumeCacheType = v.asInstanceOf[AcumeCacheType]
   
   def main(args: Array[String]) { 

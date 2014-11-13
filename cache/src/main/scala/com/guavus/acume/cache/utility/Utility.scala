@@ -5,7 +5,7 @@ import scala.collection.mutable.{Map => MutableMap}
 import java.util.TimeZone
 import org.apache.commons.configuration.PropertiesConfiguration
 import org.apache.commons.lang.StringUtils
-import com.guavus.acume.cache.core.EvictionDetails
+import com.guavus.acume.cache.eviction.EvictionDetails
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import com.guavus.acume.cache.common.AcumeConstants
@@ -20,9 +20,29 @@ import java.util.Calendar
 import java.text.SimpleDateFormat
 import java.util.Date
 import org.apache.spark.sql.SchemaRDD
+import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.common.LevelTimestamp
+import org.apache.spark.sql.hive.HiveContext
+import org.datanucleus.store.rdbms.SQLController
 
+/**
+ * @author archit.thakur
+ * 
+ */
 object Utility extends Logging {
 
+  def evict(sqlContext: SQLContext, levelTimestamp: LevelTimestamp, tbl: String, cachePointToTable: com.google.common.cache.LoadingCache[LevelTimestamp, String]) = {
+
+    sqlContext.uncacheTable(tbl)
+    cachePointToTable.invalidate(levelTimestamp)
+  }
+  
+  def evict(sqlContext: HiveContext, levelTimestamp: LevelTimestamp, tbl: String, cachePointToTable: com.google.common.cache.LoadingCache[LevelTimestamp, String]) = {
+    
+    sqlContext.uncacheTable(tbl)
+    cachePointToTable.invalidate(levelTimestamp)
+  }
+  
   def getEmptySchemaRDD(sqlContext: SQLContext, schema: StructType)= {
     
     val sparkContext = sqlContext.sparkContext
