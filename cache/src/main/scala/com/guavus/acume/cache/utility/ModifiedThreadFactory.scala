@@ -3,10 +3,6 @@ package com.guavus.acume.cache.utility
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.ThreadFactory
 
-/**
- * @author archit.thakur
- * 
- */
 class ModifiedThreadFactory extends ThreadFactory {
 
   val poolNumber: AtomicInteger = new AtomicInteger(1);

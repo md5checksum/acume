@@ -8,7 +8,6 @@ import java.io.InputStream
 import java.util.Properties
 
 /**
- * @author archit.thakur
  * Configuration for a Cache application. Used to set various Cache parameters as key-value pairs.
  *
  * Most of the time, you would create a CacheConf object with `new CacheConf()`, which will load
@@ -38,7 +37,7 @@ class AcumeCacheConf(loadDefaults: Boolean, file: InputStream) extends Cloneable
 
   if (loadDefaults) {
     for ((k, v) <- System.getProperties.asScala if k.toLowerCase.startsWith("acume.cache.")) {
-      settings(k) = v.trim
+      settings(k) = v
     }
   }
   
@@ -47,7 +46,7 @@ class AcumeCacheConf(loadDefaults: Boolean, file: InputStream) extends Cloneable
     val properties = new Properties()
     properties.load(file)
     for ((k, v) <- properties.asScala) {
-      settings(k) = v.trim
+      settings(k) = v
     }
   }
   
@@ -59,7 +58,7 @@ class AcumeCacheConf(loadDefaults: Boolean, file: InputStream) extends Cloneable
     if (value == null) {
       throw new NullPointerException("null value")
     }
-    settings(key) = value.trim
+    settings(key) = value
     this
   }
 
@@ -72,7 +71,7 @@ class AcumeCacheConf(loadDefaults: Boolean, file: InputStream) extends Cloneable
   /** Set a parameter if it isn't already configured */
   def setIfMissing(key: String, value: String): AcumeCacheConf = {
     if (!settings.contains(key)) {
-      settings(key) = value.trim
+      settings(key) = value
     }
     this
   }
