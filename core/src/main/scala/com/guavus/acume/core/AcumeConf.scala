@@ -125,6 +125,14 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
   def getDisabledCubes(): String = {
     get("Acume.cubesToBeDisabled", "")
   }
+  
+  def setEnableJDBCServer(enableJDBCFlag : String): AcumeConf = {
+    set("acume.core.enableJDBCServer", enableJDBCFlag)
+  }
+  
+  def getEnableJDBCServer(): String = {
+    get("acume.core.enableJDBCServer", "false")
+  }
 
   /** Set multiple parameters together */
   def setAll(settings: Traversable[(String, String)]) = {
