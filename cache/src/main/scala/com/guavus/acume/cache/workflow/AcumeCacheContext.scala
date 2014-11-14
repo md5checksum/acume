@@ -30,7 +30,6 @@ import com.guavus.acume.cache.utility.SQLUtility
 import com.guavus.acume.cache.utility.Utility
 import javax.xml.bind.JAXBContext
 import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
-import com.guavus.acume.cache.eviction.EvictionPolicy
 
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends Serializable { 
   sqlContext match{
@@ -64,6 +63,8 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   loadXML(conf.get(ConfConstants.businesscubexml))
   loadVRMap(conf)
   loadXMLCube("")
+  
+  private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf(AcumeConstants.TRIPLE_DOLLAR_SSC) + 1)
   
   private [acume] def utilQL(sql: String, qltype: QLType) = {
     val tx = AcumeCacheContext.parseSql(sql)
@@ -147,6 +148,12 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     kCube.toList
   }
   
+  private [cache] def getCube(cube: String) = cubeMap.get(cube).getOrElse(throw new RuntimeException(s"cube $cube not found."))
+  
+  private [cache] def getTable(cube: String) = cube + "_" + getUniqueRandomNo 	
+  
+  private [cache] def getUniqueRandomNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt())
+  
   private [cache] def loadVRMap(conf: AcumeCacheConf) = {
     val vrmapstring = conf.get(ConfConstants.variableretentionmap)
     vrmap.++=(Utility.getLevelPointMap(vrmapstring))
@@ -196,8 +203,8 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       for(c <- acumeCube.getCubes().getCube().toList) yield {
         val cubeName = c.getName().trim
         val fields = c.getFields().split(",").map(_.trim)
-        val dimensionSet = scala.collection.mutable.MutableList[Dimension]()
-        val measureSet = scala.collection.mutable.MutableList[Measure]()
+        val dimensionSet = scala.collection.mutable.Set[Dimension]()
+        val measureSet = scala.collection.mutable.Set[Measure]()
         for(ex <- fields){
           val fieldName = ex.trim
 
@@ -217,7 +224,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
         
         val _$cubeProperties = c.getProperties()
         val _$propertyMap = _$cubeProperties.split(",").map(x => {
-          val i = x.indexOf(":") 
+          val i = x.indexOf(":")
           (x.substring(0, i).trim, x.substring(i+1, x.length).trim)
         })
         val propertyMap = _$propertyMap.toMap
@@ -226,8 +233,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
         val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, defaultPropertyMap, ConfConstants.timeserieslevelpolicymap, cubeName))
         val Gnx = getProperty(propertyMap, defaultPropertyMap, ConfConstants.basegranularity, cubeName)
         val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
-        val _$eviction = Class.forName(getProperty(propertyMap, defaultPropertyMap, ConfConstants.evictionpolicy, cubeName)).asSubclass(classOf[EvictionPolicy])
-        val cube = Cube(cubeName, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), granularity, true, levelpolicymap, timeserieslevelpolicymap, _$eviction)
+        val cube = Cube(cubeName, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), granularity, true, levelpolicymap, timeserieslevelpolicymap)
         cubeMap.put(cubeName, cube)
         cube
       }
@@ -238,16 +244,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     
     propertyMap.getOrElse(name, defaultPropertyMap.getOrElse(name, throw new RuntimeException(s"The configurtion $name should be done for cube $nmCube")))
   }
-  
-  private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf(AcumeConstants.TRIPLE_DOLLAR_SSC) + 1)
-  
-  private [cache] def getCube(cube: String) = cubeMap.get(cube).getOrElse(throw new RuntimeException(s"cube $cube not found."))
-  
-  private [cache] def getTable(cube: String) = cube + "_" + getUniqueRandomNo 	
-  
-  def getUniqueRandomNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt())
-  
-}
+  }
 
 object AcumeCacheContext{
   

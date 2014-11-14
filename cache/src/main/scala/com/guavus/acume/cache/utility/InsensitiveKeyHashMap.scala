@@ -3,10 +3,6 @@ package com.guavus.acume.cache.utility
 import scala.collection.mutable.HashMap
 import scala.collection.generic.MutableMapFactory
 
-/**
- * @author archit.thakur
- * 
- */
 class InsensitiveStringKeyHashMap[B] extends HashMap[String, B] {
 
   override def contains(key: String): Boolean = super.contains(key.toUpperCase)

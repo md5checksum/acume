@@ -37,8 +37,8 @@ object ParquetDataConvertor {
   def main(args: Array[String]) {
 	//args = srcFilepath, cubename,   
     
-    loadXML("/Users/archit.thakur/Documents/Code_Acume_Scala/cache/src/test/resources/cubedefinition.xml")
-	copyDirectory("/Users/archit.thakur/Downloads/instabase")
+    loadXML("src/test/resources/cubedefinition.xml")
+	copyDirectory(args(0))
   }
   
   def getRow(row: String) = Row.fromSeq(row.split("\t").toSeq)
@@ -149,10 +149,10 @@ object ParquetDataConvertor {
 	for(c <- acumeCube.getCubes().getCube().toList) yield {
 	  val cubeName = c.getName().trim
 	  val fields = c.getFields().split(",").map(_.trim)
-	  val dimensionSet = scala.collection.mutable.MutableList[Dimension]()
+	  val dimensionSet = scala.collection.mutable.Set[Dimension]()
 	  dimensionSet.+=(dim_id)
 	  dimensionSet.+=(dim_ts)
-	  val measureSet = scala.collection.mutable.MutableList[Measure]()
+	  val measureSet = scala.collection.mutable.Set[Measure]()
 	  measureSet.+=(m_id)
 	  measureSet.+=(m_ts)
 	    
@@ -174,4 +174,5 @@ object ParquetDataConvertor {
 	  baseCubeMap.put(cubeName, cube)
     }
   }
+
 }
