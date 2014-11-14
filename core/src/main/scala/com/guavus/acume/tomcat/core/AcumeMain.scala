@@ -12,6 +12,10 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import com.guavus.acume.core.AcumeContext
 import org.apache.spark.sql.hive.thriftserver.AcumeThriftServer
+import com.guavus.acume.core.AcumeConf
+import com.guavus.acume.core.configuration.AcumeAppConfig
+import com.guavus.acume.cache.common.ConfConstants
+import scala.util.Try
 
 /**
  * Entry point to start the tomcat. this must be called by spark or command line to start the application
@@ -23,9 +27,12 @@ object AcumeMain {
   def startAcume(args: Array[String]) {
 	AcumeContext.init("/acume.conf")
 	
-	AcumeThriftServer.main(Array[String]())
+	var enableJDBC = AcumeContext.acumeContext.get.acumeConfiguration.getEnableJDBCServer
+	 
+	if(Try(enableJDBC.toBoolean).getOrElse(false))
+		AcumeThriftServer.main(Array[String]())
 	
-	  //Initiate the session Factory for user management db
+	//Initiate the session Factory for user management db
     SessionFactory.getInstance(SessionContext.DISTRIBUTED)
     InitDatabase.initializeDatabaseTables(ArrayBuffer[IDML]())
     println("Called AcumeMain")

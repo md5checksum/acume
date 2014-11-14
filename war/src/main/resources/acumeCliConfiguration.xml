@@ -919,6 +919,18 @@ Please don't use the following reserved property names:
             </targets>
         </property>
         
-
+        <property>
+            <name>coreEnableJDBCServer</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[false]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
     </PropertiesPerInstance>
 </RubixConfigurations>
