@@ -12,12 +12,18 @@
 	<artifactId>core</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
+	
 	<repositories>
 		<repository>
 			<id>Akka repository</id>
 			<url>http://repo.akka.io/releases</url>
 		</repository>
+    	<repository>
+        	<id>releases</id>
+        	<url>https://github.com/adatao/mvnrepos/raw/master/releases</url>
+    	</repository>
 	</repositories>
+	
 	<name>Acume Core</name>
 	<url>http://maven.apache.org</url>
 	<properties>
@@ -31,16 +37,11 @@
 	</properties>
 	<dependencies>
 		<dependency>
-	<groupId>asm</groupId>
-	<artifactId>asm-all</artifactId>
-	<version>3.3.1</version>
-</dependency>
-
-		<dependency>
-			<groupId>com.google.code.gson</groupId>
-			<artifactId>gson</artifactId>
-			<version>2.2.2</version>
+			<groupId>asm</groupId>
+			<artifactId>asm-all</artifactId>
+			<version>3.3.1</version>
 		</dependency>
+
 		<dependency>
 			<groupId>com.guavus.acume</groupId>
 			<artifactId>cache</artifactId>
@@ -105,16 +106,16 @@
 					<artifactId>servlet-api</artifactId>
 				</exclusion>
 				<exclusion>
-                                        <groupId>com.google.guava</groupId>
-                                        <artifactId>guava</artifactId>
-                                </exclusion>
+                	<groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
 				<exclusion>
 					<groupId>asm</groupId>
 					<artifactId>asm</artifactId>
 				</exclusion>
 				<exclusion>
-                                	<groupId>com.sun.jersey</groupId>
-                                </exclusion>
+                	<groupId>com.sun.jersey</groupId>
+                </exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -142,10 +143,10 @@
 			<version>${jersey-version}</version>
 			<scope>provided</scope>
 			<exclusions>
-			<exclusion>
-                                        <groupId>asm</groupId>
-                                        <artifactId>asm</artifactId>
-                                </exclusion>
+				<exclusion>
+                    <groupId>asm</groupId>
+                    <artifactId>asm</artifactId>
+            	</exclusion>
 			</exclusions>
 		</dependency>
 		<!-- Rest Service dependencies end -->
@@ -174,6 +175,10 @@
 					<groupId>org.apache.hadoop</groupId>
 					<artifactId>hadoop*</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>hsqldb</groupId>
+  					<artifactId>hsqldb</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -188,16 +193,18 @@
 			<version>1.1.0</version>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.scala-lang</groupId>
-			<artifactId>scala-library</artifactId>
-			<version>2.10.4</version>
-		</dependency>
+		
 		<!-- Spark dependencies end -->
 		<dependency>
+			<groupId>org.apache.spark</groupId>
+			<artifactId>spark-hive-thriftserver_2.10</artifactId>
+			<version>1.1.0</version>
+			<scope>provided</scope>
+		</dependency>		
+		<dependency>
 			<groupId>com.guavus</groupId>
-        		<artifactId>QueryBuilder</artifactId>
-        		<version>0.1-SNAPSHOT</version>
+        	<artifactId>QueryBuilder</artifactId>
+        	<version>0.1-SNAPSHOT</version>
 		</dependency>
 		<!--dependency>
 			<groupId>com.guavus</groupId>

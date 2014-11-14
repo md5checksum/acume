@@ -154,7 +154,7 @@
 	<Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
 	       prefix="localhost_access_log." suffix=".txt"
 	       pattern="%h %l %u %t &quot;%r&quot; %s %b" />
-	<Context path="" docBase="/Volumes/Data/workspaces/acume/core/src/test/resources/webapp" reloadable="false"/>
+	<Context path="" docBase="/Users/kashish.jain/Documents/work/githome/deleteMe/core/src/test/resources/webapp" reloadable="false"/>
       </Host>
     </Engine>
   </Service>

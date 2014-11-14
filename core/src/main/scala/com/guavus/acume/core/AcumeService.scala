@@ -35,6 +35,10 @@ class AcumeService(dataService: DataService) {
     dataService.servRequest(queryRequest).asInstanceOf[Serializable]
   }
   
+  def  servSqlQuery2(queryRequest : String) = {
+    dataService.execute(queryRequest)
+  }
+  
   def searchRequest(searchRequest : SearchRequest) : SearchResponse = {
     dataService.servSearchRequest(searchRequest)
   }
