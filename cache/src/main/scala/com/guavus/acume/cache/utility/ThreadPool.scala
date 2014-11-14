@@ -4,10 +4,6 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import org.apache.spark.Logging
 
-/**
- * @author archit.thakur
- * 
- */
 object ThreadPool extends Logging { 
   
   var exservice: Option[ExecutorService] = None
