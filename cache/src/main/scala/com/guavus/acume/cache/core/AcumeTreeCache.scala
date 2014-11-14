@@ -26,6 +26,7 @@ import org.apache.spark.sql.catalyst.expressions.Row
 import org.apache.spark.sql.catalyst.types.StructType
 import com.guavus.acume.cache.eviction.VREvictionPolicy
 import com.guavus.acume.cache.eviction.EvictionPolicy
+import scala.collection.JavaConversions._
 
 /**
  * @author archit.thakur
@@ -108,7 +109,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     SortedMap[Long, Int]() ++ contextCollection
   }
   
-  private def getData(levelTimestamp: LevelTimestamp) = {
+  private def getData(levelTimestamp: LevelTimestamp): String = {
 
     import acumeCacheContext.sqlContext._
     val cacheLevel = levelTimestamp.level
@@ -119,8 +120,6 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     acumeCacheContext.sqlContext.table(_tableName).collect.map(print)
     println(table(_tableName).schema)
     cacheTable(_tableName) 
-    val evictableCandidate = evictionpolicy.getEvictableCandidate(Nil, cube)
-//    Utility.evict(acumeCacheContext.sqlContext, evictableCandidate, cachePointToTable, cachePointToTable)
     _tableName
   }
   
@@ -136,6 +135,12 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
         timestamps.+=(item)
         val levelTimestamp = LevelTimestamp(cachelevel, item)
         val tblNm = cachePointToTable.get(levelTimestamp)
+        
+        val evictableCandidate = evictionpolicy.getEvictableCandidate(cachePointToTable.asMap.keySet.toList, cube)
+        if(evictableCandidate != null) {
+          Utility.evict(acumeCacheContext.sqlContext, evictableCandidate, cachePointToTable.get(evictableCandidate), cachePointToTable)
+        }
+        
         val diskread = acumeCacheContext.sqlContext.sql(s"select * from $tblNm")
         finalSchema = diskread.schema
         val _$diskread = acumeCacheContext.sqlContext.applySchema(diskread, finalSchema)
