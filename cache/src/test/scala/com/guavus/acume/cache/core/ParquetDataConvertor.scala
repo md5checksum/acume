@@ -35,7 +35,7 @@ object ParquetDataConvertor {
   val baseCubeMap = new InsensitiveStringKeyHashMap[BaseCube]
   
   def main(args: Array[String]) {
-	//args = srcFilepath   
+    
     loadXML("src/test/resources/cubedefinition.xml")
     copyDirectory(args(0))
   }
@@ -123,10 +123,10 @@ object ParquetDataConvertor {
     
     val jc = JAXBContext.newInstance("com.guavus.acume.cache.gen")
     val unmarsh = jc.createUnmarshaller()
-    val dim_id = new Dimension("timestamp", DataType.ACLong, 0)
-    val dim_ts = new Dimension("id", DataType.ACLong, 0)
-    val m_id = new Measure("ts", DataType.ACLong, "none", 0)
-    val m_ts = new Measure("tupleid", DataType.ACLong, "none", 0)
+    val dim_id = new Dimension("id", DataType.ACLong, 0)
+    val dim_ts = new Dimension("timestamp", DataType.ACLong, 0)
+    val m_id = new Measure("tupleid", DataType.ACLong, "none", 0)
+    val m_ts = new Measure("ts", DataType.ACLong, "none", 0)
     val acumeCube = unmarsh.unmarshal(new FileInputStream(xml)).asInstanceOf[Acume]
    
     for(lx <- acumeCube.getFields().getField().toList) { 
