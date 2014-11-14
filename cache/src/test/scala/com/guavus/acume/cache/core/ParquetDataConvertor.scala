@@ -149,10 +149,10 @@ object ParquetDataConvertor {
 	for(c <- acumeCube.getCubes().getCube().toList) yield {
 	  val cubeName = c.getName().trim
 	  val fields = c.getFields().split(",").map(_.trim)
-	  val dimensionSet = scala.collection.mutable.Set[Dimension]()
+	  val dimensionSet = scala.collection.mutable.MutableList[Dimension]()
 	  dimensionSet.+=(dim_id)
 	  dimensionSet.+=(dim_ts)
-	  val measureSet = scala.collection.mutable.Set[Measure]()
+	  val measureSet = scala.collection.mutable.MutableList[Measure]()
 	  measureSet.+=(m_id)
 	  measureSet.+=(m_ts)
 	    
