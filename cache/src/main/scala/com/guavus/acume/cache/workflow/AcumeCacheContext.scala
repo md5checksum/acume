@@ -30,6 +30,7 @@ import com.guavus.acume.cache.utility.SQLUtility
 import com.guavus.acume.cache.utility.Utility
 import javax.xml.bind.JAXBContext
 import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
+import com.guavus.acume.cache.utility.Tuple
 import com.guavus.acume.cache.eviction.EvictionPolicy
 
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends Serializable { 
@@ -66,18 +67,24 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   loadXMLCube("")
   
   private [acume] def utilQL(sql: String, qltype: QLType) = {
-    val tx = AcumeCacheContext.parseSql(sql)
-    val rt = tx._2
-    var newsql = sql
+    
+    val originalparsedsql = AcumeCacheContext.parseSql(sql)
+    
+    var correctsql = correctSQL(sql, (originalparsedsql._1.toList, originalparsedsql._2))
+    var updatedsql = correctsql._1
+    var updatedparsedsql = correctsql._2
+    
+    val rt = updatedparsedsql._2
+    
     var i = ""
-    val list = for(l <- tx._1) yield {
+    val list = for(l <- updatedparsedsql._1) yield {
       val cube = l.getTableName
       val startTime = l.getStartTime
       val endTime = l.getEndTime
       
       i = getTable(cube)
       val id = getCube(cube)
-      newsql = newsql.replaceAll(s"$cube", s"$i")
+      updatedsql = updatedsql.replaceAll(s"$cube", s"$i")
       val idd = new CacheIdentifier()
       idd.put("cube", id.hashCode)
       val instance = AcumeCacheFactory.getInstance(this, conf, idd, id)
@@ -87,9 +94,29 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       temp
     }
     val klist = list.flatMap(_.timestamps).toList
-    val kfg = AcumeCacheContext.ACQL(qltype, sqlContext)(newsql)
+    val kfg = AcumeCacheContext.ACQL(qltype, sqlContext)(updatedsql)
+    println("final response")
     kfg.collect.foreach(println)
     AcumeCacheResponse(kfg, MetaData(klist))
+  }
+  
+  def correctSQL(unparsedsql: String, parsedsql: Tuple2[List[Tuple], RequestType.RequestType]) = {
+    
+    val newunparsedsql = unparsedsql.replaceAll("\"","")
+    val newparsedsql = (parsedsql._1.map(x => { 
+      
+      val tablename = x.getTableName
+      val newtablename = if(tablename.startsWith("\"") &&tablename.endsWith("\""))
+        tablename.substring(1, tablename.length-1)
+      else 
+        tablename
+      val newtuple = new Tuple()
+      newtuple.setTableName(newtablename)
+      newtuple.setStartTime(x.getStartTime())
+      newtuple.setEndTime(x.getEndTime())
+      newtuple
+    }), parsedsql._2)
+    (newunparsedsql, newparsedsql)
   }
   
   def acql(sql: String, qltype: String): AcumeCacheResponse = { 
