@@ -57,7 +57,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     } else if(measureMap.contains(name)) {
       false
     } else {
-        throw new RuntimeException("Field " + name + " nither in Dimension Map nor in Measure Map.")
+        throw new RuntimeException("Field " + name + " niether in Dimension Map nor in Measure Map.")
     }
   }
 

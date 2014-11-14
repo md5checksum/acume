@@ -37,12 +37,6 @@ object Utility extends Logging {
     cachePointToTable.invalidate(levelTimestamp)
   }
   
-  def evict(sqlContext: HiveContext, levelTimestamp: LevelTimestamp, tbl: String, cachePointToTable: com.google.common.cache.LoadingCache[LevelTimestamp, String]) = {
-    
-    sqlContext.uncacheTable(tbl)
-    cachePointToTable.invalidate(levelTimestamp)
-  }
-  
   def getEmptySchemaRDD(sqlContext: SQLContext, schema: StructType)= {
     
     val sparkContext = sqlContext.sparkContext
