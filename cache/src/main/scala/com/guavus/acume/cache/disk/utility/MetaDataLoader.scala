@@ -7,6 +7,10 @@ import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.AcumeCacheConf
 
+/**
+ * @author archit.thakur
+ *
+ */
 abstract class MetaDataLoader {
 
   def loadMetaData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: String): SchemaRDD

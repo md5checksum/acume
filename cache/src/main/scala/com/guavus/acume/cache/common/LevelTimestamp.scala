@@ -2,6 +2,10 @@ package com.guavus.acume.cache.common
 
 import CacheLevel._
 
+/**
+ * @author archit.thakur
+ *
+ */
 case class LevelTimestamp(level: CacheLevel, timestamp:Long) {
   
   override def toString = level.localId.toString + timestamp.toString

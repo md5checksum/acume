@@ -54,6 +54,9 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 
 import com.guavus.acume.cache.common.AcumeConstants;
 
+/**
+ * @author archit.thakur
+ */
 public class ACSelectItemVisitor implements SelectItemVisitor {
 
 	RequestType type = null;

@@ -5,6 +5,9 @@ import java.io.StringReader;
 import net.sf.jsqlparser.parser.CCJSqlParser;
 import net.sf.jsqlparser.parser.CCJSqlParserManager;
 
+/**
+ * @author archit.thakur
+ */
 public class SQLParserFactory {
     
     private static CCJSqlParserManager pm = new CCJSqlParserManager();

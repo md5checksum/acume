@@ -13,6 +13,10 @@ import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.SchemaRDD
 import com.guavus.acume.cache.core.AcumeCache
 
+/**
+ * @author archit.thakur
+ *
+ */
 class ParquetDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache) extends BasicDataLoader(acumeCacheContext, conf, acumeCache) { 
   
   override def getRowSchemaRDD(sqlContext: SQLContext, baseDir: String, fields: Fields, datatypearray: Array[FieldDataType]): RDD[Row] = {

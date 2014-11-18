@@ -2,6 +2,10 @@ package com.guavus.acume.cache.common
 
 import scala.collection.JavaConversions._
 
+/**
+ * @author archit.thakur
+ *
+ */
 object MeasureType extends Enumeration {
 
   val BASIC = new MeasureType()

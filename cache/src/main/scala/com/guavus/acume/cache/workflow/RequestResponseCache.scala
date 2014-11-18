@@ -12,6 +12,10 @@ import com.google.common.cache.RemovalNotification
 import java.io.StringReader
 import com.google.common.cache.CacheLoader
 
+/**
+ * @author archit.thakur
+ *
+ */
 class RequestResponseCache(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf) extends RRCache {
 
   val cache = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)

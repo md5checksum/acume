@@ -7,6 +7,10 @@ import Interval._
 import scala.collection.JavaConversions._
 import com.guavus.acume.cache.utility.Utility
 
+/**
+ * @author archit.thakur
+ *
+ */
 object Interval {
 
   private class TimeEvent(var time: Long, var isStart: Boolean) extends Comparable[TimeEvent] {

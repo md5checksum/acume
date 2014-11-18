@@ -8,6 +8,9 @@ import net.sf.jsqlparser.statement.select.PlainSelect;
 import net.sf.jsqlparser.statement.select.SubJoin;
 import net.sf.jsqlparser.statement.select.SubSelect;
 
+/**
+ * @author archit.thakur
+ */
 public class QueryFromClauseVisitor extends AbstractVisitor {
 
 	long startTime = 0L;

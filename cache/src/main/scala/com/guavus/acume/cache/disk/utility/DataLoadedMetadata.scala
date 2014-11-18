@@ -2,6 +2,10 @@ package com.guavus.acume.cache.disk.utility
 
 import scala.collection.mutable.HashMap
 
+/**
+ * @author archit.thakur
+ *
+ */
 object DataLoadedMetadata {
   
   val dimensionSetStartTime = "dimensionSetStartTime"

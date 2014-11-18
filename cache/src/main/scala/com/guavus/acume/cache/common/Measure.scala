@@ -3,6 +3,10 @@ package com.guavus.acume.cache.common
 import com.guavus.acume.cache.common.DataType.DataType
 import com.guavus.acume.cache.common.FieldType.FieldType
 
+/**
+ * @author archit.thakur
+ *
+ */
 class Measure(name: String, datatype: DataType, aggregationFunction: String, defaultValue: Any) extends Field { 
   
   def getName: String = name

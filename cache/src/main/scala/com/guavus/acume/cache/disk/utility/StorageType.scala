@@ -1,5 +1,9 @@
 package com.guavus.acume.cache.disk.utility
 
+/**
+ * @author archit.thakur
+ *
+ */
 object StorageType extends Enumeration {
 
   val Text = new StorageType("text", "com.guavus.acume.cache.disk.utility.TextDataLoader", "com.guavus.acume.cache.disk.utility.DummyMetaDataLoader")

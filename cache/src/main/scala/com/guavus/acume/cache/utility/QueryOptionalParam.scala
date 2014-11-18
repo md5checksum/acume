@@ -5,6 +5,10 @@ import com.guavus.acume.cache.query.QueryRequestMode._
 import scala.reflect.BeanProperty
 import scala.collection.JavaConversions._
 
+/**
+ * @author archit.thakur
+ *
+ */
 class QueryOptionalParam {
 
   @BeanProperty

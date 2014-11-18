@@ -5,12 +5,20 @@ import scala.Array.canBuildFrom
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable.{Map => MutableMap}
 import scala.collection.mutable.MutableList
+
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.catalyst.expressions.Row
+import org.apache.spark.sql.catalyst.types.StructType
+
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
+import com.google.common.cache.RemovalListener
+import com.google.common.cache.RemovalNotification
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.CacheLevel
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.DimensionTable
 import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.disk.utility.DataLoader
 import com.guavus.acume.cache.utility.QueryOptionalParam
@@ -20,14 +28,10 @@ import com.guavus.acume.cache.workflow.MetaData
 import com.guavus.acume.cache.workflow.RequestType.Aggregate
 import com.guavus.acume.cache.workflow.RequestType.RequestType
 import com.guavus.acume.cache.workflow.RequestType.Timeseries
-import com.guavus.acume.cache.common.DimensionTable
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.catalyst.expressions.Row
-import org.apache.spark.sql.catalyst.types.StructType
-import scala.collection.JavaConversions._
 
 /**
- * Saves the dimension table till date and all fact tables as different tableNames for each levelTimestamp
+ * @author archit.thakur
+ *
  */
 private [cache] class AcumeTreeCache(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy) 
 extends AcumeCache(acumeCacheContext, conf, cube) {
@@ -45,7 +49,11 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
   }
 		
   val cachePointToTable = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
-  .maximumSize(1000)
+  .maximumSize(1000).removalListener(new RemovalListener[LevelTimestamp, String] {
+	  def onRemoval(notification : RemovalNotification[LevelTimestamp, String]) {
+	    acumeCacheContext.sqlContext.uncacheTable(notification.getValue())
+	  }
+  })
   .build(
       new CacheLoader[LevelTimestamp, String]() {
         def load(key: LevelTimestamp): String = {

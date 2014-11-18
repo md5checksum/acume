@@ -11,6 +11,9 @@ import net.sf.jsqlparser.statement.select.Select;
 
 import com.guavus.acume.cache.common.AcumeConstants;
 
+/**
+ * @author archit.thakur
+ */
 public class SQLUtility {
 
 	public List<Tuple> getList(String qx) {

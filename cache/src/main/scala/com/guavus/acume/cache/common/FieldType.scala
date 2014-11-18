@@ -1,5 +1,9 @@
 package com.guavus.acume.cache.common
 
+/**
+ * @author archit.thakur
+ *
+ */
 object FieldType extends Enumeration {
 
   val Dimension = new FieldType("dimension")

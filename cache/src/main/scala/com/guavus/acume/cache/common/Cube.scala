@@ -4,6 +4,10 @@ import com.guavus.acume.cache.core.AcumeCacheType._
 import com.guavus.acume.cache.core.TimeGranularity._
 
 abstract class CubeTrait(val superCubeName: String, val superDimension: DimensionSet, val superMeasure: MeasureSet) extends Serializable 	
+/**
+ * @author archit.thakur
+ *
+ */
 case class Cube(cubeName: String, dimension: DimensionSet, measure: MeasureSet, 
     baseGran: TimeGranularity, isCacheable: Boolean, levelPolicyMap: Map[Long, Int], cacheTimeseriesLevelPolicyMap: Map[Long, Int])
     extends CubeTrait(cubeName, dimension, measure)

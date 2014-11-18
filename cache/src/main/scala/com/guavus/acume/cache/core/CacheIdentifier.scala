@@ -6,6 +6,10 @@ import org.apache.commons.lang.StringUtils
 import scala.collection.JavaConversions._
 
 @SerialVersionUID(6943648967336896581L)
+/**
+ * @author archit.thakur
+ *
+ */
 class CacheIdentifier extends Serializable {
 
   private val id = new LinkedHashMap[String, Int]()

@@ -1,5 +1,8 @@
 package com.guavus.acume.cache.utility;
 
+/**
+ * @author archit.thakur
+ */
 public class Tuple {
 	
 	private long startTime = 0l;

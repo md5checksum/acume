@@ -27,6 +27,10 @@ import com.guavus.acume.cache.core.AcumeCache
 import java.util.Calendar
 import java.util.TimeZone
 
+/**
+ * @author archit.thakur
+ *
+ */
 abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache) extends DataLoader(acumeCacheContext, conf, acumeCache) { 
   
   val cube = acumeCache.cube

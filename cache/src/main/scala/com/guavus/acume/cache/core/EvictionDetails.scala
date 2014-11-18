@@ -1,5 +1,8 @@
 package com.guavus.acume.cache.core
 
+/**
+ * @param evictionDetails
+ */
 class EvictionDetails(var evictionPolicyName: String, var variableRetentionMap: Map[Long, Int]) {
 
   private var memoryEvictionThresholdCount: Int = Int.MinValue

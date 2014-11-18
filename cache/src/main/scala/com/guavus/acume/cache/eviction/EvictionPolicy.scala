@@ -7,6 +7,10 @@ import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.core.AcumeCacheType
 import com.guavus.acume.cache.core.AcumeCacheType._
 
+/**
+ * @author archit.thakur
+ *
+ */
 trait EvictionPolicy {
 
   def getEvictableCandidate(cache: List[LevelTimestamp], newPoint: LevelTimestamp): LevelTimestamp

@@ -7,6 +7,10 @@ import org.apache.spark.sql.hive.HiveContext
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
 
+/**
+ * @author archit.thakur
+ *
+ */
 object AcumeCacheType extends Enumeration {
 
   val TreeCache = new AcumeCacheType("com.guavus.acume.cache.core.AcumeTreeCache", classOf[AcumeTreeCache])

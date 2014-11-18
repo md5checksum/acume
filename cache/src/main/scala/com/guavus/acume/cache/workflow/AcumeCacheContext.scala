@@ -41,6 +41,10 @@ import com.guavus.acume.cache.eviction.EvictionPolicy
 import scala.collection.mutable.MutableList
 import scala.collection.mutable.MutableList
 
+/**
+ * @author archit.thakur
+ *
+ */
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends Serializable { 
   sqlContext match{
   case hiveContext: HiveContext =>

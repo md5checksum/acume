@@ -7,6 +7,9 @@ import net.sf.jsqlparser.expression.operators.relational.GreaterThanEquals;
 import net.sf.jsqlparser.expression.operators.relational.MinorThan;
 import net.sf.jsqlparser.schema.Column;
 
+/**
+ * @author archit.thakur
+ */
 public class QueryWhereClauseVisitor extends AbstractVisitor {
 	
 	Tuple t = null;

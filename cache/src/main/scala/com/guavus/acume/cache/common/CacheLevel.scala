@@ -1,5 +1,9 @@
 package com.guavus.acume.cache.common
 
+/**
+ * @author archit.thakur
+ *
+ */
 object CacheLevel extends Enumeration { 
   
   //Level of aggregation at Acume-cache level.

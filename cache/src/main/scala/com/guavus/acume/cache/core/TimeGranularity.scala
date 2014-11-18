@@ -4,6 +4,10 @@ import scala.collection.mutable.Map
 import scala.reflect.BeanProperty
 import scala.collection.JavaConversions._
 
+/**
+ * @author archit.thakur
+ *
+ */
 object TimeGranularity extends Enumeration {
 
   val MONTH = new TimeGranularity(30 * 24 * 60 * 60L, "1M")

@@ -6,6 +6,10 @@ import com.guavus.acume.cache.utility.Utility
 import scala.math.Ordering.Implicits._
 
 @SerialVersionUID(1L)
+/**
+ * @author archit.thakur
+ *
+ */
 class FixedLevelPolicy(var levels: Array[Long], baseLevel: Long) extends AbstractCacheLevelPolicy(baseLevel) {
 
   val levelIndex: Map[Long, Int] = Map[Long, Int]()

@@ -1,5 +1,9 @@
 package com.guavus.acume.cache.query
 
+/**
+ * @author archit.thakur
+ *
+ */
 object QueryRequestMode extends Enumeration {
 
   val UI = new QueryRequestMode()

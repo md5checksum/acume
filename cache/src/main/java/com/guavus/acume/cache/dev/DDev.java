@@ -1,10 +1,17 @@
 package com.guavus.acume.cache.dev;
 
-import java.io.IOException;
-import java.nio.file.*;
- 
+/**
+ * @author archit.thakur
+ */
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
-import static java.nio.file.StandardWatchEventKinds.*;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;
+import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.WatchEvent;
+import java.nio.file.WatchKey;
+import java.nio.file.WatchService;
  
 public class DDev { 
 	public static final String DIRECTORY_TO_WATCH = "/Users/archit.thakur/Documents/";

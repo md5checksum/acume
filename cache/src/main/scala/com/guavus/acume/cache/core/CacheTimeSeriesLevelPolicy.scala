@@ -6,6 +6,10 @@ import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
 import com.guavus.acume.cache.utility.Utility
 
+/**
+ * @author archit.thakur
+ *
+ */
 class CacheTimeSeriesLevelPolicy(levelMap: SortedMap[Long, Int]) extends CacheTimeSeriesPolicyTrait {
 
   override def getAggregationIntervals(): HashMap[MutableList[Long], Long] = {

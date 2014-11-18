@@ -59,6 +59,9 @@ import net.sf.jsqlparser.statement.select.SubSelect;
 import net.sf.jsqlparser.statement.select.ValuesList;
 import net.sf.jsqlparser.statement.select.WithItem;
 
+/**
+ * @author archit.thakur
+ */
 public class AbstractVisitor implements SelectVisitor, ExpressionVisitor, ItemsListVisitor, FromItemVisitor {
 
 	@Override

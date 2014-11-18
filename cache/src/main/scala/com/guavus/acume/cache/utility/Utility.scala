@@ -21,6 +21,10 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import org.apache.spark.sql.SchemaRDD
 
+/**
+ * @author archit.thakur
+ *
+ */
 object Utility extends Logging {
 
   def getEmptySchemaRDD(sqlContext: SQLContext, schema: StructType)= {

@@ -17,6 +17,10 @@ import com.guavus.crux.jaxb.classes.{DataType => CruxDataType}
 import com.guavus.crux.df.core.FieldDataType
 import com.guavus.crux.df.core.FieldDataType._
 
+/**
+ * @author archit.thakur
+ *
+ */
 object DataType extends Enumeration {
 
   val ACInt = new DataType("int")

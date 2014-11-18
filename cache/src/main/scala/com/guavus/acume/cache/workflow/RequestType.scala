@@ -1,5 +1,9 @@
 package com.guavus.acume.cache.workflow
 
+/**
+ * @author archit.thakur
+ *
+ */
 object RequestType extends Enumeration {
 
   val Aggregate = new RequestType("Aggregate")

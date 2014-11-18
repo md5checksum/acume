@@ -8,6 +8,9 @@ import net.sf.jsqlparser.statement.select.SelectVisitor;
 import net.sf.jsqlparser.statement.select.SetOperationList;
 import net.sf.jsqlparser.statement.select.WithItem;
 
+/**
+ * @author archit.thakur
+ */
 public class QuerySelectClauseVisitor implements SelectVisitor {
 
 	long startTime = 0l;

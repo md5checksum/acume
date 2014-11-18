@@ -10,6 +10,10 @@ import com.guavus.acume.cache.common.DimensionTable
 import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.core.AcumeCache
 
+/**
+ * @author archit.thakur
+ *
+ */
 abstract class DataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache) extends Serializable {
 
   def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable): SchemaRDD

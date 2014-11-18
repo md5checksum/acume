@@ -5,6 +5,10 @@ import scala.collection.mutable.MutableList
 import scala.collection.mutable.Map
 import scala.collection.JavaConversions._
 
+/**
+ * @author archit.thakur
+ *
+ */
 trait CacheLevelPolicyTrait extends Serializable {
 
   def getRequiredIntervals(startTime: Long, endTime: Long): Map[Long, MutableList[Long]]

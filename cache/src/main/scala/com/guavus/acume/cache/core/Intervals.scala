@@ -3,6 +3,10 @@ package com.guavus.acume.cache.core
 import Intervals._
 import scala.collection.JavaConversions._
 
+/**
+ * @author archit.thakur
+ *
+ */
 object Intervals {
 
   def newInvalidIntervals(): Intervals = {

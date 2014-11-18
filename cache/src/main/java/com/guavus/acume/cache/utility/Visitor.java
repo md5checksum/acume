@@ -9,6 +9,10 @@ import net.sf.jsqlparser.statement.select.SelectVisitor;
 import net.sf.jsqlparser.statement.select.SetOperationList;
 import net.sf.jsqlparser.statement.select.WithItem;
 
+/**
+ * @author archit.thakur
+ *
+ */
 public class Visitor implements SelectVisitor {
 
 	RequestType type = null;

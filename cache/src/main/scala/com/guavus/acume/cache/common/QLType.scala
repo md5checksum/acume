@@ -1,5 +1,9 @@
 package com.guavus.acume.cache.common
 
+/**
+ * @author archit.thakur
+ *
+ */
 object QLType extends Enumeration {
 
   val sql = new QLType("sql")
