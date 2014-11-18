@@ -10,8 +10,9 @@ import com.guavus.crux.core.Fields
 import com.guavus.crux.core.TextDelimitedScheme
 import com.guavus.crux.df.core.FieldDataType.FieldDataType
 import org.apache.spark.sql.SQLContext
+import com.guavus.acume.cache.core.AcumeCache
 
-class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) extends BasicDataLoader(acumeCacheContext, conf, cube) { 
+class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache) extends BasicDataLoader(acumeCacheContext, conf, acumeCache) { 
   
   override def getRowSchemaRDD(sqlContext: SQLContext, baseDir: String, fields: Fields, datatypearray: Array[FieldDataType]): RDD[Row] = {
     

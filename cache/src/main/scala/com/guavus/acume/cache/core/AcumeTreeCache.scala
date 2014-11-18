@@ -24,6 +24,7 @@ import com.guavus.acume.cache.common.DimensionTable
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.expressions.Row
 import org.apache.spark.sql.catalyst.types.StructType
+import scala.collection.JavaConversions._
 
 /**
  * Saves the dimension table till date and all fact tables as different tableNames for each levelTimestamp
@@ -33,7 +34,8 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
 
 //  val cachePointToTable: MutableMap[LevelTimestamp, String] = MutableMap[LevelTimestamp, String]()
   val dimensionTable: DimensionTable = DimensionTable("AcumeCacheGlobalDimensionTable" + cube.cubeName)
-  val diskUtility = DataLoader.getDataLoader(acumeCacheContext, conf, cube)
+  val diskUtility = DataLoader.getDataLoader(acumeCacheContext, conf, this)
+//  val evictionpolicy = EvictionPolicy.getEvictionPolicy(cube.evictionPolicyClass, conf)
   
   override def createTempTable(startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
     requestType match {
@@ -50,6 +52,11 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
           return getData(key);
         }
       });
+//   .removalListener(new RemovalListener[RRCacheKey, AcumeCacheResponse] {
+//	  def onRemoval(notification : RemovalNotification[RRCacheKey, AcumeCacheResponse]) {
+//	    notification.getValue().schemaRDD.unpersist(true)
+//	  }
+//  });
 
   private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf("_"))
   
@@ -133,6 +140,12 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
         timestamps.+=(item)
         val levelTimestamp = LevelTimestamp(cachelevel, item)
         val tblNm = cachePointToTable.get(levelTimestamp)
+        
+//        val evictableCandidate = evictionpolicy.getEvictableCandidate(cachePointToTable.asMap.keySet.toList, cube)
+//        if(evictableCandidate != null) {
+//          Utility.evict(acumeCacheContext.sqlContext, evictableCandidate, cachePointToTable.get(evictableCandidate), cachePointToTable)
+//        }
+        
         val diskread = acumeCacheContext.sqlContext.sql(s"select * from $tblNm")
         finalSchema = diskread.schema
         val _$diskread = acumeCacheContext.sqlContext.applySchema(diskread, finalSchema)

@@ -246,6 +246,17 @@ object Utility extends Logging {
     }
     intervals
   }
+  
+  def getAllInclusiveIntervals(startTime: Long, endTime: Long, gran: Long): MutableList[Long] = {
+    var _start = startTime
+    val intervals = MutableList[Long]()
+    val instance = newCalendar()
+    while (_start <= endTime) {
+      intervals.+=(_start)
+      _start = getNextTimeFromGranularity(_start, gran, instance)
+    }
+    intervals
+  }
 
   def getAllIntervalsAtTZ(startTime: Long, endTime: Long, gran: Long, timezone: TimeZone): MutableList[Long] = {
     var _z = startTime
@@ -350,6 +361,11 @@ object Utility extends Logging {
   def getNextTimeFromGranularity(time: Long, gran: Long, instance: Calendar): Long = {
     val timeGranularity = TimeGranularity.getTimeGranularity(gran).getOrElse(throw new RuntimeException)
     ceilingToTimezone(time + getMinTimeGran(gran), timeGranularity, instance)
+  }
+  
+  def getPreviousTimeForGranularity(time: Long, gran: Long, instance: Calendar): Long = {
+    val timeGranularity = TimeGranularity.getTimeGranularity(gran).getOrElse(throw new RuntimeException)
+    floorToTimezone(time - getMinTimeGran(gran), timeGranularity, instance);
   }
   
   def ceilingToTimezone(time: Long, timeGrnaularity: TimeGranularity, instance: Calendar): Long = {

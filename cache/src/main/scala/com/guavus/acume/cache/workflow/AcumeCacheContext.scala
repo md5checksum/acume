@@ -2,13 +2,16 @@ package com.guavus.acume.cache.workflow
 
 import java.io.FileInputStream
 import java.util.Random
+
 import scala.Array.canBuildFrom
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
+
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
+
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.BaseCube
@@ -25,13 +28,14 @@ import com.guavus.acume.cache.common.QLType.QLType
 import com.guavus.acume.cache.core.AcumeCacheFactory
 import com.guavus.acume.cache.core.CacheIdentifier
 import com.guavus.acume.cache.core.TimeGranularity
-import com.guavus.acume.cache.gen.Acume
-import com.guavus.acume.cache.utility.SQLUtility
-import com.guavus.acume.cache.utility.Utility
-import javax.xml.bind.JAXBContext
-import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
-import com.guavus.acume.cache.utility.Tuple
 import com.guavus.acume.cache.eviction.EvictionPolicy
+import com.guavus.acume.cache.gen.Acume
+import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
+import com.guavus.acume.cache.utility.SQLUtility
+import com.guavus.acume.cache.utility.Tuple
+import com.guavus.acume.cache.utility.Utility
+
+import javax.xml.bind.JAXBContext
 
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends Serializable { 
   sqlContext match{
@@ -50,7 +54,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   //todo how will this be done
   private [cache] val baseCubeMap = new InsensitiveStringKeyHashMap[BaseCube]
   private [cache] val baseCubeList = MutableList[BaseCube]()
-  private [cache] val dimensionTimestampLoadedList = new MutableList[Long]()
   private [acume] def getCubeList = cubeList.toList
   private [acume] def isDimension(name: String) : Boolean =  {
     if(dimensionMap.contains(name)) {
@@ -72,6 +75,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     
     val originalparsedsql = AcumeCacheContext.parseSql(sql)
     
+    println("AcumeRequest obtained " + sql)
     var correctsql = correctSQL(sql, (originalparsedsql._1.toList, originalparsedsql._2))
     var updatedsql = correctsql._1
     var updatedparsedsql = correctsql._2
@@ -91,8 +95,8 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       idd.put("cube", id.hashCode)
       val instance = AcumeCacheFactory.getInstance(this, conf, idd, id)
       val temp = instance.createTempTableAndMetadata(startTime, endTime, rt, i,None)
-      println("-------------------")
-      println("table = " + i + " and schmea = " + {sqlContext.table(i).schema})
+//      println("-------------------")
+//      println("table = " + i + " and schmea = " + {sqlContext.table(i).schema})
       temp
     }
     val klist = list.flatMap(_.timestamps).toList

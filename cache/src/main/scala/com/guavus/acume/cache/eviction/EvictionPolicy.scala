@@ -14,10 +14,10 @@ trait EvictionPolicy {
 
 object EvictionPolicy{
   
-  def getEvictionPolicy(acumeCacheType: AcumeCacheType): EvictionPolicy = {
+//  def getEvictionPolicy(acumeCacheType: AcumeCacheType): EvictionPolicy = {
     
-    val evictionPolicyClass = acumeCacheType.evictionPolicy
-    val newInstance = evictionPolicyClass.newInstance
-    newInstance.asInstanceOf[EvictionPolicy]
-  }
+//    val evictionPolicyClass = acumeCacheType.evictionPolicy
+//    val newInstance = evictionPolicyClass.newInstance
+//    newInstance.asInstanceOf[EvictionPolicy]
+//  }
 }

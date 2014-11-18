@@ -7,8 +7,10 @@ import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.DimensionTable
+import scala.collection.mutable.HashMap
+import com.guavus.acume.cache.core.AcumeCache
 
-abstract class DataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) extends Serializable {
+abstract class DataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache) extends Serializable {
 
   def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable): SchemaRDD
   def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable, instabase: String, instainstanceid: String): SchemaRDD 
@@ -16,11 +18,22 @@ abstract class DataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCache
 }
 
 object DataLoader{
-  def getDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) = {
+  private val metadataMap = new HashMap[AcumeCache, DataLoadedMetadata]
+  
+  private [cache] def getMetadata(key: AcumeCache) = metadataMap.get(key)
+  private [cache] def putMetadata(key: AcumeCache, value: DataLoadedMetadata) = metadataMap.put(key, value)
+  private [cache] def getOrElseMetadata(key: AcumeCache, defaultValue: DataLoadedMetadata): DataLoadedMetadata = {
+    
+    getMetadata(key) match {
+      case None => defaultValue
+      case Some(x) => x
+    }
+  }
+  def getDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache) = {
     
     val dataLoaderClass = StorageType.getStorageType(conf.get(ConfConstants.storagetype)).dataClass
     val loadedClass = Class.forName(dataLoaderClass)
-    val newInstance = loadedClass.getConstructor(classOf[AcumeCacheContext], classOf[AcumeCacheConf], classOf[Cube]).newInstance(acumeCacheContext, conf, cube)
+    val newInstance = loadedClass.getConstructor(classOf[AcumeCacheContext], classOf[AcumeCacheConf], classOf[AcumeCache]).newInstance(acumeCacheContext, conf, acumeCache)
     newInstance.asInstanceOf[DataLoader]
   }
 }

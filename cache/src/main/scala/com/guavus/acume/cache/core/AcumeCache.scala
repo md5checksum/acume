@@ -11,7 +11,7 @@ import org.apache.spark.sql.SchemaRDD
 import com.guavus.acume.cache.workflow.AcumeCacheResponse
 import com.guavus.acume.cache.workflow.MetaData
 
-abstract class AcumeCache(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) {
+abstract class AcumeCache(val acumeCacheContext: AcumeCacheContext, val conf: AcumeCacheConf, val cube: Cube) {
 
   /**
    * This will take the call type and startTIme , endTime and then generate the tempTable by joining dimension table and corresponding factTables. 
