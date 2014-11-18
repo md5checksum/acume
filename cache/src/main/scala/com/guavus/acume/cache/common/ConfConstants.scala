@@ -30,6 +30,7 @@ private [acume] object ConfConstants {
   val evictionpolicy = "evictionpolicyclass"
   val levelpolicymap = "levelpolicymap"
   val timeserieslevelpolicymap = "timeserieslevelpolicymap"
+  val firstbinpersistedtime = "acume.cache.delete.firstbinpersistedtime"
   val lastbinpersistedtime = "acume.cache.delete.lastbinpersistedtime"
   val completelist = "acume.cache.delete.completelist"
   val acumecacheevictionpolicy = "acume.cache.eviction.evictionpolicy"

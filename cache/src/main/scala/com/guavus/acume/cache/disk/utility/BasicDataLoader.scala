@@ -2,6 +2,8 @@ package com.guavus.acume.cache.disk.utility
 
 import java.util.Random
 import scala.Array.canBuildFrom
+import org.apache.spark.annotation.AlphaComponent
+import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.StructField
@@ -15,15 +17,19 @@ import com.guavus.acume.cache.common.ConversionToCrux
 import com.guavus.acume.cache.common.ConversionToSpark
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.DataType
+import com.guavus.acume.cache.common.DimensionTable
 import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.workflow.AcumeCacheContext
 import com.guavus.crux.core.Fields
 import com.guavus.crux.df.core.FieldDataType.FieldDataType
-import com.guavus.acume.cache.utility.Utility
-import com.guavus.acume.cache.common.DimensionTable
+import com.guavus.acume.cache.core.AcumeCache
+import java.util.Calendar
+import java.util.TimeZone
 
-abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube) extends DataLoader(acumeCacheContext, conf, cube) { 
+abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache) extends DataLoader(acumeCacheContext, conf, acumeCache) { 
   
+  val cube = acumeCache.cube
   override def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, DTableName: DimensionTable) = { 
     
     val instabase = conf.get(ConfConstants.instabase)
@@ -38,11 +44,29 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     val baseDimensionSetTable = baseCube.cubeName + "dimensionset"
     val baseMeasureSetTable = baseCube.cubeName + "measureset" +levelTimestamp
     val level = levelTimestamp.level
+    val sqlContext = acumeCacheContext.sqlContext
     loadMeasureSet(baseCube, list, baseMeasureSetTable, instabase, instainstanceid)
+    
+//    val baseMeasureSetTable_ = sqlContext.sql("select * from " + baseMeasureSetTable).saveAsParquetFile("/data/archit/baseMeasureSetTable")
+    
     loadDimensionSet(baseCube, list, baseDimensionSetTable, instabase, instainstanceid)
+    
+//    val baseDimensionSetTable_ = sqlContext.sql("select * from " + baseDimensionSetTable).collect
+//    println("baseDimensionSetTable")
+//    baseDimensionSetTable_.map(println)
+    
     modifyDimensionSet(baseCube, businessCube, baseDimensionSetTable, globalDTableName, instabase, instainstanceid)
+    
+//    val globalDTableName_ = sqlContext.sql("select * from " + globalDTableName.tblnm).collect
+//    println("globalDTableName")
+//    globalDTableName_.map(println)
+    
     val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
     dMJoin(globalDTableName, baseMeasureSetTable, joinDimMeasureTableName)
+
+//    sqlContext.sql("select * from " + joinDimMeasureTableName).saveAsParquetFile("/data/archit//joinDimMeasureTableName")
+    import sqlContext._;println(table(joinDimMeasureTableName).schema)
+    
     getSchemaRDD(businessCube, joinDimMeasureTableName)
   }
   
@@ -69,6 +93,7 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     val str = "select " + businessCubeDimensionList + "," + businessCubeAggregatedMeasureList + " from " + joinDimMeasureTableName + " group by " + businessCubeDimensionList
     val xRDD = sqlContext.sql(str)
 //    xRDD.collect.map(println)
+//    xRDD.saveAsParquetFile("/data/archit//finalschemarddsaved")
     xRDD
     
     //explore hive udfs for aggregation.
@@ -117,9 +142,7 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     
     val sqlContext = acumeCacheContext.sqlContext
     val getdimension = CubeUtil.getDimensionSet(businessCube).map(_.getName).mkString(",")
-    val baseDimensionSetTableNew = s"${baseDimensionSetTable}New"
-    val baseDimensionSetTableCombined = s"${baseDimensionSetTable}Combined"
-    val dimensionSQL = s"select id, timestamp, ${getdimension} from $baseDimensionSetTableCombined"
+    val dimensionSQL = s"select id, timestamp, ${getdimension} from $baseDimensionSetTable"
     val globaldtblnm = globalDTableName.tblnm
     import acumeCacheContext.sqlContext._
     val istableregistered = 
@@ -130,25 +153,12 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
       case ex: Exception => false
       }
       
-      //get it from insta service not from config.
-      val completelist = conf.getOption(ConfConstants.completelist).getOrElse("").split(",").filter(!_.isEmpty).map(_.trim).map(_.toLong).toList
-      val unLoadedList = completelist.filterNot(acumeCacheContext.dimensionTimestampLoadedList.toSet)
-      //completelist.split(",").map(_.trim).map(_.toLong).toList
-      loadDimensionSet(baseCube, unLoadedList, s"$baseDimensionSetTableNew", instabase, instainstanceid)
-      sqlContext.sql(s"select * from $baseDimensionSetTableNew UNION ALL select * from $baseDimensionSetTable").registerTempTable(s"$baseDimensionSetTableCombined")
-      
       val dimensionRDD = sqlContext.sql(dimensionSQL)
-      println(dimensionRDD.schema)
-      dimensionRDD.collect.map(println)
       sqlContext.applySchema(dimensionRDD, dimensionRDD.schema)
       if(istableregistered) {
-//        val dimrdd = sqlContext.sql(s"select * from $globalDTableName")
-//        dimrdd.collect.map(println)
-//        println(dimrdd.schema)
         val unioned = table(globaldtblnm).union(dimensionRDD)
         globalDTableName.tblnm = globalDTableName.tblnm+"new"
         sqlContext.applySchema(unioned, dimensionRDD.schema).registerTempTable(globalDTableName.tblnm)
-//        dimensionRDD.insertInto(globaldtblnm)
       }
       else 
         dimensionRDD.registerTempTable(globaldtblnm)
@@ -158,6 +168,15 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     
     // This loads the dimension set of cube businessCubeName for the particular timestamp into globalDTableName table.
     try { 
+      val maxts = max(list).get
+      val startts = DataLoader.getMetadata(acumeCache) match {
+        case None => 0l
+        case Some(x) => x.getOrElse(DataLoadedMetadata.dimensionSetStartTime, "0").toLong
+      }
+      val endts = DataLoader.getMetadata(acumeCache) match {
+        case None => 0l
+        case Some(x) => x.getOrElse(DataLoadedMetadata.dimensionSetEndTime, "0").toLong
+      }
       val sqlContext = acumeCacheContext.sqlContext
       val sparkContext = sqlContext.sparkContext
       
@@ -170,31 +189,59 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
       val latestschema = StructType(StructField("id", LongType, true) +: StructField("timestamp", LongType, true) +: schema.toList)
       val fields  = new Fields((1.to(baseCubeDimensionSet.size + 2).map(_.toString).toArray))
       val datatypearray = Array(ConversionToCrux.convertToCruxFieldDataType(DataType.ACLong), ConversionToCrux.convertToCruxFieldDataType(DataType.ACLong)) ++ baseCubeDimensionSet.map(x => ConversionToCrux.convertToCruxFieldDataType(x.getDataType))
+      val baseGran = cube.baseGran
+      
+      val dataloadedmetadata = DataLoader.getMetadata(acumeCache).getOrElse(new DataLoadedMetadata)
+      
+      val (startTime: Long, endTime: Long) = 
+        if(startts == 0 && endts == 0) {
+          dataloadedmetadata.put(DataLoadedMetadata.dimensionSetStartTime, conf.get(ConfConstants.firstbinpersistedtime))
+          dataloadedmetadata.put(DataLoadedMetadata.dimensionSetEndTime, maxts.toString)
+          (conf.get(ConfConstants.firstbinpersistedtime).toLong, maxts)
+        }
+        else if(maxts > endts) {
+          
+          dataloadedmetadata.put(DataLoadedMetadata.dimensionSetEndTime, maxts.toString)
+          (Utility.getNextTimeFromGranularity(endts, baseGran.getGranularity, Calendar.getInstance(TimeZone.getTimeZone(ConfConstants.timezone))), maxts)
+        }
+        else if(maxts < startts) {
+          
+          dataloadedmetadata.put(DataLoadedMetadata.dimensionSetStartTime, maxts.toString)
+          (maxts, Utility.getPreviousTimeForGranularity(startts, baseGran.getGranularity, Calendar.getInstance(TimeZone.getTimeZone(ConfConstants.timezone))))
+        }
+        else
+          (0l, 0l)
 
-      Utility.getEmptySchemaRDD(sqlContext, latestschema).registerTempTable(baseDimensionSetTable)//sqlContext.sql(s"select * from $baseDimensionSetTable").collect
+      if(startTime != 0 && endTime != 0) { 
+            
+        DataLoader.putMetadata(acumeCache, dataloadedmetadata)
+      }
+          
+      Utility.getEmptySchemaRDD(sqlContext, latestschema).registerTempTable(baseDimensionSetTable)
+      
       var flag = false
-      val _list = for(timestamp <- list) yield {
+      if(startTime != 0 && endTime != 0) { 
+        
+        val _$list = Utility.getAllInclusiveIntervals(startTime, endTime, baseGran.getGranularity)
+        val _list = for(timestamp <- _$list) yield {
         val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube.cubeName + "/d/" + timestamp
         val rowRDD = getRowSchemaRDD(sqlContext, baseDir, fields, datatypearray)
-//        val schemaRDD = sqlContext.applySchema(rowRDD, latestschema)
-//      
-//        if(!flag) { 
-//      
-//          schemaRDD.registerTempTable(baseDimensionSetTable)
-//          flag = true
-//        } else
-//          schemaRDD.insertInto(baseDimensionSetTable)
-//          
-        acumeCacheContext.dimensionTimestampLoadedList.+=(timestamp)
         rowRDD
       }
       if(!_list.isEmpty)
         sqlContext.applySchema(_list.reduce(_.union(_)), latestschema).registerTempTable(baseDimensionSetTable)
+      }
     } catch { 
     case ex: Throwable => throw new IllegalStateException(ex)
     }
     true
   }
+  
+  private def max(xs: List[Long]): Option[Long] = xs match {
+  case Nil => None
+  case List(x: Long) => Some(x)
+  case x :: y :: rest => max( (if (x > y) x else y) :: rest )
+  } 
 }
 
 
