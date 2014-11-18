@@ -129,8 +129,8 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
    // print(diskread.schema)
     acumeCacheContext.sqlContext.applySchema(diskread, diskread.schema)
     diskread.registerTempTable(_tableName)
-    acumeCacheContext.sqlContext.table(_tableName).collect.map(print)
-    println(table(_tableName).schema)
+//    acumeCacheContext.sqlContext.table(_tableName).collect.map(print)
+//    println(table(_tableName).schema)
 //    acumeCacheContext.sqlContext.sql(s"select * from ${_tableName}").collect.map(print)
     cacheTable(_tableName) 
     _tableName
