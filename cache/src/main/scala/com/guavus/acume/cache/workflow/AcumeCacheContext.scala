@@ -34,8 +34,12 @@ import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
 import com.guavus.acume.cache.utility.SQLUtility
 import com.guavus.acume.cache.utility.Tuple
 import com.guavus.acume.cache.utility.Utility
-
 import javax.xml.bind.JAXBContext
+import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
+import com.guavus.acume.cache.utility.Tuple
+import com.guavus.acume.cache.eviction.EvictionPolicy
+import scala.collection.mutable.MutableList
+import scala.collection.mutable.MutableList
 
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends Serializable { 
   sqlContext match{
@@ -235,8 +239,8 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       for(c <- acumeCube.getCubes().getCube().toList) yield {
         val cubeName = c.getName().trim
         val fields = c.getFields().split(",").map(_.trim)
-        val dimensionSet = scala.collection.mutable.Set[Dimension]()
-        val measureSet = scala.collection.mutable.Set[Measure]()
+        val dimensionSet = scala.collection.mutable.MutableList[Dimension]()
+        val measureSet = scala.collection.mutable.MutableList[Measure]()
         for(ex <- fields){
           val fieldName = ex.trim
 
