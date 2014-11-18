@@ -45,7 +45,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
   }
 		
   val cachePointToTable = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
-  .maximumSize(conf.get(ConfConstants.rrsize._1).toInt)
+  .maximumSize(1000)
   .build(
       new CacheLoader[LevelTimestamp, String]() {
         def load(key: LevelTimestamp): String = {
