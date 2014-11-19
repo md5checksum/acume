@@ -60,12 +60,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
           return getData(key);
         }
       });
-//   .removalListener(new RemovalListener[RRCacheKey, AcumeCacheResponse] {
-//	  def onRemoval(notification : RemovalNotification[RRCacheKey, AcumeCacheResponse]) {
-//	    notification.getValue().schemaRDD.unpersist(true)
-//	  }
-//  });
-
+  
   private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf("_"))
   
   override def createTempTableAndMetadata(startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData = {
@@ -125,13 +120,8 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     val cacheLevel = levelTimestamp.level
     val diskread = diskUtility.loadData(cube, levelTimestamp, dimensionTable)
     val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
-    //acumeCacheContext.sqlContext.applySchema(diskread, diskread.schema)
-   // print(diskread.schema)
     acumeCacheContext.sqlContext.applySchema(diskread, diskread.schema)
     diskread.registerTempTable(_tableName)
-//    acumeCacheContext.sqlContext.table(_tableName).collect.map(print)
-//    println(table(_tableName).schema)
-//    acumeCacheContext.sqlContext.sql(s"select * from ${_tableName}").collect.map(print)
     cacheTable(_tableName) 
     _tableName
   }
