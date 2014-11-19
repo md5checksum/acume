@@ -16,5 +16,14 @@ case class BaseCube(cubeName: String, dimension: DimensionSet, measure: MeasureS
 case class Function(functionClass: String, functionName: String) extends Serializable 
 case class DimensionSet(dimensionSet: List[Dimension]) extends Serializable 
 case class MeasureSet(measureSet: List[Measure]) extends Serializable 
-case class DimensionTable(var tblnm: String) extends Serializable 	
+case class DimensionTable(var tblnm: String) extends Serializable {
+  
+  def Modify {
+    val in = tblnm.indexOf("_")
+    if(in == -1)
+      tblnm = s"${tblnm}_${System.currentTimeMillis()}"
+    else
+      tblnm = s"${tblnm.substring(0, in)}_${System.currentTimeMillis()}"
+  }
+}
 

@@ -161,7 +161,7 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
       sqlContext.applySchema(dimensionRDD, dimensionRDD.schema)
       if(istableregistered) {
         val unioned = table(globaldtblnm).union(dimensionRDD)
-        globalDTableName.tblnm = globalDTableName.tblnm+"new"
+        globalDTableName.Modify
         sqlContext.applySchema(unioned, dimensionRDD.schema).registerTempTable(globalDTableName.tblnm)
       }
       else 
