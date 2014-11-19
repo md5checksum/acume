@@ -102,7 +102,7 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
             timestamp = java.lang.Long.valueOf(row(i).toString)
           } else if (acumeSchema.isDimension(field)) {
             if (row(i) != null)
-              dims += row(i).toString
+              dims += row(i)
             else
               dims += queryBuilderService.getDefaultValueForField(dimsNames(dimIndex))
             dimIndex += 1
@@ -120,7 +120,7 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
           val measureArray = new Array[ArrayBuffer[Any]](measuresNames.size)
           i = 0
           while (i < measuresNames.size) {
-            measureArray(i) = { val array = new Array[Object](timestamps.size); Arrays.fill(array, (new Object).asInstanceOf[Any]); new ArrayBuffer[Any]() ++= (array) }
+            measureArray(i) = { val array = new Array[Object](timestamps.size); Arrays.fill(array, queryBuilderService.getDefaultValueForField(measuresNames(i)).asInstanceOf[Any]); new ArrayBuffer[Any]() ++= (array) }
             i += 1
           }
           new ArrayBuffer ++= measureArray
@@ -149,7 +149,7 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
         for (field <- fields) {
           if (acumeSchema.isDimension(field)) {
             if (row(i) != null)
-              dims += row(i).toString
+              dims += row(i)
             else
               dims += queryBuilderService.getDefaultValueForField(dimsNames(dimIndex))
             dimIndex += 1
