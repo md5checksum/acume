@@ -216,11 +216,6 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
         else
           (0l, 0l)
 
-      if(startTime != 0 && endTime != 0) { 
-            
-        DataLoader.putMetadata(acumeCache, dataloadedmetadata)
-      }
-          
       Utility.getEmptySchemaRDD(sqlContext, latestschema).registerTempTable(baseDimensionSetTable)
       
       var flag = false
@@ -234,6 +229,11 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
       }
       if(!_list.isEmpty)
         sqlContext.applySchema(_list.reduce(_.union(_)), latestschema).registerTempTable(baseDimensionSetTable)
+      }
+      
+      if(startTime != 0 && endTime != 0) { 
+            
+        DataLoader.putMetadata(acumeCache, dataloadedmetadata)
       }
     } catch { 
     case ex: Throwable => throw new IllegalStateException(ex)

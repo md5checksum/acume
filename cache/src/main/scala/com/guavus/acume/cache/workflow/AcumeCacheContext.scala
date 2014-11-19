@@ -45,7 +45,7 @@ import scala.collection.mutable.MutableList
  * @author archit.thakur
  *
  */
-class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends AcumeCacheContextTrait with Serializable{ 
+class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends AcumeCacheContextTrait {
   sqlContext match{
   case hiveContext: HiveContext =>
   case sqlContext: SQLContext => 
