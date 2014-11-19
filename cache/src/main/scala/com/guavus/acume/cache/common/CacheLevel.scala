@@ -11,6 +11,7 @@ object CacheLevel extends Enumeration {
   //AcumeConfiguration file that which all levels they want Acume-cache to build on. 	
   val FiveMin = new CacheLevel(300)
   val Hourly = new CacheLevel(3600)
+  val ThreeHourly = new CacheLevel(10800)
   val Daily = new CacheLevel(86400)
   val Weekly = new CacheLevel(2592000)
   val BiWeekly = new CacheLevel(5184000)
@@ -27,6 +28,6 @@ object CacheLevel extends Enumeration {
       if(value.localId == localId)
         return value
     }
-    return Hourly
+    throw new RuntimeException("The gran " + localId + " is not yet supported in AcumeCache.")
   }
 }
