@@ -144,16 +144,16 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
 //          Utility.evict(acumeCacheContext.sqlContext, evictableCandidate, cachePointToTable.get(evictableCandidate), cachePointToTable)
 //        }
         
-        val diskread = acumeCacheContext.sqlContext.sql(s"select * from $tblNm")
-        finalSchema = diskread.schema
-        val _$diskread = acumeCacheContext.sqlContext.applySchema(diskread, finalSchema)
-        
-        _$diskread
+        val diskread = table(tblNm)
+        if(finalSchema == null) {
+          finalSchema = diskread.schema
+        }
+        diskread
       }
       timeIterated
     }
     val schemarddlist = levelTime.flatten
-    applySchema(schemarddlist.map(_.asInstanceOf[RDD[Row]]).reduce(_.union(_)), finalSchema).registerTempTable(tableName)
+    applySchema(schemarddlist.reduce(_.unionAll(_)), finalSchema).registerTempTable(tableName)
     val klist = timestamps.toList
     MetaData(klist)
   }
