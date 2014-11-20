@@ -74,5 +74,38 @@ class RestService {
 		AcumeService.acumeService.servSqlQuery(query).asInstanceOf[Serializable]
 	}
 	
+	@POST
+	@Path("raeSql")
+	def raeServSqlQueryOnDataSource(query : String,  @QueryParam(value = "dataSource") dataSource : String, @QueryParam(value = "super") userinfo : String,
+			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
+		val startTime = System.currentTimeMillis();
+		Authentication.authenticate(userinfo, user, password)
+		// Submit the request to query builder which will return the actual query to be fired on olap cache. It will also return the type of query it was aggregate/timeseries. After receiving
+		AcumeService.acumeService.servSqlQuery(query).asInstanceOf[Serializable]
+	}
+	
+	@POST
+	@Path("dataAvailability")
+	def getDataAvailability( @QueryParam(value = "super") userinfo : String,
+			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : java.util.HashMap[String, java.util.ArrayList[Long]] = {
+	  Authentication.authenticate(userinfo, user, password)
+	  new java.util.HashMap[String, java.util.ArrayList[Long]]()
+	}
+	
+	@POST
+	@Path("isValidQuery")
+	def isValidQuery(sql : String, @QueryParam(value = "dataSource") dataSource : String, @QueryParam(value = "super") userinfo : String,
+			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : java.lang.Boolean = {
+	  Authentication.authenticate(userinfo, user, password)
+	  true
+	}
+	
+	@POST
+	@Path("ValidDataSource")
+	def getValidDataSources(@QueryParam(value = "super") userinfo : String,
+			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : java.util.ArrayList[String] = {
+	  Authentication.authenticate(userinfo, user, password)
+	  new java.util.ArrayList()
+	}
 
 }
