@@ -31,7 +31,7 @@ object AcumeHiveInitServlet {
 class AcumeHiveInitServlet extends HttpServlet {
 
   override def init(servletConfig: ServletConfig) {
-//    AcumeMain.startHive("/acume.conf")
+    AcumeMain.startHive("/acume.conf")
   }
 }
 /*

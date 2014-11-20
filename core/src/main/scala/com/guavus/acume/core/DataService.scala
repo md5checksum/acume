@@ -173,18 +173,14 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
   def execute(sql: String): AcumeCacheResponse = {
   
      var i : Int = -1
-
      val modifiedSql : String = queryBuilderService.foldLeft("") { (result, current) => 
       
-      if(i.==(-1)) {
-        i = i.+(1)
-        current.buildQuery(sql)
-      }
-      else {
-        i = i.+(1)
-        current.buildQuery(result)
-      }
-    }
+       i = i + 1
+       if(i == 0)
+         current.buildQuery(sql)
+       else
+         current.buildQuery(result)
+     }
    
     if(!modifiedSql.equals("")) {
     	print(modifiedSql)
