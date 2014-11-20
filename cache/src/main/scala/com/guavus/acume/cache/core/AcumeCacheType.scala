@@ -47,6 +47,10 @@ object AcumeCacheType extends Enumeration {
     conf123.set("acume.cache.core.rrcahcesize", "502")
     conf123.set(ConfConstants.lastbinpersistedtime, "32400")
     conf123.set(ConfConstants.firstbinpersistedtime, "3600")
+    conf123.set("acume.core.enableJDBCServer", "true")
+    conf123.set("acume.core.app.config", "com.guavus.acume.core.configuration.AcumeAppConfig")
+    conf123.set("acume.core.sql.query.engine", "acume")
+    
     val cntxt = new com.guavus.acume.cache.workflow.AcumeCacheContext(sqlContext, conf123)
     cntxt.acql("select egressruleid from searchEgressPeerCube where ts >=1384750800 and ts <1384758000")
     cntxt.acql("SELECT tx.sum_TTS_B AS TTS_B FROM (SELECT sum(TTS_B) AS sum_TTS_B FROM searchEgressPeerCube WHERE ts < 1384761600 AND ts >= 1384750800) tx")

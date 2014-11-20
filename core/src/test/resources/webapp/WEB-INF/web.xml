@@ -103,9 +103,14 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet-->
 	<servlet>
-		<servlet-name>InitServlet</servlet-name>
+		<servlet-name>AcumeInitServlet</servlet-name>
 		<servlet-class>com.guavus.acume.servlet.AcumeInitServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>HiveInitServlet</servlet-name>
+		<servlet-class>com.guavus.acume.servlet.AcumeHiveInitServlet</servlet-class>
+		<load-on-startup>2</load-on-startup>
 	</servlet>
 	<!-- servlet-mapping>
 		<servlet-name>RGService</servlet-name>

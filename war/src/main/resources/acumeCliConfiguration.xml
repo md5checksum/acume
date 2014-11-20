@@ -906,6 +906,21 @@ Please don't use the following reserved property names:
             </targets>
         </property>
         
+
+        <property>
+            <name>cacheDeleteFirstBinPersistedTime</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+
         <property>
             <name>cacheDeleteLastBinPersistedTime</name>
             <type>basic</type>
@@ -924,6 +939,32 @@ Please don't use the following reserved property names:
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[false]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>acumeCoreAppConfig</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.acume.core.configuration.AcumeAppConfig]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>coreSqlQueryEngine</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[acume]]></default>
             <targets>
                 <target>
                     <file><![CDATA[acume.conf]]></file>

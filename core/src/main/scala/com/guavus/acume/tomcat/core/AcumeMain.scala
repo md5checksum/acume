@@ -16,6 +16,7 @@ import com.guavus.acume.core.AcumeConf
 import com.guavus.acume.core.configuration.AcumeAppConfig
 import com.guavus.acume.cache.common.ConfConstants
 import scala.util.Try
+import com.guavus.acume.core.AcumeContextTrait
 
 /**
  * Entry point to start the tomcat. this must be called by spark or command line to start the application
@@ -24,10 +25,11 @@ object AcumeMain {
   
   private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeMain])
 
-  def startAcume(args: Array[String]) {
-	AcumeContext.init("/acume.conf")
+  def startAcume(args: String) {
+	AcumeContextTrait.init(args, "acume")
+	AcumeContextTrait.acumeContext.get.acumeConf.setSqlQueryEngine("acume")
 	
-	var enableJDBC = AcumeContext.acumeContext.get.acumeConfiguration.getEnableJDBCServer
+	var enableJDBC = AcumeContextTrait.acumeContext.get.acumeConf.getEnableJDBCServer
 	 
 	if(Try(enableJDBC.toBoolean).getOrElse(false))
 		AcumeThriftServer.main(Array[String]())
@@ -39,6 +41,26 @@ object AcumeMain {
     val startTime = System.currentTimeMillis()
     //Initialize all components for Acume Core
 //    val config = ConfigFactory.getInstance()
+    val timeTaken = (System.currentTimeMillis() - startTime)
+    logger.info("Time taken to initialize Acume {} seconds", timeTaken / 1000)
+  }
+  
+  
+  def startHive(args: String) {
+	AcumeContextTrait.init(args, "hive")
+	AcumeContextTrait.acumeContext.get.acumeConf.setSqlQueryEngine("hive")
+	var enableJDBC = AcumeContextTrait.acumeContext.get.acumeConf.getEnableJDBCServer
+	 
+	if(Try(enableJDBC.toBoolean).getOrElse(false))
+		AcumeThriftServer.main(Array[String]())
+	
+	//Initiate the session Factory for user management db
+    SessionFactory.getInstance(SessionContext.DISTRIBUTED)
+    InitDatabase.initializeDatabaseTables(ArrayBuffer[IDML]())
+    println("Called AcumeHiveMain")
+    val startTime = System.currentTimeMillis()
+    //Initialize all components for Acume Core
+
     val timeTaken = (System.currentTimeMillis() - startTime)
     logger.info("Time taken to initialize Acume {} seconds", timeTaken / 1000)
   }

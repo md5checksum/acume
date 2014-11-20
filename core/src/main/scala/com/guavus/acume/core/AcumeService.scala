@@ -1,12 +1,13 @@
 package com.guavus.acume.core
 
-import com.guavus.acume.rest.beans.QueryRequest
-import com.guavus.acume.core.AcumeService._
-import com.guavus.acume.rest.beans.AggregateResponse
-import com.guavus.acume.rest.beans.TimeseriesResponse
 import com.guavus.acume.core.configuration.ConfigFactory
+import com.guavus.acume.rest.beans.AggregateResponse
+import com.guavus.acume.rest.beans.QueryRequest
 import com.guavus.acume.rest.beans.SearchRequest
 import com.guavus.acume.rest.beans.SearchResponse
+import com.guavus.acume.rest.beans.TimeseriesResponse
+
+import javax.xml.bind.annotation.XmlRootElement
 
 /**
  * Main service of acume which serves the request from UI and rest services. It checks if the response is present in RR cache otherwise fire the query on OLAP cache.
