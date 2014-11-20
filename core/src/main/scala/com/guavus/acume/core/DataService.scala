@@ -186,8 +186,10 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
       }
     }
    
-    if(!modifiedSql.equals(""))
+    if(!modifiedSql.equals("")) {
+    	print(modifiedSql)
     	acumeContext.ac.acql(modifiedSql)
+    }
     else
       throw new RuntimeException(s"Invalid Modified Query")
       
