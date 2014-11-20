@@ -37,7 +37,11 @@ class AcumeDataSourceSchema(acumeContext : AcumeContextTrait) extends QueryBuild
    * returns true if dimension
    */
   override def isDimension(fieldName: String): Boolean = {
-    fieldName.equalsIgnoreCase("ts") || acumeContext.ac.isDimension(fieldName) 
+    try {
+    	fieldName.equalsIgnoreCase("ts") || acumeContext.ac.isDimension(fieldName)
+    } catch {
+      case ex : RuntimeException => false
+    }
   }
   
   /**
