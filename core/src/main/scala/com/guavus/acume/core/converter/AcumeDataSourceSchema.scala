@@ -9,13 +9,14 @@ import com.guavus.acume.core.AcumeContext
 import com.guavus.querybuilder.cube.schema.FieldType
 import com.guavus.querybuilder.cube.schema.IField
 import scala.collection.mutable.ArrayBuffer
+import com.guavus.acume.core.AcumeContextTrait
 
 
 /**
  * @author pankaj.arora
  * Data source schema for acume. 
  */
-class AcumeDataSourceSchema(acumeContext : AcumeContext) extends QueryBuilderSchema {
+class AcumeDataSourceSchema(acumeContext : AcumeContextTrait) extends QueryBuilderSchema {
 
   /**
    * return the list of data source cubes.

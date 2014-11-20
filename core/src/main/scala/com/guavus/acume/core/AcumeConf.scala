@@ -1,11 +1,13 @@
 package com.guavus.acume.core
 
-import scala.collection.JavaConverters._
-import scala.collection.mutable.HashMap
-import org.slf4j.LoggerFactory
-import java.net.URL
 import java.io.InputStream
 import java.util.Properties
+
+import scala.Array.canBuildFrom
+import scala.collection.JavaConverters.propertiesAsScalaMapConverter
+import scala.collection.mutable.HashMap
+
+import org.slf4j.LoggerFactory
 
 /**
  * Configuration for a Acume application. Used to set various Acume parameters as key-value pairs.
@@ -134,6 +136,22 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
     get("acume.core.enableJDBCServer", "false")
   }
 
+  def getAppConfig(): String = {
+    get("acume.core.app.config", "com.guavus.acume.core.configuration.AcumeAppConfig")
+  }
+  
+  def setAppConfig(appConfig: String): AcumeConf = {
+    set("acume.core.app.config", appConfig)
+  }
+  
+  def getSqlQueryEngine(): String = {
+    get("acume.core.sql.query.engine", "acume")
+  }
+  
+  def setSqlQueryEngine(sqlQueryEngine: String): AcumeConf = {
+    set("acume.core.sql.query.engine", sqlQueryEngine)
+  }
+  
   /** Set multiple parameters together */
   def setAll(settings: Traversable[(String, String)]) = {
     this.settings ++= settings

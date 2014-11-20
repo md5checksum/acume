@@ -6,14 +6,13 @@ import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
 
 import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.workflow.AcumeCacheContext
+import com.guavus.acume.cache.workflow.AcumeHiveCacheContext
 
 /**
- * @author pankaj.arora
- *
- * This will keep the sparkcontext and hive context.
+ * @author kashish.jain
+ * 
  */
-class AcumeContext(confFilePath: String) extends AcumeContextTrait {
+class AcumeHiveContext(confFilePath: String) extends AcumeContextTrait {
 
   //Properties will be loaded from spark-defaults.conf
   val conf = new SparkConf()
@@ -28,7 +27,7 @@ class AcumeContext(confFilePath: String) extends AcumeContextTrait {
   val _sqlContext = new SQLContext(sparkContext)
   
   override val acumeContext = {
-    new AcumeCacheContext(hc, new AcumeCacheConf)
+    new AcumeHiveCacheContext(hc, new AcumeCacheConf)
   }
   
   override def sc() = sparkContext

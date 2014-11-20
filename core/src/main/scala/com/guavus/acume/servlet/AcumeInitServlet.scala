@@ -1,20 +1,12 @@
 package com.guavus.acume.servlet
 
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
-import javax.servlet.ServletConfig
-import javax.servlet.ServletException
-import javax.servlet.http.HttpServlet
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import com.guavus.rubix.hibernate.SessionContext
-import com.guavus.rubix.hibernate.SessionFactory
-import com.guavus.rubix.user.management.InitDatabase
-import scala.collection.mutable.ArrayBuffer
-import com.guavus.rubix.user.management.IDML
-import org.hibernate.internal.util.ConfigHelper
-import com.guavus.acume.core.configuration.ConfigFactory
+
 import com.guavus.acume.tomcat.core.AcumeMain
+
+import javax.servlet.ServletConfig
+import javax.servlet.http.HttpServlet
 
 object AcumeInitServlet {
 
@@ -25,9 +17,23 @@ object AcumeInitServlet {
 class AcumeInitServlet extends HttpServlet {
 
   override def init(servletConfig: ServletConfig) {
-    AcumeMain.startAcume(Array[String]())
+    AcumeMain.startAcume("/acume.conf")
   }
+}
+  
 
+object AcumeHiveInitServlet {
+  private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeHiveInitServlet])
+}
+
+
+@SerialVersionUID(2452703157821877157L)
+class AcumeHiveInitServlet extends HttpServlet {
+
+  override def init(servletConfig: ServletConfig) {
+//    AcumeMain.startHive("/acume.conf")
+  }
+}
 /*
 Original Java:
 |**
@@ -94,4 +100,3 @@ public class RubixInitServlet extends HttpServlet {
 	}
 }
 */
-}

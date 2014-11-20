@@ -1,21 +1,21 @@
 package com.guavus.acume.core.configuration
 
-import java.lang.reflect.Method
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
-import util.log.LoggerUtils
-import com.guavus.acume.core.AcumeService
-import com.guavus.qb.services.QueryBuilderService
-import com.guavus.rubix.user.permission.IPermissionTemplate
-import com.guavus.acume.core.AcumeContext
-import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
-import com.guavus.acume.core.DataService
 import com.guavus.acume.cache.core.TimeGranularity
-import com.guavus.qb.conf.QBConf
+import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
+import com.guavus.acume.core.AcumeContext
+import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.core.AcumeService
+import com.guavus.acume.core.DataService
 import com.guavus.acume.core.converter.AcumeDataSourceSchema
 import com.guavus.acume.core.usermanagement.DefaultPermissionTemplate
+import com.guavus.qb.conf.QBConf
+import com.guavus.qb.services.IQueryBuilderService
+import com.guavus.rubix.user.permission.IPermissionTemplate
+import com.guavus.qb.services.QueryBuilderService
 
 object AcumeAppConfig {
 
@@ -36,7 +36,7 @@ object AcumeAppConfig {
 }
 
 @org.springframework.context.annotation.Configuration
-class AcumeAppConfig {
+class AcumeAppConfig extends AcumeAppConfigTrait {
 
   @Bean
   @Autowired
@@ -46,7 +46,7 @@ class AcumeAppConfig {
 
   @Bean
   @Autowired
-  def dataService(queryBuilderService : QueryBuilderService, ac : AcumeContext): DataService = {
+  def dataService(queryBuilderService : Seq[IQueryBuilderService], ac : AcumeContextTrait): DataService = {
     new DataService(queryBuilderService, ac)
   }
 
@@ -55,15 +55,15 @@ class AcumeAppConfig {
   
   @Bean
   @Autowired
-  def acumeContext() : AcumeContext = {
-    AcumeContext.acumeContext.get
+  override def acumeContext() : AcumeContextTrait = {
+    AcumeContextTrait.acumeContext.get
   }
-  
   
   @Bean
   @Autowired
-  def queryBuilderService(acumeContext : AcumeContext) : QueryBuilderService = {
-    new QueryBuilderService(new AcumeDataSourceSchema(acumeContext), new QBConf())
+  override def queryBuilderService(acumeContext : AcumeContextTrait) : Seq[IQueryBuilderService] = {
+
+    List(new QueryBuilderService(new AcumeDataSourceSchema(acumeContext), new QBConf()))
   }
 
   @Bean
