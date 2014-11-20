@@ -10,6 +10,7 @@ import javax.ws.rs.Path
 import javax.xml.bind.annotation.XmlRootElement
 import com.guavus.acume.rest.beans.SearchResponse
 import javax.servlet.ServletException
+import java.io.Serializable
 
 abstract class AbstractRequestServlet extends HttpServlet {
 
