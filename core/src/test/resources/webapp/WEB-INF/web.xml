@@ -103,9 +103,14 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet-->
 	<servlet>
-		<servlet-name>InitServlet</servlet-name>
+		<servlet-name>AcumeInitServlet</servlet-name>
 		<servlet-class>com.guavus.acume.servlet.AcumeInitServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>HiveInitServlet</servlet-name>
+		<servlet-class>com.guavus.acume.servlet.AcumeHiveInitServlet</servlet-class>
+		<load-on-startup>2</load-on-startup>
 	</servlet>
 	<!-- servlet-mapping>
 		<servlet-name>RGService</servlet-name>
@@ -140,11 +145,30 @@
     	<servlet-name>TimeSeries</servlet-name>
     	<servlet-class>com.guavus.acume.core.servlet.TimeSeriesRequestServlet</servlet-class>
   	</servlet>
-  	
+  	<servlet>
+    	<servlet-name>ValidateQuery</servlet-name>
+    	<servlet-class>com.guavus.acume.core.servlet.ValidateQueryServlet</servlet-class>
+  	</servlet>
+  	<servlet>
+    	<servlet-name>ValidDataSources</servlet-name>
+    	<servlet-class>com.guavus.acume.core.servlet.ValidDataSourcesServlet</servlet-class>
+  	</servlet>
+  	<servlet>
+    	<servlet-name>DataAvailability</servlet-name>
+    	<servlet-class>com.guavus.acume.core.servlet.DataAvailabilityServlet</servlet-class>
+  	</servlet>
+  	<servlet>
+    	<servlet-name>raeSql</servlet-name>
+    	<servlet-class>com.guavus.acume.core.servlet.RaeSqlRequestServlet</servlet-class>
+  	</servlet>
   	
   	<servlet-mapping>
     	<servlet-name>Sql</servlet-name>
     	<url-pattern>/sql</url-pattern>
+  	</servlet-mapping>
+  	<servlet-mapping>
+    	<servlet-name>raeSql</servlet-name>
+    	<url-pattern>/raeSql</url-pattern>
   	</servlet-mapping>
   	<servlet-mapping>
     	<servlet-name>Aggregate</servlet-name>
@@ -157,6 +181,18 @@
   	<servlet-mapping>
     	<servlet-name>TimeSeries</servlet-name>
     	<url-pattern>/timeseries</url-pattern>
+  	</servlet-mapping>
+  	<servlet-mapping>
+    	<servlet-name>ValidateQuery</servlet-name>
+    	<url-pattern>/ValidateQuery</url-pattern>
+  	</servlet-mapping>
+  	<servlet-mapping>
+    	<servlet-name>ValidDataSources</servlet-name>
+    	<url-pattern>/ValidDataSources</url-pattern>
+  	</servlet-mapping>
+  	<servlet-mapping>
+    	<servlet-name>DataAvailability</servlet-name>
+    	<url-pattern>/DataAvailability</url-pattern>
   	</servlet-mapping>
 
   	

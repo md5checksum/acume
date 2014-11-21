@@ -162,7 +162,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
       timeIterated
     }
     val schemarddlist = levelTime.flatten
-    applySchema(schemarddlist.map(_.asInstanceOf[RDD[Row]]).reduce(_.union(_)), finalSchema).registerTempTable(tableName)
+    applySchema(schemarddlist.reduce(_.unionAll(_)), finalSchema).registerTempTable(tableName)
     val klist = timestamps.toList
     MetaData(klist)
   }

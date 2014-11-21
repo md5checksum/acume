@@ -1,19 +1,17 @@
 package com.guavus.acume.rest.beans
 
 import java.util.List
-
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import scala.reflect.BeanProperty
-
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.guavus.acume.core.AcumeConf
 import com.guavus.acume.core.AcumeContext
 import com.guavus.acume.core.configuration.ConfigFactory
-
 import AggregateResponse._
 import javax.xml.bind.annotation.XmlRootElement
+import com.guavus.acume.core.AcumeContextTrait
 
 object AggregateResponse {
 
@@ -54,7 +52,7 @@ class AggregateResponse extends Serializable {
   var totalRecords: Int = _
 
   override def toString(): String = {
-    val maxLen = ConfigFactory.getInstance.getBean(classOf[AcumeContext]).acumeConf.getMaxQueryLogRecords
+    val maxLen = ConfigFactory.getInstance.getBean(classOf[AcumeContextTrait]).acumeConf().getMaxQueryLogRecords
     val aggResponse = new AggregateResponse(results.subList(0, Math.min(results.size, maxLen)), responseDimensions, responseMeasures, totalRecords)
     gson.toJson(aggResponse)
   }

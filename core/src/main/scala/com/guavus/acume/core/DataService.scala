@@ -5,7 +5,6 @@ import com.guavus.acume.rest.beans.AggregateResponse
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.expressions.Row
 import com.guavus.acume.rest.beans.QueryRequest
-import com.guavus.qb.services.QueryBuilderService
 import com.guavus.querybuilder.cube.schema.QueryBuilderSchema
 import com.guavus.qb.conf.QBConf
 import org.apache.spark.sql.SchemaRDD
@@ -23,11 +22,14 @@ import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
 import com.guavus.acume.rest.beans.SearchRequest
 import com.guavus.acume.cache.workflow.AcumeCacheResponse
+import com.guavus.qb.services.IQueryBuilderService
+import com.guavus.acume.cache.common.QLType
+import com.guavus.acume.cache.workflow.AcumeCacheResponse
 
 /**
  * This class interacts with query builder and Olap cache.
  */
-class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeContext) {
+class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: AcumeContextTrait) {
 
   /**
    * Takes QueryRequest i.e. Rubix query and return aggregate Response.
@@ -52,7 +54,7 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
     val schema = schemaRdd.schema
     val fields = schema.fieldNames
     val rows = schemaRdd.collect
-    val acumeSchema: QueryBuilderSchema = queryBuilderService.getQueryBuilderSchema
+    val acumeSchema: QueryBuilderSchema = queryBuilderService.get(0).getQueryBuilderSchema
     val dimsNames = new ArrayBuffer[String]()
     for (field <- fields) {
         dimsNames += field
@@ -67,7 +69,7 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
     val schema = schemaRdd.schema
     val fields = schema.fieldNames
     val rows = schemaRdd.collect
-    val acumeSchema: QueryBuilderSchema = queryBuilderService.getQueryBuilderSchema
+    val acumeSchema: QueryBuilderSchema = queryBuilderService.get(0).getQueryBuilderSchema
     val dimsNames = new ArrayBuffer[String]()
     val measuresNames = new ArrayBuffer[String]()
     var j = 0
@@ -104,13 +106,13 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
             if (row(i) != null)
               dims += row(i)
             else
-              dims += queryBuilderService.getDefaultValueForField(dimsNames(dimIndex))
+              dims += queryBuilderService.get(0).getDefaultValueForField(dimsNames(dimIndex))
             dimIndex += 1
           } else {
             if (row(i) != null)
               measures += row(i)
             else
-              measures += queryBuilderService.getDefaultValueForField(measuresNames(measureIndex))
+              measures += queryBuilderService.get(0).getDefaultValueForField(measuresNames(measureIndex))
             measureIndex += 1
           }
           i += 1
@@ -120,7 +122,7 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
           val measureArray = new Array[ArrayBuffer[Any]](measuresNames.size)
           i = 0
           while (i < measuresNames.size) {
-            measureArray(i) = { val array = new Array[Object](timestamps.size); Arrays.fill(array, queryBuilderService.getDefaultValueForField(measuresNames(i)).asInstanceOf[Any]); new ArrayBuffer[Any]() ++= (array) }
+            measureArray(i) = { val array = new Array[Object](timestamps.size); Arrays.fill(array, queryBuilderService.get(0).getDefaultValueForField(measuresNames(i)).asInstanceOf[Any]); new ArrayBuffer[Any]() ++= (array) }
             i += 1
           }
           new ArrayBuffer ++= measureArray
@@ -151,13 +153,13 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
             if (row(i) != null)
               dims += row(i)
             else
-              dims += queryBuilderService.getDefaultValueForField(dimsNames(dimIndex))
+              dims += queryBuilderService.get(0).getDefaultValueForField(dimsNames(dimIndex))
             dimIndex += 1
           } else {
             if (row(i) != null)
               measures += row(i)
             else
-              measures += queryBuilderService.getDefaultValueForField(measuresNames(measureIndex))
+              measures += queryBuilderService.get(0).getDefaultValueForField(measuresNames(measureIndex))
             measureIndex += 1
           }
           i += 1
@@ -169,7 +171,23 @@ class DataService(queryBuilderService: QueryBuilderService, acumeContext: AcumeC
   }
 
   def execute(sql: String): AcumeCacheResponse = {
-    val modifiedSql = queryBuilderService.buildQuery(sql)
-    acumeContext.ac.acql(modifiedSql)
+  
+     var i : Int = -1
+     val modifiedSql : String = queryBuilderService.foldLeft("") { (result, current) => 
+      
+       i = i + 1
+       if(i == 0)
+         current.buildQuery(sql)
+       else
+         current.buildQuery(result)
+     }
+   
+    if(!modifiedSql.equals("")) {
+    	print(modifiedSql)
+    	acumeContext.ac.acql(modifiedSql)
+    }
+    else
+      throw new RuntimeException(s"Invalid Modified Query")
+      
   }
 }

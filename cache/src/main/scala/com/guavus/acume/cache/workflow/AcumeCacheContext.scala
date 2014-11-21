@@ -28,18 +28,13 @@ import com.guavus.acume.cache.common.QLType.QLType
 import com.guavus.acume.cache.core.AcumeCacheFactory
 import com.guavus.acume.cache.core.CacheIdentifier
 import com.guavus.acume.cache.core.TimeGranularity
-import com.guavus.acume.cache.eviction.EvictionPolicy
 import com.guavus.acume.cache.gen.Acume
 import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
 import com.guavus.acume.cache.utility.SQLUtility
 import com.guavus.acume.cache.utility.Tuple
 import com.guavus.acume.cache.utility.Utility
+
 import javax.xml.bind.JAXBContext
-import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
-import com.guavus.acume.cache.utility.Tuple
-import com.guavus.acume.cache.eviction.EvictionPolicy
-import scala.collection.mutable.MutableList
-import scala.collection.mutable.MutableList
 
 /**
  * @author archit.thakur
@@ -158,7 +153,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     cube.dimension.dimensionSet.map(_.getName) ++ cube.measure.measureSet.map(_.getName)
   }
   
-  def getAggregationFunction(stringname: String) = {
+  private [acume] def getAggregationFunction(stringname: String) = {
     val measure = measureMap.getOrElse(stringname, throw new RuntimeException(s"Measure $stringname not in Acume knowledge."))
     measure.getAggregationFunction
   }
@@ -300,6 +295,10 @@ object AcumeCacheContext{
     conf.set("acume.cache.baselayer.instabase","instabase")
     conf.set("acume.cache.baselayer.cubedefinitionxml", "cubexml")
     conf.set("acume.cache.execute.qltype", "sql")
+    conf.set("acume.core.enableJDBCServer", "true")
+    conf.set("acume.core.app.config", "com.guavus.acume.core.configuration.AcumeAppConfig")
+    conf.set("acume.core.sql.query.engine", "acume")
+    
     val cntxt = new AcumeCacheContext(sqlContext, conf)
     cntxt.acql("select * from searchEgressPeerCube_12345")
   }
