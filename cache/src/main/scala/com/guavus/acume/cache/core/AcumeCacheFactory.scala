@@ -10,6 +10,7 @@ import com.guavus.acume.cache.common.Cube
 import java.util.concurrent.ConcurrentHashMap
 import com.guavus.acume.cache.workflow.AcumeCacheContext
 import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.eviction.AcumeCacheEvictionObserver
 
 /**
  * @author archit.thakur
@@ -31,6 +32,7 @@ object AcumeCacheFactory {
       //todo check if there is a better way for `SortedMap` creation belw.
       val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]() ++ cube.cacheTimeseriesLevelPolicyMap)
       val _$instance = new AcumeTreeCache(acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy)
+      val acumeCacheEvictionObserver = new AcumeCacheEvictionObserver(_$instance)
       caches.put(cacheIdentifier, _$instance)
       _$instance
     }

@@ -9,19 +9,21 @@ import com.guavus.acume.cache.core.AcumeCacheType._
 
 /**
  * @author archit.thakur
- *
+ * @param conf specifies AcumeCacheConf
+ * @param parameter conf is needed because we need to access first/last bin persisted time, 
+ * @param it could be removed once the services from insta are available.
  */
-trait EvictionPolicy {
+abstract class EvictionPolicy(cube: Cube, conf: AcumeCacheConf) {
 
-  def getEvictableCandidate(cache: List[LevelTimestamp], newPoint: LevelTimestamp): LevelTimestamp
+  def getEvictableCandidate(cache: List[LevelTimestamp]): Option[LevelTimestamp]
 }
 
 object EvictionPolicy{
   
-//  def getEvictionPolicy(acumeCacheType: AcumeCacheType): EvictionPolicy = {
+  def getEvictionPolicy(cube: Cube, conf: AcumeCacheConf): EvictionPolicy = {
     
-//    val evictionPolicyClass = acumeCacheType.evictionPolicy
-//    val newInstance = evictionPolicyClass.newInstance
-//    newInstance.asInstanceOf[EvictionPolicy]
-//  }
+    val evictionPolicyClass = cube.evictionPolicyClass
+    val newInstance = evictionPolicyClass.getConstructor(classOf[Cube], classOf[AcumeCacheConf]).newInstance(cube, conf)
+    newInstance.asInstanceOf[EvictionPolicy]
+  }
 }

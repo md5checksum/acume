@@ -5,11 +5,9 @@ import scala.Array.canBuildFrom
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable.{Map => MutableMap}
 import scala.collection.mutable.MutableList
-
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.expressions.Row
 import org.apache.spark.sql.catalyst.types.StructType
-
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import com.google.common.cache.RemovalListener
@@ -28,6 +26,7 @@ import com.guavus.acume.cache.workflow.MetaData
 import com.guavus.acume.cache.workflow.RequestType.Aggregate
 import com.guavus.acume.cache.workflow.RequestType.RequestType
 import com.guavus.acume.cache.workflow.RequestType.Timeseries
+import java.util.Observer
 
 /**
  * @author archit.thakur
@@ -47,9 +46,11 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
       case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam, false)
     }
   }
-		
-  val cachePointToTable = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
-  .maximumSize(1000).removalListener(new RemovalListener[LevelTimestamp, String] {
+
+  val concurrencyLevel = conf.get(ConfConstants.rrcacheconcurrenylevel).toInt
+  val cacheSize = concurrencyLevel * (cube.levelPolicyMap.map(_._2).reduce(_+_))
+  private val cachePointToTable = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
+  .maximumSize(cacheSize).removalListener(new RemovalListener[LevelTimestamp, String] {
 	  def onRemoval(notification : RemovalNotification[LevelTimestamp, String]) {
 	    acumeCacheContext.sqlContext.uncacheTable(notification.getValue())
 	  }
@@ -61,6 +62,9 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
         }
       });
   
+  private val list = new MutableList[AcumeCacheObserver]
+  
+  override def getCacheCollection = cachePointToTable
   private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf("_"))
   
   override def createTempTableAndMetadata(startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData = {
@@ -68,6 +72,16 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
       case Aggregate => createTableForAggregate(startTime, endTime, tableName, true)
       case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam, true)
     }
+  }
+  
+  def newObserverAddition(acumeCacheObserver: AcumeCacheObserver) = {
+    
+    list.+=(acumeCacheObserver)
+  }
+  
+  def notifyObserverList = {
+    
+    list.foreach(_.update(this, conf))
   }
   
   private def createTableForAggregate(startTime: Long, endTime: Long, tableName: String, isMetaData: Boolean): MetaData = {
@@ -138,13 +152,8 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
         timestamps.+=(item)
         val levelTimestamp = LevelTimestamp(cachelevel, item)
         val tblNm = cachePointToTable.get(levelTimestamp)
-        
-//        val evictableCandidate = evictionpolicy.getEvictableCandidate(cachePointToTable.asMap.keySet.toList, cube)
-//        if(evictableCandidate != null) {
-//          Utility.evict(acumeCacheContext.sqlContext, evictableCandidate, cachePointToTable.get(evictableCandidate), cachePointToTable)
-//        }
-        
-        val diskread = acumeCacheContext.sqlContext.sql(s"select * from $tblNm")
+        val diskread = table(tblNm)
+        notifyObserverList
         finalSchema = diskread.schema
         val _$diskread = acumeCacheContext.sqlContext.applySchema(diskread, finalSchema)
         
