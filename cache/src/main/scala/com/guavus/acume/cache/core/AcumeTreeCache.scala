@@ -24,9 +24,10 @@ import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.workflow.AcumeCacheContext
 import com.guavus.acume.cache.workflow.MetaData
 import com.guavus.acume.cache.workflow.RequestType.Aggregate
-import com.guavus.acume.cache.workflow.RequestType.RequestType
 import com.guavus.acume.cache.workflow.RequestType.Timeseries
 import java.util.Observer
+import java.util.Random
+import com.guavus.acume.cache.workflow.RequestType.RequestType
 
 /**
  * @author archit.thakur
@@ -46,7 +47,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
   }
 
   val concurrencyLevel = conf.get(ConfConstants.rrcacheconcurrenylevel).toInt
-  val acumetreecachesize = concurrencyLevel * (cube.levelPolicyMap.map(_._2).reduce(_+_))
+  val acumetreecachesize = concurrencyLevel + concurrencyLevel * (cube.levelPolicyMap.map(_._2).reduce(_+_))
   private val cachePointToTable = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
   .maximumSize(acumetreecachesize).removalListener(new RemovalListener[LevelTimestamp, String] {
 	  def onRemoval(notification : RemovalNotification[LevelTimestamp, String]) {
@@ -137,6 +138,8 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     _tableName
   }
   
+  private def getUniqueRandomeNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt)
+  
   private def buildTableForIntervals(levelTimestampMap: MutableMap[Long, MutableList[Long]], tableName: String, isMetaData: Boolean): MetaData = {
     import acumeCacheContext.sqlContext._
     val timestamps: MutableList[Long] = MutableList[Long]()
@@ -159,7 +162,14 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
       timeIterated
     }
     val schemarddlist = levelTime.flatten
-    applySchema(schemarddlist.reduce(_.unionAll(_)), finalSchema).registerTempTable(tableName)
+    val dataloadedrdd = applySchema(schemarddlist.reduce(_.unionAll(_)), finalSchema)
+    val baseMeasureSetTable = cube.cubeName + "MeasureSet" + getUniqueRandomeNo
+    val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
+    dataloadedrdd.collect.map(println)
+    dataloadedrdd.registerTempTable(baseMeasureSetTable)
+    AcumeCacheUtility.dMJoin(acumeCacheContext.sqlContext, dimensionTable, baseMeasureSetTable, joinDimMeasureTableName)
+    val _$acumecache = AcumeCacheUtility.getSchemaRDD(acumeCacheContext, cube, joinDimMeasureTableName)
+    acumeCacheContext.sqlContext.applySchema(_$acumecache, _$acumecache.schema).registerTempTable(tableName)
     val klist = timestamps.toList
     MetaData(klist)
   }

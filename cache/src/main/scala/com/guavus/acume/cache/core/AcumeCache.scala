@@ -19,7 +19,7 @@ import java.util.Observable
 abstract class AcumeCache(val acumeCacheContext: AcumeCacheContext, val conf: AcumeCacheConf, val cube: Cube) extends Observable {
 
   /**
-   * This will take the call type and startTIme , endTime and then generate the tempTable by joining dimension table and corresponding factTables. 
+   * This will take the call type and startTime , endTime and then generate the tempTable by joining dimension table and corresponding factTables. 
    * it might have to search for all the fact tables which will be used to calculate the data set.
    */
   def newObserverAddition(acumeCacheObserver: AcumeCacheObserver)

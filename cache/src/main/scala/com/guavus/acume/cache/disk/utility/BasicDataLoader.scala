@@ -26,6 +26,7 @@ import com.guavus.crux.df.core.FieldDataType.FieldDataType
 import com.guavus.acume.cache.core.AcumeCache
 import java.util.Calendar
 import java.util.TimeZone
+import org.apache.spark.sql.SchemaRDD
 
 /**
  * @author archit.thakur
@@ -49,60 +50,11 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     val baseMeasureSetTable = baseCube.cubeName + "measureset" +levelTimestamp
     val level = levelTimestamp.level
     val sqlContext = acumeCacheContext.sqlContext
+    import sqlContext._
     loadMeasureSet(baseCube, list, baseMeasureSetTable, instabase, instainstanceid)
-    
-//    val baseMeasureSetTable_ = sqlContext.sql("select * from " + baseMeasureSetTable).saveAsParquetFile("/data/archit/baseMeasureSetTable")
-    
     loadDimensionSet(baseCube, list, baseDimensionSetTable, instabase, instainstanceid)
-    
-//    val baseDimensionSetTable_ = sqlContext.sql("select * from " + baseDimensionSetTable).collect
-//    println("baseDimensionSetTable")
-//    baseDimensionSetTable_.map(println)
-    
     modifyDimensionSet(baseCube, businessCube, baseDimensionSetTable, globalDTableName, instabase, instainstanceid)
-    
-//    val globalDTableName_ = sqlContext.sql("select * from " + globalDTableName.tblnm).collect
-//    println("globalDTableName")
-//    globalDTableName_.map(println)
-    
-    val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
-    dMJoin(globalDTableName, baseMeasureSetTable, joinDimMeasureTableName)
-
-//    sqlContext.sql("select * from " + joinDimMeasureTableName).saveAsParquetFile("/data/archit//joinDimMeasureTableName")
-    import sqlContext._;println(table(joinDimMeasureTableName).schema)
-    
-    getSchemaRDD(businessCube, joinDimMeasureTableName)
-  }
-  
-  private def dMJoin(globalDTableName: DimensionTable, baseMeasureSetTable: String, finalName: String) = { 
-    
-    import acumeCacheContext.sqlContext._
-    val sqlContext = acumeCacheContext.sqlContext
-
-    val join = s"Select * from ${globalDTableName.tblnm} INNER JOIN $baseMeasureSetTable ON id = tupleid"
-    val globaldtblnm = globalDTableName.tblnm
-    val globalDTable = table(globaldtblnm)
-    sqlContext.applySchema(globalDTable, globalDTable.schema).registerTempTable(globaldtblnm)
-    val joinedRDD = sqlContext.sql(join)
-    joinedRDD.registerTempTable(finalName)
-  }
-  
-  private def getSchemaRDD(businessCube: Cube, joinDimMeasureTableName: String) = { 
-    
-    import acumeCacheContext.sqlContext._
-    val sqlContext = acumeCacheContext.sqlContext
-    val measureMapThisCube = acumeCacheContext.measureMap.clone.filterKeys(key => businessCube.measure.measureSet.contains(acumeCacheContext.measureMap.get(key).get)) .toMap
-    val businessCubeAggregatedMeasureList = CubeUtil.getStringMeasureOrFunction(measureMapThisCube, cube)
-    val businessCubeDimensionList = CubeUtil.getDimensionSet(cube).map(_.getName).mkString(",")
-    val str = "select " + businessCubeDimensionList + "," + businessCubeAggregatedMeasureList + " from " + joinDimMeasureTableName + " group by " + businessCubeDimensionList
-    val xRDD = sqlContext.sql(str)
-//    xRDD.collect.map(println)
-//    xRDD.saveAsParquetFile("/data/archit//finalschemarddsaved")
-    xRDD
-    
-    //explore hive udfs for aggregation.
-    //remove dependency from crux. write things at acume level. 	
-//    val stream  = new Transform("Transform", new Stream(new StreamMetaData("inname", "junk", new Fields((baseCubeDimensionList++baseCubeAggregatedMeasureAliasList).toArray)), annotatedRDD).streamMetaData, new StreamMetaData("outname","junk",new Fields), List(new CopyAnnotation(new Fields(), new Fields()))).operate
+    modifyMeasureSet(baseCube, businessCube, baseMeasureSetTable, instabase, instainstanceid)
   }
   
   def getRowSchemaRDD(sqlContext: SQLContext, baseDir: String, fields: Fields, datatypearray: Array[FieldDataType]): RDD[Row] 
@@ -138,6 +90,17 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     else
       Utility.getEmptySchemaRDD(sqlContext, latestschema).registerTempTable(baseMeasureSetTable)
     true
+  }
+  
+  private def modifyMeasureSet(baseCube: BaseCube, businessCube: Cube, 
+      baseMeasureSetTable: String, instabase: String, instainstanceid: String): SchemaRDD = {
+    
+    val sqlContext = acumeCacheContext.sqlContext
+    val list = CubeUtil.getMeasureSet(businessCube).map(_.getName).mkString(",")
+    val measuresql = s"select tupleid, ts, ${list} from $baseMeasureSetTable"
+    import acumeCacheContext.sqlContext._
+    val measurerdd = sqlContext.sql(measuresql)
+    sqlContext.applySchema(measurerdd, measurerdd.schema)
   }
   
   private def modifyDimensionSet(baseCube: BaseCube, businessCube: Cube, 
