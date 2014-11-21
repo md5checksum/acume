@@ -35,10 +35,8 @@ import java.util.Observer
 private [cache] class AcumeTreeCache(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy) 
 extends AcumeCache(acumeCacheContext, conf, cube) {
 
-//  val cachePointToTable: MutableMap[LevelTimestamp, String] = MutableMap[LevelTimestamp, String]()
   val dimensionTable: DimensionTable = DimensionTable("AcumeCacheGlobalDimensionTable" + cube.cubeName)
   val diskUtility = DataLoader.getDataLoader(acumeCacheContext, conf, this)
-//  val evictionpolicy = EvictionPolicy.getEvictionPolicy(cube.evictionPolicyClass, conf)
   
   override def createTempTable(startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
     requestType match {
@@ -48,9 +46,9 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
   }
 
   val concurrencyLevel = conf.get(ConfConstants.rrcacheconcurrenylevel).toInt
-  val cacheSize = concurrencyLevel * (cube.levelPolicyMap.map(_._2).reduce(_+_))
+  val acumetreecachesize = concurrencyLevel * (cube.levelPolicyMap.map(_._2).reduce(_+_))
   private val cachePointToTable = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
-  .maximumSize(cacheSize).removalListener(new RemovalListener[LevelTimestamp, String] {
+  .maximumSize(acumetreecachesize).removalListener(new RemovalListener[LevelTimestamp, String] {
 	  def onRemoval(notification : RemovalNotification[LevelTimestamp, String]) {
 	    acumeCacheContext.sqlContext.uncacheTable(notification.getValue())
 	  }
@@ -85,14 +83,13 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
   }
   
   private def createTableForAggregate(startTime: Long, endTime: Long, tableName: String, isMetaData: Boolean): MetaData = {
-    // based on start time end time find the best possible path which depends on the level configured in variableretentionmap.
+    
     val duration = endTime - startTime
     val levelTimestampMap = cacheLevelPolicy.getRequiredIntervals(startTime, endTime)
     buildTableForIntervals(levelTimestampMap, tableName, isMetaData)
   }
   
   private def createTableForTimeseries(startTime: Long, endTime: Long, tableName: String, queryOptionalParam: Option[QueryOptionalParam], isMetaData: Boolean): MetaData = {
-    //based on timeseries policy use the appropriate level to create list of rdds needed to create the output table
     
     val baseLevel = cube.baseGran.getGranularity
     val level = 

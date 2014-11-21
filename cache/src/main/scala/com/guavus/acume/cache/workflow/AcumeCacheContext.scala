@@ -28,6 +28,7 @@ import com.guavus.acume.cache.common.QLType.QLType
 import com.guavus.acume.cache.core.AcumeCacheFactory
 import com.guavus.acume.cache.core.CacheIdentifier
 import com.guavus.acume.cache.core.TimeGranularity
+import com.guavus.acume.cache.eviction.EvictionPolicy
 import com.guavus.acume.cache.gen.Acume
 import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
 import com.guavus.acume.cache.utility.SQLUtility
