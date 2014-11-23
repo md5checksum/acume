@@ -9,11 +9,11 @@ abstract class CubeTrait(val superCubeName: String, val superDimension: Dimensio
  * @author archit.thakur
  *
  */
-case class Cube(cubeName: String, dimension: DimensionSet, measure: MeasureSet, 
+case class Cube(cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, 
     baseGran: TimeGranularity, isCacheable: Boolean, levelPolicyMap: Map[Long, Int], cacheTimeseriesLevelPolicyMap: Map[Long, Int],
-    evictionPolicyClass: Class[_ <: EvictionPolicy])
+    evictionPolicyClass: Class[_ <: EvictionPolicy]) 
     extends CubeTrait(cubeName, dimension, measure)
-case class BaseCube(cubeName: String, dimension: DimensionSet, measure: MeasureSet) extends CubeTrait(cubeName, dimension, measure)
+case class BaseCube(cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, baseGran: TimeGranularity) extends CubeTrait(cubeName, dimension, measure)
 
 case class Function(functionClass: String, functionName: String) extends Serializable 
 case class DimensionSet(dimensionSet: List[Dimension]) extends Serializable 

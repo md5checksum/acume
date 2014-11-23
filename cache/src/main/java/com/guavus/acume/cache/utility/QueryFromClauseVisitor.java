@@ -27,7 +27,7 @@ public class QueryFromClauseVisitor extends AbstractVisitor {
 	public void visit(Table tableName){
 		
 		Tuple t = new Tuple();
-		t.setTableName(tableName.getName());
+		t.setCubeName(tableName.getName());
 		t.setStartTime(startTime);
 		t.setEndTime(endTime);
 		list.add(t);

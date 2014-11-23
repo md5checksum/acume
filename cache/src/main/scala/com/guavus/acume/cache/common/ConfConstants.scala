@@ -27,10 +27,13 @@ private [acume] object ConfConstants {
   val qltype = "acume.cache.execute.qltype"
   val evictionpolicyforcube = "evictionpolicyclass"
   val rrloader = "acume.cache.rrcache.loader"
-  val basegranularity = "basegranularity"
+  
   val cubetype = "cubetype"
   val levelpolicymap = "levelpolicymap"
+  val binsource = "binsource"
+  val basegranularity = "basegranularity"
   val timeserieslevelpolicymap = "timeserieslevelpolicymap"
+  
   val firstbinpersistedtime = "acume.cache.delete.firstbinpersistedtime"
   val lastbinpersistedtime = "acume.cache.delete.lastbinpersistedtime"
   val completelist = "acume.cache.delete.completelist"
