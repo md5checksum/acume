@@ -20,8 +20,7 @@
         </Field>
     </Fields>
     <!--
-	 field info = name:type:fieldtype:aggregationunction.
-	 cube info = name, binsource
+	 info = name:type:fieldtype:aggregationunction.
     All Tag Names are camel-case.
     Dimension and Field names are solution defined could be in any form.
     properties names, datatype name, field type dimension/measure all are small.
@@ -34,9 +33,9 @@
     </Default>
     <Cubes>
         <Cube>
-            <Info>
+            <Name>
                 cube124
-            </Info>
+            </Name>
             <Fields>
                 IngressAS, Measure:sum
             </Fields>
@@ -45,9 +44,9 @@
             </Properties>
         </Cube>
         <Cube>
-            <Info>
+            <Name>
                 cube124
-            </Info>
+            </Name>
             <Fields>
                 KIngressAS, DMeasure:sum
             </Fields>

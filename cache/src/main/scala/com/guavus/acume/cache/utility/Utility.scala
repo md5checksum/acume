@@ -237,7 +237,7 @@ object Utility extends Logging {
     result.toMap
   }
   
-  def newCalendar(): Calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
+  def newCalendar(): Calendar = Calendar.getInstance
   def newCalendar(timezone: TimeZone): Calendar = Calendar.getInstance(timezone)
   
   def getAllIntervals(startTime: Long, endTime: Long, gran: Long): MutableList[Long] = {

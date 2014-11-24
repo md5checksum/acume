@@ -44,20 +44,6 @@ public class SQLUtility {
 		}
 		return requestType.getRequestType();
 	}
-
-	public ExtraInfo getExtraInfo(String qx) {
-
-		ExtraInfo info = new ExtraInfo();
-		try{
-			CCJSqlParserManager sql = SQLParserFactory.getParserManager();
-			Statement statement = sql.parse(new StringReader(qx));
-			((Select)statement).getSelectBody().accept(new QueryExtraInfoWhereClauseVisitor(info));
-		} catch (JSQLParserException e) {
-			e.printStackTrace();
-		}
-		return info;
-	}
-
 	
 	public static void main(String args[]) {
 			
@@ -67,7 +53,7 @@ public class SQLUtility {
 		for (Tuple tx: list) {
 			System.out.println(tx.getStartTime());
 			System.out.println(tx.getEndTime());
-			System.out.println(tx.getCubeName());
+			System.out.println(tx.getTableName());
 		}
 	}
 }

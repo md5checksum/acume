@@ -80,7 +80,7 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     val datatypearray = Array(ConversionToCrux.convertToCruxFieldDataType(DataType.ACLong), ConversionToCrux.convertToCruxFieldDataType(DataType.ACLong))  ++ baseCubeMeasureSet.map(x => ConversionToCrux.convertToCruxFieldDataType(x.getDataType))
     val _$list = for(ts <- list) yield {
     
-      val baseDir = instabase + "/" + instainstanceid + "/" + baseCube.binsource + "/" + "base-level" + "/" + baseCube.cubeName + "/f/" + ts
+      val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube.cubeName + "/f/" + ts
       val rowRDD = getRowSchemaRDD(sqlContext, baseDir, fields, datatypearray)
       val schemaRDD = acumeCacheContext.sqlContext.applySchema(rowRDD, latestschema)
       schemaRDD
@@ -186,7 +186,7 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
         
         val _$list = Utility.getAllInclusiveIntervals(startTime, endTime, baseGran.getGranularity)
         val _list = for(timestamp <- _$list) yield {
-        val baseDir = instabase + "/" + instainstanceid + "/" + baseCube.binsource + "/" + "base-level" + "/" + baseCube.cubeName + "/d/" + timestamp
+        val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube.cubeName + "/d/" + timestamp
         val rowRDD = getRowSchemaRDD(sqlContext, baseDir, fields, datatypearray)
         rowRDD
       }

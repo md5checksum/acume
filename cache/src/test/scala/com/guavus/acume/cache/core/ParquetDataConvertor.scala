@@ -145,7 +145,7 @@ object ParquetDataConvertor {
     }
     
 	for(c <- acumeCube.getCubes().getCube().toList) yield {
-	  val cubeName = c.getInfo().trim
+	  val cubeName = c.getName().trim
 	  val fields = c.getFields().split(",").map(_.trim)
 	  val dimensionSet = scala.collection.mutable.MutableList[Dimension]()
 	  dimensionSet.+=(dim_id)
@@ -168,7 +168,7 @@ object ParquetDataConvertor {
 	    }
 	  }
 	 
-	  val cube = BaseCube(cubeName, "default", DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), TimeGranularity.HOUR)
+	  val cube = BaseCube(cubeName, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList))
 	  baseCubeMap.put(cubeName, cube)
     }
   }
