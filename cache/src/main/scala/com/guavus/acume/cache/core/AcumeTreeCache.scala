@@ -165,7 +165,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     val dataloadedrdd = applySchema(schemarddlist.reduce(_.unionAll(_)), finalSchema)
     val baseMeasureSetTable = cube.cubeName + "MeasureSet" + getUniqueRandomeNo
     val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
-    dataloadedrdd.collect.map(println)
+//    dataloadedrdd.collect.map(println)
     dataloadedrdd.registerTempTable(baseMeasureSetTable)
     AcumeCacheUtility.dMJoin(acumeCacheContext.sqlContext, dimensionTable, baseMeasureSetTable, joinDimMeasureTableName)
     val _$acumecache = AcumeCacheUtility.getSchemaRDD(acumeCacheContext, cube, joinDimMeasureTableName)
