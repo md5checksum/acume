@@ -40,18 +40,18 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
 
   @Bean
   @Autowired
-  def acumeService(dataService: DataService): AcumeService = {
+  override def acumeService(dataService: DataService): AcumeService = {
     new AcumeService(dataService)
   }
 
   @Bean
   @Autowired
-  def dataService(queryBuilderService : Seq[IQueryBuilderService], ac : AcumeContextTrait): DataService = {
+  override def dataService(queryBuilderService : Seq[IQueryBuilderService], ac : AcumeContextTrait): DataService = {
     new DataService(queryBuilderService, ac)
   }
 
   @Bean
-  def defaultTimeGranularity(): TimeGranularity = TimeGranularity.HOUR
+  override def defaultTimeGranularity(): TimeGranularity = TimeGranularity.HOUR
   
   @Bean
   @Autowired
@@ -67,7 +67,7 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
   }
 
   @Bean
-  def permissionTemplate(): IPermissionTemplate = new DefaultPermissionTemplate()
+  override def permissionTemplate(): IPermissionTemplate = new DefaultPermissionTemplate()
 
 /*
 Original Java:
