@@ -29,6 +29,8 @@ abstract class AbstractRequestServlet extends HttpServlet {
 	} else if(response.isInstanceOf[SearchResponse]) {
 	  //search response
 	  finalResponse = TimeseriesResponse.gson.toJson(response)
+	} else if(response.isInstanceOf[Serializable]) {
+	  finalResponse = response.toString
 	} else {
 	  throw new ServletException("Invalid response");
 	}

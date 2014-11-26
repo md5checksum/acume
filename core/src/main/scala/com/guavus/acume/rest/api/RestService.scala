@@ -11,6 +11,7 @@ import javax.ws.rs.QueryParam
 import javax.xml.bind.annotation.XmlRootElement
 import javax.ws.rs.POST
 import com.guavus.acume.rest.beans.SearchRequest
+import com.guavus.acume.cache.workflow.AcumeCacheResponse
 
 @Path("/" + "queryresponse")
 /**
@@ -89,6 +90,7 @@ class RestService {
 	def getDataAvailability( @QueryParam(value = "super") userinfo : String,
 			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : java.util.HashMap[String, java.util.ArrayList[Long]] = {
 	  Authentication.authenticate(userinfo, user, password)
+
 	  new java.util.HashMap[String, java.util.ArrayList[Long]]()
 	}
 	
