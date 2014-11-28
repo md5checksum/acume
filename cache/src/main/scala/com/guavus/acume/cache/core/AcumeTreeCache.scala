@@ -28,6 +28,7 @@ import com.guavus.acume.cache.workflow.RequestType.Timeseries
 import java.util.Observer
 import java.util.Random
 import com.guavus.acume.cache.workflow.RequestType.RequestType
+import org.apache.spark.sql.SchemaRDD
 
 /**
  * @author archit.thakur
@@ -49,14 +50,14 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
   val concurrencyLevel = conf.get(ConfConstants.rrcacheconcurrenylevel).toInt
   val acumetreecachesize = concurrencyLevel + concurrencyLevel * (cube.levelPolicyMap.map(_._2).reduce(_+_))
   private val cachePointToTable = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
-  .maximumSize(acumetreecachesize).removalListener(new RemovalListener[LevelTimestamp, String] {
-	  def onRemoval(notification : RemovalNotification[LevelTimestamp, String]) {
-	    acumeCacheContext.sqlContext.uncacheTable(notification.getValue())
+  .maximumSize(acumetreecachesize).removalListener(new RemovalListener[LevelTimestamp, AcumeTreeCacheValue] {
+	  def onRemoval(notification : RemovalNotification[LevelTimestamp, AcumeTreeCacheValue]) {
+	    acumeCacheContext.sqlContext.uncacheTable(notification.getValue().measuretableName)
 	  }
   })
   .build(
-      new CacheLoader[LevelTimestamp, String]() {
-        def load(key: LevelTimestamp): String = {
+      new CacheLoader[LevelTimestamp, AcumeTreeCacheValue]() {
+        def load(key: LevelTimestamp): AcumeTreeCacheValue = {
           return getData(key);
         }
       });
@@ -130,12 +131,14 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
 
     import acumeCacheContext.sqlContext._
     val cacheLevel = levelTimestamp.level
-    val diskread = diskUtility.loadData(cube, levelTimestamp, dimensionTable)
+    val diskloaded = diskUtility.loadData(cube, levelTimestamp, dimensionTable)
+    val _$dataset = diskloaded._1
+    val _$dimt = diskloaded._2
     val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
-    acumeCacheContext.sqlContext.applySchema(diskread, diskread.schema)
-    diskread.registerTempTable(_tableName)
+    val value = acumeCacheContext.sqlContext.applySchema(_$dataset, _$dataset.schema)
+    value.registerTempTable(_tableName)
     cacheTable(_tableName) 
-    _tableName
+    AcumeTreeCacheValue(_$dimt, _tableName, value)
   }
   
   private def getUniqueRandomeNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt)
@@ -151,8 +154,8 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
       val timeIterated = for(item <- ts) yield {
         timestamps.+=(item)
         val levelTimestamp = LevelTimestamp(cachelevel, item)
-        val tblNm = cachePointToTable.get(levelTimestamp)
-        val diskread = table(tblNm)
+        val acumeTreeCacheValue = cachePointToTable.get(levelTimestamp)
+        val diskread = acumeTreeCacheValue.measureschemardd
         notifyObserverList
         finalSchema = diskread.schema
         val _$diskread = acumeCacheContext.sqlContext.applySchema(diskread, finalSchema)
@@ -167,7 +170,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
 //    dataloadedrdd.collect.map(println)
     dataloadedrdd.registerTempTable(baseMeasureSetTable)
-    AcumeCacheUtility.dMJoin(acumeCacheContext.sqlContext, dimensionTable, baseMeasureSetTable, joinDimMeasureTableName)
+    AcumeCacheUtility.dMJoin(acumeCacheContext.sqlContext, dimensionTable.tblnm, baseMeasureSetTable, joinDimMeasureTableName)
     val _$acumecache = AcumeCacheUtility.getSchemaRDD(acumeCacheContext, cube, joinDimMeasureTableName)
     acumeCacheContext.sqlContext.applySchema(_$acumecache, _$acumecache.schema).registerTempTable(tableName)
     val klist = timestamps.toList

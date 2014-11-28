@@ -12,13 +12,12 @@ import com.guavus.acume.cache.workflow.AcumeCacheContext
  */
 object AcumeCacheUtility {
 
-  private [core] def dMJoin(sqlContext: SQLContext, globalDTableName: DimensionTable, baseMeasureSetTable: String, finalName: String) = { 
+  private [core] def dMJoin(sqlContext: SQLContext, globalDTableName: String, baseMeasureSetTable: String, finalName: String) = { 
     
     import sqlContext._
-    val join = s"Select * from ${globalDTableName.tblnm} INNER JOIN $baseMeasureSetTable ON id = tupleid"
-    val globaldtblnm = globalDTableName.tblnm
-    val globalDTable = table(globaldtblnm)
-    sqlContext.applySchema(globalDTable, globalDTable.schema).registerTempTable(globaldtblnm)
+    val join = s"Select * from ${globalDTableName} INNER JOIN $baseMeasureSetTable ON id = tupleid"
+    val globalDTable = table(globalDTableName)
+    sqlContext.applySchema(globalDTable, globalDTable.schema).registerTempTable(globalDTableName)
     val joinedRDD = sqlContext.sql(join)
     joinedRDD.registerTempTable(finalName)
   }

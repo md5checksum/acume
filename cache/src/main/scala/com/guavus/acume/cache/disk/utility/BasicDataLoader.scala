@@ -27,6 +27,7 @@ import com.guavus.acume.cache.core.AcumeCache
 import java.util.Calendar
 import java.util.TimeZone
 import org.apache.spark.sql.SchemaRDD
+import com.guavus.acume.cache.common.DimensionTable
 
 /**
  * @author archit.thakur
@@ -37,24 +38,27 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
   val cube = acumeCache.cube
   override def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, DTableName: DimensionTable) = { 
     
-    val instabase = conf.get(ConfConstants.instabase)
-    val instainstanceid = conf.get(ConfConstants.instainstanceid)
-    loadData(businessCube, levelTimestamp, DTableName, instabase, instainstanceid)
+      val instabase = conf.get(ConfConstants.instabase)
+      val instainstanceid = conf.get(ConfConstants.instainstanceid)
+      val dataLoaded = loadData(businessCube, levelTimestamp, DTableName, instabase, instainstanceid)
+      dataLoaded
   }
   
   override def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, globalDTableName: DimensionTable, instabase: String, instainstanceid: String) = { 
     
-    val list = getLevel(levelTimestamp).toList //list of timestamps to be loaded on base gran, improve this to support grans in insta .
-    val baseCube = CubeUtil.getCubeMap(acumeCacheContext.baseCubeList.toList, acumeCacheContext.cubeList.toList).getOrElse(businessCube, throw new RuntimeException("Value not found."))
-    val baseDimensionSetTable = baseCube.cubeName + "dimensionset"
-    val baseMeasureSetTable = baseCube.cubeName + "measureset" +levelTimestamp
-    val level = levelTimestamp.level
-    val sqlContext = acumeCacheContext.sqlContext
-    import sqlContext._
-    loadMeasureSet(baseCube, list, baseMeasureSetTable, instabase, instainstanceid)
-    loadDimensionSet(baseCube, list, baseDimensionSetTable, instabase, instainstanceid)
-    modifyDimensionSet(baseCube, businessCube, baseDimensionSetTable, globalDTableName, instabase, instainstanceid)
-    modifyMeasureSet(baseCube, businessCube, baseMeasureSetTable, instabase, instainstanceid)
+      val list = getLevel(levelTimestamp).toList //list of timestamps to be loaded on base gran, improve this to support grans in insta .
+      val baseCube = CubeUtil.getCubeMap(acumeCacheContext.baseCubeList.toList, acumeCacheContext.cubeList.toList).getOrElse(businessCube, throw new RuntimeException("Value not found."))
+      val baseDimensionSetTable = baseCube.cubeName + "dimensionset"
+      val baseMeasureSetTable = baseCube.cubeName + "measureset" +levelTimestamp
+      val level = levelTimestamp.level
+      val sqlContext = acumeCacheContext.sqlContext
+      import sqlContext._
+      loadMeasureSet(baseCube, list, baseMeasureSetTable, instabase, instainstanceid)
+      this.synchronized {
+        loadDimensionSet(baseCube, list, baseDimensionSetTable, instabase, instainstanceid)
+        modifyDimensionSet(baseCube, businessCube, baseDimensionSetTable, globalDTableName, instabase, instainstanceid)
+        modifyMeasureSet(baseCube, businessCube, baseMeasureSetTable, globalDTableName, instabase, instainstanceid)
+      }
   }
   
   def getRowSchemaRDD(sqlContext: SQLContext, baseDir: String, fields: Fields, datatypearray: Array[FieldDataType]): RDD[Row] 
@@ -93,14 +97,14 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
   }
   
   private def modifyMeasureSet(baseCube: BaseCube, businessCube: Cube, 
-      baseMeasureSetTable: String, instabase: String, instainstanceid: String): SchemaRDD = {
+      baseMeasureSetTable: String, globalDTableName: DimensionTable, instabase: String, instainstanceid: String): (SchemaRDD, String) = {
     
     val sqlContext = acumeCacheContext.sqlContext
     val list = CubeUtil.getMeasureSet(businessCube).map(_.getName).mkString(",")
     val measuresql = s"select tupleid, ts, ${list} from $baseMeasureSetTable"
     import acumeCacheContext.sqlContext._
     val measurerdd = sqlContext.sql(measuresql)
-    sqlContext.applySchema(measurerdd, measurerdd.schema)
+    (sqlContext.applySchema(measurerdd, measurerdd.schema), globalDTableName.tblnm)
   }
   
   private def modifyDimensionSet(baseCube: BaseCube, businessCube: Cube, 
@@ -136,14 +140,13 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     // This loads the dimension set of cube businessCubeName for the particular timestamp into globalDTableName table.
     try { 
       val maxts = max(list).get
-      val startts = DataLoader.getMetadata(acumeCache) match {
-        case None => 0l
-        case Some(x) => x.getOrElse(DataLoadedMetadata.dimensionSetStartTime, "0").toLong
-      }
-      val endts = DataLoader.getMetadata(acumeCache) match {
-        case None => 0l
-        case Some(x) => x.getOrElse(DataLoadedMetadata.dimensionSetEndTime, "0").toLong
-      }
+      
+      val startts = DataLoader.getOrElseInsert(acumeCache, new DataLoadedMetadata)
+      .getOrElseInsert(DataLoadedMetadata.dimensionSetStartTime, "0").toLong
+
+      val endts = DataLoader.getOrElseInsert(acumeCache, new DataLoadedMetadata)
+      .getOrElseInsert(DataLoadedMetadata.dimensionSetEndTime, "0").toLong
+      
       val sqlContext = acumeCacheContext.sqlContext
       val sparkContext = sqlContext.sparkContext
       
@@ -158,7 +161,7 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
       val datatypearray = Array(ConversionToCrux.convertToCruxFieldDataType(DataType.ACLong), ConversionToCrux.convertToCruxFieldDataType(DataType.ACLong)) ++ baseCubeDimensionSet.map(x => ConversionToCrux.convertToCruxFieldDataType(x.getDataType))
       val baseGran = cube.baseGran
       
-      val dataloadedmetadata = DataLoader.getMetadata(acumeCache).getOrElse(new DataLoadedMetadata)
+      val dataloadedmetadata = DataLoader.getOrElseMetadata(acumeCache, new DataLoadedMetadata)
       
       val (startTime: Long, endTime: Long) = 
         if(startts == 0 && endts == 0) {

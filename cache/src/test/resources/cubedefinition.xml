@@ -226,7 +226,7 @@
                 EgressPeerEntityId,EgressAS,EgressIP,EgressRTR,OutgoingIF,EgressRuleId,FlowDirection,TTS_B,On_net_B,Off_net_B,Local_B,Regional_B,Continental_B,XAtlantic_B,XPacific_B,XOthers_B
             </Fields>
             <Properties>
-                basegranularity:1h, cubetype:normal, levelpolicymap:3h:0, timeserieslevelpolicymap:1h:53, evictionpolicyclass: com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy 	
+                basegranularity:1h, cubetype:normal, levelpolicymap:1h:53, timeserieslevelpolicymap:1h:1;3h:30, evictionpolicyclass: com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy 	
             </Properties>
         </Cube>
     </Cubes>

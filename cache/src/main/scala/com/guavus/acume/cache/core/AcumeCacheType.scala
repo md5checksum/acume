@@ -35,7 +35,7 @@ object AcumeCacheType extends Enumeration {
     val sqlContext = new HiveContext(new SparkContext(conf))
     val conf123 = new AcumeCacheConf
     conf123.set(ConfConstants.businesscubexml, "src/test/resources/cubedefinition.xml")
-    conf123.set("acume.cache.core.variableretentionmap", "1h:0")
+    conf123.set("acume.cache.core.variableretentionmap", "1h:53")
     conf123.set("acume.cache.baselayer.instainstanceid","0")
     conf123.set("acume.cache.baselayer.storagetype", "parquet")
     conf123.set("acume.cache.core.timezone", "GMT")
