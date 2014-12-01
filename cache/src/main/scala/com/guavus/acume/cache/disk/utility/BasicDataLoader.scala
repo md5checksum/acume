@@ -48,15 +48,18 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     
       val list = getLevel(levelTimestamp).toList //list of timestamps to be loaded on base gran, improve this to support grans in insta .
       val baseCube = CubeUtil.getCubeMap(acumeCacheContext.baseCubeList.toList, acumeCacheContext.cubeList.toList).getOrElse(businessCube, throw new RuntimeException("Value not found."))
-      val baseDimensionSetTable = baseCube.cubeName + "dimensionset"
-      val baseMeasureSetTable = baseCube.cubeName + "measureset" +levelTimestamp
+      
+      val baseDimensionSetTable = baseCube.cubeName + levelTimestamp + "dimensionset"
+      val modifiedDimensionSetTable = baseCube.cubeName + levelTimestamp + "modifieddimensionset"
+      
+      val baseMeasureSetTable = baseCube.cubeName +levelTimestamp + "measureset"
       val level = levelTimestamp.level
       val sqlContext = acumeCacheContext.sqlContext
       import sqlContext._
       loadMeasureSet(baseCube, list, baseMeasureSetTable, instabase, instainstanceid)
       this.synchronized {
         loadDimensionSet(baseCube, list, baseDimensionSetTable, instabase, instainstanceid)
-        modifyDimensionSet(baseCube, businessCube, baseDimensionSetTable, globalDTableName, instabase, instainstanceid)
+        modifyDimensionSet(baseCube, businessCube, baseDimensionSetTable, modifiedDimensionSetTable, globalDTableName, instabase, instainstanceid)
         modifyMeasureSet(baseCube, businessCube, baseMeasureSetTable, globalDTableName, instabase, instainstanceid)
       }
   }
@@ -108,7 +111,7 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
   }
   
   private def modifyDimensionSet(baseCube: BaseCube, businessCube: Cube, 
-      baseDimensionSetTable: String, globalDTableName: DimensionTable, 
+      baseDimensionSetTable: String, modifiedDimensionSetTable: String, globalDTableName: DimensionTable,  
       instabase: String, instainstanceid: String) = {
     
     val sqlContext = acumeCacheContext.sqlContext
@@ -125,14 +128,19 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
       }
       
       val dimensionRDD = sqlContext.sql(dimensionSQL)
-      sqlContext.applySchema(dimensionRDD, dimensionRDD.schema)
+//      sqlContext.applySchema(dimensionRDD, dimensionRDD.schema)
+      dimensionRDD.registerTempTable(modifiedDimensionSetTable)
       if(istableregistered) {
-        val unioned = table(globaldtblnm).union(dimensionRDD)
+        cacheTable(modifiedDimensionSetTable)
+        val unioned = sqlContext.sql("select * from " + globaldtblnm + " union all select * from " + modifiedDimensionSetTable)
+//        val unioned = table(globaldtblnm).union(dimensionRDD)
         globalDTableName.Modify
         sqlContext.applySchema(unioned, dimensionRDD.schema).registerTempTable(globalDTableName.tblnm)
       }
-      else 
+      else {
         dimensionRDD.registerTempTable(globaldtblnm)
+        cacheTable(globaldtblnm)
+      }
   }
   
   private def loadDimensionSet(baseCube: BaseCube, list: List[Long], baseDimensionSetTable: String, instabase: String, instainstanceid: String): Boolean = { 

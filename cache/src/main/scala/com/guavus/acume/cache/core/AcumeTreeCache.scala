@@ -125,8 +125,16 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     val startTimeCeiling = cacheLevelPolicy.getCeilingToLevel(startTime, level)
     val endTimeFloor = cacheLevelPolicy.getFloorToLevel(endTime, level)
     val list = Utility.getAllIntervals(startTimeCeiling, endTimeFloor, level)
-    val intervals: MutableMap[Long, MutableList[Long]] = MutableMap(level -> list)
-    buildTableForIntervals(intervals, tableName, isMetaData)
+    if(!list.isEmpty) { 
+      
+      val intervals: MutableMap[Long, MutableList[Long]] = MutableMap(level -> list)
+      buildTableForIntervals(intervals, tableName, isMetaData)
+    }
+    else { 
+      
+      Utility.getEmptySchemaRDD(acumeCacheContext.sqlContext, cube).registerTempTable(tableName)
+      MetaData(Nil)
+    }
   }
   
   private def getVariableRetentionMap: SortedMap[Long, Int] = {
@@ -171,15 +179,16 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
       }
       timeIterated
     }
+    if(!levelTime.isEmpty) {
     val schemarddlist = levelTime.flatten
     val dataloadedrdd = applySchema(schemarddlist.reduce(_.unionAll(_)), finalSchema)
     val baseMeasureSetTable = cube.cubeName + "MeasureSet" + getUniqueRandomeNo
     val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
-//    dataloadedrdd.collect.map(println)
     dataloadedrdd.registerTempTable(baseMeasureSetTable)
     AcumeCacheUtility.dMJoin(acumeCacheContext.sqlContext, dimensionTable.tblnm, baseMeasureSetTable, joinDimMeasureTableName)
     val _$acumecache = AcumeCacheUtility.getSchemaRDD(acumeCacheContext, cube, joinDimMeasureTableName)
     acumeCacheContext.sqlContext.applySchema(_$acumecache, _$acumecache.schema).registerTempTable(tableName)
+    }
     val klist = timestamps.toList
     MetaData(klist)
   }

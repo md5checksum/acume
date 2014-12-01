@@ -1,25 +1,32 @@
 package com.guavus.acume.cache.utility
 
-import scala.collection.mutable.MutableList
-import scala.collection.mutable.{Map => MutableMap}
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.StringTokenizer
 import java.util.TimeZone
+import scala.collection.JavaConversions.mutableSeqAsJavaList
+import scala.collection.mutable.{Map => MutableMap}
+import scala.collection.mutable.MutableList
 import org.apache.commons.configuration.PropertiesConfiguration
 import org.apache.commons.lang.StringUtils
-import com.guavus.acume.cache.core.EvictionDetails
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
-import com.guavus.acume.cache.common.AcumeConstants
-import com.guavus.acume.cache.core.TimeGranularity
-import com.guavus.acume.cache.core.TimeGranularity._
+import org.apache.spark.Logging
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.catalyst.types.StructType
-import org.apache.spark.sql.catalyst.expressions.Row
-import org.apache.spark.Logging
-import java.util.StringTokenizer
-import java.util.Calendar
-import java.text.SimpleDateFormat
-import java.util.Date
 import org.apache.spark.sql.SchemaRDD
+import org.apache.spark.sql.catalyst.expressions.Row
+import org.apache.spark.sql.catalyst.types.LongType
+import org.apache.spark.sql.catalyst.types.StructField
+import com.guavus.acume.cache.common.AcumeConstants
+import com.guavus.acume.cache.common.ConversionToSpark
+import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.core.EvictionDetails
+import com.guavus.acume.cache.core.TimeGranularity
+import com.guavus.acume.cache.core.TimeGranularity._
+import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
+import com.guavus.acume.cache.disk.utility.CubeUtil
+import scala.collection.SortedMap
+import scala.collection.immutable.TreeMap
 
 /**
  * @author archit.thakur
@@ -32,6 +39,19 @@ object Utility extends Logging {
     val sparkContext = sqlContext.sparkContext
     val _$rdd = sparkContext.parallelize(1 to 1).map(x =>Row.fromSeq(Nil)).filter(x => false)
     sqlContext.applySchema(_$rdd, schema)
+  }
+  
+  def getEmptySchemaRDD(sqlContext: SQLContext, cube: Cube) = {
+    
+    val sparkContext = sqlContext.sparkContext
+    val _$rdd = sparkContext.parallelize(1 to 1).map(x =>Row.fromSeq(Nil)).filter(x => false)
+    val cubeFieldList = cube.dimension.dimensionSet ++ cube.measure.measureSet
+    val schema = cubeFieldList.map(field => { 
+            StructField(field.getName, ConversionToSpark.convertToSparkDataType(CubeUtil.getFieldType(field)), true)
+          })
+    val latestschema = StructType(schema.+:(StructField("ts", LongType, true)))
+    sqlContext.applySchema(_$rdd, latestschema)
+    
   }
   
   def insertInto(sqlContext: SQLContext, schema: StructType, newrdd: SchemaRDD, tbl: String, newtbl: String) = {
@@ -218,6 +238,24 @@ object Utility extends Logging {
   }
 
 
+//  def getLevelPointMap1(mapString: String): SortedMap[Long, Integer] = {
+//    val result = new TreeMap[Long, Integer]()
+//    val tok = new StringTokenizer(mapString, ";")
+//    while (tok.hasMoreTokens()) {
+//      val currentMapElement = tok.nextToken()
+//      var gran: String = null
+//      var points: Int = 0
+//      gran = currentMapElement.substring(0, currentMapElement.indexOf(':'))
+//      points = java.lang.Integer.valueOf(currentMapElement.substring(currentMapElement.indexOf(':') + 1))
+//      val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(gran)
+//      if (granularity == null) {
+//        throw new IllegalArgumentException("Unsupported Granularity  " + gran)
+//      }
+//      val level = granularity.getGranularity
+//      result.put(level, points)
+//    }
+//    result
+//  }
   
   def getLevelPointMap(mapString: String): Map[Long, Int] = {
     val result = MutableMap[Long, Int]()
@@ -237,7 +275,7 @@ object Utility extends Logging {
     result.toMap
   }
   
-  def newCalendar(): Calendar = Calendar.getInstance
+  def newCalendar(): Calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
   def newCalendar(timezone: TimeZone): Calendar = Calendar.getInstance(timezone)
   
   def getAllIntervals(startTime: Long, endTime: Long, gran: Long): MutableList[Long] = {
