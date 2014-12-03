@@ -12,6 +12,7 @@ import org.apache.spark.sql.catalyst.expressions.Row
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.SchemaRDD
 import com.guavus.acume.cache.core.AcumeCache
+import org.apache.spark.sql.catalyst.types.StructType
 
 /**
  * @author archit.thakur
@@ -19,7 +20,7 @@ import com.guavus.acume.cache.core.AcumeCache
  */
 class ParquetDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache) extends BasicDataLoader(acumeCacheContext, conf, acumeCache) { 
   
-  override def getRowSchemaRDD(sqlContext: SQLContext, baseDir: String, fields: Fields, datatypearray: Array[FieldDataType]): RDD[Row] = {
+  override def getRowSchemaRDD(sqlContext: SQLContext, baseDir: String, fields: Fields, datatypearray: Array[FieldDataType], schema: StructType): SchemaRDD = {
     
     sqlContext.parquetFile(baseDir)
   }

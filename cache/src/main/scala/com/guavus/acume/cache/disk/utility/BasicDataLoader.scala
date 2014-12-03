@@ -64,7 +64,7 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
       }
   }
   
-  def getRowSchemaRDD(sqlContext: SQLContext, baseDir: String, fields: Fields, datatypearray: Array[FieldDataType]): RDD[Row] 
+  def getRowSchemaRDD(sqlContext: SQLContext, baseDir: String, fields: Fields, datatypearray: Array[FieldDataType], schema: StructType): SchemaRDD 
   
   private def getLevel(levelTimestamp: LevelTimestamp) = CubeUtil.getLevel(levelTimestamp)
   
@@ -88,12 +88,11 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     val _$list = for(ts <- list) yield {
     
       val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube.cubeName + "/f/" + ts
-      val rowRDD = getRowSchemaRDD(sqlContext, baseDir, fields, datatypearray)
-      val schemaRDD = acumeCacheContext.sqlContext.applySchema(rowRDD, latestschema)
-      schemaRDD
+      getRowSchemaRDD(sqlContext, baseDir, fields, datatypearray, latestschema)
+      
     }
     if(!_$list.isEmpty)
-      sqlContext.applySchema(_$list.map(_.asInstanceOf[RDD[Row]]).reduce(_.union(_)), latestschema).registerTempTable(baseMeasureSetTable)
+      _$list.reduce(_.unionAll(_)).registerTempTable(baseMeasureSetTable)
     else
       Utility.getEmptySchemaRDD(sqlContext, latestschema).registerTempTable(baseMeasureSetTable)
     true
@@ -107,7 +106,7 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
     val measuresql = s"select tupleid, ts, ${list} from $baseMeasureSetTable"
     import acumeCacheContext.sqlContext._
     val measurerdd = sqlContext.sql(measuresql)
-    (sqlContext.applySchema(measurerdd, measurerdd.schema), globalDTableName.tblnm)
+    (measurerdd, globalDTableName.tblnm)
   }
   
   private def modifyDimensionSet(baseCube: BaseCube, businessCube: Cube, 
@@ -135,7 +134,7 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
         val unioned = sqlContext.sql("select * from " + globaldtblnm + " union all select * from " + modifiedDimensionSetTable)
 //        val unioned = table(globaldtblnm).union(dimensionRDD)
         globalDTableName.Modify
-        sqlContext.applySchema(unioned, dimensionRDD.schema).registerTempTable(globalDTableName.tblnm)
+        unioned.registerTempTable(globalDTableName.tblnm)
       }
       else {
         dimensionRDD.registerTempTable(globaldtblnm)
@@ -198,11 +197,11 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
         val _$list = Utility.getAllInclusiveIntervals(startTime, endTime, baseGran.getGranularity)
         val _list = for(timestamp <- _$list) yield {
         val baseDir = instabase + "/" + instainstanceid + "/" + "bin-class" + "/" + "base-level" + "/" + baseCube.cubeName + "/d/" + timestamp
-        val rowRDD = getRowSchemaRDD(sqlContext, baseDir, fields, datatypearray)
+        val rowRDD = getRowSchemaRDD(sqlContext, baseDir, fields, datatypearray, latestschema)
         rowRDD
       }
       if(!_list.isEmpty)
-        sqlContext.applySchema(_list.reduce(_.union(_)), latestschema).registerTempTable(baseDimensionSetTable)
+        _list.reduce(_.unionAll(_)).registerTempTable(baseDimensionSetTable)
       }
       
       if(startTime != 0 && endTime != 0) { 
