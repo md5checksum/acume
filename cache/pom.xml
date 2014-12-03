@@ -17,7 +17,12 @@
 			<id>Akka repository</id>
 			<url>http://repo.akka.io/releases</url>
 		</repository>
+		<repository>
+			<id>releases</id>
+			<url>https://repository.apache.org/content/repositories/orgapachespark-1048/</url>
+		</repository>
 	</repositories>
+	
 	<url>http://maven.apache.org</url>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -55,7 +60,11 @@
 			<exclusions>
 				<exclusion>
 					<groupId>com.sun.jersey</groupId>
-                                	<artifactId>*</artifactId>
+                    <artifactId>*</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.hive</groupId>
+                    <artifactId>*</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -72,7 +81,7 @@
 		<dependency> <!-- Spark dependency -->
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-core_2.10</artifactId>
-			<version>1.1.0</version>
+			<version>1.2.0</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>  
@@ -88,13 +97,13 @@
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-sql_2.10</artifactId>
-			<version>1.1.0</version>
+			<version>1.2.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-hive_2.10</artifactId>
-			<version>1.1.0</version>
+			<version>1.2.0</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>

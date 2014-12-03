@@ -12,18 +12,18 @@
 	<artifactId>core</artifactId>
 	<version>0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	
+
 	<repositories>
 		<repository>
 			<id>Akka repository</id>
 			<url>http://repo.akka.io/releases</url>
 		</repository>
-    	<repository>
-        	<id>releases</id>
-        	<url>https://github.com/adatao/mvnrepos/raw/master/releases</url>
-    	</repository>
+		<repository>
+			<id>releases</id>
+			<url>https://repository.apache.org/content/repositories/orgapachespark-1048/</url>
+		</repository>
 	</repositories>
-	
+
 	<name>Acume Core</name>
 	<url>http://maven.apache.org</url>
 	<properties>
@@ -106,16 +106,16 @@
 					<artifactId>servlet-api</artifactId>
 				</exclusion>
 				<exclusion>
-                	<groupId>com.google.guava</groupId>
-                    <artifactId>guava</artifactId>
-                </exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
 				<exclusion>
 					<groupId>asm</groupId>
 					<artifactId>asm</artifactId>
 				</exclusion>
 				<exclusion>
-                	<groupId>com.sun.jersey</groupId>
-                </exclusion>
+					<groupId>com.sun.jersey</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -144,9 +144,9 @@
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
-                    <groupId>asm</groupId>
-                    <artifactId>asm</artifactId>
-            	</exclusion>
+					<groupId>asm</groupId>
+					<artifactId>asm</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<!-- Rest Service dependencies end -->
@@ -164,7 +164,7 @@
 		<dependency> <!-- Spark dependency -->
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-core_2.10</artifactId>
-			<version>1.1.0</version>
+			<version>1.2.0</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>  <!-- declare the exclusion here -->
@@ -177,40 +177,61 @@
 				</exclusion>
 				<exclusion>
 					<groupId>hsqldb</groupId>
-  					<artifactId>hsqldb</artifactId>
+					<artifactId>hsqldb</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>servlet-api</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-sql_2.10</artifactId>
-			<version>1.1.0</version>
+			<version>1.2.0</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-hive_2.10</artifactId>
-			<version>1.1.0</version>
+			<version>1.2.0</version>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<!-- Spark dependencies end -->
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-hive-thriftserver_2.10</artifactId>
-			<version>1.1.0</version>
+			<version>1.2.0</version>
 			<scope>provided</scope>
-		</dependency>		
+			<exclusions>
+				<exclusion>
+					<groupId>javax.servlet</groupId>
+					<artifactId>servlet-api</artifactId>
+				</exclusion>
+		    </exclusions>
+		</dependency>
 		<dependency>
 			<groupId>com.guavus</groupId>
-        	<artifactId>QueryBuilder</artifactId>
-        	<version>0.1-SNAPSHOT</version>
+			<artifactId>QueryBuilder</artifactId>
+			<version>0.1-SNAPSHOT</version>
 		</dependency>
-		<!--dependency>
+		<dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>crux2.0</artifactId>
 			<version>0.1-SNAPSHOT</version>
-		</dependency-->
+			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>com.sun.jersey</groupId>
+					<artifactId>*</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.hive</groupId>
+                                	<artifactId>*</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 	</dependencies>
 
 	<build>
