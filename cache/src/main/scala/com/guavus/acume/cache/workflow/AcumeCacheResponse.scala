@@ -9,7 +9,7 @@ import scala.collection.mutable.MutableList
  * @author archit.thakur
  *
  */
-case class AcumeCacheResponse(schemaRDD: SchemaRDD, metadata:MetaData)
+case class AcumeCacheResponse(val schemaRDD: SchemaRDD, val metadata:MetaData)
 case class MetaData(timestamps: List[Long])
 
 

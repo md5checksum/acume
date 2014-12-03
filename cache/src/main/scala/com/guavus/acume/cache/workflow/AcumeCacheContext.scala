@@ -36,6 +36,11 @@ import com.guavus.acume.cache.core.AcumeCache
 import com.google.common.cache.LoadingCache
 import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.core.AcumeTreeCacheValue
+import scala.collection.JavaConversions._
+import org.apache.spark.sql.catalyst.types.StructType
+import org.apache.spark.sql.catalyst.types.StructField
+import org.apache.spark.sql.catalyst.types.StringType
+import org.apache.spark.sql.catalyst.expressions.Row
 
 /**
  * @author archit.thakur
@@ -126,15 +131,15 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     (newunparsedsql, newparsedsql)
   }
   
-  def getCacheTest = { 
+  def gIt = { 
     
     val c = AcumeCacheFactory.caches.values().toArray()
     val response = for(i <- c) yield {
       val key = i.asInstanceOf[AcumeCache].cube.cubeName 
-      val value = i.asInstanceOf[AcumeCache].getCacheCollection.asInstanceOf[LoadingCache[LevelTimestamp,AcumeTreeCacheValue]].asMap().keySet()
+      val value = i.asInstanceOf[AcumeCache].getCacheCollection.asInstanceOf[LoadingCache[LevelTimestamp,AcumeTreeCacheValue]].asMap().keySet().toArray.mkString("-")
       (key, value)
     }
-    response.toMap
+    response
   }
   
   def acql(sql: String, qltype: String): AcumeCacheResponse = { 
@@ -145,13 +150,22 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     executeQl(sql, ql)
   }
   
+  def getRow(row: (String, String)) = Row.fromSeq(Seq(row._1,row._2))
   def acql(sql: String): AcumeCacheResponse = { 
     
-    
-    val ql = AcumeCacheContext.getQLType(conf)
-    if (!AcumeCacheContext.checkQLValidation(sqlContext, ql))
-      throw new RuntimeException(s"ql not supported with ${sqlContext}");
-    executeQl(sql, ql)
+    if(sql.equals("give me cache")) {
+//      gIt
+      val row = sqlContext.sparkContext.parallelize(gIt.toList).map(x => getRow(x))
+      val schema = StructType(List(StructField("cubename",StringType,true), StructField("ts",StringType,true)))
+      val schemardd = sqlContext.applySchema(row, schema)
+      AcumeCacheResponse(schemardd, MetaData(Nil))
+    }
+    else {
+      val ql = AcumeCacheContext.getQLType(conf)
+      if (!AcumeCacheContext.checkQLValidation(sqlContext, ql))
+        throw new RuntimeException(s"ql not supported with ${sqlContext}");
+      executeQl(sql, ql)
+    }
   }
   
   def executeQl(sql : String, ql : QLType.QLType) = {

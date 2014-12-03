@@ -10,8 +10,9 @@ class TestServletVishal extends HttpServlet {
 
   override def doGet(req:HttpServletRequest , resp:HttpServletResponse) {
     
-    AcumeContextTrait.acumeContext.get.ac.acql("give me cache")
+//    AcumeContextTrait.acumeContext.get.ac.acql("give me cache")
     val out = resp.getWriter()
-    out.println(AcumeContextTrait.acumeContext.get.ac.acql("give me cache"))
+    AcumeContextTrait.acumeContext.get.ac.acql("give me cache").schemaRDD.collect.map(out.println)
+//    out.println(AcumeContextTrait.acumeContext.get.ac.acql("give me cache"))
   }
 }
