@@ -2,16 +2,13 @@ package com.guavus.acume.cache.workflow
 
 import java.io.FileInputStream
 import java.util.Random
-
 import scala.Array.canBuildFrom
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
-
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.BaseCube
@@ -34,8 +31,11 @@ import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
 import com.guavus.acume.cache.utility.SQLUtility
 import com.guavus.acume.cache.utility.Tuple
 import com.guavus.acume.cache.utility.Utility
-
 import javax.xml.bind.JAXBContext
+import com.guavus.acume.cache.core.AcumeCache
+import com.google.common.cache.LoadingCache
+import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.core.AcumeTreeCacheValue
 
 /**
  * @author archit.thakur
@@ -126,6 +126,17 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     (newunparsedsql, newparsedsql)
   }
   
+  def getCacheTest = { 
+    
+    val c = AcumeCacheFactory.caches.values().toArray()
+    val response = for(i <- c) yield {
+      val key = i.asInstanceOf[AcumeCache].cube.cubeName 
+      val value = i.asInstanceOf[AcumeCache].getCacheCollection.asInstanceOf[LoadingCache[LevelTimestamp,AcumeTreeCacheValue]].asMap().keySet()
+      (key, value)
+    }
+    response.toMap
+  }
+  
   def acql(sql: String, qltype: String): AcumeCacheResponse = { 
     
     val ql = QLType.getQLType(qltype)
@@ -135,6 +146,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   }
   
   def acql(sql: String): AcumeCacheResponse = { 
+    
     
     val ql = AcumeCacheContext.getQLType(conf)
     if (!AcumeCacheContext.checkQLValidation(sqlContext, ql))

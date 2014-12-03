@@ -6,7 +6,7 @@ import CacheLevel._
  * @author archit.thakur
  *
  */
-case class LevelTimestamp(level: CacheLevel, timestamp:Long) {
+case class LevelTimestamp(val level: CacheLevel, val timestamp:Long) {
   
   override def toString = level.localId.toString + timestamp.toString
 }

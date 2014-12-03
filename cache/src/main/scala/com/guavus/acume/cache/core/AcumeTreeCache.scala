@@ -29,6 +29,7 @@ import java.util.Observer
 import java.util.Random
 import com.guavus.acume.cache.workflow.RequestType.RequestType
 import org.apache.spark.sql.SchemaRDD
+import scala.collection.JavaConversions._
 
 /**
  * @author archit.thakur
@@ -41,10 +42,16 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
   val diskUtility = DataLoader.getDataLoader(acumeCacheContext, conf, this)
   
   override def createTempTable(startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
-    requestType match {
+    val x = requestType match {
       case Aggregate => createTableForAggregate(startTime, endTime, tableName, false)
       case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam, false)
     }
+     for(cacheE: LevelTimestamp <- cachePointToTable.asMap.keySet.toSet) {
+ 
+  print("Eviction Testing--> "+cacheE.level +"::"+cacheE.timestamp)
+ 
+ }
+     x
   }
 
   val concurrencyLevel = conf.get(ConfConstants.rrcacheconcurrenylevel).toInt

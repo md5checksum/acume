@@ -2,11 +2,13 @@ package com.guavus.acume.servlet
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import com.guavus.acume.tomcat.core.AcumeMain
-
 import javax.servlet.ServletConfig
 import javax.servlet.http.HttpServlet
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
+import com.guavus.acume.core.DataService
+import com.guavus.acume.core.DataService
 
 object AcumeInitServlet {
 
@@ -34,6 +36,14 @@ class AcumeHiveInitServlet extends HttpServlet {
     AcumeMain.startHive("/acume.conf")
   }
 }
+
+//class TestServlet extends HttpServlet {
+//
+////  override def doGet(req:HttpServletRequest , resp:HttpServletResponse) {
+////   new 
+////    
+////  }
+//}
 /*
 Original Java:
 |**
