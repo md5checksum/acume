@@ -131,11 +131,11 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
   }
   
   private def getVariableRetentionMap: SortedMap[Long, Int] = {
-    val contextCollection = acumeCacheContext.vrmap
-    SortedMap[Long, Int]() ++ contextCollection
+    val cubelocal = cube.levelPolicyMap
+    SortedMap[Long, Int]() ++ cubelocal
   }
   
-  private def getData(levelTimestamp: LevelTimestamp) = {
+  def getData(levelTimestamp: LevelTimestamp) = {
 
     import acumeCacheContext.sqlContext._
     val cacheLevel = levelTimestamp.level
