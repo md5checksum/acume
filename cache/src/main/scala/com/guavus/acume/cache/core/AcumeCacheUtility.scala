@@ -36,7 +36,6 @@ object AcumeCacheUtility {
     xRDD
     
     //explore hive udfs for aggregation.
-    //remove dependency from crux. write things at acume level. 	
 //    val stream  = new Transform("Transform", new Stream(new StreamMetaData("inname", "junk", new Fields((baseCubeDimensionList++baseCubeAggregatedMeasureAliasList).toArray)), annotatedRDD).streamMetaData, new StreamMetaData("outname","junk",new Fields), List(new CopyAnnotation(new Fields(), new Fields()))).operate
   } 
 }

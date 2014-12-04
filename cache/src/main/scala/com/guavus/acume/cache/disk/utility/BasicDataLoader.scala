@@ -136,10 +136,12 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
 //        val unioned = table(globaldtblnm).union(dimensionRDD)
         globalDTableName.Modify
         sqlContext.applySchema(unioned, dimensionRDD.schema).registerTempTable(globalDTableName.tblnm)
+//        table(globalDTableName.tblnm).collect.map(println)
       }
       else {
         dimensionRDD.registerTempTable(globaldtblnm)
         cacheTable(globaldtblnm)
+//        table(globaldtblnm).collect.map(println)
       }
   }
   
