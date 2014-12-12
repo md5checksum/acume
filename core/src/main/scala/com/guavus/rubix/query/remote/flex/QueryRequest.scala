@@ -84,7 +84,7 @@ class QueryRequest extends Serializable {
   var filters: ArrayList[ArrayList[NameValue]] = _
 
   @BeanProperty
-  var filterData: Traversable[FilterData] = _
+  var filterData: ArrayList[FilterData] = _
 
   @BeanProperty
   var sortProperty: String = _
@@ -232,7 +232,21 @@ class QueryRequest extends Serializable {
       }
     }
     
-    val abs = 
+    println("responseFilters::" + responseFilters)
+    if(responseFilters != null && responseFilters.size != 0){
+     println("calculateResponseFilters::" + calculateResponseFilters) 
+    }
+        
+    println("filterData::" + filterData)
+    if(filterData != null && filterData.size != 0){
+      println("calculateDimensionFilters::" + calculateDimensionFilters)
+    }
+    
+    println("searchRequest::" + searchRequest)
+    println("sortProperty::" + sortProperty)
+    
+    var andFlag = false
+    var abs = 
 //      "select " + ts1 + 
 //    columns.toString.substring(1, columns.toString.length - 1) + 
 //    " from global where " + 
@@ -243,9 +257,36 @@ class QueryRequest extends Serializable {
 
         "select " + ts1 + 
     columns.toString.substring(1, columns.toString.length - 1) + 
-    " from global where " + 
-    (if ((responseFilters == null || responseFilters.size == 0)) "" else calculateResponseFilters()) + 
-    (if (searchRequest == null) "" else " and (placeholder) in (" + searchRequest.toSql() + ") ") + (if ((sortProperty == null || sortProperty.isEmpty)) " " else " order by " + sortProperty + " " + ((if (sortDirection == SortDirection.ASC.toString) " asc" else " desc"))) + (if ((length == -1)) "" else "  limit " + length) + (if ((offset == 0)) "" else " offset " + offset + " ")
+    " from global where "
+    
+    
+   abs = abs + ( if ((responseFilters == null || responseFilters.size == 0)){
+      ""
+    } else {
+      andFlag = true
+      calculateResponseFilters()
+    })
+    
+    abs = abs + (if ((filterData == null || filterData.size == 0 || calculateDimensionFilters().equalsIgnoreCase("  "))){
+      ""
+      } else{
+        if(andFlag){
+        	" and " + calculateDimensionFilters()
+        }else{
+           calculateDimensionFilters()
+        }
+        
+      })
+    
+    
+    abs = abs + (if (searchRequest == null){ 
+      "" 
+      }
+    else{
+      " and (placeholder) in (" + searchRequest.toSql() + ") "
+    }) 
+
+    abs = abs + (if ((sortProperty == null || sortProperty.isEmpty)) " " else " order by " + sortProperty + " " + ((if (sortDirection == SortDirection.ASC.toString) " asc" else " desc"))) + (if ((length == -1)) "" else "  limit " + length) + (if ((offset == 0)) "" else " offset " + offset + " ")
     
     abs
   }
@@ -271,14 +312,16 @@ class QueryRequest extends Serializable {
   }
 
   private def calculateDimensionFilters(): String = {
-    if (filters.size == 1) {
-      return calculateParams(filters.get(0))
-    }
     var sql = " ("
-    for (filter <- filters) {
+    for (filter <- filterData) {
       sql += "("
-      for (nameValue <- filter) {
-        sql += nameValue.toSql() + " AND "
+      for (singleFilter <- filter.filters) {
+        if (singleFilter.condition=="EQUAL"){
+        	sql += singleFilter.dimension +"="+singleFilter.value + " AND "
+        }
+        else{
+          sql += singleFilter.dimension +"!="+singleFilter.value + " AND "
+        }
       }
       sql = sql.substring(0, sql.length - 4)
       sql += ") or "
