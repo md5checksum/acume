@@ -1,14 +1,14 @@
 package com.guavus.acume.core.servlet
 
 import com.guavus.acume.rest.api.RestService
-import com.guavus.acume.rest.beans.AggregateResponse
-import com.guavus.acume.rest.beans.TimeseriesResponse
+import com.guavus.rubix.query.remote.flex.AggregateResponse
+import com.guavus.rubix.query.remote.flex.TimeseriesResponse
 import javax.servlet.http.HttpServlet
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.Path
 import javax.xml.bind.annotation.XmlRootElement
-import com.guavus.acume.rest.beans.SearchResponse
+import com.guavus.rubix.query.remote.flex.SearchResponse
 import javax.servlet.ServletException
 import java.io.Serializable
 

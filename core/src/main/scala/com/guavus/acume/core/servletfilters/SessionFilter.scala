@@ -26,19 +26,18 @@ class SessionFilter extends Filter {
 
   private var logger: Logger = LoggerFactory.getLogger(classOf[SessionFilter])
 
-  private var umService: UserManagementService = new UserManagementService(ConfigFactory.getInstance.getBean(classOf[IPermissionTemplate]))
-
   override def init(filterConfig: FilterConfig) {
   }
 
   override def doFilter(request: ServletRequest, response: ServletResponse, chain: FilterChain) {
+    var umService: UserManagementService = new UserManagementService(ConfigFactory.getInstance.getBean(classOf[IPermissionTemplate]))
     val httpRequest = request.asInstanceOf[HttpServletRequest]
-    activateHttpUtils(httpRequest)
+    activateHttpUtils(httpRequest, umService)
     chain.doFilter(request, response)
     HttpUtils.recycle()
   }
 
-  private def activateHttpUtils(request: HttpServletRequest) {
+  private def activateHttpUtils(request: HttpServletRequest, umService: UserManagementService) {
     val username = SecurityUtils.getSubject.getSession(true).getAttribute("login").asInstanceOf[String]
     HttpUtils.setLoginInfo(username)
     umService.validateResourceAccess(request.getRequestURI)

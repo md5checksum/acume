@@ -8,9 +8,9 @@ import com.guavus.acume.core.spring.Resolver
  * Starting point for all configuration of Acume core 
  */
 object ConfigFactory {
-	
-  private var config: Config = new Configuration(Class.forName(AcumeContextTrait.acumeContext.get.acumeConf.getResolver()).newInstance().asInstanceOf[Resolver])
 
+  private var config: Config = new Configuration(Class.forName(AcumeContextTrait.acumeContext.get.acumeConf.getResolver()).newInstance().asInstanceOf[Resolver])
+  
   def getInstance(): Config = {
     config
   }

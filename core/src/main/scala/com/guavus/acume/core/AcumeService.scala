@@ -1,11 +1,11 @@
 package com.guavus.acume.core
 
 import com.guavus.acume.core.configuration.ConfigFactory
-import com.guavus.acume.rest.beans.AggregateResponse
-import com.guavus.acume.rest.beans.QueryRequest
-import com.guavus.acume.rest.beans.SearchRequest
-import com.guavus.acume.rest.beans.SearchResponse
-import com.guavus.acume.rest.beans.TimeseriesResponse
+import com.guavus.rubix.query.remote.flex.AggregateResponse
+import com.guavus.rubix.query.remote.flex.QueryRequest
+import com.guavus.rubix.query.remote.flex.SearchRequest
+import com.guavus.rubix.query.remote.flex.SearchResponse
+import com.guavus.rubix.query.remote.flex.TimeseriesResponse
 
 import javax.xml.bind.annotation.XmlRootElement
 
