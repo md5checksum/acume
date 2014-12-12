@@ -1,26 +1,26 @@
 package com.guavus.acume.core
 
-import com.guavus.acume.rest.beans.TimeseriesResponse
-import com.guavus.acume.rest.beans.AggregateResponse
+import com.guavus.rubix.query.remote.flex.TimeseriesResponse
+import com.guavus.rubix.query.remote.flex.AggregateResponse
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.expressions.Row
-import com.guavus.acume.rest.beans.QueryRequest
+import com.guavus.rubix.query.remote.flex.QueryRequest
 import com.guavus.querybuilder.cube.schema.QueryBuilderSchema
 import com.guavus.qb.conf.QBConf
 import org.apache.spark.sql.SchemaRDD
 import scala.collection.mutable.ArrayBuffer
-import com.guavus.acume.rest.beans.AggregateResultSet
-import com.guavus.acume.rest.beans.TimeseriesResultSet
+import com.guavus.rubix.query.remote.flex.AggregateResultSet
+import com.guavus.rubix.query.remote.flex.TimeseriesResultSet
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import com.guavus.acume.cache.workflow.AcumeCacheContext
 import scala.collection.mutable.HashMap
 import java.util.Arrays
-import com.guavus.acume.rest.beans.SearchResponse
-import com.guavus.acume.rest.beans.SearchResponse
+import com.guavus.rubix.query.remote.flex.SearchResponse
+import com.guavus.rubix.query.remote.flex.SearchResponse
 import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
-import com.guavus.acume.rest.beans.SearchRequest
+import com.guavus.rubix.query.remote.flex.SearchRequest
 import com.guavus.acume.cache.workflow.AcumeCacheResponse
 import com.guavus.qb.services.IQueryBuilderService
 import com.guavus.acume.cache.common.QLType
@@ -173,14 +173,27 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
   def execute(sql: String): AcumeCacheResponse = {
   
     //val modifiedSql: String = queryBuilderService.get(0).buildQuery(sql)
-     var i : Int = -1
+     var isFirst: Boolean = true
      val modifiedSql : String = queryBuilderService.foldLeft("") { (result, current) => 
       
-       i = i + 1
-       if(i == 0)
+       if(isFirst){
+         try{
+         isFirst = false
          current.buildQuery(sql)
-       else
+         } catch {
+           case ex: Exception => ex.printStackTrace()
+           null
+         }
+       }
+       else{
+         try{
          current.buildQuery(result)
+         }
+         catch {
+           case ex: Exception => ex.printStackTrace()
+           null
+         }
+       }
      }
    
     if(!modifiedSql.equals("")) {

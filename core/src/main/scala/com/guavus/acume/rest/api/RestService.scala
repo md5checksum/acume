@@ -2,7 +2,7 @@ package com.guavus.acume.rest.api
 
 import com.guavus.acume.core.AcumeService
 import com.guavus.acume.core.authenticate.Authentication
-import com.guavus.acume.rest.beans.QueryRequest
+import com.guavus.rubix.query.remote.flex.QueryRequest
 import javax.ws.rs.Consumes
 import javax.ws.rs.GET
 import javax.ws.rs.Path
@@ -10,7 +10,7 @@ import javax.ws.rs.Produces
 import javax.ws.rs.QueryParam
 import javax.xml.bind.annotation.XmlRootElement
 import javax.ws.rs.POST
-import com.guavus.acume.rest.beans.SearchRequest
+import com.guavus.rubix.query.remote.flex.SearchRequest
 import com.guavus.acume.cache.workflow.AcumeCacheResponse
 
 @Path("/" + "queryresponse")
