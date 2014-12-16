@@ -177,22 +177,11 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
      val modifiedSql : String = queryBuilderService.foldLeft("") { (result, current) => 
       
        if(isFirst){
-         try{
          isFirst = false
          current.buildQuery(sql)
-         } catch {
-           case ex: Exception => ex.printStackTrace()
-           null
-         }
        }
        else{
-         try{
          current.buildQuery(result)
-         }
-         catch {
-           case ex: Exception => ex.printStackTrace()
-           null
-         }
        }
      }
    
