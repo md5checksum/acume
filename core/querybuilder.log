@@ -1,0 +1,140 @@
+10:34:27,225  INFO SecurityManager:59 - Changing view acls to: pankaj.arora,
+10:34:27,229  INFO SecurityManager:59 - Changing modify acls to: pankaj.arora,
+10:34:27,232  INFO SecurityManager:59 - SecurityManager: authentication disabled; ui acls disabled; users with view permissions: Set(pankaj.arora, ); users with modify permissions: Set(pankaj.arora, )
+10:34:27,654  INFO Slf4jLogger:80 - Slf4jLogger started
+10:34:27,702  INFO Remoting:74 - Starting remoting
+10:34:27,900  INFO Remoting:74 - Remoting started; listening on addresses :[akka.tcp://sparkDriver@192.168.1.2:64019]
+10:34:27,902  INFO Remoting:74 - Remoting now listens on addresses: [akka.tcp://sparkDriver@192.168.1.2:64019]
+10:34:27,910  INFO Utils:59 - Successfully started service 'sparkDriver' on port 64019.
+10:34:27,936  INFO SparkEnv:59 - Registering MapOutputTracker
+10:34:27,944  INFO SparkEnv:59 - Registering BlockManagerMaster
+10:34:27,967  INFO DiskBlockManager:59 - Created local directory at /var/folders/gz/9vvndy7d0slc4xdn_8rcl1x5zx7gfn/T/spark-local-20141014103427-b200
+10:34:27,993  INFO Utils:59 - Successfully started service 'Connection manager for block manager' on port 64020.
+10:34:27,995  INFO ConnectionManager:59 - Bound socket to port 64020 with id = ConnectionManagerId(192.168.1.2,64020)
+10:34:28,000  INFO MemoryStore:59 - MemoryStore started with capacity 983.1 MB
+10:34:28,006  INFO BlockManagerMaster:59 - Trying to register BlockManager
+10:34:28,008  INFO BlockManagerMasterActor:59 - Registering block manager 192.168.1.2:64020 with 983.1 MB RAM
+10:34:28,013  INFO BlockManagerMaster:59 - Registered BlockManager
+10:34:28,031  INFO HttpFileServer:59 - HTTP File server directory is /var/folders/gz/9vvndy7d0slc4xdn_8rcl1x5zx7gfn/T/spark-d84fabda-3849-4daf-85d1-44fa8ee225ea
+10:34:28,040  INFO HttpServer:59 - Starting HTTP Server
+10:34:28,176  INFO Server:272 - jetty-8.1.14.v20131031
+10:34:28,196  INFO AbstractConnector:338 - Started SocketConnector@0.0.0.0:64021
+10:34:28,197  INFO Utils:59 - Successfully started service 'HTTP file server' on port 64021.
+10:34:28,538  INFO Server:272 - jetty-8.1.14.v20131031
+10:34:28,553  INFO AbstractConnector:338 - Started SelectChannelConnector@0.0.0.0:4040
+10:34:28,554  INFO Utils:59 - Successfully started service 'SparkUI' on port 4040.
+10:34:28,557  INFO SparkUI:59 - Started SparkUI at http://192.168.1.2:4040
+10:34:29,519  WARN NativeCodeLoader:62 - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+10:34:29,867  INFO AkkaUtils:59 - Connecting to HeartbeatReceiver: akka.tcp://sparkDriver@192.168.1.2:64019/user/HeartbeatReceiver
+10:37:24,188  INFO SecurityManager:59 - Changing view acls to: pankaj.arora,
+10:37:24,192  INFO SecurityManager:59 - Changing modify acls to: pankaj.arora,
+10:37:24,194  INFO SecurityManager:59 - SecurityManager: authentication disabled; ui acls disabled; users with view permissions: Set(pankaj.arora, ); users with modify permissions: Set(pankaj.arora, )
+10:37:24,581  INFO Slf4jLogger:80 - Slf4jLogger started
+10:37:24,627  INFO Remoting:74 - Starting remoting
+10:37:24,813  INFO Remoting:74 - Remoting started; listening on addresses :[akka.tcp://sparkDriver@192.168.1.2:64025]
+10:37:24,815  INFO Remoting:74 - Remoting now listens on addresses: [akka.tcp://sparkDriver@192.168.1.2:64025]
+10:37:24,822  INFO Utils:59 - Successfully started service 'sparkDriver' on port 64025.
+10:37:24,847  INFO SparkEnv:59 - Registering MapOutputTracker
+10:37:24,854  INFO SparkEnv:59 - Registering BlockManagerMaster
+10:37:24,876  INFO DiskBlockManager:59 - Created local directory at /var/folders/gz/9vvndy7d0slc4xdn_8rcl1x5zx7gfn/T/spark-local-20141014103724-1629
+10:37:24,899  INFO Utils:59 - Successfully started service 'Connection manager for block manager' on port 64026.
+10:37:24,901  INFO ConnectionManager:59 - Bound socket to port 64026 with id = ConnectionManagerId(192.168.1.2,64026)
+10:37:24,905  INFO MemoryStore:59 - MemoryStore started with capacity 983.1 MB
+10:37:24,911  INFO BlockManagerMaster:59 - Trying to register BlockManager
+10:37:24,913  INFO BlockManagerMasterActor:59 - Registering block manager 192.168.1.2:64026 with 983.1 MB RAM
+10:37:24,917  INFO BlockManagerMaster:59 - Registered BlockManager
+10:37:24,933  INFO HttpFileServer:59 - HTTP File server directory is /var/folders/gz/9vvndy7d0slc4xdn_8rcl1x5zx7gfn/T/spark-fbf0ab9d-9131-4a6b-9185-426ec3d31100
+10:37:24,949  INFO HttpServer:59 - Starting HTTP Server
+10:37:25,060  INFO Server:272 - jetty-8.1.14.v20131031
+10:37:25,078  INFO AbstractConnector:338 - Started SocketConnector@0.0.0.0:64027
+10:37:25,078  INFO Utils:59 - Successfully started service 'HTTP file server' on port 64027.
+10:37:25,385  INFO Server:272 - jetty-8.1.14.v20131031
+10:37:25,397  INFO AbstractConnector:338 - Started SelectChannelConnector@0.0.0.0:4040
+10:37:25,397  INFO Utils:59 - Successfully started service 'SparkUI' on port 4040.
+10:37:25,400  INFO SparkUI:59 - Started SparkUI at http://192.168.1.2:4040
+10:37:26,143  WARN NativeCodeLoader:62 - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+10:37:26,453  INFO AkkaUtils:59 - Connecting to HeartbeatReceiver: akka.tcp://sparkDriver@192.168.1.2:64025/user/HeartbeatReceiver
+10:44:18,708  INFO SecurityManager:59 - Changing view acls to: pankaj.arora,
+10:44:18,711  INFO SecurityManager:59 - Changing modify acls to: pankaj.arora,
+10:44:18,714  INFO SecurityManager:59 - SecurityManager: authentication disabled; ui acls disabled; users with view permissions: Set(pankaj.arora, ); users with modify permissions: Set(pankaj.arora, )
+10:44:19,091  INFO Slf4jLogger:80 - Slf4jLogger started
+10:44:19,140  INFO Remoting:74 - Starting remoting
+10:44:19,324  INFO Remoting:74 - Remoting started; listening on addresses :[akka.tcp://sparkDriver@192.168.1.2:64057]
+10:44:19,326  INFO Remoting:74 - Remoting now listens on addresses: [akka.tcp://sparkDriver@192.168.1.2:64057]
+10:44:19,334  INFO Utils:59 - Successfully started service 'sparkDriver' on port 64057.
+10:44:19,359  INFO SparkEnv:59 - Registering MapOutputTracker
+10:44:19,366  INFO SparkEnv:59 - Registering BlockManagerMaster
+10:44:19,388  INFO DiskBlockManager:59 - Created local directory at /var/folders/gz/9vvndy7d0slc4xdn_8rcl1x5zx7gfn/T/spark-local-20141014104419-27e4
+10:44:19,411  INFO Utils:59 - Successfully started service 'Connection manager for block manager' on port 64058.
+10:44:19,413  INFO ConnectionManager:59 - Bound socket to port 64058 with id = ConnectionManagerId(192.168.1.2,64058)
+10:44:19,417  INFO MemoryStore:59 - MemoryStore started with capacity 983.1 MB
+10:44:19,423  INFO BlockManagerMaster:59 - Trying to register BlockManager
+10:44:19,425  INFO BlockManagerMasterActor:59 - Registering block manager 192.168.1.2:64058 with 983.1 MB RAM
+10:44:19,429  INFO BlockManagerMaster:59 - Registered BlockManager
+10:44:19,446  INFO HttpFileServer:59 - HTTP File server directory is /var/folders/gz/9vvndy7d0slc4xdn_8rcl1x5zx7gfn/T/spark-cbda7bac-8eb0-4b5e-b019-abcb79a6ed1a
+10:44:19,453  INFO HttpServer:59 - Starting HTTP Server
+10:44:19,573  INFO Server:272 - jetty-8.1.14.v20131031
+10:44:19,591  INFO AbstractConnector:338 - Started SocketConnector@0.0.0.0:64059
+10:44:19,592  INFO Utils:59 - Successfully started service 'HTTP file server' on port 64059.
+10:44:19,891  INFO Server:272 - jetty-8.1.14.v20131031
+10:44:19,905  INFO AbstractConnector:338 - Started SelectChannelConnector@0.0.0.0:4040
+10:44:19,905  INFO Utils:59 - Successfully started service 'SparkUI' on port 4040.
+10:44:19,908  INFO SparkUI:59 - Started SparkUI at http://192.168.1.2:4040
+10:44:20,345  WARN NativeCodeLoader:62 - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+10:44:20,669  INFO AkkaUtils:59 - Connecting to HeartbeatReceiver: akka.tcp://sparkDriver@192.168.1.2:64057/user/HeartbeatReceiver
+10:45:05,254  INFO SecurityManager:59 - Changing view acls to: pankaj.arora,
+10:45:05,259  INFO SecurityManager:59 - Changing modify acls to: pankaj.arora,
+10:45:05,262  INFO SecurityManager:59 - SecurityManager: authentication disabled; ui acls disabled; users with view permissions: Set(pankaj.arora, ); users with modify permissions: Set(pankaj.arora, )
+10:45:05,676  INFO Slf4jLogger:80 - Slf4jLogger started
+10:45:05,727  INFO Remoting:74 - Starting remoting
+10:45:05,926  INFO Remoting:74 - Remoting started; listening on addresses :[akka.tcp://sparkDriver@192.168.1.2:64062]
+10:45:05,928  INFO Remoting:74 - Remoting now listens on addresses: [akka.tcp://sparkDriver@192.168.1.2:64062]
+10:45:05,936  INFO Utils:59 - Successfully started service 'sparkDriver' on port 64062.
+10:45:05,962  INFO SparkEnv:59 - Registering MapOutputTracker
+10:45:05,971  INFO SparkEnv:59 - Registering BlockManagerMaster
+10:45:06,003  INFO DiskBlockManager:59 - Created local directory at /var/folders/gz/9vvndy7d0slc4xdn_8rcl1x5zx7gfn/T/spark-local-20141014104505-5e92
+10:45:06,032  INFO Utils:59 - Successfully started service 'Connection manager for block manager' on port 64063.
+10:45:06,034  INFO ConnectionManager:59 - Bound socket to port 64063 with id = ConnectionManagerId(192.168.1.2,64063)
+10:45:06,039  INFO MemoryStore:59 - MemoryStore started with capacity 983.1 MB
+10:45:06,045  INFO BlockManagerMaster:59 - Trying to register BlockManager
+10:45:06,048  INFO BlockManagerMasterActor:59 - Registering block manager 192.168.1.2:64063 with 983.1 MB RAM
+10:45:06,052  INFO BlockManagerMaster:59 - Registered BlockManager
+10:45:06,132  INFO HttpFileServer:59 - HTTP File server directory is /var/folders/gz/9vvndy7d0slc4xdn_8rcl1x5zx7gfn/T/spark-cbd91ed6-e4ee-4987-ac65-d61aea95426f
+10:45:06,140  INFO HttpServer:59 - Starting HTTP Server
+10:45:06,276  INFO Server:272 - jetty-8.1.14.v20131031
+10:45:06,296  INFO AbstractConnector:338 - Started SocketConnector@0.0.0.0:64064
+10:45:06,296  INFO Utils:59 - Successfully started service 'HTTP file server' on port 64064.
+10:45:06,650  INFO Server:272 - jetty-8.1.14.v20131031
+10:45:06,665  INFO AbstractConnector:338 - Started SelectChannelConnector@0.0.0.0:4040
+10:45:06,666  INFO Utils:59 - Successfully started service 'SparkUI' on port 4040.
+10:45:06,669  INFO SparkUI:59 - Started SparkUI at http://192.168.1.2:4040
+10:45:07,129  WARN NativeCodeLoader:62 - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+10:45:07,472  INFO AkkaUtils:59 - Connecting to HeartbeatReceiver: akka.tcp://sparkDriver@192.168.1.2:64062/user/HeartbeatReceiver
+10:51:58,906  INFO SecurityManager:59 - Changing view acls to: pankaj.arora,
+10:51:58,909  INFO SecurityManager:59 - Changing modify acls to: pankaj.arora,
+10:51:58,912  INFO SecurityManager:59 - SecurityManager: authentication disabled; ui acls disabled; users with view permissions: Set(pankaj.arora, ); users with modify permissions: Set(pankaj.arora, )
+10:51:59,290  INFO Slf4jLogger:80 - Slf4jLogger started
+10:51:59,336  INFO Remoting:74 - Starting remoting
+10:51:59,522  INFO Remoting:74 - Remoting started; listening on addresses :[akka.tcp://sparkDriver@192.168.1.2:64259]
+10:51:59,524  INFO Remoting:74 - Remoting now listens on addresses: [akka.tcp://sparkDriver@192.168.1.2:64259]
+10:51:59,531  INFO Utils:59 - Successfully started service 'sparkDriver' on port 64259.
+10:51:59,556  INFO SparkEnv:59 - Registering MapOutputTracker
+10:51:59,564  INFO SparkEnv:59 - Registering BlockManagerMaster
+10:51:59,593  INFO DiskBlockManager:59 - Created local directory at /var/folders/gz/9vvndy7d0slc4xdn_8rcl1x5zx7gfn/T/spark-local-20141014105159-a332
+10:51:59,616  INFO Utils:59 - Successfully started service 'Connection manager for block manager' on port 64260.
+10:51:59,618  INFO ConnectionManager:59 - Bound socket to port 64260 with id = ConnectionManagerId(192.168.1.2,64260)
+10:51:59,622  INFO MemoryStore:59 - MemoryStore started with capacity 983.1 MB
+10:51:59,628  INFO BlockManagerMaster:59 - Trying to register BlockManager
+10:51:59,629  INFO BlockManagerMasterActor:59 - Registering block manager 192.168.1.2:64260 with 983.1 MB RAM
+10:51:59,633  INFO BlockManagerMaster:59 - Registered BlockManager
+10:51:59,649  INFO HttpFileServer:59 - HTTP File server directory is /var/folders/gz/9vvndy7d0slc4xdn_8rcl1x5zx7gfn/T/spark-ff343000-ce9e-4d1e-b18b-e698fab2a8ad
+10:51:59,656  INFO HttpServer:59 - Starting HTTP Server
+10:51:59,779  INFO Server:272 - jetty-8.1.14.v20131031
+10:51:59,798  INFO AbstractConnector:338 - Started SocketConnector@0.0.0.0:64261
+10:51:59,798  INFO Utils:59 - Successfully started service 'HTTP file server' on port 64261.
+10:52:00,102  INFO Server:272 - jetty-8.1.14.v20131031
+10:52:00,116  INFO AbstractConnector:338 - Started SelectChannelConnector@0.0.0.0:4040
+10:52:00,116  INFO Utils:59 - Successfully started service 'SparkUI' on port 4040.
+10:52:00,119  INFO SparkUI:59 - Started SparkUI at http://192.168.1.2:4040
+10:52:00,587  WARN NativeCodeLoader:62 - Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+10:52:00,978  INFO AkkaUtils:59 - Connecting to HeartbeatReceiver: akka.tcp://sparkDriver@192.168.1.2:64259/user/HeartbeatReceiver

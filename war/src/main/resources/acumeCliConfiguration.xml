@@ -1,0 +1,964 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Please don't use the following reserved property names:
+1. configurationFile
+2. solutionConfigurationFile
+3. state
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
+
+<RubixConfigurations>
+    <PropertiesPerApplication>
+        <property>
+            <name>applicationPath</name>
+            <type>basic</type>
+            <help><![CDATA[ - Path where sample application is kept]]></help>
+            <default><![CDATA[]]>
+            </default>
+            <targets>
+            </targets>
+        </property>
+
+        <property>
+            <name>apacheTomcatRoot</name>
+            <type>basic</type>
+            <help><![CDATA[ - Path where sample application is kept]]></help>
+            <default><![CDATA[/opt/tms/apache-tomcat/*/*]]>
+            </default>
+            <targets>
+            </targets>
+        </property>
+
+
+        <property>
+            <name>sessionCookieDomain</name>
+            <help><![CDATA[ - Domain name of the company for ex. If deploying at Verizon than domain name can be ".verizon.com"]]></help>
+            <default><![CDATA[.guavus.com]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>ipAddress</name>
+            <type>basic</type>
+            <help><![CDATA[ - Machine IP Address]]></help>
+            <default><![CDATA[localhost]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[setenv.sh]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+                </target>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+        <property>
+            <name>directMemorySize</name>
+            <type>basic</type>
+            <help><![CDATA[ - off heap size]]></help>
+            <default><![CDATA[0]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[setenv.sh]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>distributedDialect</name>
+            <help><![CDATA[ - Dialect to use while connecting to db in distributed.cfg.xml]]></help>
+            <default><![CDATA[com.guavus.rubix.hibernate.dialect.PostgreSQLCustomDialect]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[distributed.cfg.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>connectionPoolSize</name>
+            <help><![CDATA[ - connection Pool Size]]></help>
+            <default><![CDATA[2]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[distributed.cfg.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>distributedConnectionDriverClass</name>
+            <help><![CDATA[ - Driver used for connecting to distributed db]]></help>
+            <default><![CDATA[org.postgresql.Driver]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[distributed.cfg.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>distributedConnectionUrl</name>
+            <help><![CDATA[ - Url of the distributed db server running]]></help>
+            <default><![CDATA[jdbc:postgresql://localhost:5432/rubixdb]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[distributed.cfg.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>sslModeForDBConnection</name>
+            <help><![CDATA[ - use ssl for distributed db server running]]></help>
+            <default><![CDATA[disable]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[distributed.cfg.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>rootCAPath</name>
+            <help><![CDATA[ - Path for CA cert]]></help>
+            <default><![CDATA[root.crt]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[distributed.cfg.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>distributedConnectionUserName</name>
+            <type>basic</type>
+            <help><![CDATA[ - Login Id of the distributed db server running]]></help>
+            <default><![CDATA[rubix]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[distributed.cfg.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>distributedConnectionPassword</name>
+            <type>basic_sensitive</type>
+            <help><![CDATA[ - Login password of the distributed db server running]]></help>
+            <default><![CDATA[rubix@123]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[distributed.cfg.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>connectionProviderClass</name>
+            <help><![CDATA[ - DB server connection provider class]]></help>
+            <default><![CDATA[org.hibernate.connection.C3P0ConnectionProvider]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[distributed.cfg.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>currentSessionContextClass</name>
+            <help><![CDATA[ - Hibernate's automatic session context management]]></help>
+            <default><![CDATA[thread]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[distributed.cfg.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>hibernateSecondLevelCache</name>
+            <help><![CDATA[ - Use Hibernate's second level cache]]></help>
+            <default><![CDATA[true]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[distributed.cfg.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>hibernateCacheRegionFactoryClass</name>
+            <help><![CDATA[ - Hibernate's region factory class]]></help>
+            <default><![CDATA[org.hibernate.cache.infinispan.InfinispanRegionFactory]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[distributed.cfg.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>hibernateQueryCache</name>
+            <help><![CDATA[ - Use Hibernate query cache]]></help>
+            <default><![CDATA[true]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[distributed.cfg.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>hibernateCacheInfinispanCfg</name>
+            <help><![CDATA[ - Hibernate cache infinispan config file]]></help>
+            <default><![CDATA[cluster-infinispan-configs.xml]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[distributed.cfg.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>hibernateRubixFile</name>
+            <help><![CDATA[ - Hibernate rubix file]]></help>
+            <default><![CDATA[um.sql]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[distributed.cfg.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>hibernateSolutionFile</name>
+            <help><![CDATA[ - Hibernate solution file]]></help>
+            <default><![CDATA[solution.sql]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[distributed.cfg.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>customPolicyClass</name>
+            <help><![CDATA[ - UserManagement custom policy class]]></help>
+            <default><![CDATA[com.guavus.rubix.user.management.policy.DefaultCustomUserMgmtPolicies]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[usermanagement.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+
+
+        <property>
+            <name>passwordExpiryInDays</name>
+            <help><![CDATA[ - UserManagement password expiry in days]]></help>
+            <default><![CDATA[0]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[usermanagement.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>passwordHistoryCount</name>
+            <help><![CDATA[ - UserManagement password history count]]></help>
+            <default><![CDATA[0]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[usermanagement.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>solutionName</name>
+            <type>basic</type>
+            <help><![CDATA[ - Solution name for this solution, must be same across all nodes running this solution]]></help>
+            <default><![CDATA[unknown_solution]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[javacommon.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>rubixClusterId</name>
+            <type>basic</type>
+            <help><![CDATA[ - Rubix cluster id for this rubix cluster, must be same across all nodes of a rubix cluster]]></help>
+            <default><![CDATA[unknown_cluster]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[javacommon.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+    </PropertiesPerApplication>
+
+    <PropertiesPerInstance>
+        <property>
+            <name>tomcatClusterName</name>
+            <help><![CDATA[ - The tomcat cluster to which this node belongs]]></help>
+            <default><![CDATA[tomcat-cluster]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>tomcatClusterInfo</name>
+            <help><![CDATA[ - All the members which are part of the tomcat cluster except itself]]></help>
+            <default><![CDATA[]]>
+            </default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>redirectPort</name>
+            <type>basic</type>
+            <help><![CDATA[ - Port used by UI for https connection to tomcat]]></help>
+            <default><![CDATA[6443]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>connectorPort</name>
+            <help><![CDATA[ - Port used by UI for http connection to tomcat]]></help>
+            <default><![CDATA[6080]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>connectorPortAJP</name>
+            <help><![CDATA[ - ]]></help>
+            <default><![CDATA[6029]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>serverPort</name>
+            <help><![CDATA[ - ]]></help>
+            <default><![CDATA[6005]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>nodeUniqueIdentifier</name>
+            <type>basic</type>
+            <help><![CDATA[ - Current Rubix Node Identifier.]]></help>
+            <default><![CDATA[localhost]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>umDBVersion</name>
+            <help><![CDATA[ - UserManagement Database version]]></help>
+            <default><![CDATA[3.5.1]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[usermanagement.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>solutionDBVersion</name>
+            <help><![CDATA[ - UserManagement solution Database version]]></help>
+            <default><![CDATA[2.0.2.1]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[usermanagement.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>isCaseInsensitive</name>
+            <help><![CDATA[ - Is Case Insensitive]]></help>
+            <default><![CDATA[true]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[usermanagement.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>samlValidator</name>
+            <help><![CDATA[ - Saml Validator]]></help>
+            <default><![CDATA[com.guavus.rubix.user.management.sso.SAML20Validator]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[usermanagement.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>keyStoreName</name>
+            <help><![CDATA[ - KeyStore name]]></help>
+            <default><![CDATA[/sso.jks]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[usermanagement.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>keyStorePassword</name>
+            <type>advance_sensitive</type>
+            <help><![CDATA[ - KeyStore Password]]></help>
+            <default><![CDATA[sso123]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[usermanagement.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>protectedFileExtension</name>
+            <help><![CDATA[ - Protected File Extension]]></help>
+            <default><![CDATA[swf]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[usermanagement.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>unRestrictedResources</name>
+            <help><![CDATA[ - TODO]]></help>
+            <default><![CDATA[main.swf]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[usermanagement.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>applyServicePermission</name>
+            <help><![CDATA[ - TODO]]></help>
+            <default><![CDATA[true]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[usermanagement.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>staticSecurityManagerEnabledShiroEnv</name>
+            <help><![CDATA[ - TODO]]></help>
+            <default><![CDATA[false]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[usermanagement.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>ssoIssuerId</name>
+            <help><![CDATA[ - Unique Issuer identifier for Single Sign On using SAML]]></help>
+            <default><![CDATA[ssoTest]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[usermanagement.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>customNamingStrategyEnabledHibernate</name>
+            <help><![CDATA[ - TODO]]></help>
+            <default><![CDATA[false]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[javacommon.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>pojoNameForCustomTablename</name>
+            <help><![CDATA[ - TODO]]></help>
+            <default><![CDATA[Filter]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[javacommon.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        <property>
+            <name>pojoNamesToUseHibernateSequence</name>
+            <help><![CDATA[ - Pojo names which need to enforce usage of hibernate sequence table]]></help>
+            <default><![CDATA[]]>
+            </default>
+            <targets>
+                <target>
+                    <file><![CDATA[javacommon.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>tomcatInstanceMaxSize</name>
+            <help><![CDATA[ - Maximum java heap size]]></help>
+            <default><![CDATA[5g]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[setenv.sh]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>runMode</name>
+            <type>basic</type>
+            <help><![CDATA[ - Running mode of application, options are (file,insta,tm)]]></help>
+            <default><![CDATA[insta]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[setenv.sh]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>initialJavaHeapSize</name>
+            <help><![CDATA[ -  Initial java heap size, where <tomcat process size> corresponds to the initial memory size which the tomcat process should take]]></help>
+            <default><![CDATA[5g]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[setenv.sh]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>docBase</name>
+            <type>basic</type>
+            <help><![CDATA[ - Path of the application]]></help>
+            <default><![CDATA[/opt/tms/rubix-atlas3.0]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>redirectPort</name>
+            <type>basic</type>
+            <help><![CDATA[ - Port used by UI for https connection to tomcat]]></help>
+            <default><![CDATA[6443]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>JMXAUTHENTICATE</name>
+            <type>basic</type>
+            <help><![CDATA[ - ]]></help>
+            <default><![CDATA[false]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[setenv.sh]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>debugPort</name>
+            <help><![CDATA[ - Debug Port]]></help>
+            <default><![CDATA[0]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[setenv.sh]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>JMXPORT</name>
+            <help><![CDATA[ - JMX Port]]></help>
+            <default><![CDATA[0]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[setenv.sh]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>JMXAUTHENTICATE</name>
+            <type>basic</type>
+            <help><![CDATA[ - ]]></help>
+            <default><![CDATA[false]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[setenv.sh]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>JMXSSL</name>
+            <type>basic</type>
+            <help><![CDATA[ - ]]></help>
+            <default><![CDATA[false]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[setenv.sh]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>MAXPERMSIZE</name>
+            <type>basic</type>
+            <help><![CDATA[ - Max perm space size]]></help>
+            <default><![CDATA[512m]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[setenv.sh]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>IntegerCacheSize</name>
+            <help><![CDATA[ - Integer cache size]]></help>
+            <default><![CDATA[1000000]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[setenv.sh]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>SKIPUPDATECHECK</name>
+            <type>basic</type>
+            <help><![CDATA[ - Skip update check for ehcache]]></help>
+            <default><![CDATA[true]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[setenv.sh]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>channelReceiverPort</name>
+            <help><![CDATA[ - Tomcat Cluster channel receiver port]]></help>
+            <default><![CDATA[4000]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>cacheBaselayerBusinessCubeXml</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[src/test/resources/cubedefinition.xml]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>cacheCoreVariableRetentionMap</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[1h:720]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>cacheBaselayerInstainstanceId</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[0]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>cacheBaselayerStorageType</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[text]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>cacheCoreTimezone</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[GMT]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>cacheBaselayerInstabase</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[src/test/resources/instabase]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>cacheBaselayerCubedefinitionXml</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[cubexml]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>cacheExecuteQLtype</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[sql]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>cacheRRCacheLoader</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.acume.cache.workflow.RequestResponseCache]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>cacheCoreRRCacheConcurrenyLevel</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[3]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>cacheCoreRRCahceSize</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[502]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+
+        <property>
+            <name>cacheDeleteFirstBinPersistedTime</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+
+        <property>
+            <name>cacheDeleteLastBinPersistedTime</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>coreEnableJDBCServer</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[false]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>acumeCoreAppConfig</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.acume.core.configuration.AcumeAppConfig]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+    </PropertiesPerInstance>
+</RubixConfigurations>

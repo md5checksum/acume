@@ -1,0 +1,60 @@
+package com.guavus.acume.cache.disk.utility
+
+import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.workflow.AcumeCacheContext
+import org.apache.spark.sql.SchemaRDD
+import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.DimensionTable
+import scala.collection.mutable.HashMap
+import com.guavus.acume.cache.core.AcumeCache
+import java.util.concurrent.ConcurrentHashMap
+
+/**
+ * @author archit.thakur
+ *
+ */
+abstract class DataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache) extends Serializable {
+
+  def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable): Tuple2[SchemaRDD, String]
+  def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable, instabase: String, instainstanceid: String): Tuple2[SchemaRDD, String] 
+  //This should be removed and things like instabase and instanceid should be retrieviable from MetaDataLoader for better code designing.
+}
+
+object DataLoader{
+  private val metadataMap = new ConcurrentHashMap[AcumeCache, DataLoadedMetadata]
+  
+  private [cache] def getMetadata(key: AcumeCache) = metadataMap.get(key)
+  private [cache] def putMetadata(key: AcumeCache, value: DataLoadedMetadata) = metadataMap.put(key, value)
+  private [cache] def getOrElseInsert(key: AcumeCache, defaultValue: DataLoadedMetadata): DataLoadedMetadata = {
+    
+    if(getMetadata(key) == null) {
+
+      putMetadata(key, defaultValue)
+      defaultValue
+    }
+    else
+      getMetadata(key)
+  }
+
+  private [cache] def getOrElseMetadata(key: AcumeCache, defaultValue: DataLoadedMetadata): DataLoadedMetadata = {
+    
+    if(getMetadata(key) == null)
+      defaultValue
+    else
+      getMetadata(key)
+  }
+  
+  def getDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache) = {
+    
+    val dataLoaderClass = StorageType.getStorageType(conf.get(ConfConstants.storagetype)).dataClass
+    val loadedClass = Class.forName(dataLoaderClass)
+    val newInstance = loadedClass.getConstructor(classOf[AcumeCacheContext], classOf[AcumeCacheConf], classOf[AcumeCache]).newInstance(acumeCacheContext, conf, acumeCache)
+    newInstance.asInstanceOf[DataLoader]
+  }
+}
+
+
+
+
