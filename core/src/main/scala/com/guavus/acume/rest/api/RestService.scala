@@ -103,7 +103,7 @@ class RestService {
 	}
 	
 	@POST
-	@Path("validateDataSources")
+	@Path("validDataSources")
 	def getValidDataSources(@QueryParam(value = "super") userinfo : String,
 			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : java.util.ArrayList[String] = {
 	  Authentication.authenticate(userinfo, user, password)
