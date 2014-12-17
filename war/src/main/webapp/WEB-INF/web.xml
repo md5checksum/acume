@@ -164,35 +164,35 @@
   	
   	<servlet-mapping>
     	<servlet-name>Sql</servlet-name>
-    	<url-pattern>/sql</url-pattern>
+	<url-pattern>/queryresponse/sql</url-pattern>
   	</servlet-mapping>
   	<servlet-mapping>
     	<servlet-name>raeSql</servlet-name>
-    	<url-pattern>/raeSql</url-pattern>
+	<url-pattern>/queryresponse/raeSql</url-pattern>
   	</servlet-mapping>
   	<servlet-mapping>
     	<servlet-name>Aggregate</servlet-name>
-    	<url-pattern>/aggregate</url-pattern>
+	<url-pattern>/queryresponse/aggregate</url-pattern>
   	</servlet-mapping>
   	<servlet-mapping>
     	<servlet-name>Search</servlet-name>
-    	<url-pattern>/search</url-pattern>
+	<url-pattern>/queryresponse/search</url-pattern>
   	</servlet-mapping>
   	<servlet-mapping>
     	<servlet-name>TimeSeries</servlet-name>
-    	<url-pattern>/timeseries</url-pattern>
+	<url-pattern>/queryresponse/timeseries</url-pattern>
   	</servlet-mapping>
   	<servlet-mapping>
     	<servlet-name>ValidateQuery</servlet-name>
-    	<url-pattern>/ValidateQuery</url-pattern>
+	<url-pattern>/queryresponse/ValidateQuery</url-pattern>
   	</servlet-mapping>
   	<servlet-mapping>
     	<servlet-name>ValidDataSources</servlet-name>
-    	<url-pattern>/ValidDataSources</url-pattern>
+	<url-pattern>/queryresponse/ValidDataSources</url-pattern>
   	</servlet-mapping>
   	<servlet-mapping>
     	<servlet-name>DataAvailability</servlet-name>
-    	<url-pattern>/DataAvailability</url-pattern>
+	<url-pattern>/queryresponse/DataAvailability</url-pattern>
   	</servlet-mapping>
 
   	
