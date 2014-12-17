@@ -150,7 +150,7 @@
     	<servlet-class>com.guavus.acume.core.servlet.ValidateQueryServlet</servlet-class>
   	</servlet>
   	<servlet>
-    	<servlet-name>ValidDataSources</servlet-name>
+    	<servlet-name>ValidateDataSources</servlet-name>
     	<servlet-class>com.guavus.acume.core.servlet.ValidDataSourcesServlet</servlet-class>
   	</servlet>
   	<servlet>
@@ -164,35 +164,35 @@
   	
   	<servlet-mapping>
     	<servlet-name>Sql</servlet-name>
-    	<url-pattern>/queryresponse/sql</url-pattern>
+	<url-pattern>/queryresponse/sql</url-pattern>
   	</servlet-mapping>
   	<servlet-mapping>
     	<servlet-name>raeSql</servlet-name>
-    	<url-pattern>/queryresponse/raeSql</url-pattern>
+	<url-pattern>/queryresponse/raeSql</url-pattern>
   	</servlet-mapping>
   	<servlet-mapping>
     	<servlet-name>Aggregate</servlet-name>
-    	<url-pattern>/queryresponse/aggregate</url-pattern>
+	<url-pattern>/queryresponse/aggregate</url-pattern>
   	</servlet-mapping>
   	<servlet-mapping>
     	<servlet-name>Search</servlet-name>
-    	<url-pattern>/queryresponse/search</url-pattern>
+	<url-pattern>/queryresponse/search</url-pattern>
   	</servlet-mapping>
   	<servlet-mapping>
     	<servlet-name>TimeSeries</servlet-name>
-    	<url-pattern>/queryresponse/timeseries</url-pattern>
+	<url-pattern>/queryresponse/timeseries</url-pattern>
   	</servlet-mapping>
   	<servlet-mapping>
     	<servlet-name>ValidateQuery</servlet-name>
-    	<url-pattern>/queryresponse/ValidateQuery</url-pattern>
+	<url-pattern>/queryresponse/validateQuery</url-pattern>
   	</servlet-mapping>
   	<servlet-mapping>
-    	<servlet-name>ValidDataSources</servlet-name>
-    	<url-pattern>/queryresponse/ValidDataSources</url-pattern>
+    	<servlet-name>ValidateDataSources</servlet-name>
+	<url-pattern>/queryresponse/validateDataSources</url-pattern>
   	</servlet-mapping>
   	<servlet-mapping>
     	<servlet-name>DataAvailability</servlet-name>
-    	<url-pattern>/queryresponse/DataAvailability</url-pattern>
+	<url-pattern>/queryresponse/dataAvailability</url-pattern>
   	</servlet-mapping>
 
   	
