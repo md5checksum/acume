@@ -5,7 +5,7 @@ import xml.dom.minidom as DOM
 
 from xml.dom.minidom import parse
 
-replace_list = ['IntelligentCache']
+replace_list = ['Acume']
 
 output = commands.getstatusoutput('find . -name "pom.xml"')[1]
 file_list = output.split('\n')

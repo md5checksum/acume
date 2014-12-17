@@ -53,8 +53,15 @@ class AggregateResponse extends Serializable {
 
   override def toString(): String = {
     val maxLen = ConfigFactory.getInstance.getBean(classOf[AcumeContextTrait]).acumeConf().getMaxQueryLogRecords
-    val aggResponse = new AggregateResponse(results.subList(0, Math.min(results.size, maxLen)), responseDimensions, responseMeasures, totalRecords)
+    
+    val aggResponse =
+      if (maxLen < 0)
+        new AggregateResponse(results.subList(0, results.size), responseDimensions, responseMeasures, totalRecords)
+      else
+        new AggregateResponse(results.subList(0, Math.min(results.size, maxLen)), responseDimensions, responseMeasures, totalRecords)
+    
     gson.toJson(aggResponse)
+    
   }
 
   override def equals(obj: Any): Boolean = {
