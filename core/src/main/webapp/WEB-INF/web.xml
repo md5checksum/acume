@@ -150,7 +150,7 @@
     	<servlet-class>com.guavus.acume.core.servlet.ValidateQueryServlet</servlet-class>
   	</servlet>
   	<servlet>
-    	<servlet-name>ValidateDataSources</servlet-name>
+    	<servlet-name>ValidDataSources</servlet-name>
     	<servlet-class>com.guavus.acume.core.servlet.ValidDataSourcesServlet</servlet-class>
   	</servlet>
   	<servlet>
@@ -188,7 +188,7 @@
   	</servlet-mapping>
   	<servlet-mapping>
     	<servlet-name>ValidateDataSources</servlet-name>
-	<url-pattern>/queryresponse/validateDataSources</url-pattern>
+	<url-pattern>/queryresponse/validDataSources</url-pattern>
   	</servlet-mapping>
   	<servlet-mapping>
     	<servlet-name>DataAvailability</servlet-name>
