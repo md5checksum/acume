@@ -39,6 +39,13 @@
             <Property_OriginalName>application.${rubixApp}.apacheTomcatRoot</Property_OriginalName>
         </Property>
         <Property>
+            <Property_Name>application.${rubixApp}.acumeSparkPropertyLocation</Property_Name>
+            <Property_Value></Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${rubixApp}.acumeSparkPropertyLocation</Property_OriginalName>
+        </Property>
+        <Property>
             <Property_Name>application.${rubixApp}.clusterName</Property_Name>
             <Property_Value>Oam-Cluster-2</Property_Value>
             <Property_Type>read-write</Property_Type>
