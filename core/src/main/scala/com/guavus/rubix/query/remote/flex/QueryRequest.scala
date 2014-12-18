@@ -52,7 +52,7 @@ object QueryRequest {
     val queryRequest = new QueryRequest()
     queryRequest.setResponseDimensions(Lists.newArrayList("*"))
     queryRequest.setResponseMeasures(new ArrayList[String](0))
-    queryRequest.setFilterData(filterDatas)
+    queryRequest.setFilterData(null)
     queryRequest.setMeasureFilters(Lists.newArrayList(data))
     queryRequest.setResponseFilters(Lists.newArrayList())
     queryRequest.setParamMap(Lists.newArrayList())
@@ -258,14 +258,24 @@ class QueryRequest extends Serializable {
       str
     }
     
-    val df = calculateDimensionFilters
+    
+    val df = calculateDimensionFilterData
+    val _$df = calculateDimensionFilters
     val rf = calculateResponseFilters
+    
+    def getfilterstring = {
+      val filterdata = checkflag((df.equalsIgnoreCase("")), "", df)
+      val filters = 
+        if(filterdata.isEmpty)
+          checkflag((_$df.equalsIgnoreCase("")), "", _$df)
+        else ""
+      filterdata + filters
+    }
     
     val whereClause = 
       checkflag(subQuery == null, "", " (placeholder) in (" + (if(subQuery != null)subQuery.toSql("")) + ") ") + 
       checkflag(startTime < 0, "", " startTime = " + startTime) + 
-      checkflag(endTime < 0 , "" , " endTime = " + endTime) + 
-      checkflag((filters == null || filters.size == 0 || df.equalsIgnoreCase("  ")), "", df) + 
+      checkflag(endTime < 0 , "" , " endTime = " + endTime) + getfilterstring + 
       checkflag((paramMap == null || paramMap.size == 0), "", calculateParams(paramMap)) + 
       checkflag((responseFilters == null || responseFilters.size == 0), "", rf) + 
       checkflag(binSource == null, "", " binSource " + " = '" + binSource + "' ") + 
@@ -306,11 +316,35 @@ class QueryRequest extends Serializable {
     sql
   }
 
-  private def calculateDimensionFilters(): String = {
+  private def calculateDimensionFilterData(): String = {
+    
+    if(filterData == null || filterData.isEmpty)
+      return "";
     var sql = " ("
     for (filter <- filterData) {
       sql += "("
       sql += filter.toSql
+      sql += ") or "
+    }
+    sql = sql.substring(0, sql.length - 3)
+    sql += ")"
+    sql
+  }
+  
+  private def calculateDimensionFilters(): String = {
+
+    if (filters == null || filters.size == 0)
+      return "";
+    if (filters.size == 1) {
+      return calculateParams(filters.get(0))
+    }
+    var sql = " ("
+    for (filter <- filters) {
+      sql += "("
+      for (nameValue <- filter) {
+        sql += nameValue.toSql() + " AND "
+      }
+      sql = sql.substring(0, sql.length - 4)
       sql += ") or "
     }
     sql = sql.substring(0, sql.length - 3)
