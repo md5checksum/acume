@@ -95,7 +95,7 @@ class RestService {
 	}
 	
 	@POST
-	@Path("isValidQuery")
+	@Path("validateQuery")
 	def isValidQuery(sql : String, @QueryParam(value = "dataSource") dataSource : String, @QueryParam(value = "super") userinfo : String,
 			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : java.lang.Boolean = {
 	  Authentication.authenticate(userinfo, user, password)
@@ -103,7 +103,7 @@ class RestService {
 	}
 	
 	@POST
-	@Path("ValidDataSource")
+	@Path("validDataSources")
 	def getValidDataSources(@QueryParam(value = "super") userinfo : String,
 			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : java.util.ArrayList[String] = {
 	  Authentication.authenticate(userinfo, user, password)
