@@ -29,6 +29,18 @@ Please don't use the following reserved property names:
             </targets>
         </property>
 
+        <property>
+            <name>acumeSparkPropertyLocation</name>
+            <type>basic</type>
+            <help><![CDATA[ - Acume Spark Property Location]]></help>
+            <default><![CDATA[]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[startup.sh]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+                </target>
+            </targets>
+        </property>
 
         <property>
             <name>sessionCookieDomain</name>

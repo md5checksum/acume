@@ -6,12 +6,16 @@
 ARG_MASTER_MODE=" --master yarn-client"
 ARG_PROPERTIES_FILE=""
 ARG_APP_NAME=" --name DEFAULT_NAME"
+QUEUE_NAME=" --queue default"
 
 master_mode=-1
 app_name=-1
-prop_loc=-1
+prop_loc='$CLI_REPLACE_ACUMESPARKPROPERTYLOCATION$'
+queue_name=-1
 
-
+if [[ "$prop_loc" =~ ^\$CLI* ]]; then
+  prop_loc=""
+fi
 
 ############
 # Find the current directory location
@@ -69,22 +73,29 @@ while (($#)); do
     ARG_APP_NAME=" --name $2"
     app_name="$2"
     echo "ARG_APP_NAME = $ARG_APP_NAME"
+  elif [ "$1" = "--queue" ]; then
+    QUEUE_NAME=" --queue $2"
+    queue_name="$2"
+    echo "QUEUE_NAME = $QUEUE_NAME"
   fi
   shift
 done
 
-
+if [[ "$prop_loc" != "" ]]; then
+  ARG_PROPERTIES_FILE=" --properties-file $prop_loc"
+  echo "ARG_PROPERTIES_FILE = $ARG_PROPERTIES_FILE"
+fi
 ############
 #Assigning app name
  #read the value of app name from property file
 ############
-if [[ $app_name -eq -1 ]] && [[ $prop_loc -ne -1 ]]; then
+if [[ $app_name -eq -1 ]] && [[ "$prop_loc" != "" ]]; then
     
     grep_cmd_output=$(cat "$prop_loc" 2>"$CATALINA_OUT" | grep "spark.app.name" )    
    
-    if [[ $( "$grep_cmd_output" | awk -F" " '{print $1}' ) != "#" ]]; then
+    if [[ $(echo "$grep_cmd_output" | awk -F" " '{print $1}' ) != "#" ]]; then
             echo "Picking app name from the spark conf" > "$CATALINA_OUT"
-	    app_name=$( $grep_cmd_output | awk -F" " '{print $2}' )
+	    app_name=$( echo "$grep_cmd_output" | awk -F" " '{print $2}' )
 	    ARG_APP_NAME=" --name $app_name" 
     fi
 fi
@@ -94,7 +105,7 @@ fi
 # Assigning master mode
 #read master mode from property location
 ############
-if [[ $master_mode -eq -1 ]] && [[ $prop_loc -ne -1 ]]; then
+if [[ $master_mode -eq -1 ]] && [[ "$prop_loc" != "" ]]; then
     
     grep_cmd_output=$(cat "$prop_loc" 2>"$CATALINA_OUT" | grep "spark.master" )    
             
@@ -105,6 +116,20 @@ if [[ $master_mode -eq -1 ]] && [[ $prop_loc -ne -1 ]]; then
     fi
 fi
 
+############
+# Assigning queue name
+#read queue name from property location
+############
+if [[ ( $master_mode -eq -1 || "$master_mode" =~ ^yarn* ) && ( $queue_name -ne -1 ) && ("$prop_loc" != "") ]]; then
+
+    grep_cmd_output=$(cat "$prop_loc" 2>"$CATALINA_OUT" | grep "spark.yarn.queue" )
+
+    if [[ $(echo "$grep_cmd_output" | awk -F" " '{print $1}') != "#" ]]; then
+       echo "Picking queue name from the spark conf" > "$CATALINA_OUT"
+       queue_name=$( echo "$grep_cmd_output" | awk -F" " '{print $2}' )
+       QUEUE_NAME=" --queue $queue_name"
+    fi
+fi
 ############
 #Finding crux jar
 ############
@@ -177,7 +202,7 @@ fi
 ############
 # Start the spark server
 ############
-cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $ARG_PROPERTIES_FILE --class com.guavus.acume.tomcat.core.AcumeMain $DOCBASE/WEB-INF/lib/$core_jar"
+cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_PROPERTIES_FILE --class com.guavus.acume.tomcat.core.AcumeMain $DOCBASE/WEB-INF/lib/$core_jar"
 echo "Starting Spark..." > "$CATALINA_OUT"
 eval $cmd >> "$CATALINA_OUT" 2>&1 "&"
 echo "Spark started successfully..." > "$CATALINA_OUT"
