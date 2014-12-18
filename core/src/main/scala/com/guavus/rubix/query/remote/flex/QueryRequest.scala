@@ -13,6 +13,7 @@ import scala.collection.JavaConversions._
 import java.util.ArrayList
 import com.google.common.collect.Lists
 import java.util.Arrays
+import netreflex.messages.QueryRequest
 
 object QueryRequest {
 
@@ -49,14 +50,21 @@ object QueryRequest {
     data.setFilters(multiFilters)
     println(gson.toJson(data))
     val queryRequest = new QueryRequest()
-    queryRequest.setResponseDimensions(new ArrayList[String](0))
+    queryRequest.setResponseDimensions(Lists.newArrayList("*"))
     queryRequest.setResponseMeasures(new ArrayList[String](0))
     queryRequest.setFilterData(filterDatas)
     queryRequest.setMeasureFilters(Lists.newArrayList(data))
-    println(gson.toJson(queryRequest))
-    println(gson.fromJson(gson.toJson(queryRequest), classOf[QueryRequest]))
-    println(gson.fromJson("{'responseMeasures':['CompUpBytes','CompDownBytes'],'responseDimensions':['Attribute'], 'sortProperty':'CompUpBytes','filters':[],'cubeContextDimensions':[],'sortDirection':'DSC','maxResults':-1,'maxResultOffset':0,'length':50,'offset':0,'startTime':1349917200,'endTime':1349935200,'timeGranularity':0,'filters':[[{'name':'Agony','value':'6'}]],'measureFilters':[{'filters':[{'singleFilters':[{'operand':[0.0],'operator':'GREATER_THAN'},{'operand':[1.0],'operator':'GREATER_THAN'},{'operand':[2.0],'operator':'GREATER_THAN'}],'measure':'CompUpBytes'},{'singleFilters':[{'operand':[0.0],'operator':'GREATER_THAN'},{'operand':[1.0],'operator':'GREATER_THAN'},{'operand':[2.0],'operator':'GREATER_THAN'}],'measure':'CompDownBytes'}]}]}", classOf[QueryRequest]))
-    println(gson.fromJson("{'filters':[{'singleFilters':[{'operand':[0.0],'operator':'GREATER_THAN'},{'operand':[1.0],'operator':'GREATER_THAN'},{'operand':[2.0],'operator':'GREATER_THAN'}],'measure':'0'},{'singleFilters':[{'operand':[0.0],'operator':'GREATER_THAN'},{'operand':[1.0],'operator':'GREATER_THAN'},{'operand':[2.0],'operator':'GREATER_THAN'}],'measure':'1'}]}", classOf[MeasureFilterData]))
+    queryRequest.setResponseFilters(Lists.newArrayList())
+    queryRequest.setParamMap(Lists.newArrayList())
+    queryRequest.setLength(10)
+    queryRequest.setStartTime(10)
+    queryRequest.setEndTime(11)
+    queryRequest.setTimeGranularity(-7)
+//    println(gson.toJson(queryRequest))
+//    println(gson.fromJson(gson.toJson(queryRequest), classOf[QueryRequest]))
+//    println(gson.fromJson("{'responseMeasures':['CompUpBytes','CompDownBytes'],'responseDimensions':['Attribute'], 'sortProperty':'CompUpBytes','filters':[],'cubeContextDimensions':[],'sortDirection':'DSC','maxResults':-1,'maxResultOffset':0,'length':50,'offset':0,'startTime':1349917200,'endTime':1349935200,'timeGranularity':0,'filters':[[{'name':'Agony','value':'6'}]],'measureFilters':[{'filters':[{'singleFilters':[{'operand':[0.0],'operator':'GREATER_THAN'},{'operand':[1.0],'operator':'GREATER_THAN'},{'operand':[2.0],'operator':'GREATER_THAN'}],'measure':'CompUpBytes'},{'singleFilters':[{'operand':[0.0],'operator':'GREATER_THAN'},{'operand':[1.0],'operator':'GREATER_THAN'},{'operand':[2.0],'operator':'GREATER_THAN'}],'measure':'CompDownBytes'}]}]}", classOf[QueryRequest]))
+//    println(gson.fromJson("{'filters':[{'singleFilters':[{'operand':[0.0],'operator':'GREATER_THAN'},{'operand':[1.0],'operator':'GREATER_THAN'},{'operand':[2.0],'operator':'GREATER_THAN'}],'measure':'0'},{'singleFilters':[{'operand':[0.0],'operator':'GREATER_THAN'},{'operand':[1.0],'operator':'GREATER_THAN'},{'operand':[2.0],'operator':'GREATER_THAN'}],'measure':'1'}]}", classOf[MeasureFilterData]))
+    println(queryRequest.toSql(""))
   }
 }
 
@@ -233,7 +241,45 @@ class QueryRequest extends Serializable {
     }
     
     var andFlag = false
-    var abs = 
+    
+    def and = if(!andFlag) "" else " and " 	
+    def checkflag(cond: Boolean, True: String, False: String) = {
+      val str =
+        if (!cond) {
+          if(!False.isEmpty) and + False
+          else ""
+        } else {
+          
+          if(!True.isEmpty) and + True
+          else ""
+        }
+      if(!str.isEmpty)
+        andFlag = true
+      str
+    }
+    
+    val df = calculateDimensionFilters
+    val rf = calculateResponseFilters
+    
+    val whereClause = 
+      checkflag(subQuery == null, "", " (placeholder) in (" + (if(subQuery != null)subQuery.toSql("")) + ") ") + 
+      checkflag(startTime < 0, "", " startTime = " + startTime) + 
+      checkflag(endTime < 0 , "" , " endTime = " + endTime) + 
+      checkflag((filters == null || filters.size == 0 || df.equalsIgnoreCase("  ")), "", df) + 
+      checkflag((paramMap == null || paramMap.size == 0), "", calculateParams(paramMap)) + 
+      checkflag((responseFilters == null || responseFilters.size == 0), "", rf) + 
+      checkflag(binSource == null, "", " binSource " + " = '" + binSource + "' ") + 
+      checkflag(timeGranularity < 0, "", " timeGranularity = " + timeGranularity) + 
+      checkflag(searchRequest == null, "", " (placeholder) in (" + (if(searchRequest!= null) searchRequest.toSql()) + ") ")
+
+    val wherestring =
+      (if (!whereClause.equals("")) " where " + whereClause else "") +
+        (if (sortProperty == null || sortProperty.isEmpty) "" else " order by " + sortProperty + " ") +
+        (if (sortDirection == null) "" else if (sortDirection == SortDirection.ASC.toString) " asc" else " desc") +
+        (if (length == -1) "" else "  limit " + length) +
+        (if (offset == 0) "" else " offset " + offset + " ")
+      
+    var abs = "select " + ts1 + columns.toString.substring(1, columns.toString.length - 1) + " from global " +wherestring
 //      "select " + ts1 + 
 //    columns.toString.substring(1, columns.toString.length - 1) + 
 //    " from global where " + 
@@ -241,52 +287,54 @@ class QueryRequest extends Serializable {
 //    (if ((filters == null || filters.size == 0 || calculateDimensionFilters().equalsIgnoreCase("  "))) "" else " and " + calculateDimensionFilters()) + 
 //    (if ((paramMap == null || paramMap.size == 0)) "" else " and " + calculateParams(paramMap)) + (if ((responseFilters == null || responseFilters.size == 0)) "" else " and " + calculateResponseFilters()) + 
 //    (if ((binSource == null)) "" else " and " + " binSource " + " = '" + binSource + "' ") + " and timeGranularity = " + timeGranularity + (if (searchRequest == null) "" else " and (placeholder) in (" + searchRequest.toSql() + ") ") + (if ((sortProperty == null || sortProperty.isEmpty)) " " else " order by " + sortProperty + " " + ((if (sortDirection == SortDirection.ASC.toString) " asc" else " desc"))) + (if ((length == -1)) "" else "  limit " + length) + (if ((offset == 0)) "" else " offset " + offset + " ")
-    
-    if(columns.size()==0 && (ts1==null || ts1.trim().equals(""))){
-      if(length == -1){
-        "select count(1) "
-      }else{
-        "select * "
-      }
-    }else{
-        "select " + ts1 + 
-        columns.toString.substring(1, columns.toString.length - 1)
-    }
-
-    abs = abs + " from global where "
-    
-   abs = abs + ( if ((responseFilters == null || responseFilters.size == 0)){
-      ""
-    } else {
-      andFlag = true
-      calculateResponseFilters()
-    })
-    
-    abs = abs + (if ((filterData == null || filterData.size == 0 || calculateDimensionFilters().equalsIgnoreCase("  "))){
-      ""
-      } else{
-        if(andFlag){
-        	" and " + calculateDimensionFilters()
-        }else{
-           calculateDimensionFilters()
-        }
-        
-      })
-    
-    
-    abs = abs + (if (searchRequest == null){ 
-      "" 
-      }
-    else{
-      " and (placeholder) in (" + searchRequest.toSql() + ") "
-    }) 
-
-    abs = abs + (if ((sortProperty == null || sortProperty.isEmpty)) " " else " order by " + sortProperty + " " + ((if (sortDirection == SortDirection.ASC.toString) " asc" else " desc"))) + (if ((length == -1)) "" else "  limit " + length) + (if ((offset == 0)) "" else " offset " + offset + " ")
-    
+//    
+//    if(columns.size()==0 && (ts1==null || ts1.trim().equals(""))){
+//      if(length == -1){
+//        "select count(1) "
+//      }else{
+//        "select * "
+//      }
+//    }else{
+//        "select " + ts1 + 
+//        columns.toString.substring(1, columns.toString.length - 1)
+//    }
+//
+//    abs = abs + " from global where "
+//    
+//   abs = abs + ( if ((responseFilters == null || responseFilters.size == 0)){
+//      ""
+//    } else {
+//      andFlag = true
+//      calculateResponseFilters()
+//    })
+//    
+//    abs = abs + (if ((filterData == null || filterData.size == 0 || calculateDimensionFilters().equalsIgnoreCase("  "))){
+//      ""
+//      } else{
+//        if(andFlag){
+//        	" and " + calculateDimensionFilters()
+//        }else{
+//           calculateDimensionFilters()
+//        }
+//        
+//      })
+//    
+//    
+//    abs = abs + (if (searchRequest == null){ 
+//      "" 
+//      }
+//    else{
+//      " and (placeholder) in (" + searchRequest.toSql() + ") "
+//    }) 
+//
+//    abs = abs + (if ((sortProperty == null || sortProperty.isEmpty)) " " else " order by " + sortProperty + " " + ((if (sortDirection == SortDirection.ASC.toString) " asc" else " desc"))) + (if ((length == -1)) "" else "  limit " + length) + (if ((offset == 0)) "" else " offset " + offset + " ")
+//    
     abs
   }
 
   private def calculateParams(params: Traversable[NameValue]): String = {
+    if(paramMap == null)
+      return "";
     var sql = " "
     for (nameValue <- params) {
       sql += nameValue.toSql() + " AND "
@@ -301,7 +349,8 @@ class QueryRequest extends Serializable {
     for (nameValue <- responseFilters) {
       sql += nameValue.toSql() + " AND "
     }
-    sql = sql.substring(0, sql.length - 4)
+    if(!sql.equals(" ")) 
+      sql = sql.substring(0, sql.length - 4)
     sql += " "
     sql
   }
@@ -310,15 +359,7 @@ class QueryRequest extends Serializable {
     var sql = " ("
     for (filter <- filterData) {
       sql += "("
-      for (singleFilter <- filter.filters) {
-        if (singleFilter.condition=="EQUAL"){
-        	sql += singleFilter.dimension +"="+singleFilter.value + " AND "
-        }
-        else{
-          sql += singleFilter.dimension +"!="+singleFilter.value + " AND "
-        }
-      }
-      sql = sql.substring(0, sql.length - 4)
+      sql += filter.toSql
       sql += ") or "
     }
     sql = sql.substring(0, sql.length - 3)

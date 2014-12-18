@@ -6,6 +6,8 @@ import javax.xml.bind.annotation.XmlRootElement
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
 import java.util.ArrayList
 
+import scala.collection.JavaConversions._
+
 @SerialVersionUID(-4945096459581562055L)
 @XmlRootElement
 class FilterData extends Serializable {
@@ -29,6 +31,20 @@ class FilterData extends Serializable {
       if (other.filters != null) return false
     } else if (filters != other.filters) return false
     true
+  }
+  
+  def toSql(): String = {
+    
+    var sql = ""
+    if(filters.isEmpty) 
+      sql
+    else {
+      for (singleFilter <- filters) {
+      sql += singleFilter.toSql + " AND "
+    }
+    sql = sql.substring(0, sql.length - 4)
+    sql
+    }
   }
 
 /*
