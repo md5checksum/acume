@@ -42,6 +42,13 @@ class SingleFilter extends Serializable {
     } else if (value != other.value) return false
     true
   }
+  
+  def toSql(): String = {
+    if (this.condition == "EQUAL")
+      " " + dimension +" = "+value + " "
+    else
+      " " + dimension +" != "+ value + " "
+  }
 
 /*
 Original Java:
