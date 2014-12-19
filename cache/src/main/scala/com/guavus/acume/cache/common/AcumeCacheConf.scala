@@ -28,16 +28,17 @@ import java.util.Properties
  * @param loadDefaults whether to also load values from Java system properties
  */
 
-class AcumeCacheConf(loadDefaults: Boolean, file: InputStream) extends Cloneable with Serializable {
+class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: InputStream) extends Cloneable with Serializable {
   
   val logger = LoggerFactory.getLogger(this.getClass())
+  setDefault
   
   /** Create a AcumeCacheConf that loads defaults from system properties and the classpath */
   def this() = this(true, null)
   
   private val settings = new HashMap[String, String]()
 
-  if (loadDefaults) {
+  if (loadSystemPropertyOverDefault) {
     for ((k, v) <- System.getProperties.asScala if k.toLowerCase.startsWith("acume.cache.")) {
       settings(k) = v.trim
     }
@@ -50,6 +51,14 @@ class AcumeCacheConf(loadDefaults: Boolean, file: InputStream) extends Cloneable
     for ((k, v) <- properties.asScala) {
       settings(k) = v.trim
     }
+  }
+  
+  def setDefault = {
+    
+    set(ConfConstants.rrcacheconcurrenylevel,"3")
+    .set(ConfConstants.rrloader, "com.guavus.acume.cache.workflow.RequestResponseCache")
+    .set(ConfConstants.acumecachesqlcorrector, "com.guavus.acume.cache.sql.AcumeCacheSQLCorrector")
+    .set(ConfConstants.acumecachesqlparser, "com.guavus.acume.cache.sql.AcumeCacheParser")
   }
   
   /** Set a configuration variable. */
@@ -83,7 +92,7 @@ class AcumeCacheConf(loadDefaults: Boolean, file: InputStream) extends Cloneable
     settings.remove(key)
     this
   }
-
+ 
   /** Get a parameter; throws a NoSuchElementException if it's not set */
   def get(key: String): String = {
     settings.getOrElse(key, throw new NoSuchElementException(key))
