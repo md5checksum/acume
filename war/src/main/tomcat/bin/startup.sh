@@ -168,7 +168,8 @@ echo "SPARK_JAVA_OPTS = $SPARK_JAVA_OPTS" > "$CATALINA_OUT"
 # Set SPARK_JAVA_CLASSPATH
 ############
 echo "Setting SPARK_CLASSPATH..." > "$CATALINA_OUT"
-export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:/opt/spark/lib/*:$SCRIPT_DIR/../lib/*:$crux_jar"
+export HADOOP_CONF_DIR="/opt/hadoop/conf"
+export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:/opt/spark/lib/*:$SCRIPT_DIR/../lib/*:$crux_jar:-Djava.io.tmpdir=$CATALINA_BASE"
 echo "SPARK_CLASSPATH = $SPARK_CLASSPATH" > "$CATALINA_OUT"
 
 
