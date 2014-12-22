@@ -47,6 +47,16 @@
 			<groupId>com.guavus</groupId>
 			<artifactId>search</artifactId>
 			<version>0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.hive</groupId>
+					<artifactId>hive-exec</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.guavus</groupId>
+					<artifactId>crux</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- Spring dependency -->
 		<dependency>
