@@ -27,6 +27,18 @@
 		<groupId>org.apache.spark</groupId>
                 <artifactId>spark-hive_2.10</artifactId>		
 	</exclusion>
+	<exclusion>
+                 <groupId>org.slf4j</groupId>
+                 <artifactId>log4j-over-slf4j</artifactId>
+        </exclusion>
+        <exclusion>
+                 <groupId>org.apache.logging.log4j</groupId>
+                 <artifactId>log4j-core</artifactId>
+        </exclusion>
+        <exclusion>
+                 <groupId>log4j</groupId>
+                 <artifactId>log4j</artifactId>
+        </exclusion>
 </exclusions>
 </dependency>
 <dependency>
@@ -48,9 +60,21 @@
                                         <artifactId>asm</artifactId>
                                 </exclusion>
 				<exclusion>
-				<groupId>com.sun.jersey</groupId>
-				<artifactId>*</artifactId>
+					<groupId>com.sun.jersey</groupId>
+					<artifactId>*</artifactId>
 				</exclusion>
+				<exclusion>
+                       			<groupId>org.slf4j</groupId>
+                        		<artifactId>log4j-over-slf4j</artifactId>
+                		</exclusion>
+                		<exclusion>
+                        		<groupId>org.apache.logging.log4j</groupId>
+                        		<artifactId>log4j-core</artifactId>
+                		</exclusion>
+                		<exclusion>
+                        		<groupId>log4j</groupId>
+                        		<artifactId>log4j</artifactId>
+                		</exclusion>
                         </exclusions>
                 </dependency>
 <dependency>
@@ -59,4 +83,25 @@
 	<version>3.3.1</version>
 </dependency>
 </dependencies>
+<build>
+    <plugins>
+        <!-- put aside some unwanted jars from war...-->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <version>2.1.1</version>
+            <configuration>
+                <overlays>
+                    <overlay>
+                        <groupId>user-management</groupId>
+                        <artifactId>user-management</artifactId>
+                        <excludes>
+			    <exclude>WEB-INF/lib/log4j-*.jar</exclude>                              
+                        </excludes>
+                    </overlay>
+                </overlays>
+            </configuration>
+        </plugin>
+</plugins>
+</build>
 </project>
