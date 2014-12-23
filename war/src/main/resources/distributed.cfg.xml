@@ -1,52 +1,60 @@
+<!DOCTYPE hibernate-configuration PUBLIC
+    "-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+    "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+
 <hibernate-configuration>
-<session-factory>
-<!--  Database connection settings  -->
-<property name="connection.driver_class">$CLI_REPLACE_DISTRIBUTEDCONNECTIONDRIVERCLASS$</property>
-<property name="connection.url">$CLI_REPLACE_DISTRIBUTEDCONNECTIONURL$</property>
-<property name="connection.username">$CLI_REPLACE_DISTRIBUTEDCONNECTIONUSERNAME$</property>
-<property name="connection.password">$CLI_REPLACE_DISTRIBUTEDCONNECTIONPASSWORD$</property>
-<!--  JDBC connection pool (use the built-in)  -->
-<property name="connection.pool_size">$CLI_REPLACE_CONNECTIONPOOLSIZE$</property>
-<!--  SQL dialect  -->
-<property name="dialect">$CLI_REPLACE_DISTRIBUTEDDIALECT$</property>
-<!--
- Enable Hibernate's automatic session context management 
--->
-<property name="current_session_context_class">$CLI_REPLACE_CURRENTSESSIONCONTEXTCLASS$</property>
-<!--
- If using to Hibernate, add to your hibernate.cfg.xml 
--->
-<property name="cache.use_second_level_cache">$CLI_REPLACE_HIBERNATESECONDLEVELCACHE$</property>
-<!--
- <property name="hibernate.cache.region.factory_class">
-		   org.hibernate.cache.infinispan.InfinispanRegionFactory</property>
-		<property name="cache.use_query_cache">true</property>
+	<session-factory>
+		<!-- Database connection settings -->
+		<property name="connection.driver_class">$CLI_REPLACE_DISTRIBUTEDCONNECTIONDRIVERCLASS$</property>
+		<property name="connection.url">$CLI_REPLACE_DISTRIBUTEDCONNECTIONURL$</property>
+		<property name="connection.username">$CLI_REPLACE_DISTRIBUTEDCONNECTIONUSERNAME$</property>
+		<property name="connection.password">$CLI_REPLACE_DISTRIBUTEDCONNECTIONPASSWORD$</property>
+		<property name="connection.sslmode">$CLI_REPLACE_SSLMODEFORDBCONNECTION$</property>
+		<property name="connection.sslrootcert">$CLI_REPLACE_ROOTCAPATH$</property>
+
+
+	<!-- JDBC connection pool (use the built-in) -->
+	<!-- As a change of RIX-1210, C3P0 connection pool library will be used. -->
+	<!--property name="connection.pool_size">2</property-->
+	<property name="hibernate.connection.provider_class">$CLI_REPLACE_CONNECTIONPROVIDERCLASS$</property>
+
+		<!-- SQL dialect -->
+		<property name="dialect">$CLI_REPLACE_DISTRIBUTEDDIALECT$</property>
+
+		<!-- Enable Hibernate's automatic session context management -->
+	<property name="current_session_context_class">$CLI_REPLACE_CURRENTSESSIONCONTEXTCLASS$</property>
+
+		<!-- If using to Hibernate, add to your hibernate.cfg.xml -->
+		<property name="cache.use_second_level_cache">$CLI_REPLACE_HIBERNATESECONDLEVELCACHE$</property>
+		<property name="hibernate.cache.region.factory_class">
+		   $CLI_REPLACE_HIBERNATECACHEREGIONFACTORYCLASS$</property>
+		<property name="cache.use_query_cache">$CLI_REPLACE_HIBERNATEQUERYCACHE$</property>
 
 		<property name="hibernate.cache.infinispan.cfg">
-   			cluster-infinispan-configs.xml
+			$CLI_REPLACE_HIBERNATECACHEINFINISPANCFG$
 		</property>
- 
--->
-<!--  Disable the second-level cache   -->
-<!--
- property name="cache.use_second_level_cache">false</property>
-		<property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property
--->
-<!--  Drop and re-create the database schema on startup  -->
-<!--  <property name="hbm2ddl.auto">update</property>  -->
-<property name="hbm2ddl.rubix_files">$CLI_REPLACE_HIBERNATERUBIXFILE$</property>
-<property name="hbm2ddl.solution_files">$CLI_REPLACE_HIBERNATESOLUTIONFILE$</property>
-    
-<!--  Echo all executed SQL to stdout  -->
-<property name="show_sql">true</property>
-<mapping class="com.guavus.rubix.user.management.pojo.UserInfo"/>
-<mapping class="com.guavus.rubix.user.management.pojo.Role"/>
-<mapping class="com.guavus.rubix.user.management.pojo.Group"/>
-<mapping class="com.guavus.rubix.user.management.pojo.Publication"/>
-<!--  <mapping class="com.guavus.rubix.filter.Filter" />  -->
-<mapping class="com.guavus.rubix.user.permission.pojo.DimensionPermissionData"/>
-<mapping class="com.guavus.rubix.user.permission.pojo.ModulePermissionData"/>
-<mapping class="com.guavus.rubix.user.management.pojo.DbLock"/>
-<mapping class="com.guavus.rubix.user.management.pojo.UserManagementRevisionHistory"/>
-</session-factory>
+
+
+	<!-- Drop and re-create the database schema on startup -->
+    <!--property name="hbm2ddl.auto">update</property-->
+
+	<property name="hbm2ddl.rubix_files">$CLI_REPLACE_HIBERNATERUBIXFILE$</property>
+	<property name="hbm2ddl.solution_files">$CLI_REPLACE_HIBERNATESOLUTIONFILE$</property>
+
+	<!-- Echo all executed SQL to stdout -->
+		<property name="show_sql">true</property>
+		<mapping class="com.guavus.rubix.filter.Filter" />
+		<mapping class="com.guavus.rubix.user.management.pojo.UserInfo" />
+		<mapping class="com.guavus.rubix.user.management.pojo.Group" />
+		<mapping class="com.guavus.rubix.user.management.pojo.Role"/>
+		<mapping class="com.guavus.rubix.user.management.pojo.Publication" />
+		<mapping class="com.guavus.rubix.user.permission.pojo.ModulePermissionData" />
+		<mapping class="com.guavus.rubix.user.permission.pojo.ServicePermissionData" />
+		<mapping class="com.guavus.rubix.user.permission.impl.ServiceOperation" />
+		<mapping class="com.guavus.rubix.user.management.pojo.UserManagementRevisionHistory" />
+		<mapping class="com.guavus.rubix.user.management.pojo.UserHistory" />
+		<mapping class="com.guavus.rubix.user.management.pojo.DbLock" />
+		<mapping class="com.guavus.launchboard.pojo.LaunchBoard" />
+                <mapping class="com.guavus.launchboard.pojo.UserFlow" />
+	</session-factory>
 </hibernate-configuration>

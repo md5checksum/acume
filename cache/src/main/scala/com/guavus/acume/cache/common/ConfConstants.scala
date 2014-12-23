@@ -19,6 +19,7 @@ private [acume] object ConfConstants {
   val storagetype = "acume.cache.baselayer.storagetype"
   val timezone = "acume.cache.core.timezone"
   val timezonedb = "acume.cache.core.timezonedb"
+  val timezonedbPath = "acume.cache.core.timezonedbPath"
   val whichcachetouse = "acume.cache.core.cachename"
   val rrcacheconcurrenylevel = "acume.cache.core.rrcacheconcurrenylevel"
   val rrsize = ("acume.cache.core.rrcahcesize", 3)
