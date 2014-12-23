@@ -284,7 +284,7 @@ class QueryRequest extends Serializable {
     val wherestring =
       (if (!whereClause.equals("")) " where " + whereClause else "") +
         (if (sortProperty == null || sortProperty.isEmpty) "" else " order by " + sortProperty + " ") +
-        (if (sortDirection == null) "" else if (sortDirection == SortDirection.ASC.toString) " asc" else " desc") +
+        (if (sortProperty == null || sortProperty.isEmpty || sortDirection == null) "" else if (sortDirection == SortDirection.ASC.toString) " asc" else " desc") +
         (if (length == -1) "" else "  limit " + length) +
         (if (offset == 0) "" else " offset " + offset + " ")
       
