@@ -5,7 +5,7 @@
     <Properties>
         <Property>
             <Property_Name>rubixApp</Property_Name>
-            <Property_Value />
+            <Property_Value>acume</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>rubixApp</Property_OriginalName>
@@ -381,7 +381,7 @@
             <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.cacheDeleteLastBinPersistedTime</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>Rubix Instance: &gt;</Property_Name>
+            <Property_Name>Acume Instance: &gt;</Property_Name>
         </Property>
     </Properties>
     <SubProfiles />
