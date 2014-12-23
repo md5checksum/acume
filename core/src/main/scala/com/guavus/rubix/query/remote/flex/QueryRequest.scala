@@ -31,7 +31,7 @@ object QueryRequest {
     singleFilter.setValue("3")
     singleFilter.setCondition("EQUAL")
     singleFilters.add(singleFilter)
-    val gson = new Gson()
+    val gson = new Gson()	
     filterData.setFilters(singleFilters)
     filterDatas.add(filterData)
     val data = new MeasureFilterData()

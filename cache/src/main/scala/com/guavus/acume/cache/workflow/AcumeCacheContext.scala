@@ -2,16 +2,13 @@ package com.guavus.acume.cache.workflow
 
 import java.io.FileInputStream
 import java.util.Random
-
 import scala.Array.canBuildFrom
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
-
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.BaseCube
@@ -47,6 +44,8 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   case sqlContext: SQLContext => 
   case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
+  
+  def cacheConf() = conf
  
   @transient
   val rrCacheLoader = Class.forName(conf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]

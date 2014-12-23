@@ -6,13 +6,19 @@ import com.guavus.rubix.query.remote.flex.QueryRequest
 import com.guavus.rubix.query.remote.flex.SearchRequest
 import com.guavus.rubix.query.remote.flex.SearchResponse
 import com.guavus.rubix.query.remote.flex.TimeseriesResponse
-
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import javax.xml.bind.annotation.XmlRootElement
+import com.google.common.collect.Lists
 
 /**
  * Main service of acume which serves the request from UI and rest services. It checks if the response is present in RR cache otherwise fire the query on OLAP cache.
  */
 class AcumeService(dataService: DataService) {
+  
+  def this() = {
+    this(ConfigFactory.getInstance.getBean(classOf[DataService]))
+  }
   
   /**
    * Any query request can be fired and result of appropriate type is returned, If query is of type aggregate it returns aggregate response else timeseries response.
@@ -24,8 +30,19 @@ class AcumeService(dataService: DataService) {
   /**
    * Serves only aggregate request. if request type is timeseries this method fails.
    */
+  def  servAggregateMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[AggregateResponse] = {
+    new java.util.ArrayList(queryRequests.map(servAggregateQuery(_)))
+  }
+  
+  /**
+   * Serves only aggregate request. if request type is timeseries this method fails.
+   */
   def  servAggregateQuery(queryRequest : QueryRequest) : AggregateResponse = {
     dataService.servAggregate(queryRequest)
+  }
+  
+  def servTimeseriesMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[TimeseriesResponse] = {
+    new java.util.ArrayList(queryRequests.map(servTimeseriesQuery(_)))
   }
   
   def servTimeseriesQuery(queryRequest : QueryRequest) : TimeseriesResponse = {
