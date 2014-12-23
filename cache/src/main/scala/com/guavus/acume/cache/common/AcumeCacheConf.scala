@@ -31,12 +31,12 @@ import java.util.Properties
 class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: InputStream) extends Cloneable with Serializable {
   
   val logger = LoggerFactory.getLogger(this.getClass())
-  setDefault
   
   /** Create a AcumeCacheConf that loads defaults from system properties and the classpath */
   def this() = this(true, null)
   
   private val settings = new HashMap[String, String]()
+  setDefault
 
   if (loadSystemPropertyOverDefault) {
     for ((k, v) <- System.getProperties.asScala if k.toLowerCase.startsWith("acume.cache.")) {
