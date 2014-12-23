@@ -340,7 +340,17 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
-
+        <property>
+            <name>L2CacheClusterName</name>
+            <help><![CDATA[ - Unique cluster name, used by L2 cache jgroup]]></help>
+            <default><![CDATA[infinispan-hibernate-cluster]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[cluster-infinispan-configs.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
                   <property>
                         <name>infinispanJgroupConfigFile</name>
                         <help><![CDATA[ - JGroup config file for hibernate L2 cache cluster]]></help>
