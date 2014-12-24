@@ -16,6 +16,7 @@ import com.guavus.crux.core.ByteBuffer
 import com.guavus.crux.jaxb.classes.{DataType => CruxDataType}
 import com.guavus.crux.df.core.FieldDataType
 import com.guavus.crux.df.core.FieldDataType._
+import com.guavus.crux.df.util.DataTypeConverter
 
 /**
  * @author archit.thakur
@@ -73,5 +74,5 @@ object ConversionToSpark {
 object ConversionToCrux { 
   
   def convertToCruxFieldDataType(dataType: com.guavus.acume.cache.common.DataType.DataType): FieldDataType = 
-    FieldDataType(CruxDataType.fromValue(dataType.typeString))
+    DataTypeConverter.toFieldDataType(CruxDataType.fromValue(dataType.typeString))
 }
