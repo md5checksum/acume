@@ -43,7 +43,6 @@
 
 	<!-- Echo all executed SQL to stdout -->
 		<property name="show_sql">true</property>
-		<mapping class="com.guavus.rubix.filter.Filter" />
 		<mapping class="com.guavus.rubix.user.management.pojo.UserInfo" />
 		<mapping class="com.guavus.rubix.user.management.pojo.Group" />
 		<mapping class="com.guavus.rubix.user.management.pojo.Role"/>
