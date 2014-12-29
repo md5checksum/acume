@@ -29,7 +29,7 @@ class AcumeDataSourceSchema(acumeContext : AcumeContextTrait) extends QueryBuild
     	}).toList
     	dimensions = dimensions ::: List(new Field(FieldType.DIMENSION, FieldType.DIMENSION, new Integer(0), "ts", "")) ::: cube.measure.measureSet.map(field => {
     		new Field(FieldType.MEASURE, FieldType.MEASURE, field.getDefaultValue.asInstanceOf[AnyRef],field.getName, field.getAggregationFunction)}).toList
-      new Cube(cube.cubeName, dimensions)
+      new Cube(cube.cubeName, dimensions, /**TODO Change this to actual binsource when support provided by cache */"", cube.baseGran.getGranularity)
     })
   }
 
