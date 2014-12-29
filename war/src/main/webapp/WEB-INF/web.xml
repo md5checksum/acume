@@ -187,7 +187,7 @@
 	<url-pattern>/queryresponse/validQuery</url-pattern>
   	</servlet-mapping>
   	<servlet-mapping>
-    	<servlet-name>ValidateDataSources</servlet-name>
+    	<servlet-name>ValidDataSources</servlet-name>
 	<url-pattern>/queryresponse/validateDataSources</url-pattern>
   	</servlet-mapping>
   	<servlet-mapping>
