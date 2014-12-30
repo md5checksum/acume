@@ -91,10 +91,10 @@ fi
 ############
 if [[ $app_name -eq -1 ]] && [[ "$prop_loc" != "" ]]; then
     
-    grep_cmd_output=$(cat "$prop_loc" 2>"$CATALINA_OUT" | grep "spark.app.name" )    
+    grep_cmd_output=$(cat "$prop_loc" 2>>"$CATALINA_OUT" | grep "spark.app.name" )    
    
     if [[ $(echo "$grep_cmd_output" | awk -F" " '{print $1}' ) != "#" ]]; then
-            echo "Picking app name from the spark conf" > "$CATALINA_OUT"
+            echo "Picking app name from the spark conf" >> "$CATALINA_OUT"
 	    app_name=$( echo "$grep_cmd_output" | awk -F" " '{print $2}' )
 	    ARG_APP_NAME=" --name $app_name" 
     fi
@@ -107,10 +107,10 @@ fi
 ############
 if [[ $master_mode -eq -1 ]] && [[ "$prop_loc" != "" ]]; then
     
-    grep_cmd_output=$(cat "$prop_loc" 2>"$CATALINA_OUT" | grep "spark.master" )    
+    grep_cmd_output=$(cat "$prop_loc" 2>>"$CATALINA_OUT" | grep "spark.master" )    
             
     if [[ $(echo "$grep_cmd_output" | awk -F" " '{print $1}') != "#" ]]; then
-       echo "Picking master mode from the spark conf" > "$CATALINA_OUT"
+       echo "Picking master mode from the spark conf" >> "$CATALINA_OUT"
        master_mode=$( echo "$grep_cmd_output" | awk -F" " '{print $2}' )
        ARG_MASTER_MODE=" --master $master_mode"
     fi
@@ -122,10 +122,10 @@ fi
 ############
 if [[ ( $master_mode -eq -1 || "$master_mode" =~ ^yarn* ) && ( $queue_name -ne -1 ) && ("$prop_loc" != "") ]]; then
 
-    grep_cmd_output=$(cat "$prop_loc" 2>"$CATALINA_OUT" | grep "spark.yarn.queue" )
+    grep_cmd_output=$(cat "$prop_loc" 2>>"$CATALINA_OUT" | grep "spark.yarn.queue" )
 
     if [[ $(echo "$grep_cmd_output" | awk -F" " '{print $1}') != "#" ]]; then
-       echo "Picking queue name from the spark conf" > "$CATALINA_OUT"
+       echo "Picking queue name from the spark conf" >> "$CATALINA_OUT"
        queue_name=$( echo "$grep_cmd_output" | awk -F" " '{print $2}' )
        QUEUE_NAME=" --queue $queue_name"
     fi
@@ -133,44 +133,51 @@ fi
 ############
 #Finding crux jar
 ############
-num_crux_jars=$(ls -d /opt/tms/java/crux2.0-*-jar-with-dependencies.jar 2>"$CATALINA_OUT" | wc -l )
+num_crux_jars=$(ls -d /opt/tms/java/crux2.0-*-jar-with-dependencies.jar 2>>"$CATALINA_OUT" | wc -l )
 
 
 if [ "$num_crux_jars" -eq "0" ]; then
-   echo "Failed to find crux jar in /opt/tms/java/" > "$CATALINA_OUT"
+   echo "Failed to find crux jar in /opt/tms/java/" >> "$CATALINA_OUT"
    exit 1
 fi
 
 if [ "$num_crux_jars" -gt "1" ]; then
    jars_list=$(ls -d /opt/tms/java/crux2.0-*-jar-with-dependencies.jar)
-   echo "Found multiple crux jars in /opt/tms/java/" > "$CATALINA_OUT"
-   echo "$jars_list" > "$CATALINA_OUT"
-   echo "Please remove all but one jar." > "$CATALINA_OUT"
+   echo "Found multiple crux jars in /opt/tms/java/" >> "$CATALINA_OUT"
+   echo "$jars_list" >> "$CATALINA_OUT"
+   echo "Please remove all but one jar." >> "$CATALINA_OUT"
    exit 1
 fi
 
 if [ "$num_crux_jars" -eq "1" ]; then
    crux_jar=$(ls -d /opt/tms/java/crux2.0-*-jar-with-dependencies.jar)
-   echo "Found crux jar $crux_jar" > "$CATALINA_OUT"
+   echo "Found crux jar $crux_jar" >> "$CATALINA_OUT"
 fi
 
 
 ############
 # Set SPARK_JAVA_OPTS
 ############
-echo "Setting SPARK_JAVA_OPTS..." > "$CATALINA_OUT"
+echo "Setting SPARK_JAVA_OPTS..." >> "$CATALINA_OUT"
 CATALINA_BASE="$SCRIPT_DIR/.."
 export SPARK_JAVA_OPTS="-Dcatalina.base=$CATALINA_BASE $ACUME_JAVA_OPTS"
-echo "SPARK_JAVA_OPTS = $SPARK_JAVA_OPTS" > "$CATALINA_OUT"
+echo "SPARK_JAVA_OPTS = $SPARK_JAVA_OPTS" >> "$CATALINA_OUT"
 
+############
+# Set SPARK_JAR
+############
+echo "Setting SPARK_JAR..." >> "$CATALINA_OUT"
+spark_jar=$(ls "/opt/spark/lib" | grep "^spark-assembly-*.*jar")
+export SPARK_JAR="local:///opt/spark/lib/$spark_jar"
+echo "SPARK_JAR = $SPARK_JAR" >> "$CATALINA_OUT"
 
 ############
 # Set SPARK_JAVA_CLASSPATH
 ############
-echo "Setting SPARK_CLASSPATH..." > "$CATALINA_OUT"
+echo "Setting SPARK_CLASSPATH..." >> "$CATALINA_OUT"
 export HADOOP_CONF_DIR="/opt/hadoop/conf"
 export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:/opt/spark/lib/*:$SCRIPT_DIR/../lib/*:$crux_jar:-Djava.io.tmpdir=$CATALINA_BASE"
-echo "SPARK_CLASSPATH = $SPARK_CLASSPATH" > "$CATALINA_OUT"
+echo "SPARK_CLASSPATH = $SPARK_CLASSPATH" >> "$CATALINA_OUT"
 
 
 ############
@@ -182,21 +189,21 @@ num_core_jars=$(ls "$assembly_folder" | grep "^core-*.*jar" | wc -l)
 
 
 if [ "$num_core_jars" -eq "0" ]; then
-  echo "Failed to find core jar in $assembly_folder" > "$CATALINA_OUT"
+  echo "Failed to find core jar in $assembly_folder" >> "$CATALINA_OUT"
   exit 1
 fi
 
 if [ "$num_core_jars" -gt "1" ]; then
   jars_list=$(ls "$assembly_folder" | grep "^core-*.*jar")
-  echo "Found multiple core jars in $assembly_folder:" > "$CATALINA_OUT"
-  echo "$jars_list" > "$CATALINA_OUT"
-  echo "Please remove all but one jar." > "$CATALINA_OUT"
+  echo "Found multiple core jars in $assembly_folder:" >> "$CATALINA_OUT"
+  echo "$jars_list" >> "$CATALINA_OUT"
+  echo "Please remove all but one jar." >> "$CATALINA_OUT"
   exit 1
 fi
 
 if [ "$num_core_jars" -eq "1" ]; then
   core_jar=$(ls "$assembly_folder" | grep "^core-*.*jar")
-  echo "Found core jar $core_jar" > "$CATALINA_OUT"
+  echo "Found core jar $core_jar" >> "$CATALINA_OUT"
 fi
 
 
@@ -204,7 +211,7 @@ fi
 # Start the spark server
 ############
 cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_PROPERTIES_FILE --class com.guavus.acume.tomcat.core.AcumeMain $DOCBASE/WEB-INF/lib/$core_jar"
-echo "Starting Spark..." > "$CATALINA_OUT"
+echo "Starting Spark..." >> "$CATALINA_OUT"
 eval $cmd >> "$CATALINA_OUT" 2>&1 "&"
-echo "Spark started successfully..." > "$CATALINA_OUT"
+echo "Spark started successfully..." >> "$CATALINA_OUT"
 
