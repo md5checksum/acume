@@ -120,7 +120,7 @@ fi
 # Assigning queue name
 #read queue name from property location
 ############
-if [[ ( $master_mode -eq -1 || "$master_mode" =~ ^yarn* ) && ( $queue_name -ne -1 ) && ("$prop_loc" != "") ]]; then
+if [[ ( $master_mode -eq -1 || "$master_mode" =~ ^yarn* ) && ( $queue_name -eq -1 ) && ("$prop_loc" != "") ]]; then
 
     grep_cmd_output=$(cat "$prop_loc" 2>>"$CATALINA_OUT" | grep "spark.yarn.queue" )
 
