@@ -62,6 +62,30 @@ object Utility extends Logging {
     sqlContext.applySchema(_$rdd, schema)
   }
   
+  def getStartTimeFromLevel(endTime : Long, granularity : Long, points : Int) : Long = {
+			var rangeEndTime = Utility.floorFromGranularity(endTime, granularity);
+			var rangeStartTime : Long = 0 
+			val cal = Utility.newCalendar();
+			if(granularity == TimeGranularity.MONTH.getGranularity()){
+				cal.setTimeInMillis(rangeEndTime * 1000);
+				cal.add(Calendar.MONTH, -1 * points);
+				rangeStartTime = cal.getTimeInMillis() / 1000;
+			}
+			else if(granularity == TimeGranularity.WEEK.getGranularity()) {
+				cal.setTimeInMillis(rangeEndTime * 1000);
+				cal.add(Calendar.WEEK_OF_MONTH, -1 * points);
+				rangeStartTime = cal.getTimeInMillis() / 1000;
+			}else if(granularity == TimeGranularity.DAY.getGranularity()) {
+				cal.setTimeInMillis(rangeEndTime * 1000);
+				cal.add(Calendar.DAY_OF_MONTH, -1 * points);
+				rangeStartTime = cal.getTimeInMillis() / 1000;
+			}
+			else{
+				rangeStartTime = rangeEndTime - points*granularity;
+			}
+			return rangeStartTime;
+	}
+  
   def getEmptySchemaRDD(sqlContext: SQLContext, cube: Cube) = {
     
     val sparkContext = sqlContext.sparkContext
@@ -594,5 +618,9 @@ object Utility extends Logging {
     result.toList
   }
 
+  def isCause( expected : Class[_ <: Throwable],
+			 exc : Throwable) : Boolean = {
+		 expected.isInstance(exc) || (exc != null && isCause(expected, exc.getCause()));
+	}
 
 }
