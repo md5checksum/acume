@@ -22,6 +22,8 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
   case sqlContext: SQLContext => 
   case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
+  
+  def cacheConf = conf
  
   private [acume] def getCubeList = throw new RuntimeException("Method not supported")
   

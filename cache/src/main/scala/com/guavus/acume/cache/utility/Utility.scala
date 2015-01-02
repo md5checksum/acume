@@ -1,6 +1,7 @@
 package com.guavus.acume.cache.utility
 
 import java.text.SimpleDateFormat
+import scala.util.control.Breaks._
 import java.util.Calendar
 import java.util.Date
 import java.util.StringTokenizer
@@ -27,6 +28,26 @@ import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
 import com.guavus.acume.cache.disk.utility.CubeUtil
 import scala.collection.SortedMap
 import scala.collection.immutable.TreeMap
+import java.io.DataInputStream
+import java.io.File
+import com.guavus.acume.cache.common.AcumeCacheConf
+import java.io.BufferedInputStream
+import com.guavus.acume.cache.common.AcumeCacheConf
+import java.io.FileInputStream
+import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.AcumeCacheConf
+import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
+import com.guavus.acume.cache.common.AcumeCacheConf
+import scala.collection.mutable.ArrayBuffer
+import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.workflow.AcumeCacheContext
+import com.guavus.acume.cache.common.AcumeCacheConf
+
 
 /**
  * @author archit.thakur
@@ -476,6 +497,101 @@ object Utility extends Logging {
     }
     instance.add(Calendar.SECOND, -1 * instance.get(Calendar.SECOND))
     instance.getTimeInMillis / 1000
+  }
+
+  
+ def getTimeZoneInfo(id: String, startYear: Int, endYear: Int, timezoneDBFilePath : String): TimeZoneInfo = {
+    var transTimes: Array[Int] = null
+    var transTypes: Array[Byte] = null
+    var dst: Array[Byte] = null
+    var offset: Array[Int] = null
+    var idx: Array[Byte] = null
+    var utcOffset = 0
+    var tzname: Array[String] = null
+    val f = new File(timezoneDBFilePath, id)
+    val ds = new DataInputStream(new BufferedInputStream(new FileInputStream(f)))
+    try {
+      ds.skip(32)
+      val timecnt = ds.readInt()
+      val typecnt = ds.readInt()
+      val charcnt = ds.readInt()
+      transTimes = Array.ofDim[Int](timecnt)
+      for (i <- 0 until timecnt) {
+        transTimes(i) = ds.readInt()
+      }
+      transTypes = Array.ofDim[Byte](timecnt)
+      ds.readFully(transTypes)
+      offset = Array.ofDim[Int](typecnt)
+      dst = Array.ofDim[Byte](typecnt)
+      idx = Array.ofDim[Byte](typecnt)
+      for (i <- 0 until typecnt) {
+        offset(i) = ds.readInt()
+        dst(i) = ds.readByte()
+        idx(i) = ds.readByte()
+      }
+      val str = Array.ofDim[Byte](charcnt)
+      ds.readFully(str)
+      tzname = Array.ofDim[String](typecnt)
+      for (i <- 0 until typecnt) {
+        val pos = idx(i)
+        var end = pos
+        while (str(end) != 0) end
+        tzname(i) = new String(str, pos, end - pos)
+      }
+      var i = transTimes.length - 1
+      breakable {
+      while (i > 0) {
+        if (dst(transTypes(i)) == 0) {
+          utcOffset = offset(transTypes(i))
+          break
+        }
+        i -= 1
+      }
+      }
+    } finally {
+      ds.close()
+    }
+    val cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
+    val rules = new java.util.ArrayList[java.util.List[String]]()
+    for (i <- 0 until transTimes.length) {
+      if (i > 0) {
+        cal.setTimeInMillis(transTimes(i) * 1000L + offset(transTypes(i - 1)) * 1000L)
+      } else {
+        cal.setTimeInMillis(transTimes(i) * 1000L + utcOffset)
+      }
+      val year = cal.get(Calendar.YEAR)
+      if (year < startYear || year > endYear) {
+        // do nothing for continuing
+      } else {
+      val tempRule = new java.util.ArrayList[String]()
+      tempRule.add(String.valueOf(year))
+      tempRule.add(String.valueOf(cal.get(Calendar.DAY_OF_WEEK_IN_MONTH)))
+      tempRule.add(String.valueOf(cal.get(Calendar.DAY_OF_WEEK)))
+      tempRule.add(String.valueOf(cal.get(Calendar.MONTH)))
+      tempRule.add(String.valueOf(cal.get(Calendar.HOUR_OF_DAY)))
+      tempRule.add(String.valueOf(cal.get(Calendar.MINUTE)))
+      tempRule.add(String.valueOf((offset(transTypes(i)) - utcOffset)))
+      tempRule.add(String.valueOf(utcOffset))
+      tempRule.add(tzname(transTypes(i)))
+      rules.add(tempRule)
+    }
+ }
+    val zone = TimeZone.getTimeZone(id)
+    val zoneName = zone.getDisplayName(false, 0)
+    val zoneFullName = zone.getDisplayName(false, 1)
+    val dstName = zone.getDisplayName(true, 0)
+    val dstFullName = zone.getDisplayName(true, 1)
+    val result = new TimeZoneInfo(rules, utcOffset, id, zoneName, zoneFullName, dstName, dstFullName)
+    result
+    
+  }
+
+  def getTimeZoneInfo(ids: List[String], startYear: Int, endYear: Int, timezoneDbFilePath : String): List[TimeZoneInfo] = {
+    val result = new ArrayBuffer[TimeZoneInfo]()
+    for (id <- ids) {
+      result.add(getTimeZoneInfo(id, startYear, endYear, timezoneDbFilePath))
+    }
+    result.toList
   }
 
 
