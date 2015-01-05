@@ -74,5 +74,5 @@ object ConversionToSpark {
 object ConversionToCrux { 
   
   def convertToCruxFieldDataType(dataType: com.guavus.acume.cache.common.DataType.DataType): FieldDataType = 
-    DataTypeConverter.cruxToFieldDataType(CruxDataType.fromValue(dataType.typeString))
+    FieldDataType.fromValue(dataType.typeString)
 }
