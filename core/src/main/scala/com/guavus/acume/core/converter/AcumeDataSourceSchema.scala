@@ -1,13 +1,13 @@
 package com.guavus.acume.core.converter
 
-import com.guavus.querybuilder.cube.schema.QueryBuilderSchema
+import com.guavus.qb.cube.schema.QueryBuilderSchema
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-import com.guavus.querybuilder.cube.schema.ICube
+import com.guavus.qb.cube.schema.ICube
 import com.guavus.acume.core.configuration.ConfigFactory
 import com.guavus.acume.core.AcumeContext
-import com.guavus.querybuilder.cube.schema.FieldType
-import com.guavus.querybuilder.cube.schema.IField
+import com.guavus.qb.cube.schema.FieldType
+import com.guavus.qb.cube.schema.IField
 import scala.collection.mutable.ArrayBuffer
 import com.guavus.acume.core.AcumeContextTrait
 

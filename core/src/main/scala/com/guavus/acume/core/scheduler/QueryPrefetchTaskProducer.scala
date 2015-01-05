@@ -11,9 +11,9 @@ import QueryPrefetchTaskProducer._
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
 import scala.collection.JavaConversions._
 import com.guavus.acume.core.AcumeConf
-import com.guavus.querybuilder.cube.schema.ICube
+import com.guavus.qb.cube.schema.ICube
 import com.guavus.acume.core.DataService
-import com.guavus.querybuilder.cube.schema.QueryBuilderSchema
+import com.guavus.qb.cube.schema.QueryBuilderSchema
 import com.guavus.rubix.query.remote.flex.QueryRequest
 import com.guavus.acume.cache.core.Interval
 import scala.collection.immutable.IntMap.Bin
@@ -26,7 +26,7 @@ import com.guavus.acume.core.PSUserService
 import com.guavus.acume.cache.core.TimeGranularity
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.JavaConversions._
-import com.guavus.querybuilder.cube.schema.FieldType
+import com.guavus.qb.cube.schema.FieldType
 import com.guavus.rubix.query.remote.flex.NameValue
 import com.guavus.acume.core.AcumeService
 

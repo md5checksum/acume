@@ -5,7 +5,7 @@ import com.guavus.rubix.query.remote.flex.AggregateResponse
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.expressions.Row
 import com.guavus.rubix.query.remote.flex.QueryRequest
-import com.guavus.querybuilder.cube.schema.QueryBuilderSchema
+import com.guavus.qb.cube.schema.QueryBuilderSchema
 import com.guavus.qb.conf.QBConf
 import org.apache.spark.sql.SchemaRDD
 import scala.collection.mutable.ArrayBuffer
