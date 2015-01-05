@@ -23,7 +23,7 @@ object PSUserService {
 
 class PSUserService {
 
-  def getTimeRange(): Array[Long] = Array(1416441600L, 1416477600L)
+  def getTimeRange(): Array[Long] = Array(AcumeContextTrait.acumeContext.get.acumeContext.cacheConf.getLong("acume.cache.delete.firstbinpersistedtime"), AcumeContextTrait.acumeContext.get.acumeContext.cacheConf.getLong("acume.cache.delete.lastbinpersistedtime"))
   
   def getZoneInfo(ids : java.util.List[String] , params : ZoneInfoParams) : java.util.List[TimeZoneInfo] = {
 		val timeGran = ConfigFactory.getInstance().getBean(classOf[TimeGranularity]).getGranularity()
