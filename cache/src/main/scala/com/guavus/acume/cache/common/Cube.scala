@@ -4,16 +4,12 @@ import com.guavus.acume.cache.core.AcumeCacheType._
 import com.guavus.acume.cache.core.TimeGranularity._
 import com.guavus.acume.cache.eviction.EvictionPolicy
 
-abstract class CubeTrait(val superCubeName: String, val superDimension: DimensionSet, val superMeasure: MeasureSet) extends Serializable 	
 /**
  * @author archit.thakur
  *
  */
-case class Cube(cubeName: String, dimension: DimensionSet, measure: MeasureSet, 
-    baseGran: TimeGranularity, isCacheable: Boolean, levelPolicyMap: Map[Long, Int], cacheTimeseriesLevelPolicyMap: Map[Long, Int],
-    evictionPolicyClass: Class[_ <: EvictionPolicy])
-    extends CubeTrait(cubeName, dimension, measure)
-case class BaseCube(cubeName: String, dimension: DimensionSet, measure: MeasureSet) extends CubeTrait(cubeName, dimension, measure)
+abstract class CubeTrait(val superCubeName: String, val superDimension: DimensionSet, val superMeasure: MeasureSet) extends Serializable
+case class BaseCube(cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, baseGran: TimeGranularity) extends CubeTrait(cubeName, dimension, measure)
 
 case class Function(functionClass: String, functionName: String) extends Serializable 
 case class DimensionSet(dimensionSet: List[Dimension]) extends Serializable 
@@ -28,8 +24,31 @@ case class DimensionTable(var tblnm: String) extends Serializable {
       else
         tblnm = s"${tblnm.substring(0, in)}_${System.currentTimeMillis()}"
     }
-  }
+  } 	
 }
+
+case class Cube(cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, 
+    baseGran: TimeGranularity, isCacheable: Boolean, levelPolicyMap: Map[Long, Int], cacheTimeseriesLevelPolicyMap: Map[Long, Int], 
+    evictionPolicyClass: Class[_ <: EvictionPolicy]) 
+    extends CubeTrait(cubeName, dimension, measure) with Equals {
+  
+  def canEqual(other: Any) = {
+    other.isInstanceOf[Cube]
+  }
+
+  override def equals(other: Any) = {
+    other match {
+    case that: Cube => that.canEqual(Cube.this) && cubeName == that.cubeName && binsource == that.binsource
+    case _ => false
+    }
+  }
+  
+  override def hashCode() = {
+      val prime = 41
+      prime * (prime + cubeName.hashCode) + binsource.hashCode
+    }
+}
+
 
 
 
