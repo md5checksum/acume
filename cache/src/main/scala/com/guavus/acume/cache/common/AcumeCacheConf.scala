@@ -125,6 +125,11 @@ class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: InputStream) 
   def getLong(key: String, defaultValue: Long): Long = {
     getOption(key).map(_.trim.toLong).getOrElse(defaultValue)
   }
+   
+  /** Get a parameter as a long, throw exception if config not found */
+  def getLong(key: String): Long = {
+    getOption(key).map(_.toLong).getOrElse(throw new IllegalArgumentException("key " + key +" not defined in configuration"))
+  }
 
   /** Get a parameter as a double, falling back to a default if not set */
   def getDouble(key: String, defaultValue: Double): Double = {
