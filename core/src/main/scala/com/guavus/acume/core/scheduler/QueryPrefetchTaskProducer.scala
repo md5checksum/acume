@@ -44,7 +44,7 @@ object QueryPrefetchTaskProducer {
 
 class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schema : QueryBuilderSchema, private var taskManager: QueryRequestPrefetchTaskManager, private var dataService: DataService, acumeService : AcumeService, saveRequests : Boolean, policy : ISchedulerPolicy) extends Runnable {
 
-  private var lastCacheUpdateTimeMap: scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]]] = new scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]]]()
+  private var lastCacheUpdateTimeMap: scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]] = new scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]]()
 
   private var cubeLocator: PrefetchCubeLocator = new PrefetchCubeLocator(schema)
 
@@ -173,20 +173,20 @@ class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schema : QueryBuilderSche
         logger.debug("prefetch cube configuration is==>" + binSourceToCubeConfigurations)
       }
       for ((key, value) <- binSourceToCubeConfigurations) {
-        var binSourceToCacheTime = tempLastCacheUpdateTimeMap.get(key).getOrElse({null})
-        if (binSourceToCacheTime == null) {
-          binSourceToCacheTime = new scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]]()
-          tempLastCacheUpdateTimeMap.put(key, binSourceToCacheTime)
+        var cubeConfigurationToCacheTime = tempLastCacheUpdateTimeMap.get(key).getOrElse({null})
+        if (cubeConfigurationToCacheTime == null) {
+          cubeConfigurationToCacheTime = new scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]()
+          tempLastCacheUpdateTimeMap.put(key, cubeConfigurationToCacheTime)
         }
         if (!isFirstRun) {
           binSourcesToIntervalsMap = Controller.getInstaTimeInterval
         }
         val intervalMap = binSourcesToIntervalsMap.get(key).getOrElse({throw new IllegalStateException("StartTime for binsource " + key + " can not be null")})
-          var cubeConfigurationToCacheTime = binSourceToCacheTime.get(key).getOrElse({null})
-          if (cubeConfigurationToCacheTime == null) {
-            cubeConfigurationToCacheTime = new scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]()
-            binSourceToCacheTime.put(key, cubeConfigurationToCacheTime)
-          }
+//          var cubeConfigurationToCacheTime = binSourceToCacheTime.get(key).getOrElse({null})
+//          if (cubeConfigurationToCacheTime == null) {
+//            cubeConfigurationToCacheTime = new scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]()
+//            binSourceToCacheTime.put(key, cubeConfigurationToCacheTime)
+//          }
           var startTime = intervalMap.get(-1).getOrElse({throw new IllegalStateException("StartTime for binsource " + key + " can not be null")}).getStartTime
           startTime = policy.getCeilOfTime(startTime)
           val endTime = intervalMap.get(-1).getOrElse({throw new IllegalStateException("EndTime for binsource " + key + " can not be null")})getEndTime//if (prefetcherLatestTime != -1) prefetcherLatestTime else binSourceToIntervalMap.get(Controller.DEFAULT_AGGR_INTERVAL).getEndTime
@@ -198,10 +198,9 @@ class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schema : QueryBuilderSche
               val lastCacheUpdatedTime = cubeConfigurationToCacheTime.get(prefetchCubeConfiguration).getOrElse({null}).asInstanceOf[Long]
               if (lastCacheUpdatedTime != null && lastCacheUpdatedTime != 0 && tempEndTime < lastCacheUpdatedTime) {
                 tempEndTime = lastCacheUpdatedTime
-                //continue
               } else {
-              if (binSourceToCacheTime == null) {
-                binSourceToCacheTime = scala.collection.mutable.HashMap()
+              if (cubeConfigurationToCacheTime == null) {
+                cubeConfigurationToCacheTime = scala.collection.mutable.HashMap()
               }
               val optionalParam = new scala.collection.mutable.HashMap[String, Any]()
               optionalParam.put(BIN_SOURCE, key)
@@ -347,7 +346,7 @@ class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schema : QueryBuilderSche
   }
 //
   def clearTaskCacheUpdateTimeMap() {
-    lastCacheUpdateTimeMap = new scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]]]()
+    lastCacheUpdateTimeMap = new scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]]()
   }
 
 /*
