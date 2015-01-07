@@ -340,6 +340,86 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
+        <property>
+            <name>L2CacheClusterName</name>
+            <help><![CDATA[ - Unique cluster name, used by L2 cache jgroup]]></help>
+            <default><![CDATA[infinispan-hibernate-cluster]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[cluster-infinispan-configs.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+                  <property>
+                        <name>infinispanJgroupConfigFile</name>
+                        <help><![CDATA[ - JGroup config file for hibernate L2 cache cluster]]></help>
+                        <default><![CDATA[um-jgroups.xml]]></default>
+                        <targets>
+                                <target>
+                                        <file><![CDATA[cluster-infinispan-configs.xml]]></file>
+                                        <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                                </target>
+                        </targets>
+                  </property>
+                  <property>
+                        <name>umBindPort</name>
+                        <help><![CDATA[ - Listening port for UM Jgroups cluster]]></help>
+                        <default><![CDATA[7900]]></default>
+                        <targets>
+                                <target>
+                                        <file><![CDATA[um-jgroups.xml]]></file>
+                                        <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                                </target>
+                        </targets>
+                  </property>
+
+                  <property>
+                        <name>umDiscoveryTimeout</name>
+                        <help><![CDATA[ - Discovery request timeout for um cluster]]></help>
+                        <default><![CDATA[12000]]></default>
+                        <targets>
+                                <target>
+                                        <file><![CDATA[um-jgroups.xml]]></file>
+                                        <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                                </target>
+                        </targets>
+                  </property>
+
+                  <property>
+                        <name>umInitialHost</name>
+                        <help><![CDATA[ - Ip address of all machines in UM Jgroups cluster]]></help>
+                        <default><![CDATA[localhost[7900]]]></default>
+                        <targets>
+                                <target>
+                                        <file><![CDATA[um-jgroups.xml]]></file>
+                                        <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                                </target>
+                        </targets>
+                  </property> 
+
+                  <property>
+                        <name>umPortRange</name>
+                        <help><![CDATA[ - Port Range for all machines in um jgroups cluster]]></help>
+                        <default><![CDATA[1]]></default>
+                        <targets>
+                                <target>
+                                        <file><![CDATA[um-jgroups.xml]]></file>
+                                        <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                                </target>
+                        </targets>
+                  </property>
+                  <property>
+                        <name>umNumInitialMembers</name>
+                        <help><![CDATA[ - Initial member count for um groups cluster]]></help>
+                        <default><![CDATA[3]]></default>
+                        <targets>
+                                <target>
+                                        <file><![CDATA[um-jgroups.xml]]></file>
+                                        <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                                </target>
+                        </targets>
+                  </property>
     </PropertiesPerApplication>
 
     <PropertiesPerInstance>

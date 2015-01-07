@@ -163,6 +163,13 @@ CATALINA_BASE="$SCRIPT_DIR/.."
 export SPARK_JAVA_OPTS="-Dcatalina.base=$CATALINA_BASE $ACUME_JAVA_OPTS"
 echo "SPARK_JAVA_OPTS = $SPARK_JAVA_OPTS" >> "$CATALINA_OUT"
 
+############
+# Set SPARK_JAR
+############
+echo "Setting SPARK_JAR..." >> "$CATALINA_OUT"
+spark_jar=$(ls "/opt/spark/lib" | grep "^spark-assembly-*.*jar")
+export SPARK_JAR="local:///opt/spark/lib/$spark_jar"
+echo "SPARK_JAR = $SPARK_JAR" >> "$CATALINA_OUT"
 
 ############
 # Set SPARK_JAVA_CLASSPATH
