@@ -16,7 +16,7 @@ class AcumeHiveContext(confFilePath: String) extends AcumeContextTrait {
 
   //Properties will be loaded from spark-defaults.conf
   val conf = new SparkConf()
-  conf.set("spark.app.name", "Acume")
+  conf.set("spark.app.name", "Acume").set("spark.sql.hive.convertMetastoreParquet", "true")
 
   val acumeConfiguration = new AcumeConf(true, this.getClass.getResourceAsStream(confFilePath))  
     

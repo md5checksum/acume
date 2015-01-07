@@ -1,0 +1,241 @@
+package com.guavus.acume.cache.sql
+
+import com.guavus.acume.cache.utility.Tuple
+import com.guavus.acume.cache.workflow.RequestType._
+import net.sf.jsqlparser.expression.operators.conditional._
+import net.sf.jsqlparser.expression.operators.relational._
+import net.sf.jsqlparser.expression._
+import net.sf.jsqlparser.schema.Column
+import scala.reflect.internal.Types
+import com.guavus.acume.cache.utility.SQLParserFactory
+import net.sf.jsqlparser.statement.select.Select
+import java.io.StringReader
+import net.sf.jsqlparser.statement.select.PlainSelect
+/**
+ * @author archit.thakur
+ *
+ */
+
+object AcumeCacheSQLCorrector {
+  def main(args: Array[String]) {
+    val sql = List("Select * from x where (binsource = 10 and xz=42) or y=z and fkd>10 and dg>24",
+        "Select * from x where (binsource = 10 and xz=42 or y=z) and fkd>10 and dg>24",
+        "Select * from x where binsource = 10 and (xz=42 or y=z) and fkd>10 and dg>24",
+        "Select * from x where (binsource = 10 and (xz=42 or y=z)) and fkd>10 and dg>24",
+        "Select * from x where (binsource = 10 and (xz=42) or y=z) and fkd>10 and dg>24", 
+      "Select * from x where (binsource = 10)",
+      "Select * from x where binsource = 10")
+    val sql1 = SQLParserFactory.getParserManager()
+    val statement = sql.map(x => sql1.parse(new StringReader(x)))
+    val j123 = new AcumeCacheSQLCorrector
+    statement.map(y => {
+      val ex1 = AcumeCacheCorrectorExpression(y.asInstanceOf[Select].getSelectBody.asInstanceOf[PlainSelect].getWhere)
+      val ex2 = AcumeCacheCorrectorExpression(y.asInstanceOf[Select].getSelectBody.asInstanceOf[PlainSelect].getWhere)
+      println(y.asInstanceOf[Select].getSelectBody.asInstanceOf[PlainSelect].toString)
+      println("original => " + ex1)
+      j123.edit(ex1, ex2)
+      println(ex1)
+    })
+  }
+}
+case class AcumeCacheCorrectorExpression(var expression: Expression)
+class AcumeCacheSQLCorrector extends ISqlCorrector {
+
+  override def correctSQL(unparsedsql: String, parsedsql: Tuple2[List[Tuple], RequestType]): (String, (List[Tuple], RequestType)) = {
+
+    val sql = SQLParserFactory.getParserManager()
+    val sql_statement = sql.parse(new StringReader(unparsedsql))
+    val plainselect = sql_statement.asInstanceOf[Select].getSelectBody.asInstanceOf[PlainSelect]
+    val sql_where = plainselect.getWhere
+    val expression = AcumeCacheCorrectorExpression(sql_where)
+    
+    edit(expression, expression)
+    plainselect.setWhere(expression.expression)
+    
+    val newunparsedsql = plainselect.toString.replaceAll("\"", "")
+    val newparsedsql = (parsedsql._1.map(x => {
+
+      val tablename = x.getCubeName
+      val newtablename = if (tablename.startsWith("\"") && tablename.endsWith("\""))
+        tablename.substring(1, tablename.length - 1)
+      else
+        tablename
+      val newtuple = new Tuple()
+      newtuple.set(x.getStartTime, x.getEndTime, newtablename, x.getBinsource)
+      newtuple
+    }), parsedsql._2)
+    (newunparsedsql, newparsedsql)
+  }
+
+  def edit(parentExpression: AcumeCacheCorrectorExpression, expression: AcumeCacheCorrectorExpression): Boolean = {
+
+    def checkNode(expression3: Expression) = {
+      if (expression3.isInstanceOf[EqualsTo]) {
+        val e1 = expression3.asInstanceOf[EqualsTo]
+        val e2 = e1.getLeftExpression
+        val e3 = e1.getRightExpression
+        if (e2.isInstanceOf[Column] && e2.asInstanceOf[Column].getColumnName.equalsIgnoreCase("binsource") ||
+          e3.isInstanceOf[Column] && e3.asInstanceOf[Column].getColumnName.equalsIgnoreCase("binsource")) {
+          true
+        } else {
+          false
+        }
+      } else false
+    }
+    if((parentExpression.expression == expression.expression || 
+        (parentExpression.expression.isInstanceOf[Parenthesis] && parentExpression.expression.asInstanceOf[Parenthesis].getExpression == expression.expression))
+        && checkNode(expression.expression)) {
+      parentExpression.expression = null
+      expression.expression = null
+//      edit(expression, AcumeCacheCorrectorExpression(expression.expression.asInstanceOf[Parenthesis].getExpression))
+    }
+    else if (expression.expression.isInstanceOf[Parenthesis]) {
+      val childExpression = expression.expression.asInstanceOf[Parenthesis].getExpression
+
+      if (parentExpression.expression != expression.expression) {
+        if (checkNode(expression.expression.asInstanceOf[Parenthesis].getExpression)) {
+          if (parentExpression.expression.isInstanceOf[AndExpression]) {
+            val parentE = parentExpression.expression.asInstanceOf[AndExpression]
+            if (parentE.getLeftExpression == expression.expression) {
+              expression.expression = parentE.getRightExpression
+            } else if (parentE.getRightExpression == expression.expression) {
+              expression.expression = parentE.getLeftExpression
+            }
+          } else if (parentExpression.expression.isInstanceOf[OrExpression]) {
+            val parentE = parentExpression.expression.asInstanceOf[OrExpression]
+            if (parentE.getLeftExpression == expression.expression) {
+              expression.expression = parentE.getLeftExpression
+            } else if (parentE.getRightExpression == expression.expression) {
+              expression.expression = parentE.getRightExpression
+            }
+          } else if (parentExpression.expression.isInstanceOf[Parenthesis]) {
+            expression.expression.asInstanceOf[Parenthesis].setExpression(expression.expression.asInstanceOf[Parenthesis].getExpression)
+          }
+          //        edit(parentExpression, AcumeCacheCorrectorExpression(expression))}
+        }
+      }
+      edit(expression, AcumeCacheCorrectorExpression(expression.expression.asInstanceOf[Parenthesis].getExpression))
+      false
+
+    } else if (expression.expression.isInstanceOf[AndExpression]) {
+      val andE = expression.expression.asInstanceOf[AndExpression]
+      val leftE = andE.getLeftExpression
+      val rightE = andE.getRightExpression
+
+      if (checkNode(leftE)) {
+
+        if (parentExpression.expression != expression.expression) {
+
+          if (parentExpression.expression.isInstanceOf[AndExpression]) {
+            val parentE = parentExpression.expression.asInstanceOf[AndExpression]
+            if (parentE.getLeftExpression == expression.expression) {
+              parentE.setLeftExpression(rightE)
+            } else if (parentE.getRightExpression == expression.expression) {
+              parentE.setRightExpression(rightE)
+            }
+          } else if (parentExpression.expression.isInstanceOf[OrExpression]) {
+            val parentE = parentExpression.expression.asInstanceOf[OrExpression]
+            if (parentE.getLeftExpression == expression.expression) {
+              parentE.setLeftExpression(rightE)
+            } else if (parentE.getRightExpression == expression.expression) {
+              parentE.setRightExpression(rightE)
+            }
+          } else if (parentExpression.expression.isInstanceOf[Parenthesis]) {
+            parentExpression.expression.asInstanceOf[Parenthesis].setExpression(rightE)
+          }
+        } else {
+          expression.expression = rightE
+          parentExpression.expression = rightE
+        }
+      }
+
+      if (checkNode(rightE)) {
+
+        if (parentExpression.expression != expression.expression) {
+          if (parentExpression.expression.isInstanceOf[AndExpression]) {
+            val parentE = parentExpression.expression.asInstanceOf[AndExpression]
+            if (parentE.getLeftExpression == expression.expression) {
+              parentE.setLeftExpression(leftE)
+            } else if (parentE.getRightExpression == expression.expression) {
+              parentE.setRightExpression(leftE)
+            }
+          } else if (parentExpression.expression.isInstanceOf[OrExpression]) {
+            val parentE = parentExpression.expression.asInstanceOf[OrExpression]
+            if (parentE.getLeftExpression == expression.expression) {
+              parentE.setLeftExpression(leftE)
+            } else if (parentE.getRightExpression == expression.expression) {
+              parentE.setRightExpression(leftE)
+            }
+          } else if (parentExpression.expression.isInstanceOf[Parenthesis]) {
+            parentExpression.expression.asInstanceOf[Parenthesis].setExpression(leftE)
+          }
+        } else {
+          expression.expression = rightE
+          parentExpression.expression = rightE
+        }
+      }
+
+      edit(expression, AcumeCacheCorrectorExpression(andE.getLeftExpression))
+      edit(expression, AcumeCacheCorrectorExpression(andE.getRightExpression))
+
+      false
+    } else if (expression.expression.isInstanceOf[OrExpression]) {
+      val orE = expression.expression.asInstanceOf[OrExpression]
+      val leftE = orE.getLeftExpression
+      val rightE = orE.getRightExpression
+
+      if (checkNode(leftE)) {
+
+        if (parentExpression.expression != expression.expression) {
+          if (parentExpression.expression.isInstanceOf[AndExpression]) {
+            val parentE = parentExpression.expression.asInstanceOf[AndExpression]
+            if (parentE.getLeftExpression == expression.expression) {
+              parentE.setLeftExpression(rightE)
+            } else if (parentE.getRightExpression == expression.expression) {
+              parentE.setRightExpression(rightE)
+            }
+          } else if (parentExpression.expression.isInstanceOf[OrExpression]) {
+            val parentE = parentExpression.expression.asInstanceOf[OrExpression]
+            if (parentE.getLeftExpression == expression.expression) {
+              parentE.setLeftExpression(rightE)
+            } else if (parentE.getRightExpression == expression.expression) {
+              parentE.setRightExpression(rightE)
+            }
+          }
+        } else {
+          parentExpression.expression = rightE
+          expression.expression = rightE
+        }
+      }
+
+      if (checkNode(rightE)) {
+
+        if (parentExpression.expression != expression.expression) {
+          if (parentExpression.expression.isInstanceOf[AndExpression]) {
+            val parentE = parentExpression.expression.asInstanceOf[AndExpression]
+            if (parentE.getLeftExpression == expression.expression) {
+              parentE.setLeftExpression(leftE)
+            } else if (parentE.getRightExpression == expression.expression) {
+              parentE.setRightExpression(leftE)
+            }
+          } else if (parentExpression.expression.isInstanceOf[OrExpression]) {
+            val parentE = parentExpression.expression.asInstanceOf[OrExpression]
+            if (parentE.getLeftExpression == expression.expression) {
+              parentE.setLeftExpression(leftE)
+            } else if (parentE.getRightExpression == expression.expression) {
+              parentE.setRightExpression(leftE)
+            }
+          }
+        } else {
+          parentExpression.expression = leftE
+          expression.expression = leftE
+        }
+      }
+      edit(expression, AcumeCacheCorrectorExpression(orE.getLeftExpression))
+      edit(expression, AcumeCacheCorrectorExpression(orE.getRightExpression))
+      false
+    }
+    false
+
+  }
+}
