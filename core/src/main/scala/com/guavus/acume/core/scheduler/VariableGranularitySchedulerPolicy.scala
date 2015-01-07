@@ -9,64 +9,67 @@ import com.guavus.acume.core.AcumeConf
 import com.guavus.acume.core.AcumeConf
 import java.lang.IllegalArgumentException
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.HashMap
 
 object VariableGranularitySchedulerPolicy {
 
-  def main(args: Array[String]) {
-//    RubixProperties.SchedulerVariableGranularityMap.setValue("1h:720")
-    val startTime = 1361941200
-    val endTime = 1365120000
-    val variableGranularitySchedulerPolicy = new VariableGranularitySchedulerPolicy(new AcumeConf)
-    val binMap = new scala.collection.mutable.HashMap[String, Any]()
-    binMap.put(QueryPrefetchTaskProducer.BIN_SOURCE, "SE")
-    binMap.put(QueryPrefetchTaskProducer.VERSION, 0)
-    binMap.put(QueryPrefetchTaskProducer.LAST_BIN_TIME, new Interval(startTime, endTime))
-//    new AcumeConf.setTimeZone.setValue("GMT")
-    var intervals: scala.collection.mutable.HashSet[Interval] = null
-    val cubeConfig = new PrefetchCubeConfiguration()
-    println(intervals)
-    var start = startTime
-    while (start <= endTime) {
-      println(Utility.humanReadableTimeStamp(start))
-      intervals = variableGranularitySchedulerPolicy.getIntervalsAndLastUpdateTime(start, start + 86400, cubeConfig, true, binMap).getIntervals
-      println(intervals)
-      start += 86400
-    }
-    binMap.put(QueryPrefetchTaskProducer.BIN_SOURCE, "SE1")
-    System.exit(0)
-  }
+//  def main(args: Array[String]) {
+////    RubixProperties.SchedulerVariableGranularityMap.setValue("1h:720")
+//    val startTime = 1361941200
+//    val endTime = 1365120000
+//    val variableGranularitySchedulerPolicy = new VariableGranularitySchedulerPolicy(new AcumeConf)
+//    val binMap = new scala.collection.mutable.HashMap[String, Any]()
+//    binMap.put(QueryPrefetchTaskProducer.BIN_SOURCE, "SE")
+//    binMap.put(QueryPrefetchTaskProducer.VERSION, 0)
+//    binMap.put(QueryPrefetchTaskProducer.LAST_BIN_TIME, new Interval(startTime, endTime))
+////    new AcumeConf.setTimeZone.setValue("GMT")
+//    var intervals: scala.collection.mutable.HashSet[Interval] = null
+//    val cubeConfig = new PrefetchCubeConfiguration()
+//    println(intervals)
+//    var start = startTime
+//    while (start <= endTime) {
+//      println(Utility.humanReadableTimeStamp(start))
+//      intervals = variableGranularitySchedulerPolicy.getIntervalsAndLastUpdateTime(start, start + 86400, cubeConfig, true, binMap).getIntervals
+//      println(intervals)
+//      start += 86400
+//    }
+//    binMap.put(QueryPrefetchTaskProducer.BIN_SOURCE, "SE1")
+//    System.exit(0)
+//  }
+//}
 }
 
 class VariableGranularitySchedulerPolicy(acumeConf : AcumeConf) extends AbstractSchedulerPolicy {
 
   var schedulerVariableRetentionMap: Map[Long, Int] = Utility.getLevelPointMap(acumeConf.getSchedulerVariableRetentionMap)
 
-  var cachePopulationMap: scala.collection.mutable.HashMap[PrefetchCubeConfiguration, scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[Long, Long]]] = new scala.collection.mutable.HashMap[PrefetchCubeConfiguration, scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[Long, Long]]]()
+  var cachePopulationMap: HashMap[PrefetchCubeConfiguration, HashMap[String, HashMap[Long, Long]]] = new HashMap[PrefetchCubeConfiguration, HashMap[String, HashMap[Long, Long]]]()
 
 //  if (acumeConf.getSchedulerVariableRetentionCombinePoints != 1) {
 //    RubixProperties.AggregateFromTimeseriesData.setValue("true")
 //  }
 
-  override def getIntervalsAndLastUpdateTime(startTime: Long, endTime: Long, cubeConfiguration: PrefetchCubeConfiguration, isFirstTimeRun: Boolean, optionalParams: scala.collection.mutable.HashMap[String, Any]): PrefetchLastCacheUpdateTimeAndInterval = {
+  override def getIntervalsAndLastUpdateTime(startTime: Long, endTime: Long, cubeConfiguration: PrefetchCubeConfiguration, isFirstTimeRun: Boolean, optionalParams: HashMap[String, Any], taskManager: QueryRequestPrefetchTaskManager): PrefetchLastCacheUpdateTimeAndInterval = {
     val cachePopulationMap = this.cachePopulationMap
     val prefetchLastCacheUpdateTimeAndInterval = new PrefetchLastCacheUpdateTimeAndInterval()
-    if (cachePopulationMap.get(cubeConfiguration) == null) {
-      cachePopulationMap.put(cubeConfiguration, new scala.collection.mutable.HashMap[String, Map[Long, Long]]())
+    if (cachePopulationMap.getOrElse(cubeConfiguration, null) == null) {
+      cachePopulationMap.+=(cubeConfiguration -> HashMap[String, HashMap[Long, Long]]())
     }
     if (cachePopulationMap.get(cubeConfiguration).get.get(optionalParams.get(QueryPrefetchTaskProducer.BIN_SOURCE).get.asInstanceOf[String]).getOrElse({null}) == null) {
-      cachePopulationMap.get(cubeConfiguration).get.put(optionalParams.get(QueryPrefetchTaskProducer.BIN_SOURCE).asInstanceOf[String], new scala.collection.mutable.HashMap[Long, Long]())
+      cachePopulationMap.get(cubeConfiguration).get.+=(optionalParams.get(QueryPrefetchTaskProducer.BIN_SOURCE).get.asInstanceOf[String] -> HashMap[Long, Long]())
     }
     val binSourceToIntervalMap = cachePopulationMap.get(cubeConfiguration).get.get(optionalParams.get(QueryPrefetchTaskProducer.BIN_SOURCE).get.asInstanceOf[String]).get
-    val lastBinTimeInterval = optionalParams.get(QueryPrefetchTaskProducer.LAST_BIN_TIME).asInstanceOf[Interval]
+    val lastBinTimeInterval = optionalParams.get(QueryPrefetchTaskProducer.LAST_BIN_TIME).get.asInstanceOf[Interval]
     val lastBinTime = lastBinTimeInterval
     val instance = Utility.newCalendar()
-    val version = optionalParams.get(QueryPrefetchTaskProducer.VERSION).asInstanceOf[java.lang.Integer]
-    val taskManager = ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager])
+    val version = optionalParams.get(QueryPrefetchTaskProducer.VERSION).get.asInstanceOf[java.lang.Integer]
     if (version != taskManager.getVersion) {
       throw new IllegalStateException("View changed current version " + version + " and new version is " + taskManager.getVersion)
     }
     for ((level,noOfRequests) <- schedulerVariableRetentionMap) {
       var tempStartTime = binSourceToIntervalMap.get(level).getOrElse({startTime})
+      var flag = false
+      
       if (isFirstTimeRun) {
         var availableTime = Utility.floorFromGranularity(lastBinTime.getEndTime, level)
         var i = 0
@@ -74,12 +77,12 @@ class VariableGranularitySchedulerPolicy(acumeConf : AcumeConf) extends Abstract
         availableTime = Utility.getPreviousTimeForGranularity(availableTime, level, instance)
         }
         if (availableTime >= endTime) {
-          //continue
-        } else if (availableTime >= startTime) {
+          flag = true
+        } else if (!flag && availableTime >= startTime) {
           tempStartTime = availableTime
         }
       }
-      if (tempStartTime < endTime) {
+      if (!flag && tempStartTime < endTime) {
         prefetchLastCacheUpdateTimeAndInterval.getIntervals.addAll(mergeTimeIntervals(createIntervalAndLastUpdateTime(level, tempStartTime, endTime, lastBinTime.getStartTime, schedulerVariableRetentionMap.get(level).get, binSourceToIntervalMap), level, cubeConfiguration.getTopCube.getTimeGranularityValue))
       }
     }

@@ -21,7 +21,7 @@ class PrefetchCubeConfiguration {
   }
 
   override def equals(obj: Any): Boolean = {
-    if (this == obj) return true
+//    if (this == obj) return true
     if (obj == null) return false
     if (getClass != obj.getClass) return false
     val other = obj.asInstanceOf[PrefetchCubeConfiguration]

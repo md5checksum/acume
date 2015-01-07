@@ -10,11 +10,11 @@ class PrefetchTaskRequest {
   @BeanProperty
   var queryRequest: QueryRequest = _
   
-  @BeanProperty
-  var endTime: Int = _
-  
-  @BeanProperty
-  var startTime: Int = _
+//  @BeanProperty
+//  var endTime: Int = queryRequest.getStartTime
+//  
+//  @BeanProperty
+//  var startTime: Int = queryRequest.getEndTime
 
   @BeanProperty
   var requestDataType: RequestDataType = _

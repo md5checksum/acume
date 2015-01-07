@@ -10,8 +10,9 @@ import java.util.concurrent.TimeUnit
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import GracefullShutdownExecutor._
-//remove if not needed
 import scala.collection.JavaConversions._
+import scala.collection.mutable.MutableList
+import scala.collection.mutable.ArrayBuffer
 
 object GracefullShutdownExecutor {
 
@@ -20,7 +21,7 @@ object GracefullShutdownExecutor {
 
 class GracefullShutdownExecutor(corePoolSize: Int, maximumPoolSize: Int, keepAliveTime: Long, unit: TimeUnit, workQueue: BlockingQueue[Runnable], threadFactory : ThreadFactory) extends ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory) {
 
-  var futureTasks: scala.collection.mutable.LinkedList[Future[_]] = _
+  var futureTasks: ArrayBuffer[Future[_]] = _
 
   init()
 
@@ -40,7 +41,7 @@ class GracefullShutdownExecutor(corePoolSize: Int, maximumPoolSize: Int, keepAli
 //  }
 
   private def init() {
-    futureTasks = new scala.collection.mutable.LinkedList[Future[_]]()
+    futureTasks = ArrayBuffer[Future[_]]()
   }
 
   override def submit(task: Runnable): Future[_] = {
@@ -63,11 +64,11 @@ class GracefullShutdownExecutor(corePoolSize: Int, maximumPoolSize: Int, keepAli
 
   private def updateFutureTaskList[T](future: Future[T]) {
     synchronized {
-      futureTasks.add(future)
+      futureTasks.+=(future)
       var i = 0
       while (i < futureTasks.size) {
         try {
-          if (futureTasks.get(i).get.isDone) {
+          if (futureTasks.get(i).isDone) {
             futureTasks.remove(i)
           } else {
             i += 1

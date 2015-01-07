@@ -112,7 +112,7 @@ class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: Quer
       if (version != taskManager.getVersion) {
         logger.info("Not populating RubixDataAvailability in Distributed cache {} because view has changed" + binSourceToIntervalMap)
       } else {
-        binSourceToIntervalMap.put(getBinSource, map)
+        binSourceToIntervalMap.+=(getBinSource ->  (scala.collection.mutable.HashMap() ++= map.toMap))
         logger.info("Putting RubixDataAvailability in Distributed cache {} ", binSourceToIntervalMap)
         manager.updateBinSourceToRubixAvailabiltyMap(binSourceToIntervalMap)
         logger.info("BinReplay: UI RubixDataAvaiabilty {}", Controller.getRubixTimeIntervalForBinSource(binSource))
