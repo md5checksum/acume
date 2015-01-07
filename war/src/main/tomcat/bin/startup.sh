@@ -205,6 +205,6 @@ fi
 ############
 cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_PROPERTIES_FILE --class com.guavus.acume.tomcat.core.AcumeMain $DOCBASE/WEB-INF/lib/$core_jar"
 echo "Starting Spark..." >> "$CATALINA_OUT"
-eval $cmd >> "$CATALINA_OUT" 2>>&1 "&"
+eval $cmd >> "$CATALINA_OUT" 2>&1 "&"
 echo "Spark started successfully..." >> "$CATALINA_OUT"
 
