@@ -2,211 +2,211 @@
     <Fields>
       <Field>
       <Info>
-      IngressAS:long:dimension
+      IngressAS,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      IngressCustomerEntityId:long:dimension
+      IngressCustomerEntityId,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      EgressCustomerEntityId:long:dimension
+      EgressCustomerEntityId,long,dimension,none,0
       </Info>
       </Field>
 
-	  <Field>
+        <Field>
       <Info>
-      EgressRuleId:long:dimension
+      EgressRuleId,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      IngressPeerEntityId:long:dimension
+      IngressPeerEntityId,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      FlowDirection:long:dimension
+      FlowDirection,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      DstFinalAS:long:dimension
+      DstFinalAS,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      Dst2HopAS:long:dimension
+      Dst2HopAS,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      EgressAS:long:dimension
+      EgressAS,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      OutgoingIF:long:dimension
+      OutgoingIF,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      DummyDimension:long:dimension
+      Dummydimension,none,0,long,dimension,none,0
       </Info>
       </Field>
 
       <Field>
       <Info>
-      EgressRTR:long:dimension
+      EgressRTR,long,dimension,none,0
       </Info>
       </Field>
       
-	  <Field>
+        <Field>
       <Info>
-      EgressIP:long:dimension
-      </Info>
-      </Field>
-      
-      <Field>
-      <Info>
-      EgressNeighborEntityId:long:dimension
+      EgressIP,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      EgressAS:long:dimension
+      EgressNeighborEntityId,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      EgressPeerEntityId:long:dimension
+      EgressAS,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      IngressRuleId:long:dimension
+      EgressPeerEntityId,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      EgressProspectEntityId:long:dimension
+      IngressRuleId,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      IncomingIF:long:dimension
+      EgressProspectEntityId,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      IngressProspectEntityId:long:dimension
+      IncomingIF,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      SrcFinalAS:long:dimension
+      IngressProspectEntityId,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      IngressNeighborEntityId:long:dimension
+      SrcFinalAS,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      Src2HopAS:long:dimension
+      IngressNeighborEntityId,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      IngressIP:long:dimension
+      Src2HopAS,long,dimension,none,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      IngressRTR:long:dimension
+      IngressIP,long,dimension,none,0
+      </Info>
+      </Field>
+      
+      <Field>
+      <Info>
+      IngressRTR,long,dimension,none,0
       </Info>
       </Field>
               
       <Field>
       <Info>
-      XOthers_B:long:measure:sum
+      XOthers_B,long,measure,sum,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      On_net_B:long:measure:sum
+      On_net_B,long,measure,sum,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      Off_net_B:long:measure:sum
+      Off_net_B,long,measure,sum,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      Local_B:long:measure:sum
+      Local_B,long,measure,sum,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      Regional_B:long:measure:sum
+      Regional_B,long,measure,sum,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      Continental_B:long:measure:sum
+      Continental_B,long,measure,sum,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      XAtlantic_B:long:measure:sum
+      XAtlantic_B,long,measure,sum,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      TTS_B:long:measure:sum
+      TTS_B,long,measure,sum,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      XPacific_B:long:measure:sum
+      XPacific_B,long,measure,sum,0
       </Info>
       </Field>
       
       <Field>
       <Info>
-      DummyMeasure:long:measure:sum
+      DummyMeasure,long,measure,sum,0
       </Info>
       </Field>
     </Fields>
@@ -219,14 +219,14 @@
     </Default>
     <Cubes>
         <Cube>
-            <Name>
-                searchEgressPeerCube
-            </Name>
+          <Info>
+            searchEgressPeerCube, abc
+          </Info>
             <Fields>
                 EgressPeerEntityId,EgressAS,EgressIP,EgressRTR,OutgoingIF,EgressRuleId,FlowDirection,TTS_B,On_net_B,Off_net_B,Local_B,Regional_B,Continental_B,XAtlantic_B,XPacific_B,XOthers_B
             </Fields>
             <Properties>
-                basegranularity:1h, cubetype:normal, levelpolicymap:3h:0, timeserieslevelpolicymap:1h:53, evictionpolicyclass: com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy, binsource: HOOURLY
+                basegranularity:1h, cubetype:normal, levelpolicymap:1h:53, timeserieslevelpolicymap:1h:720, evictionpolicyclass: com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy   
             </Properties>
         </Cube>
     </Cubes>
