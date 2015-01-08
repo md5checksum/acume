@@ -126,7 +126,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     else { 
       
       Utility.getEmptySchemaRDD(acumeCacheContext.sqlContext, cube).registerTempTable(tableName)
-      MetaData(Nil)
+      MetaData(-1, Nil)
     }
   }
   
@@ -183,6 +183,6 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     acumeCacheContext.sqlContext.applySchema(_$acumecache, _$acumecache.schema).registerTempTable(tableName)
     }
     val klist = timestamps.toList
-    MetaData(klist)
+    MetaData(-1, klist)
   }
 }

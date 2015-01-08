@@ -116,7 +116,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     val klist = list.flatMap(_.timestamps).toList
     val kfg = AcumeCacheContext.ACQL(qltype, sqlContext)(updatedsql)
     kfg.collect.map(println)
-    AcumeCacheResponse(kfg, MetaData(klist))
+    AcumeCacheResponse(kfg, MetaData(-1, klist))
   }
   
   def acql(sql: String, qltype: String): AcumeCacheResponse = { 
