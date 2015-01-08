@@ -143,7 +143,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     val _$dataset = diskloaded._1
     val _$dimt = diskloaded._2
     val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
-    val value = acumeCacheContext.sqlContext.applySchema(_$dataset, _$dataset.schema)
+    val value = _$dataset
     value.registerTempTable(_tableName)
     cacheTable(_tableName) 
     AcumeTreeCacheValue(_$dimt, _tableName, value)
@@ -166,21 +166,20 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
         val diskread = acumeTreeCacheValue.measureschemardd
         notifyObserverList
         finalSchema = diskread.schema
-        val _$diskread = acumeCacheContext.sqlContext.applySchema(diskread, finalSchema)
-        
+        val _$diskread = diskread        
         _$diskread
       }
       timeIterated
     }
     if(!levelTime.isEmpty) {
     val schemarddlist = levelTime.flatten
-    val dataloadedrdd = applySchema(schemarddlist.reduce(_.unionAll(_)), finalSchema)
+    val dataloadedrdd = schemarddlist.reduce(_.unionAll(_))
     val baseMeasureSetTable = cube.cubeName + "MeasureSet" + getUniqueRandomeNo
     val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
     dataloadedrdd.registerTempTable(baseMeasureSetTable)
     AcumeCacheUtility.dMJoin(acumeCacheContext.sqlContext, dimensionTable.tblnm, baseMeasureSetTable, joinDimMeasureTableName)
     val _$acumecache = AcumeCacheUtility.getSchemaRDD(acumeCacheContext, cube, joinDimMeasureTableName)
-    acumeCacheContext.sqlContext.applySchema(_$acumecache, _$acumecache.schema).registerTempTable(tableName)
+    _$acumecache.registerTempTable(tableName)
     }
     val klist = timestamps.toList
     MetaData(-1, klist)

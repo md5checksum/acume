@@ -12,6 +12,7 @@ import javax.xml.bind.annotation.XmlRootElement
 import javax.ws.rs.POST
 import com.guavus.rubix.query.remote.flex.SearchRequest
 import com.guavus.acume.cache.workflow.AcumeCacheResponse
+import com.guavus.acume.core.AcumeContextTrait
 
 @Path("/" + "queryresponse")
 /**
@@ -91,7 +92,14 @@ class RestService {
 			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : java.util.HashMap[String, java.util.ArrayList[Long]] = {
 	  Authentication.authenticate(userinfo, user, password)
 
-	  new java.util.HashMap[String, java.util.ArrayList[Long]]()
+	  val map = new java.util.HashMap[String, java.util.ArrayList[Long]]()
+	  val list = new java.util.ArrayList[Long]()
+	  list.add(AcumeContextTrait.acumeContext.get.acumeContext.cacheConf.getLong("acume.cache.delete.firstbinpersistedtime"))
+	  list.add(AcumeContextTrait.acumeContext.get.acumeContext.cacheConf.getLong("acume.cache.delete.lastbinpersistedtime"))
+	  
+	  //placeholder bin source
+	  map.put("abcd", list)
+	  return map;
 	}
 	
 	@POST

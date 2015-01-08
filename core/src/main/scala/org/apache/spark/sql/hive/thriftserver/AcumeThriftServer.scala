@@ -37,11 +37,21 @@ import com.guavus.acume.core.configuration.ConfigFactory
 import com.guavus.acume.core.AcumeContext
 import org.apache.spark.sql.hive.thriftserver.ReflectionUtils._
 import com.guavus.acume.core.AcumeContextTrait
+import org.apache.hadoop.security.UserGroupInformation
 
 /**
  * The main entry point for the Spark SQL port of HiveServer2.  Starts up a `SparkSQLContext` and a
  * `HiveThriftServer2` thrift server.
  */
+
+private[thriftserver] object AcumeThriftServerShim {
+  val version = "0.13.1"
+
+  def setServerUserName(sparkServiceUGI: UserGroupInformation, sparkCliService:AcumeSQLCLIService) = {
+    setSuperField(sparkCliService, "serviceUGI", sparkServiceUGI)
+  }
+}
+
 object AcumeThriftServer extends Logging {
   var LOG = LogFactory.getLog(classOf[HiveServer2])
 
