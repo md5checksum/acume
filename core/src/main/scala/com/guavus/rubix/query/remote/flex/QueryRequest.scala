@@ -13,7 +13,6 @@ import scala.collection.JavaConversions._
 import java.util.ArrayList
 import com.google.common.collect.Lists
 import java.util.Arrays
-import netreflex.messages.QueryRequest
 
 object QueryRequest {
 
@@ -293,7 +292,7 @@ class QueryRequest extends Serializable {
     abs
   }
 
-  private def calculateParams(params: Traversable[NameValue]): String = {
+  protected def calculateParams(params: Traversable[NameValue]): String = {
     if(paramMap == null)
       return "";
     var sql = " "
@@ -305,7 +304,7 @@ class QueryRequest extends Serializable {
     sql
   }
 
-  private def calculateResponseFilters(): String = {
+  protected def calculateResponseFilters(): String = {
     var sql = " "
     for (nameValue <- responseFilters) {
       sql += nameValue.toSql() + " AND "
@@ -316,7 +315,7 @@ class QueryRequest extends Serializable {
     sql
   }
 
-  private def calculateDimensionFilterData(): String = {
+  protected def calculateDimensionFilterData(): String = {
     
     if(filterData == null || filterData.isEmpty)
       return "";
@@ -331,7 +330,7 @@ class QueryRequest extends Serializable {
     sql
   }
   
-  private def calculateDimensionFilters(): String = {
+  protected def calculateDimensionFilters(): String = {
 
     if (filters == null || filters.size == 0)
       return "";
