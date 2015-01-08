@@ -10,6 +10,10 @@ import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.QLType
 import com.guavus.acume.cache.common.QLType.QLType
 import org.apache.spark.sql.SchemaRDD
+import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
+import com.guavus.acume.cache.common.Measure
+import com.guavus.acume.cache.common.Dimension
+import com.guavus.acume.cache.utility.Utility
 
 /**
  * @author kashish.jain
@@ -17,26 +21,40 @@ import org.apache.spark.sql.SchemaRDD
  */
 class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends AcumeCacheContextTrait { 
  
+  private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
+  private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
+  
   sqlContext match{
   case hiveContext: HiveContext =>
   case sqlContext: SQLContext => 
   case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
   
+  Utility.unmarshalXML(conf.get(ConfConstants.businesscubexml), dimensionMap, measureMap)
+
   def cacheConf = conf
  
   private [acume] def getCubeList = throw new RuntimeException("Method not supported")
   
-  private [acume] def isDimension(name: String) : Boolean =  {
-	throw new RuntimeException("Method not supported")
+  def isDimension(name: String) : Boolean =  {
+    if(dimensionMap.contains(name)) {
+      true 
+    } else if(measureMap.contains(name)) {
+      false
+    } else {
+        throw new RuntimeException("Field " + name + " nither in Dimension Map nor in Measure Map.")
+    }
   }
   
   private [acume] def getFieldsForCube(name: String) = {
     throw new RuntimeException("Method not supported")
   }
   
-  private [acume] def getDefaultValue(fieldName: String) = {
-	throw new RuntimeException("Method not supported")
+  def getDefaultValue(fieldName: String) = {
+	if(isDimension(fieldName))
+      dimensionMap.get(fieldName).get.getDefaultValue
+    else
+      measureMap.get(fieldName).get.getDefaultValue
   }
   
   private [acume] def getCubeListContainingFields(lstfieldNames: List[String]) = {

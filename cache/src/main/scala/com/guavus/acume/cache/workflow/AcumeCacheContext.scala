@@ -1,47 +1,42 @@
 package com.guavus.acume.cache.workflow
 
-import java.io._
+import java.io.StringReader
 import java.util.Random
+
 import scala.Array.canBuildFrom
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
-import org.apache.spark.SparkContext
+
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
+
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.BaseCube
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
-import com.guavus.acume.cache.common.DataType
 import com.guavus.acume.cache.common.Dimension
-import com.guavus.acume.cache.common.DimensionSet
-import com.guavus.acume.cache.common.FieldType
 import com.guavus.acume.cache.common.Measure
-import com.guavus.acume.cache.common.MeasureSet
 import com.guavus.acume.cache.common.QLType
 import com.guavus.acume.cache.common.QLType.QLType
 import com.guavus.acume.cache.core.AcumeCacheFactory
 import com.guavus.acume.cache.core.CacheIdentifier
-import com.guavus.acume.cache.core.TimeGranularity
-import com.guavus.acume.cache.eviction.EvictionPolicy
-import com.guavus.acume.cache.gen.Acume
+import com.guavus.acume.cache.sql.ISqlCorrector
 import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
+import com.guavus.acume.cache.utility.SQLParserFactory
 import com.guavus.acume.cache.utility.SQLUtility
 import com.guavus.acume.cache.utility.Tuple
 import com.guavus.acume.cache.utility.Utility
-import javax.xml.bind.JAXBContext
-import com.guavus.acume.cache.utility.SQLParserFactory
-import net.sf.jsqlparser.statement.select.Select
-import net.sf.jsqlparser.statement.select.PlainSelect
+
 import net.sf.jsqlparser.expression.Expression
 import net.sf.jsqlparser.expression.Parenthesis
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression
-import net.sf.jsqlparser.schema.Column
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo
-import com.guavus.acume.cache.sql.ISqlCorrector
+import net.sf.jsqlparser.schema.Column
+import net.sf.jsqlparser.statement.select.PlainSelect
+import net.sf.jsqlparser.statement.select.Select
 
 /**
  * @author archit.thakur
@@ -63,14 +58,15 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   private [cache] val baseCubeMap = new HashMap[CubeKey, BaseCube]
   private [cache] val baseCubeList = MutableList[BaseCube]()
   private [cache] val cubeMap = new HashMap[CubeKey, Cube]
-  private val defaultPropertyMap = new scala.collection.mutable.HashMap[String, String]()
+  private val defaultPropertyMap = new HashMap[String, String]()
   private [cache] val cubeList = MutableList[Cube]()
-  
-  loadXML(conf.get(ConfConstants.businesscubexml))
+
+  Utility.loadXML(conf.get(ConfConstants.businesscubexml), dimensionMap, measureMap, cubeMap, defaultPropertyMap, cubeList)
   loadXMLCube("")
   
   private [acume] def getCubeList = cubeList.toList
-  private [acume] def isDimension(name: String) : Boolean =  {
+  
+  def isDimension(name: String) : Boolean =  {
     if(dimensionMap.contains(name)) {
       true 
     } else if(measureMap.contains(name)) {
@@ -78,6 +74,13 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     } else {
         throw new RuntimeException("Field " + name + " nither in Dimension Map nor in Measure Map.")
     }
+  }
+  
+   private [workflow] def loadXMLCube(xml: String) = {
+   //This is for loading base cube xml, should be changed as and when finalized where should base cube configuration come from.
+    baseCubeList.++=(cubeList.map(x => BaseCube(x.cubeName, x.binsource, x.dimension, x.measure, x.baseGran)))
+    val baseCubeHashMap = cubeMap.map(x => (x._1, BaseCube(x._2.cubeName, x._2.binsource, x._2.dimension, x._2.measure, x._2.baseGran)))
+    baseCubeMap.++=(baseCubeHashMap)
   }
   
   private [acume] def utilQL(sql: String, qltype: QLType) = {
@@ -157,7 +160,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     measure.getAggregationFunction
   }
   
-  private [acume] def getDefaultValue(fieldName: String) = {
+  def getDefaultValue(fieldName: String) = {
     if(isDimension(fieldName))
       dimensionMap.get(fieldName).get.getDefaultValue
     else
@@ -184,100 +187,8 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   private [cache] def getCube(cube: CubeKey) = cubeMap.get(cube).getOrElse(throw new RuntimeException(s"cube $cube not found."))
   
   private [workflow] def loadBaseXML(filedir: String) = {
-    
-    
   }
   
-  private [workflow] def loadXMLCube(xml: String) = {
-    
-    //This is for loading base cube xml, should be changed as and when finalized where should base cube configuration come from.
-    
-    baseCubeList.++=(cubeList.map(x => BaseCube(x.cubeName, x.binsource, x.dimension, x.measure, x.baseGran)))
-    val baseCubeHashMap = cubeMap.map(x => (x._1, BaseCube(x._2.cubeName, x._2.binsource, x._2.dimension, x._2.measure, x._2.baseGran)))
-    baseCubeMap.++=(baseCubeHashMap)
-  }
-  
-  private [workflow] def loadXML(xml: String) = { 
-    
-    val jc = JAXBContext.newInstance("com.guavus.acume.cache.gen")
-    val unmarsh = jc.createUnmarshaller()
-    val acumeCube = unmarsh.unmarshal(new FileInputStream(xml)).asInstanceOf[Acume]
-    for(lx <- acumeCube.getFields().getField().toList) { 
-
-      val info = lx.getInfo.split(",")
-      val name = info(0).trim
-      val datatype = DataType.getDataType(info(1).trim)
-      val fitype = FieldType.getFieldType(info(2).trim)
-      val functionName = if(info.length<4) "none" else info(3).trim	
-      fitype match{
-        case FieldType.Dimension => 
-          dimensionMap.put(name.trim, new Dimension(name, datatype, 0))
-        case FieldType.Measure => 
-          measureMap.put(name.trim, new Measure(name, datatype, functionName, 0 ))
-      }
-    }
-    
-    val defaultPropertyTuple = acumeCube.getDefault.split(",").map(in => {
-          val i = in.indexOf(":")
-          (in.substring(0, i).trim, in.substring(i+1, in.length).trim)
-        })
-        
-    defaultPropertyMap.++=(defaultPropertyTuple.toMap)
-    
-    val list = 
-      for(c <- acumeCube.getCubes().getCube().toList) yield {
-        val cubeinfo = c.getInfo().trim.split(",")
-        val (cubeName, cubebinsource) = 
-          if(cubeinfo.length == 1) {
-            val _$binning = defaultPropertyMap.getOrElse(ConfConstants.binsource, throw new RuntimeException("Bin Source for cube $cubeinfo cannot be determined with the xml."))
-            (cubeinfo(0).trim, _$binning)
-          }
-          else if(cubeinfo.length == 2)
-            (cubeinfo(0).trim, cubeinfo(1).trim)
-          else
-            throw new RuntimeException(s"Cube.Info is wrongly specified for cube $cubeinfo")
-        
-        if(cubeMap.contains(CubeKey(cubeName, cubebinsource))) {
-          throw new RuntimeException("Xml contains more than one cube with same CubeKey(cubename + cubebinsource).")
-        }
-        val fields = c.getFields().split(",").map(_.trim)
-        val dimensionSet = scala.collection.mutable.MutableList[Dimension]()
-        val measureSet = scala.collection.mutable.MutableList[Measure]()
-        for(ex <- fields){
-          val fieldName = ex.trim
-
-          //only basic functions are supported as of now. 
-          //Extend this to support custom udf of hive as well.
-          
-          dimensionMap.get(fieldName) match{
-          case Some(dimension) => 
-            dimensionSet.+=(dimension)
-          case None =>
-            measureMap.get(fieldName) match{
-            case None => throw new Exception("Field not registered.")
-            case Some(measure) => measureSet.+=(measure)
-            }
-          }
-        }
-        
-        val _$cubeProperties = c.getProperties()
-        val _$propertyMap = _$cubeProperties.split(",").map(x => {
-          val i = x.indexOf(":")
-          (x.substring(0, i).trim, x.substring(i+1, x.length).trim)
-        })
-        val propertyMap = _$propertyMap.toMap
-        
-        val levelpolicymap = Utility.getLevelPointMap(AcumeCacheContext.getProperty(propertyMap, defaultPropertyMap.toMap, ConfConstants.levelpolicymap, cubeName))
-        val timeserieslevelpolicymap = Utility.getLevelPointMap(AcumeCacheContext.getProperty(propertyMap, defaultPropertyMap.toMap, ConfConstants.timeserieslevelpolicymap, cubeName))
-        val Gnx = AcumeCacheContext.getProperty(propertyMap, defaultPropertyMap.toMap, ConfConstants.basegranularity, cubeName)
-        val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
-        val _$eviction = Class.forName(AcumeCacheContext.getProperty(propertyMap, defaultPropertyMap.toMap, ConfConstants.evictionpolicyforcube, cubeName)).asSubclass(classOf[EvictionPolicy])
-        val cube = Cube(cubeName, cubebinsource, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), granularity, true, levelpolicymap, timeserieslevelpolicymap, _$eviction)
-        cubeMap.put(CubeKey(cubeName, cubebinsource), cube)
-        cube
-      }
-    cubeList.++=(list)
-  }
 }
 
 object AcumeCacheContext{
@@ -474,11 +385,6 @@ object AcumeCacheContext{
   
   private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf(AcumeConstants.TRIPLE_DOLLAR_SSC) + 1)
     
-  private def getProperty(propertyMap: Map[String, String], defaultPropertyMap: Map[String, String], name: String, nmCube: String) = {
-    
-    propertyMap.getOrElse(name, defaultPropertyMap.getOrElse(name, throw new RuntimeException(s"The configurtion $name should be done for cube $nmCube")))
-  }
-  
   def main(args: Array[String]) { 
     
     val sql = "Select * from x where (binsource = 10 and xz=42) or y=z and fkd>10 and dg>24"
