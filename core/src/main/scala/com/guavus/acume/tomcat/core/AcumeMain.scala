@@ -17,6 +17,7 @@ import com.guavus.acume.core.configuration.AcumeAppConfig
 import com.guavus.acume.cache.common.ConfConstants
 import scala.util.Try
 import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.core.scheduler.QueryRequestPrefetchTaskManager
 
 /**
  * Entry point to start the tomcat. this must be called by spark or command line to start the application
@@ -39,6 +40,9 @@ object AcumeMain {
     InitDatabase.initializeDatabaseTables(ArrayBuffer[IDML]())
     println("Called AcumeMain")
     val startTime = System.currentTimeMillis()
+    //start Prefetch Scheduler
+    if(AcumeContextTrait.acumeContext.get.acumeConf.getEnableScheduler)
+    	ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).startPrefetchScheduler
     //Initialize all components for Acume Core
 //    val config = ConfigFactory.getInstance()
     val timeTaken = (System.currentTimeMillis() - startTime)

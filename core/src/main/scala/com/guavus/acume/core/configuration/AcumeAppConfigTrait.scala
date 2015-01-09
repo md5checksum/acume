@@ -1,13 +1,14 @@
 package com.guavus.acume.core.configuration
 
-import com.guavus.acume.core.AcumeContextTrait
-import com.guavus.qb.services.IQueryBuilderService
-import com.guavus.acume.core.AcumeService
-import com.guavus.rubix.user.permission.IPermissionTemplate
-import com.guavus.acume.core.DataService
-import com.guavus.acume.core.AcumeContext
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
+import com.guavus.acume.core.AcumeContext
+import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.core.AcumeService
+import com.guavus.acume.core.DataService
+import com.guavus.acume.core.scheduler.QueryRequestPrefetchTaskManager
+import com.guavus.qb.services.IQueryBuilderService
+import com.guavus.rubix.user.permission.IPermissionTemplate
 
 /*
  * @author kashish.jain
@@ -25,5 +26,7 @@ trait AcumeAppConfigTrait extends Serializable {
   def queryBuilderService(acumeContext : AcumeContextTrait) : Seq[IQueryBuilderService] 
   
   def permissionTemplate(): IPermissionTemplate 
+  
+  def queryRequestPrefetchTaskManager(acumeService : AcumeService, dataService : DataService , queryBuilderService : Seq[IQueryBuilderService], acumeContext : AcumeContext) : QueryRequestPrefetchTaskManager = throw new AbstractMethodError
   
 }
