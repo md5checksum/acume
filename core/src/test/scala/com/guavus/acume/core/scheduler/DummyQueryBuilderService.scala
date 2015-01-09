@@ -1,9 +1,9 @@
 package com.guavus.acume.core.scheduler
 
 import com.guavus.qb.cube.schema.QueryBuilderSchema
-import com.guavus.qb.services.IQueryBuilderService
+import com.guavus.qb.services.AbstractQueryBuilderService
 
-class DummyQueryBuilderService extends IQueryBuilderService {
+class DummyQueryBuilderService extends AbstractQueryBuilderService {
 
   def buildQuery(query: String): String = {
     "None"
