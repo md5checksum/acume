@@ -7,7 +7,7 @@ Please don't use the following reserved property names:
 3. state
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
 
-<RubixConfigurations>
+<RubixConfigurationsperm>
     <PropertiesPerApplication>
         <property>
             <name>applicationPath</name>
@@ -805,11 +805,24 @@ Please don't use the following reserved property names:
             </targets>
         </property>
 
+	<property>
+	    <name>PERMSIZE</name>
+	    <type>basic</type>
+	    <help><![CDATA[ - perm space size]]></help>
+            <default><![CDATA[128m]]></default>
+            <targets>
+                    <target>
+                    <file><![CDATA[setenv.sh]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+                    </target>
+            </targets>
+        </property>
+
         <property>
             <name>MAXPERMSIZE</name>
             <type>basic</type>
             <help><![CDATA[ - Max perm space size]]></help>
-            <default><![CDATA[512m]]></default>
+            <default><![CDATA[256m]]></default>
             <targets>
                 <target>
                     <file><![CDATA[setenv.sh]]></file>
