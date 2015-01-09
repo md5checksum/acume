@@ -29,7 +29,7 @@
 		<maven.compiler.target>1.7</maven.compiler.target>
 		<tomcat.version>7.0.34</tomcat.version>
 		<jersey-version>1.8</jersey-version>
-		<org.springframework.version>3.2.0.RELEASE</org.springframework.version>
+		<org.springframework.version>4.1.4.RELEASE</org.springframework.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -42,6 +42,21 @@
 			<groupId>com.guavus.acume</groupId>
 			<artifactId>cache</artifactId>
 			<version>0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.guavus</groupId>
+			<artifactId>search</artifactId>
+			<version>0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.apache.hive</groupId>
+					<artifactId>hive-exec</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.guavus</groupId>
+					<artifactId>crux</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- Spring dependency -->
 		<dependency>
@@ -122,8 +137,20 @@
 					<artifactId>asm</artifactId>
 				</exclusion>
 				<exclusion>
-					<groupId>com.sun.jersey</groupId>
+                			<groupId>com.sun.jersey</groupId>
+                		</exclusion>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>log4j-over-slf4j</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.apache.logging.log4j</groupId>
+                        		<artifactId>log4j-core</artifactId>
+                		</exclusion>
+				<exclusion>
+                        		<groupId>log4j</groupId>
+                        		<artifactId>log4j</artifactId>
+                		</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>

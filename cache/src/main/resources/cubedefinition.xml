@@ -2,7 +2,7 @@
     <Fields>
         <Field>
             <Info>
-                IngressAS:long:dimension
+                IngressAS:long:dimension:none:0
             </Info>
             <AnnotationFunction>
                 <Class>te3</Class>
@@ -11,7 +11,7 @@
         </Field>
         <Field>
             <Info>
-                IngressCustomerEntityId:long:dimension
+                IngressCustomerEntityId:long:dimension:0
             </Info>
             <AnnotationFunction>
                 <Class>123hs</Class>

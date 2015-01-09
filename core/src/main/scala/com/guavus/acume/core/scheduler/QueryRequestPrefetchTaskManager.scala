@@ -55,7 +55,7 @@ object QueryRequestPrefetchTaskManager {
 //  }
 }
 
-class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService, @BeanProperty schema: QueryBuilderSchema, acumeConf : AcumeConf, acumeService : AcumeService, schedulerPolicy : ISchedulerPolicy) {
+class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService, @BeanProperty schemas: List[QueryBuilderSchema], acumeConf : AcumeConf, acumeService : AcumeService, schedulerPolicy : ISchedulerPolicy) {
 
   private var consumerCombinerThreadPool: ExecutorService = _
 
@@ -65,7 +65,7 @@ class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService
 
   private var scheduledFuture: ScheduledFuture[_] = _
 
-  private var queryPrefetchTaskProducer: QueryPrefetchTaskProducer = new QueryPrefetchTaskProducer(acumeConf, schema, this, dataService, acumeService, false, schedulerPolicy)
+  private var queryPrefetchTaskProducer: QueryPrefetchTaskProducer = new QueryPrefetchTaskProducer(acumeConf, schemas, this, dataService, acumeService, false, schedulerPolicy)
 
   @BeanProperty
   var binSourceToRubixAvailability: scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[Long, Interval]] = new scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[Long, Interval]]()

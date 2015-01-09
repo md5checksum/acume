@@ -186,10 +186,17 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
      }
    
     if(!modifiedSql.equals("")) {
-    	print(modifiedSql)
-    	acumeContext.ac.acql(modifiedSql)
-    }
-    else
+      if (!queryBuilderService.iterator.next.isSchedulerQuery(sql)) {
+        print(modifiedSql)
+        val resp = acumeContext.ac.acql(modifiedSql)
+        if (!queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql)) {
+          resp.metadata.totalRecords = acumeContext.ac.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getInt(0)
+        }
+        resp
+      } else {
+        acumeContext.ac.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql))
+      }
+    } else
       throw new RuntimeException(s"Invalid Modified Query")
       
   }

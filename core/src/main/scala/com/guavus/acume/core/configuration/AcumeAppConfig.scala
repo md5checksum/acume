@@ -16,6 +16,8 @@ import com.guavus.qb.conf.QBConf
 import com.guavus.qb.services.IQueryBuilderService
 import com.guavus.rubix.user.permission.IPermissionTemplate
 import com.guavus.qb.services.QueryBuilderService
+import com.guavus.acume.core.scheduler.QueryRequestPrefetchTaskManager
+import com.guavus.acume.core.scheduler.VariableGranularitySchedulerPolicy
 
 object AcumeAppConfig {
 
@@ -68,6 +70,10 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
 
   @Bean
   override def permissionTemplate(): IPermissionTemplate = new DefaultPermissionTemplate()
+  
+  @Bean
+  @Autowired
+  override def queryRequestPrefetchTaskManager(acumeService : AcumeService, dataService : DataService , queryBuilderService : Seq[IQueryBuilderService], acumeContext : AcumeContext) : QueryRequestPrefetchTaskManager = new QueryRequestPrefetchTaskManager(dataService, queryBuilderService.map(_.getQueryBuilderSchema).toList, acumeContext.acumeConf, acumeService, new VariableGranularitySchedulerPolicy(acumeContext.acumeConf))
 
 /*
 Original Java:

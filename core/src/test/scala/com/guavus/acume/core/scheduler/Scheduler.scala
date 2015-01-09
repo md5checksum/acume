@@ -39,7 +39,7 @@ class Scheduler extends FlatSpec with Matchers {
     
     val schedulerpolicy = new VariableGranularitySchedulerPolicy(acumeconf)
     
-    val x = new QueryRequestPrefetchTaskManager(dataservice, querybuilder, acumeconf, acumeservice, schedulerpolicy)
+    val x = new QueryRequestPrefetchTaskManager(dataservice, List(querybuilder), acumeconf, acumeservice, schedulerpolicy)
     x.startPrefetchScheduler
     this.synchronized {
     	this.wait()

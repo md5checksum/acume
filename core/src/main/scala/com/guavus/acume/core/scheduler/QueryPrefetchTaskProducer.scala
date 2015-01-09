@@ -45,11 +45,11 @@ object QueryPrefetchTaskProducer {
 
 }
 
-class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schema : QueryBuilderSchema, private var taskManager: QueryRequestPrefetchTaskManager, private var dataService: DataService, acumeService : AcumeService, saveRequests : Boolean, policy : ISchedulerPolicy) extends Runnable {
+class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schemas : List[QueryBuilderSchema], private var taskManager: QueryRequestPrefetchTaskManager, private var dataService: DataService, acumeService : AcumeService, saveRequests : Boolean, policy : ISchedulerPolicy) extends Runnable {
 
   private var lastCacheUpdateTimeMap: scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]] = new scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]]()
 
-  private var cubeLocator: PrefetchCubeLocator = new PrefetchCubeLocator(schema)
+  private var cubeLocator: PrefetchCubeLocator = new PrefetchCubeLocator(schemas)
 
   @BeanProperty
   var requestLists: ArrayBuffer[PrefetchTaskRequest] = new ArrayBuffer[PrefetchTaskRequest]()

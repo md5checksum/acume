@@ -6,17 +6,17 @@ import com.guavus.qb.cube.schema.ICube
 import com.guavus.acume.cache.utility.Utility
 import scala.collection.mutable.ArrayBuffer
 
-class PrefetchCubeLocator(schema : QueryBuilderSchema) {
+class PrefetchCubeLocator(schemas: List[QueryBuilderSchema]) {
 
   def getPrefetchCubeConfigurations(): scala.collection.mutable.HashMap[String, ArrayBuffer[PrefetchCubeConfiguration]] = {
     val prefetchCubeConfigurationMap = new scala.collection.mutable.HashMap[String, ArrayBuffer[PrefetchCubeConfiguration]]()
-    for(cube <- schema.getCubes()) {
-      val prefetchCubeConfiguration = new PrefetchCubeConfiguration();
-      prefetchCubeConfiguration.setTopCube(cube)
-
-      val out = prefetchCubeConfigurationMap.getOrElseUpdate(cube.getBinSourceValue(), ArrayBuffer[PrefetchCubeConfiguration]())
-      out.+=(prefetchCubeConfiguration)
-//      prefetchCubeConfigurationMap.put(cube.getBinSourceValue(), List(prefetchCubeConfiguration)+)
+    for (schema <- schemas) {
+      for (cube <- schema.getCubes()) {
+        val prefetchCubeConfiguration = new PrefetchCubeConfiguration();
+        prefetchCubeConfiguration.setTopCube(cube)
+        val out = prefetchCubeConfigurationMap.getOrElseUpdate(cube.getBinSourceValue(), ArrayBuffer[PrefetchCubeConfiguration]())
+        out.+=(prefetchCubeConfiguration)
+      }
     }
     prefetchCubeConfigurationMap
   }
