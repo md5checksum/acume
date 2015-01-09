@@ -143,8 +143,15 @@
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.docBase</Property_OriginalName>
         </Property>
         <Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.PERMSIZE</Property_Name>
+            <Property_Value>128m</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.PERMSIZE</Property_OriginalName>
+        </Property>
+        <Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.MAXPERMSIZE</Property_Name>
-            <Property_Value>512m</Property_Value>
+            <Property_Value>256m</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.MAXPERMSIZE</Property_OriginalName>
