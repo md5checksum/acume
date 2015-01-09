@@ -82,6 +82,7 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
   }
   
   def executeQl(sql : String, ql : QLType.QLType) = {
+    sqlContext.setConf("spark.sql.hive.convertMetastoreParquet","true")
     val resultSchemaRDD = sqlContext.sql(sql)
     new AcumeCacheResponse(resultSchemaRDD, MetaData(-1, Nil))
   }
