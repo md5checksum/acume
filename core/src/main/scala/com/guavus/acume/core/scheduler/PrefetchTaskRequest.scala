@@ -86,7 +86,7 @@ class PrefetchTaskRequest {
       checkflag((queryRequest.responseFilters == null || queryRequest.responseFilters.size == 0), "", rf) + 
       checkflag(queryRequest.binSource == null, "", " binSource " + " = '" + queryRequest.binSource + "' ") + 
       checkflag(queryRequest.timeGranularity < 0, "", " timeGranularity = " + queryRequest.timeGranularity) +
-      checkflag(false, "", " acumeQueryType = " + "scheduler") +
+      checkflag(false, "", " acumeQueryType = " + "'scheduler'") +
       checkflag(queryRequest.searchRequest == null, "", " (placeholder) in (" + (if(queryRequest.searchRequest!= null) queryRequest.searchRequest.toSql()) + ") ")
 
     val wherestring =
