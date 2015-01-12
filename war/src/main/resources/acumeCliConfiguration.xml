@@ -7,7 +7,7 @@ Please don't use the following reserved property names:
 3. state
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!-->
 
-<RubixConfigurationsperm>
+<RubixConfigurations>
     <PropertiesPerApplication>
         <property>
             <name>applicationPath</name>
