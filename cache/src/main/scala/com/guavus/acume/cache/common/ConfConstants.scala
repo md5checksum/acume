@@ -17,7 +17,7 @@ private [acume] object ConfConstants {
   val variableretentionmap = "acume.cache.core.variableretentionmap"
   val instainstanceid = "acume.cache.baselayer.instainstanceid"
   val storagetype = "acume.cache.baselayer.storagetype"
-  val timezone = "acume.cache.core.timezone"
+  val timezone = "acume.core.timezone"
   val timezonedb = "acume.cache.core.timezonedb"
   val timezonedbPath = "acume.cache.core.timezonedbPath"
   val whichcachetouse = "acume.cache.core.cachename"
