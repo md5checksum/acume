@@ -17,6 +17,7 @@ import scala.collection.mutable.ArrayBuffer
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
 import java.util.Collections
+import scala.util.control.Breaks._
 
 object QueryPrefetchTaskCombiner {
 
@@ -57,45 +58,56 @@ class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: Quer
       this.synchronized {
         this.notify()
       }
-    var binSourceToIntervalMap = manager.getBinSourceToRubixAvailability
+    var binSourceToIntervalMap = manager.getBinSourceToCacheAvailability
     binSourceToIntervalMap.getOrElseUpdate(getBinSource, new scala.collection.mutable.HashMap[Long, Interval]())
     val map = new java.util.TreeMap[Long, Interval](Collections.reverseOrder[Long]())
     map.putAll(binSourceToIntervalMap.get(getBinSource).get)
     val levelPointMap = Utility.getLevelPointMap(acumeConf.getSchedulerVariableRetentionMap)
     val instance = Utility.newCalendar()
     for ((key, value) <- getGranToIntervalMap) {
-      var interval = map.get(key)
-      val ceil = Utility.ceilingFromGranularity(getStartTime, key)
-      val floor = Utility.floorFromGranularity(getEndTime, key)
-      val fromLevel = Math.max(Utility.getStartTimeFromLevel(Math.max(Math.max(value, if ((interval == null)) 0 else interval.getEndTime), floor), key, levelPointMap.get(key).get), Controller.getFirstBinPersistedTime(binSource))
-      var startTime = Utility.ceilingFromGranularity(fromLevel, key)
-      if (getIsOlderTask) {
-        if (ceil >= value) //continue
-        if (ceil > startTime) startTime = ceil
-      } else if (!getIsOlderTask) {
-        if (startTime >= value) {
-          //continue
-        }
-      }
-      if (interval == null) {
-        if (startTime >= value) {
-          //continue
-        }
-        if (!getIsOlderTask) {
-          if (ceil >= value) //continue
-          interval = new Interval(ceil, value)
-        } else {
-          interval = new Interval(startTime, value)
-        }
-        map.put(key, interval)
-      } else {
-        if (isOlderTasks) {
-          map.put(key, new Interval(startTime, interval.getEndTime))
-        } else {
-          if (interval.getStartTime > startTime) {
-            startTime = interval.getStartTime
+      breakable {
+        var interval = map.get(key)
+        val ceil = Utility.ceilingFromGranularity(getStartTime, key)
+        val floor = Utility.floorFromGranularity(getEndTime, key)
+        val fromLevel = Math.max(Utility.getStartTimeFromLevel(Math.max(Math.max(value, if ((interval == null)) 0 else interval.getEndTime), floor), key, levelPointMap.get(key).get), Controller.getFirstBinPersistedTime(binSource))
+        var startTime = Utility.ceilingFromGranularity(fromLevel, key)
+        val flag = if (getIsOlderTask) {
+          if (ceil >= value) {
+            true 
+          } else if (ceil > startTime) {
+            startTime = ceil
+            false
+          } else false
+        } else if (!getIsOlderTask) {
+          if (startTime >= value) {
+            true
+          } else false
+        } else
+          false
+        if (!flag) {
+          if (interval == null) {
+            if (startTime >= value) {
+              break;
+            }
+            if (!getIsOlderTask) {
+              if (ceil >= value) { 
+                break;
+              }
+              interval = new Interval(ceil, value)
+            } else {
+              interval = new Interval(startTime, value)
+            }
+            map.put(key, interval)
+          } else {
+            if (isOlderTasks) {
+              map.put(key, new Interval(startTime, interval.getEndTime))
+            } else {
+              if (interval.getStartTime > startTime) {
+                startTime = interval.getStartTime
+              }
+              map.put(key, new Interval(startTime, value))
+            }
           }
-          map.put(key, new Interval(startTime, value))
         }
       }
     }

@@ -47,9 +47,9 @@ object QueryPrefetchTaskProducer {
 
 class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schemas : List[QueryBuilderSchema], private var taskManager: QueryRequestPrefetchTaskManager, private var dataService: DataService, acumeService : AcumeService, saveRequests : Boolean, policy : ISchedulerPolicy) extends Runnable {
 
-  private var lastCacheUpdateTimeMap: scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]] = new scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]]()
+  private val lastCacheUpdateTimeMap: HashMap[String, HashMap[PrefetchCubeConfiguration, Long]] = new HashMap[String, HashMap[PrefetchCubeConfiguration, Long]]()
 
-  private var cubeLocator: PrefetchCubeLocator = new PrefetchCubeLocator(schemas)
+  private val cubeLocator: PrefetchCubeLocator = new PrefetchCubeLocator(schemas)
 
   @BeanProperty
   var requestLists: ArrayBuffer[PrefetchTaskRequest] = new ArrayBuffer[PrefetchTaskRequest]()
@@ -176,7 +176,7 @@ class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schemas : List[QueryBuild
         logger.debug("prefetch cube configuration is==>" + binSourceToCubeConfigurations)
       }
       for ((key, value) <- binSourceToCubeConfigurations) {
-        var cubeConfigurationToCacheTime = tempLastCacheUpdateTimeMap.get(key).getOrElse({null})
+        var cubeConfigurationToCacheTime = tempLastCacheUpdateTimeMap.get(key).getOrElse(null)
         if (cubeConfigurationToCacheTime == null) {
           cubeConfigurationToCacheTime = new scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]()
           tempLastCacheUpdateTimeMap.put(key, cubeConfigurationToCacheTime)
@@ -348,6 +348,6 @@ class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schemas : List[QueryBuild
     topPrefetchTaskRequest
   }
   def clearTaskCacheUpdateTimeMap() {
-    lastCacheUpdateTimeMap = new scala.collection.mutable.HashMap[String, scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]]()
+    lastCacheUpdateTimeMap.clear
   }
 }

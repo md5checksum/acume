@@ -1,9 +1,15 @@
 package com.guavus.acume.core.scheduler
 
 import scala.collection.mutable.HashMap
+import com.guavus.acume.core.common.ConfigKeyEnum
+import com.guavus.acume.core.AcumeConf
+import scala.collection.mutable.HashMap
 
-
-trait ISchedulerPolicy {
+/**
+ * @author archit.thakur
+ *
+ */
+abstract class ISchedulerPolicy(acumeConf: AcumeConf) {
 
   def getIntervalsAndLastUpdateTime(startTime: Long, endTime: Long, cubeConfiguration: PrefetchCubeConfiguration, isFirstTimeRun: Boolean, optionalParams: HashMap[String, Any], taskManager: QueryRequestPrefetchTaskManager): PrefetchLastCacheUpdateTimeAndInterval
 
@@ -11,4 +17,18 @@ trait ISchedulerPolicy {
 
   def clearState(): Unit
 
+}
+
+object ISchedulerPolicy {
+  
+  val objectgetter = HashMap[String, ISchedulerPolicy]()
+  def getISchedulerPolicy(acumeConf: AcumeConf): ISchedulerPolicy = {
+    val schedulerpolicykey = ConfigKeyEnum.schedulerpolicyclass
+    val ischedulerpolicy = objectgetter.getOrElse(schedulerpolicykey, Class.forName(acumeConf.get(schedulerpolicykey)).getConstructor(classOf[AcumeConf]).newInstance(acumeConf)
+    .asInstanceOf[ISchedulerPolicy])
+    if(!objectgetter.contains(schedulerpolicykey)) {
+      objectgetter.put(schedulerpolicykey, ischedulerpolicy)
+    }
+    ischedulerpolicy
+  }
 }

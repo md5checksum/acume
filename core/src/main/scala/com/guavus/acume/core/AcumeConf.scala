@@ -2,12 +2,11 @@ package com.guavus.acume.core
 
 import java.io.InputStream
 import java.util.Properties
-
 import scala.Array.canBuildFrom
 import scala.collection.JavaConverters.propertiesAsScalaMapConverter
 import scala.collection.mutable.HashMap
-
 import org.slf4j.LoggerFactory
+import com.guavus.acume.core.common.ConfigKeyEnum
 
 /**
  * Configuration for a Acume application. Used to set various Acume parameters as key-value pairs.
@@ -37,6 +36,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
   def this() = this(true)
 
   private val settings = new HashMap[String, String]()
+  setDefault
 
   if (loadDefaults) {
     // Load any Acume.* system properties
@@ -53,6 +53,10 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
 		settings(k) = v
 		System.setProperty(k, v)
 	}
+  }
+  
+  def setDefault = {
+    set(ConfigKeyEnum.schedulerpolicyclass,"com.guavus.acume.core.scheduler.VariableGranularitySchedulerPolicy")
   }
 
   /** Set a configuration variable. */
