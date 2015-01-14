@@ -190,7 +190,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
         print(modifiedSql)
         val resp = acumeContext.ac.acql(modifiedSql)
         if (!queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql)) {
-          resp.metadata.totalRecords = acumeContext.ac.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getInt(0)
+          resp.metadata.totalRecords = acumeContext.ac.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getLong(0)
         }
         resp
       } else {
