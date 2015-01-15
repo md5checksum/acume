@@ -29,6 +29,8 @@ import java.util.Observer
 import java.util.Random
 import com.guavus.acume.cache.workflow.RequestType.RequestType
 import org.apache.spark.sql.SchemaRDD
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
 
 /**
  * @author archit.thakur
@@ -37,6 +39,7 @@ import org.apache.spark.sql.SchemaRDD
 private [cache] class AcumeTreeCache(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy) 
 extends AcumeCache(acumeCacheContext, conf, cube) {
 
+  private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCache])
   val dimensionTable: DimensionTable = DimensionTable("AcumeCacheGlobalDimensionTable" + cube.cubeName)
   val diskUtility = DataLoader.getDataLoader(acumeCacheContext, conf, this)
   
@@ -179,6 +182,8 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     dataloadedrdd.registerTempTable(baseMeasureSetTable)
     AcumeCacheUtility.dMJoin(acumeCacheContext.sqlContext, dimensionTable.tblnm, baseMeasureSetTable, joinDimMeasureTableName)
     val _$acumecache = AcumeCacheUtility.getSchemaRDD(acumeCacheContext, cube, joinDimMeasureTableName)
+    if(logger.isTraceEnabled)
+      _$acumecache.collect.map(x=>logger.trace(x.toString))
     _$acumecache.registerTempTable(tableName)
     }
     val klist = timestamps.toList

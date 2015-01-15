@@ -28,6 +28,8 @@ import java.util.Calendar
 import java.util.TimeZone
 import org.apache.spark.sql.SchemaRDD
 import com.guavus.acume.cache.common.DimensionTable
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * @author archit.thakur
@@ -35,6 +37,7 @@ import com.guavus.acume.cache.common.DimensionTable
  */
 abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache) extends DataLoader(acumeCacheContext, conf, acumeCache) { 
   
+  val logger: Logger = LoggerFactory.getLogger(classOf[BasicDataLoader])
   val cube = acumeCache.cube
   override def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, DTableName: DimensionTable) = { 
     
@@ -57,10 +60,19 @@ abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: Acume
       val sqlContext = acumeCacheContext.sqlContext
       import sqlContext._
       loadMeasureSet(baseCube, list, baseMeasureSetTable, instabase, instainstanceid)
+      if(logger.isTraceEnabled)
+        table(baseMeasureSetTable).collect.map(x => logger.trace(x.toString))
       this.synchronized {
         loadDimensionSet(baseCube, list, baseDimensionSetTable, instabase, instainstanceid)
+        if(logger.isTraceEnabled)
+          table(baseDimensionSetTable).collect.map(x => logger.trace(x.toString))
         modifyDimensionSet(baseCube, businessCube, baseDimensionSetTable, modifiedDimensionSetTable, globalDTableName, instabase, instainstanceid)
-        modifyMeasureSet(baseCube, businessCube, baseMeasureSetTable, globalDTableName, instabase, instainstanceid)
+        if(logger.isTraceEnabled)
+          table(modifiedDimensionSetTable).collect.map(x => logger.trace(x.toString))
+        val modifiedmeasureset = modifyMeasureSet(baseCube, businessCube, baseMeasureSetTable, globalDTableName, instabase, instainstanceid)
+        if(logger.isTraceEnabled)
+          modifiedmeasureset._1.collect.map(x => logger.trace(x.toString))
+        modifiedmeasureset
       }
   }
   
