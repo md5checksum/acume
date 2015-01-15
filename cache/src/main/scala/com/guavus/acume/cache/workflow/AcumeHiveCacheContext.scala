@@ -46,7 +46,7 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
     }
   }
   
-  private [acume] def getFieldsForCube(name: String) = {
+  private [acume] def getFieldsForCube(name: String, binsource: String) = {
     throw new RuntimeException("Method not supported")
   }
   
