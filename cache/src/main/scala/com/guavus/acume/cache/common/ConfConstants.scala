@@ -17,7 +17,7 @@ private [acume] object ConfConstants {
   val variableretentionmap = "acume.cache.core.variableretentionmap"
   val instainstanceid = "acume.cache.baselayer.instainstanceid"
   val storagetype = "acume.cache.baselayer.storagetype"
-  val timezone = "acume.core.timezone"
+  val timezone = "acume.core.global.timezone"
   val timezonedb = "acume.cache.core.timezonedb"
   val timezonedbPath = "acume.cache.core.timezonedbPath"
   val whichcachetouse = "acume.cache.core.cachename"
@@ -30,6 +30,8 @@ private [acume] object ConfConstants {
   val rrloader = "acume.cache.rrcache.loader"
   val acumecachesqlcorrector = "acume.cache.sql.corrector"
   val acumecachesqlparser = "acume.cache.sql.parser"
+    
+  val acumecorebinsource = "acume.core.global.binsource"
   
   val cubetype = "cubetype"
   val levelpolicymap = "levelpolicymap"

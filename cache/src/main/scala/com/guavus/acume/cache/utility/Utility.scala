@@ -329,7 +329,7 @@ object Utility extends Logging {
     acumeCube
   }
   
-  def loadXML(xml: String, dimensionMap : InsensitiveStringKeyHashMap[Dimension], measureMap : InsensitiveStringKeyHashMap[Measure],
+  def loadXML(xml: String, globalbinsource: String, dimensionMap : InsensitiveStringKeyHashMap[Dimension], measureMap : InsensitiveStringKeyHashMap[Measure],
     cubeMap : HashMap[CubeKey, Cube], defaultPropertyMap : HashMap[String, String], cubeList : MutableList[Cube]) = { 
     
     val acumeCube = unmarshalXML(xml, dimensionMap, measureMap)
@@ -346,7 +346,8 @@ object Utility extends Logging {
         val cubeinfo = c.getInfo().trim.split(",")
         val (cubeName, cubebinsource) = 
           if(cubeinfo.length == 1) {
-            val _$binning = defaultPropertyMap.getOrElse(ConfConstants.binsource, throw new RuntimeException("Bin Source for cube $cubeinfo cannot be determined with the xml."))
+            val _$binning = defaultPropertyMap.getOrElse(ConfConstants.binsource, globalbinsource)
+            if(_$binning.isEmpty) throw new RuntimeException("binsource for the cube " + cubeinfo + " cannot be determined.")
             (cubeinfo(0).trim, _$binning)
           }
           else if(cubeinfo.length == 2)

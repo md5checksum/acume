@@ -61,7 +61,8 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   private val defaultPropertyMap = new HashMap[String, String]()
   private [cache] val cubeList = MutableList[Cube]()
 
-  Utility.loadXML(conf.get(ConfConstants.businesscubexml), dimensionMap, measureMap, cubeMap, defaultPropertyMap, cubeList)
+  Utility.loadXML(conf.get(ConfConstants.businesscubexml), conf.get(ConfConstants.acumecorebinsource) ,     
+      dimensionMap, measureMap, cubeMap, defaultPropertyMap, cubeList)
   loadXMLCube("")
   
   private [acume] def getCubeList = cubeList.toList
