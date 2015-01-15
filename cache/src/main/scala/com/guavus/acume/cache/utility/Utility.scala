@@ -56,8 +56,18 @@ import com.guavus.acume.cache.eviction.EvictionPolicy
  *
  */
 object Utility extends Logging {
+  
+  var calendar : Calendar = null
+  def init(conf : AcumeCacheConf) {
+	 calendar = Calendar.getInstance(TimeZone.getTimeZone(conf.get(ConfConstants.timezone)))
+  }
+  
+  def newCalendar() = calendar.clone().asInstanceOf[Calendar]
+  
 
   def getEmptySchemaRDD(sqlContext: SQLContext, schema: StructType)= {
+    
+    
     
     val sparkContext = sqlContext.sparkContext
     val _$rdd = sparkContext.parallelize(1 to 1).map(x =>Row.fromSeq(Nil)).filter(x => false)
@@ -438,7 +448,6 @@ object Utility extends Logging {
     result.toMap
   }
   
-  def newCalendar(): Calendar = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
   def newCalendar(timezone: TimeZone): Calendar = Calendar.getInstance(timezone)
   
   def getAllIntervals(startTime: Long, endTime: Long, gran: Long): MutableList[Long] = {
