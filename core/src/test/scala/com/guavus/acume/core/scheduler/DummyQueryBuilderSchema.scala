@@ -57,11 +57,11 @@ class DummyQueryBuilderSchema extends QueryBuilderSchema {
     lstcubeName
   }
 
-  override def getFieldsForCube(cubename: String): List[String] = {
+  override def getFieldsForCube(cube : ICube): List[String] = {
     val listOfFields =
-      if (cubename.toUpperCase() == "RAT_SEG_DEV_URL") {
+      if (cube.getCubeName().toUpperCase() == "RAT_SEG_DEV_URL") {
         (new cube_RAT_SEG_DEV_URL()).getFields
-      } else if (cubename.toUpperCase() == "RAT_DEV_URL") {
+      } else if (cube.getCubeName().toUpperCase() == "RAT_DEV_URL") {
         (new cube_RAT_DEV_URL()).getFields
       } else {
         (new cube_APN_SUBCR_TT_APP()).getFields
