@@ -96,8 +96,9 @@
                         <groupId>user-management</groupId>
                         <artifactId>user-management</artifactId>
                         <excludes>
-			    <exclude>WEB-INF/lib/log4j-*.jar</exclude>  
+			    					 <exclude>WEB-INF/lib/log4j-*.jar</exclude>  
                             <exclude>WEB-INF/lib/servlet-api*.jar</exclude>
+									 <exclude>WEB-INF/lib/guava*.jar</exclude>
                         </excludes>
                     </overlay>
                 </overlays>
