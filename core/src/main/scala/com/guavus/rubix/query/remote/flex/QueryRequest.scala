@@ -305,9 +305,6 @@ class QueryRequest extends Serializable {
   }
 
   protected def calculateResponseFilters(): String = {
-    if(responseFilters == null) {
-      return ""
-    }
     var sql = " "
     for (nameValue <- responseFilters) {
       sql += nameValue.toSql() + " AND "

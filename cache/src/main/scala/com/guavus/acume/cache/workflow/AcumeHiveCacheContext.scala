@@ -32,9 +32,6 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
   case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
   
-  
-  private [acume] def cacheSqlContext() : SQLContext = sqlContext
-  
   Utility.unmarshalXML(conf.get(ConfConstants.businesscubexml), dimensionMap, measureMap)
 
   def cacheConf = conf
@@ -49,10 +46,6 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
     } else {
         throw new RuntimeException("Field " + name + " nither in Dimension Map nor in Measure Map.")
     }
-  }
-  
-  private [acume] def getFieldsForCube(name: String, binsource: String) = {
-    throw new RuntimeException("Method not supported")
   }
   
   private [acume] def getFieldsForCube(name: String, binsource: String) = {
