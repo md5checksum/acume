@@ -65,7 +65,9 @@ class InstaDataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCach
       val aggregatedMeasureDataInsta = insta.getAggregatedData(instaMeasuresRequest)
       val dtnm = dTableName.tblnm
 
-      val ar = sqlContext.sql("select * from aggregatedMeasureDataInsta left outer join dtnm")
+      val selectField = CubeUtil.getCubeFields(businessCube).map("aggregatedMeasureDataInsta." + _).mkString(",") + ", dtnm.id"
+      val onField = CubeUtil.getDimensionSet(businessCube).map(x => "aggregatedMeasureDataInsta." + x + "=dtnm." + x).mkString(" AND ")
+      val ar = sqlContext.sql(s"select $selectField from aggregatedMeasureDataInsta left outer join dtnm on $onField")
       val fullRdd = generateId(ar, dTableName)
       val joinedTbl = businessCube.toString + levelTimestamp.level + "_" + levelTimestamp.timestamp
       fullRdd.registerTempTable(joinedTbl)
@@ -126,7 +128,7 @@ class InstaDataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCach
     def func(partionIndex : Int, itr : Iterator[Row]) = {
       var k,j = 0
       val temp = itr.map(x => {
-        if(x.getLong(idIndex) == None) {
+        if(x(idIndex) == null) {
           val arr = new Array[Any](x.size)
           x.copyToArray(arr)
           if(j >= 10) {
