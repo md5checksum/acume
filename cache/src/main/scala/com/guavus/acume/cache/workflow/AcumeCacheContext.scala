@@ -108,7 +108,8 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     
     println("AcumeRequest obtained " + sql)
     var correctsql = ISqlCorrector.getSQLCorrector(conf).correctSQL(sql, (originalparsedsql._1.toList, originalparsedsql._2))
-    var updatedsql = correctsql._1
+    var updatedsql = correctsql._1._1
+    val queryOptionalParams = correctsql._1._2
     var updatedparsedsql = correctsql._2
     
     val rt = updatedparsedsql._2
@@ -132,7 +133,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       val idd = new CacheIdentifier()
       idd.put("cube", id.hashCode)
       val instance = AcumeCacheFactory.getInstance(this, conf, idd, id)
-      val temp = instance.createTempTableAndMetadata(startTime, endTime, rt, i,None)
+      val temp = instance.createTempTableAndMetadata(startTime, endTime, rt, i,Some(queryOptionalParams))
       temp
     }
     val klist = list.flatMap(_.timestamps).toList

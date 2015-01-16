@@ -19,8 +19,10 @@ import com.guavus.acume.util.GracefullShutdownExecutor
 import com.guavus.qb.cube.schema.QueryBuilderSchema
 import scala.collection.mutable.HashMap
 import com.guavus.acume.core.configuration.ConfigFactory
-//import com.guavus.acume.core.AcumeContextTrait
-//import com.guavus.acume.core.DummyContext
+import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.core.DummyContext
+import com.guavus.qb.conf.QBConf
+import com.guavus.qb.services.QueryBuilderService
 
 object QueryRequestPrefetchTaskManager {
 
@@ -34,27 +36,28 @@ object QueryRequestPrefetchTaskManager {
 //    ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager])
 //  }
   
-//  def main(args: Array[String]) {
-//    
-//    val querybuilderservice = new DummyQueryBuilderService
-//    val acumeContext: AcumeContextTrait = new DummyContext
-//    val dataservice = new DataService(List(querybuilderservice), acumeContext)
-//    
-//    val querybuilder = new DummyQueryBuilderSchema
-//    
-//    val acumeconf = new AcumeConf(true, this.getClass.getResourceAsStream("/acume.conf"))
-////    acumeconf.set
-//    
-//    val acumeservice = new AcumeService(dataservice);
-//    
-//    val schedulerpolicy = new VariableGranularitySchedulerPolicy(acumeconf)
-//    
-//    val x = new QueryRequestPrefetchTaskManager(dataservice, List(querybuilder), acumeconf, acumeservice, schedulerpolicy)
-//    x.startPrefetchScheduler
-//    
-//    while(true){;}
-//  
-//  }
+  def main(args: Array[String]) {
+    
+	  val querybuilder = new DummyQueryBuilderSchema
+    val querybuilderservice = new QueryBuilderService(querybuilder, new QBConf)
+    val acumeContext: AcumeContextTrait = new DummyContext
+    val dataservice = new DataService(List(querybuilderservice), acumeContext)
+    
+    
+    val acumeconf = new AcumeConf(true, this.getClass.getResourceAsStream("/acume.conf"))
+	  acumeconf.set("acume.core.global.timezone", "GMT")
+//    acumeconf.set
+    
+    val acumeservice = new AcumeService(dataservice);
+    
+    val schedulerpolicy = new VariableGranularitySchedulerPolicy(acumeconf)
+    
+    val x = new QueryRequestPrefetchTaskManager(dataservice, List(querybuilder), acumeconf, acumeservice, schedulerpolicy)
+    x.startPrefetchScheduler
+    
+    while(true){;}
+  
+  }
 }
 
 class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService, @BeanProperty schemas: List[QueryBuilderSchema], acumeConf : AcumeConf, acumeService : AcumeService, schedulerPolicy : ISchedulerPolicy, controller : Controller) {

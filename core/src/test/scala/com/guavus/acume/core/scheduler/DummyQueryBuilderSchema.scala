@@ -34,7 +34,8 @@ class DummyQueryBuilderSchema extends QueryBuilderSchema {
     dimensionList.add("SP")
     dimensionList.add("APP_TYPE")
     dimensionList.add("SEGMENT")
-    if (dimensionList.contains(field.toUpperCase())) {
+    dimensionList.add("ts")
+    if (dimensionList.contains(field.toUpperCase()) || dimensionList.contains(field.toLowerCase())) {
       true
     } else {
       false

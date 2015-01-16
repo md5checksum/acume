@@ -68,6 +68,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
       throw new NullPointerException("null value")
     }
     settings(key) = value
+    System.setProperty(key, value)
     this
   }
 
