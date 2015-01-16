@@ -1,6 +1,7 @@
 package com.guavus.acume.cache.sql
 
 import com.guavus.acume.cache.utility.Tuple
+import com.guavus.acume.cache.utility.QueryOptionalParam
 import com.guavus.acume.cache.workflow.RequestType._
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
@@ -14,7 +15,7 @@ import scala.collection.mutable.{HashMap => SHashMapMutable}
 
 trait ISqlCorrector {
   
-  def correctSQL(unparsedsql: String, parsedsql: Tuple2[List[Tuple], RequestType]): (String, (List[Tuple], RequestType))
+  def correctSQL(unparsedsql: String, parsedsql: Tuple2[List[Tuple], RequestType]): ((String, QueryOptionalParam), (List[Tuple], RequestType))
 }
 
 object ISqlCorrector {

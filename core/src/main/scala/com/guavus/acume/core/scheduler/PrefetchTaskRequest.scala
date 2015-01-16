@@ -38,6 +38,9 @@ class PrefetchTaskRequest {
   
   def toSql(ts1: String): String = {
     val columns = new ArrayList[String]()
+    if(ts1 != null && !ts1.isEmpty()) {
+    	columns.add(ts1)
+    }
     columns.addAll(queryRequest.responseDimensions)
     columns.addAll(queryRequest.responseMeasures)
     if (queryRequest.cubeContextDimensions != null) {
@@ -96,7 +99,7 @@ class PrefetchTaskRequest {
         (if (queryRequest.length == -1) "" else "  limit " + queryRequest.length) +
         (if (queryRequest.offset == 0) "" else " offset " + queryRequest.offset + " ")
       
-    var abs = "select " + ts1 + columns.toString.substring(1, columns.toString.length - 1) + " from global " +wherestring
+    var abs = "select " + columns.toString.substring(1, columns.toString.length - 1) + " from global " +wherestring
     abs
   }
   
@@ -114,6 +117,9 @@ class PrefetchTaskRequest {
 
   protected def calculateResponseFilters(): String = {
     var sql = " "
+      if(queryRequest.responseFilters == null) {
+        return sql
+      }
     for (nameValue <- queryRequest.responseFilters) {
       sql += nameValue.toSql() + " AND "
     }
