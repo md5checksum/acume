@@ -50,6 +50,8 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   }
   
   def cacheConf() = conf
+  
+  def cacheSqlContext() = sqlContext 
  
   @transient
   val rrCacheLoader = Class.forName(conf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]

@@ -113,6 +113,9 @@ class PrefetchTaskRequest {
   }
 
   protected def calculateResponseFilters(): String = {
+    if(queryRequest.responseFilters == null) {
+      return ""
+    }
     var sql = " "
     for (nameValue <- queryRequest.responseFilters) {
       sql += nameValue.toSql() + " AND "

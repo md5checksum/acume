@@ -10,12 +10,13 @@ import com.guavus.acume.cache.common.DimensionTable
 import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.core.AcumeCache
 import java.util.concurrent.ConcurrentHashMap
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 
 /**
  * @author archit.thakur
  *
  */
-abstract class DataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache) extends Serializable {
+abstract class DataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, acumeCache: AcumeCache) extends Serializable {
 
   def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable): Tuple2[SchemaRDD, String]
   def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable, instabase: String, instainstanceid: String): Tuple2[SchemaRDD, String] 
