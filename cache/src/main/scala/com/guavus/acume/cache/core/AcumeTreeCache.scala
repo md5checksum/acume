@@ -31,6 +31,10 @@ import com.guavus.acume.cache.workflow.RequestType.RequestType
 import org.apache.spark.sql.SchemaRDD
 import org.slf4j.LoggerFactory
 import org.slf4j.Logger
+import com.guavus.acume.cache.disk.utility.CubeUtil
+import org.apache.spark.sql.StructField
+import com.guavus.acume.cache.common.ConversionToSpark
+import org.apache.spark.sql.catalyst.types.LongType
 
 /**
  * @author archit.thakur
@@ -40,9 +44,17 @@ private [cache] class AcumeTreeCache(acumeCacheContext: AcumeCacheContext, conf:
 extends AcumeCache(acumeCacheContext, conf, cube) {
 
   private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCache])
-  val dimensionTable: DimensionTable = DimensionTable("AcumeCacheGlobalDimensionTable" + cube.cubeName)
+  val dimensionTable: DimensionTable = DimensionTable("AcumeCacheGlobalDimensionTable" + cube.cubeName, 0l)
   val diskUtility = DataLoader.getDataLoader(acumeCacheContext, conf, this)
-  
+
+  val cubeDimensionSet = CubeUtil.getDimensionSet(cube)
+  val schema =
+    cubeDimensionSet.map(field => {
+      StructField(field.getName, ConversionToSpark.convertToSparkDataType(CubeUtil.getFieldType(field)), true)
+    })
+  val latestschema = StructType(StructField("id", LongType, true) +: schema.toList)
+  Utility.getEmptySchemaRDD(acumeCacheContext.cacheSqlContext, latestschema).registerTempTable(dimensionTable.tblnm)
+        
   override def createTempTable(startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
     requestType match {
       case Aggregate => createTableForAggregate(startTime, endTime, tableName, false)
