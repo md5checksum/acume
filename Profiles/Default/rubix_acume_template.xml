@@ -143,14 +143,14 @@
             <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.docBase</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.PERMSIZE</Property_Name>
+            <Property_Name> application.${rubixApp}.instanceId.${rubixInstance}.PERMSIZE</Property_Name>
             <Property_Value>128m</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.PERMSIZE</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.instanceId.${rubixInstance}.PERMSIZE</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.MAXPERMSIZE</Property_Name>
+            <Property_Name> application.${rubixApp}.instanceId.${rubixInstance}.MAXPERMSIZE</Property_Name>
             <Property_Value>256m</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
