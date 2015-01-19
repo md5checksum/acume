@@ -32,6 +32,8 @@ object AcumeCacheType extends Enumeration {
     val conf = new SparkConf
     conf.set("spark.master", "local")
     conf.set("spark.app.name", "local")
+    conf.set("spark.sql.hive.convertMetastoreParquet", "true")
+    conf.set("spark.sql.parquet.binaryAsString", "true")
     val sqlContext = new HiveContext(new SparkContext(conf))
     val conf123 = new AcumeCacheConf
     conf123.set(ConfConstants.businesscubexml, "src/test/resources/acumemural.xml")

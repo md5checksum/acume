@@ -71,7 +71,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
       sqlContext.registerRDDAsTable(aggregatedMeasureDataInsta, aggregatedTbl)
       
 
-      val selectField = CubeUtil.getCubeFields(businessCube).map(aggregatedTbl+ "." + _).mkString(",") + ", " + dtnm + ".id"
+      val selectField = dtnm + ".id, " +  CubeUtil.getCubeFields(businessCube).map(aggregatedTbl+ "." + _).mkString(",")
       val onField = CubeUtil.getDimensionSet(businessCube).map(x => aggregatedTbl + "." + x.getName + "=" + dtnm + "." + x.getName).mkString(" AND ")
       val ar = sqlContext.sql(s"select $selectField from $aggregatedTbl left outer join $dtnm on $onField")
       val fullRdd = generateId(ar, dTableName)
@@ -100,7 +100,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
     import sqlContext._
     val latestschema = StructType(StructField("id", LongType, true) +: schema.toList)
     val selectDimensionSet = cubeDimensionSet.map(_.getName).mkString(",")
-    val newdrdd = sqlContext.sql(s"select id as tupleid, $timestamp as ts, $selectDimensionSet from $joinedTbl")
+    val newdrdd = sqlContext.sql(s"select id as tupleid, $selectDimensionSet from $joinedTbl")
     val dimensionRdd = newdrdd.union(table(dimensiontable.tblnm))
     dimensiontable.Modify
     sqlContext.registerRDDAsTable(sqlContext.applySchema(dimensionRdd, latestschema), dimensiontable.tblnm)
