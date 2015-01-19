@@ -19,6 +19,7 @@ import com.guavus.qb.services.QueryBuilderService
 import com.guavus.acume.core.scheduler.QueryRequestPrefetchTaskManager
 import com.guavus.acume.core.scheduler.VariableGranularitySchedulerPolicy
 import com.guavus.acume.core.scheduler.ISchedulerPolicy
+import com.guavus.acume.core.scheduler.Controller
 
 object AcumeAppConfig {
 
@@ -77,6 +78,6 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
   override def queryRequestPrefetchTaskManager(acumeService : AcumeService, dataService : DataService , queryBuilderService : Seq[IQueryBuilderService], acumeContext : AcumeContext) : QueryRequestPrefetchTaskManager = {
     
     val ischedulerpolicy = ISchedulerPolicy.getISchedulerPolicy(acumeContext.acumeConf)
-    new QueryRequestPrefetchTaskManager(dataService, queryBuilderService.map(_.getQueryBuilderSchema).toList, acumeContext.acumeConf, acumeService, ischedulerpolicy)
+    new QueryRequestPrefetchTaskManager(dataService, queryBuilderService.map(_.getQueryBuilderSchema).toList, acumeContext.acumeConf, acumeService, ischedulerpolicy, new Controller(acumeContext.ac))
   }
 }

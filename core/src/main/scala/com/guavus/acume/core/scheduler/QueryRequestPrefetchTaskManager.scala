@@ -57,14 +57,14 @@ object QueryRequestPrefetchTaskManager {
 //  }
 }
 
-class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService, @BeanProperty schemas: List[QueryBuilderSchema], acumeConf : AcumeConf, acumeService : AcumeService, schedulerPolicy : ISchedulerPolicy) {
+class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService, @BeanProperty schemas: List[QueryBuilderSchema], acumeConf : AcumeConf, acumeService : AcumeService, schedulerPolicy : ISchedulerPolicy, controller : Controller) {
 
   val logger = LoggerFactory.getLogger(classOf[QueryRequestPrefetchTaskManager])
   private var consumerCombinerThreadPool: ExecutorService = _
   private var consumerThreadPool: ExecutorService = _
   private var producerThreadPool: ScheduledExecutorService = Executors.newScheduledThreadPool(QueryRequestPrefetchTaskManager.MAX_TASK_PRODUCERS, new NamedThreadPoolFactory("PrefetchTaskProducer"))
   private var scheduledFuture: ScheduledFuture[_] = _
-  private var queryPrefetchTaskProducer: QueryPrefetchTaskProducer = new QueryPrefetchTaskProducer(acumeConf, schemas, this, dataService, acumeService, false, schedulerPolicy)
+  private var queryPrefetchTaskProducer: QueryPrefetchTaskProducer = new QueryPrefetchTaskProducer(acumeConf, schemas, this, dataService, acumeService, false, schedulerPolicy, controller)
 
   @BeanProperty
   var binSourceToCacheAvailability: HashMap[String, HashMap[Long, Interval]] = new HashMap[String, HashMap[Long, Interval]]()

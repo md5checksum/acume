@@ -24,7 +24,7 @@ object QueryPrefetchTaskCombiner {
   val logger = LoggerFactory.getLogger(classOf[QueryPrefetchTaskCombiner])
 }
 
-class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: QueryRequestPrefetchTaskManager, @BeanProperty var version: Int, acumeConf : AcumeConf, acumeService : AcumeService) extends Runnable with Comparable[QueryPrefetchTaskCombiner] {
+class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: QueryRequestPrefetchTaskManager, @BeanProperty var version: Int, acumeConf : AcumeConf, acumeService : AcumeService, controller : Controller) extends Runnable with Comparable[QueryPrefetchTaskCombiner] {
 
   @BeanProperty
   var startTime: Long = _
@@ -69,7 +69,7 @@ class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: Quer
         var interval = map.get(key)
         val ceil = Utility.ceilingFromGranularity(getStartTime, key)
         val floor = Utility.floorFromGranularity(getEndTime, key)
-        val fromLevel = Math.max(Utility.getStartTimeFromLevel(Math.max(Math.max(value, if ((interval == null)) 0 else interval.getEndTime), floor), key, levelPointMap.get(key).get), Controller.getFirstBinPersistedTime(binSource))
+        val fromLevel = Math.max(Utility.getStartTimeFromLevel(Math.max(Math.max(value, if ((interval == null)) 0 else interval.getEndTime), floor), key, levelPointMap.get(key).get), controller.getFirstBinPersistedTime(binSource))
         var startTime = Utility.ceilingFromGranularity(fromLevel, key)
         val flag = if (getIsOlderTask) {
           if (ceil >= value) {
@@ -127,7 +127,7 @@ class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: Quer
         binSourceToIntervalMap.+=(getBinSource ->  (scala.collection.mutable.HashMap() ++= map.toMap))
         logger.info("Putting RubixDataAvailability in Distributed cache {} ", binSourceToIntervalMap)
         manager.updateBinSourceToRubixAvailabiltyMap(binSourceToIntervalMap)
-        logger.info("BinReplay: UI RubixDataAvaiabilty {}", Controller.getRubixTimeIntervalForBinSource(binSource))
+        logger.info("BinReplay: UI RubixDataAvaiabilty {}", manager.getBinClassToBinSourceToRubixAvailabiltyMapFromCoordinator)
       }
     this.synchronized {
       this.notify()

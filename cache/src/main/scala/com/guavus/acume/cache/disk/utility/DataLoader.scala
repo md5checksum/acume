@@ -22,6 +22,23 @@ abstract class DataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: Acume
   def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable): Tuple2[SchemaRDD, String]
   def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable, instabase: String, instainstanceid: String): Tuple2[SchemaRDD, String] 
   //This should be removed and things like instabase and instanceid should be retrieviable from MetaDataLoader for better code designing.
+  
+  def getFirstBinPersistedTime(binSource : String) : Long =  {
+		  throw new NoSuchMethodException("Method not present")
+  }
+  
+  def getLastBinPersistedTime(binSource : String) : Long =  {
+		  throw new NoSuchMethodException("Method not present")
+  }
+  
+  def getBinSourceToIntervalMap(binSource : String) : Map[Long, (Long,Long)] =  {
+		  throw new NoSuchMethodException("Method not present")
+  }
+
+  def getAllBinSourceToIntervalMap(): Map[String,Map[Long, (Long, Long)]] = {
+    throw new NoSuchMethodException("Method not present")
+  }
+
 }
 
 object DataLoader{

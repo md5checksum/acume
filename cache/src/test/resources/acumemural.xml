@@ -14,7 +14,7 @@
       
       <Field>
       <Info>
-      HIT_COUNT,double,measure,none,0
+      HIT_COUNT,double,measure,sum,0
       </Info>
       </Field>
     </Fields>
@@ -23,7 +23,7 @@
     aggregation function in Cube.
     -->
     <Default>
-        levelpolicymap: 1h:53, timeserieslevelpolicymap: 1h:53, binsource: default
+        levelpolicymap: 1h:53, timeserieslevelpolicymap: 1h:53, binsource: __DEFAULT_BINSRC__
     </Default>
     <Cubes>
         <Cube>

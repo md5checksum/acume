@@ -50,7 +50,32 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   def cacheConf() = conf
   
-  def cacheSqlContext() = sqlContext 
+  def cacheSqlContext() = sqlContext
+
+  var dataLoader: DataLoader = null
+  
+  
+  
+  def init() {
+    dataLoader = DataLoader.getDataLoader(this, conf, null)
+
+  }
+
+  override def getFirstBinPersistedTime(binSource: String): Long = {
+    dataLoader.getFirstBinPersistedTime(binSource)
+  }
+
+  override def getLastBinPersistedTime(binSource: String): Long = {
+    dataLoader.getLastBinPersistedTime(binSource)
+  }
+
+  override def getBinSourceToIntervalMap(binSource: String): Map[Long, (Long, Long)] = {
+    dataLoader.getBinSourceToIntervalMap(binSource)
+  }
+  
+  override def getAllBinSourceToIntervalMap() : Map[String, Map[Long, (Long,Long)]] =  {
+		dataLoader.getAllBinSourceToIntervalMap
+  }
  
   @transient
   val rrCacheLoader = Class.forName(conf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]
@@ -191,6 +216,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   private [workflow] def loadBaseXML(filedir: String) = {
   }
+  init()
   
 }
 

@@ -27,19 +27,22 @@ import org.apache.spark.sql.catalyst.expressions.Row
 import org.apache.spark.sql.catalyst.expressions.GenericRow
 import scala.collection.mutable.ArrayBuffer
 import org.apache.spark.AccumulatorParam
+import com.guavus.insta.BinPersistTimeInfoRequest
 
-class InstaDataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, acumeCache: AcumeCache) extends DataLoader(acumeCacheContext, conf, null) {
+class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @transient  conf: AcumeCacheConf, @transient acumeCache: AcumeCache) extends DataLoader(acumeCacheContext, conf, null) {
 
-  var insta: Insta = null
-  val sqlContext = acumeCacheContext.cacheSqlContext
-  var cubeList: List[InstaCubeMetaInfo] = null
+  @transient  var insta: Insta = null
+  @transient val sqlContext = acumeCacheContext.cacheSqlContext
+  @transient  var cubeList: List[InstaCubeMetaInfo] = null
   init
   
   def init() {
-    val insta = new Insta(acumeCacheContext.cacheSqlContext.sparkContext)
+    insta = new Insta(acumeCacheContext.cacheSqlContext.sparkContext)
 //    insta.init(conf.get(ConfConstants.backendDbName, throw new IllegalArgumentException(" Insta DBname is necessary for loading data from insta")), conf.get(ConfConstants.cubedefinitionxml, throw new IllegalArgumentException(" Insta cubeDefinitionxml is necessary for loading data from insta")))
     insta.init(conf.get(ConfConstants.backendDbName), conf.get(ConfConstants.cubedefinitionxml))
     cubeList = insta.getInstaCubeList
+    print(getFirstBinPersistedTime("__DEFAULT_BINSRC__"))
+    print(getLastBinPersistedTime("__DEFAULT_BINSRC__"))
   }
 
   override def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable): Tuple2[SchemaRDD, String] = {
@@ -62,17 +65,20 @@ class InstaDataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCach
       })
 
       val instaMeasuresRequest = InstaRequest(levelTimestamp.timestamp, endTime,
-        businessCube.binsource, dimSet.cubeName, null, measureFilters)
-
+        businessCube.binsource, dimSet.cubeName, List(), measureFilters)
+        print("Firing aggregate query on insta "  + instaMeasuresRequest)
       val aggregatedMeasureDataInsta = insta.getAggregatedData(instaMeasuresRequest)
       val dtnm = dTableName.tblnm
+      val aggregatedTbl = "aggregatedMeasureDataInsta" + levelTimestamp.level + "_" + levelTimestamp.timestamp
+      sqlContext.registerRDDAsTable(aggregatedMeasureDataInsta, aggregatedTbl)
+      
 
-      val selectField = CubeUtil.getCubeFields(businessCube).map("aggregatedMeasureDataInsta." + _).mkString(",") + ", dtnm.id"
-      val onField = CubeUtil.getDimensionSet(businessCube).map(x => "aggregatedMeasureDataInsta." + x + "=dtnm." + x).mkString(" AND ")
-      val ar = sqlContext.sql(s"select $selectField from aggregatedMeasureDataInsta left outer join dtnm on $onField")
+      val selectField = CubeUtil.getCubeFields(businessCube).map(aggregatedTbl+ "." + _).mkString(",") + ", " + dtnm + ".id"
+      val onField = CubeUtil.getDimensionSet(businessCube).map(x => aggregatedTbl + "." + x.getName + "=" + dtnm + "." + x.getName).mkString(" AND ")
+      val ar = sqlContext.sql(s"select $selectField from $aggregatedTbl left outer join $dtnm on $onField")
       val fullRdd = generateId(ar, dTableName)
-      val joinedTbl = businessCube.toString + levelTimestamp.level + "_" + levelTimestamp.timestamp
-      fullRdd.registerTempTable(joinedTbl)
+      val joinedTbl = businessCube.cubeName + levelTimestamp.level + "_" + levelTimestamp.timestamp
+      sqlContext.registerRDDAsTable(fullRdd, joinedTbl)
 
       (correctMTable(businessCube, joinedTbl, levelTimestamp.timestamp),
         correctDTable(businessCube, dTableName, joinedTbl, levelTimestamp.timestamp))
@@ -81,7 +87,7 @@ class InstaDataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCach
   
   def correctMTable(businessCube: Cube, joinedTbl: String, timestamp : Long) = {
     
-    val measureSet = CubeUtil.getMeasureSet(businessCube).mkString(",")
+    val measureSet = CubeUtil.getMeasureSet(businessCube).map(_.getName).mkString(",")
     sqlContext.sql(s"select id as tupleid, $timestamp as ts, $measureSet from $joinedTbl")
   }
   
@@ -95,10 +101,11 @@ class InstaDataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCach
           
     import sqlContext._
     val latestschema = StructType(StructField("id", LongType, true) +: schema.toList)
-    
-    val newdrdd = sqlContext.sql(s"select id as tupleid, $timestamp as ts, $cubeDimensionSet from $joinedTbl")
+    val selectDimensionSet = cubeDimensionSet.map(_.getName).mkString(",")
+    val newdrdd = sqlContext.sql(s"select id as tupleid, $timestamp as ts, $selectDimensionSet from $joinedTbl")
+    val dimensionRdd = newdrdd.union(table(dimensiontable.tblnm))
     dimensiontable.Modify
-    sqlContext.applySchema(newdrdd.union(table(dimensiontable.tblnm)), latestschema).registerTempTable(dimensiontable.tblnm)
+    sqlContext.registerRDDAsTable(sqlContext.applySchema(dimensionRdd, latestschema), dimensiontable.tblnm)
     dimensiontable.tblnm
   }
   
@@ -111,7 +118,6 @@ class InstaDataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCach
      * formula = (k*n*10+index*10+max+j+1,k*n*10+index*10+10+max+j+1)
      */
 
-    case class Vector(val data: Array[Long]) {}
     implicit object VectorAP extends AccumulatorParam[Vector] {
       def zero(v: Vector) = new Vector(new Array(v.data.size))
       def addInPlace(v1: Vector, v2: Vector) = {
@@ -126,18 +132,19 @@ class InstaDataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCach
     Arrays.fill(accumulatorList, 0)
     val acc = sqlContext.sparkContext.accumulator(new Vector(accumulatorList))
     val lastMax = dtable.maxid
-    val idIndex = 0 
-    def func(partionIndex : Int, itr : Iterator[Row]) = {
+//    def func(partionIndex : Int, itr : Iterator[Row]) = 
+	
+    val returnRdd = sqlContext.applySchema(drdd.mapPartitionsWithIndex((partionIndex, itr) => {
       var k,j = 0
       val temp = itr.map(x => {
-        if(x(idIndex) == null) {
+        if(x(0) == null) {
           val arr = new Array[Any](x.size)
           x.copyToArray(arr)
           if(j >= 10) {
             j=0
             k+=1
           }
-          arr(idIndex) = k* numPartitions*10 + partionIndex*10 + lastMax + 1 + j
+          arr(0) = k* numPartitions*10 + partionIndex*10 + lastMax + 1 + j
           j+=1
           Row.fromSeq(arr)
         } else 
@@ -148,9 +155,9 @@ class InstaDataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCach
       arr(partionIndex) = k* numPartitions*10 + partionIndex*10 + lastMax + 1 + j 
       acc += new Vector(arr) 
       temp
-    }
-	dtable.maxid = acc.value.data.max
-    sqlContext.applySchema(drdd.mapPartitionsWithIndex(func), drdd.schema)
+    }), drdd.schema)
+    dtable.maxid = acc.value.data.max
+    returnRdd
 //    drdd.mapPartitions(f, preservesPartitioning)
   }
   
@@ -226,5 +233,26 @@ class InstaDataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCach
     val newInstance = loadedClass.getConstructor(classOf[AcumeCacheContext], classOf[AcumeCacheConf], classOf[AcumeCache]).newInstance(acumeCacheContext, conf, acumeCache)
     newInstance.asInstanceOf[DataLoader]
   }
+  
+  
+  
+  override def getFirstBinPersistedTime(binSource : String) : Long =  {
+		  insta.getFirstBinPersistedTime(new BinPersistTimeInfoRequest(binSource, -1))
+  }
+  
+  override def getLastBinPersistedTime(binSource : String) : Long =  {
+		   insta.getLastBinPersistedTime(new BinPersistTimeInfoRequest(binSource, -1))
+  }
+  
+  override def getBinSourceToIntervalMap(binSource : String) : Map[Long, (Long,Long)] =  {
+		  insta.getAllBinPersistedTimes.get(binSource).getOrElse(throw new IllegalArgumentException("No Data found in insta for binsource" + binSource))
+  }
+  
+  override def getAllBinSourceToIntervalMap() : Map[String,Map[Long, (Long,Long)]] =  {
+		  insta.getAllBinPersistedTimes
+  }
+
 
 }
+
+case class Vector(val data: Array[Long]) extends Serializable{}
