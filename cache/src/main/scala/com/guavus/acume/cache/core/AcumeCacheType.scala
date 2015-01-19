@@ -34,10 +34,10 @@ object AcumeCacheType extends Enumeration {
     conf.set("spark.app.name", "local")
     val sqlContext = new HiveContext(new SparkContext(conf))
     val conf123 = new AcumeCacheConf
-    conf123.set(ConfConstants.businesscubexml, "src/test/resources/cubedefinition.xml")
+    conf123.set(ConfConstants.businesscubexml, "src/test/resources/acumemural.xml")
     conf123.set("acume.cache.core.variableretentionmap", "1h:53")
     conf123.set("acume.cache.baselayer.instainstanceid","0")
-    conf123.set("acume.cache.baselayer.storagetype", "parquet")
+    conf123.set("acume.cache.baselayer.storagetype", "insta")
     conf123.set("acume.cache.core.timezone", "GMT")
     conf123.set("acume.cache.baselayer.instabase","/Users/archit.thakur/Downloads/parquetInstabase")
     conf123.set("acume.cache.baselayer.cubedefinitionxml", "cubexml")
@@ -50,6 +50,9 @@ object AcumeCacheType extends Enumeration {
     conf123.set("acume.core.enableJDBCServer", "true")
     conf123.set("acume.core.app.config", "com.guavus.acume.core.configuration.AcumeAppConfig")
     conf123.set("acume.core.sql.query.engine", "acume")
+    conf123.set("acume.core.global.timezone", "GMT")
+    conf123.set(ConfConstants.backendDbName, "default")
+    conf123.set(ConfConstants.cubedefinitionxml,"src/test/resources/muralinstacubedefinition.xml")
     
     val cntxt = new com.guavus.acume.cache.workflow.AcumeCacheContext(sqlContext, conf123)
 //    cntxt.acql("select egressruleid from searchEgressPeerCube where ts >=1384750800 and ts <1384758000")

@@ -6,8 +6,8 @@ import scala.collection.immutable.HashMap
 object Controller {
 
   val hashmap = Map[String, Map[Long, Interval]](
-      ("default" -> Map[Long, Interval](3600l -> new Interval(3600l, 2*86400l),-1l -> new Interval(3600l, 2*86400l))),
-      ("default123" -> Map[Long, Interval](86400l -> new Interval(0l, 86400l), -1l -> new Interval(3600l, 86400l)))
+      ("default" -> Map[Long, Interval](3600l -> new Interval(1404723600l, 1404727200l), -1l-> new Interval(1404723600l, 1404727200l)))
+//      ("default123" -> Map[Long, Interval](86400l -> new Interval(0l, 86400l), -1l -> new Interval(3600l, 86400l)))
       )
   
   def getFirstBinPersistedTime(binSource : String) : Long = {

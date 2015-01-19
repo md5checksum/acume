@@ -64,10 +64,7 @@ object Utility extends Logging {
   
   def newCalendar() = calendar.clone().asInstanceOf[Calendar]
   
-
   def getEmptySchemaRDD(sqlContext: SQLContext, schema: StructType)= {
-    
-    
     
     val sparkContext = sqlContext.sparkContext
     val _$rdd = sparkContext.parallelize(1 to 1).map(x =>Row.fromSeq(Nil)).filter(x => false)

@@ -2,15 +2,12 @@ package com.guavus.acume.cache.workflow
 
 import java.io.StringReader
 import java.util.Random
-
 import scala.Array.canBuildFrom
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
-
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.BaseCube
@@ -28,7 +25,6 @@ import com.guavus.acume.cache.utility.SQLParserFactory
 import com.guavus.acume.cache.utility.SQLUtility
 import com.guavus.acume.cache.utility.Tuple
 import com.guavus.acume.cache.utility.Utility
-
 import net.sf.jsqlparser.expression.Expression
 import net.sf.jsqlparser.expression.Parenthesis
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression
@@ -37,6 +33,8 @@ import net.sf.jsqlparser.expression.operators.relational.EqualsTo
 import net.sf.jsqlparser.schema.Column
 import net.sf.jsqlparser.statement.select.PlainSelect
 import net.sf.jsqlparser.statement.select.Select
+import java.util.concurrent.ConcurrentHashMap
+import com.guavus.acume.cache.disk.utility.DataLoader
 
 /**
  * @author archit.thakur
@@ -48,6 +46,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   case sqlContext: SQLContext => 
   case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
+  Utility.init(conf)
   
   def cacheConf() = conf
   
@@ -55,6 +54,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
  
   @transient
   val rrCacheLoader = Class.forName(conf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]
+  private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
   private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
   private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
   private [cache] val baseCubeMap = new HashMap[CubeKey, BaseCube]

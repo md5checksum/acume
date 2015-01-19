@@ -62,7 +62,7 @@
       
       <Field>
       <Info>
-      Dummydimension,none,0,long,dimension,none,0
+      Dummydimension,long,dimension,none,0
       </Info>
       </Field>
 
@@ -220,7 +220,7 @@
     <Cubes>
         <Cube>
           <Info>
-            searchEgressPeerCube, abc
+            searchEgressPeerCube
           </Info>
             <Fields>
                 EgressPeerEntityId,EgressAS,EgressIP,EgressRTR,OutgoingIF,EgressRuleId,FlowDirection,TTS_B,On_net_B,Off_net_B,Local_B,Regional_B,Continental_B,XAtlantic_B,XPacific_B,XOthers_B

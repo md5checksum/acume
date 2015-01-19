@@ -13,12 +13,13 @@ import org.apache.spark.sql.SQLContext
 import com.guavus.acume.cache.core.AcumeCache
 import org.apache.spark.sql.SchemaRDD
 import org.apache.spark.sql.catalyst.types.StructType
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 
 /**
  * @author archit.thakur
  *
  */
-class TextDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache) extends BasicDataLoader(acumeCacheContext, conf, acumeCache) { 
+class TextDataLoader(acumeCacheContextTrait: AcumeCacheContextTrait, conf: AcumeCacheConf, acumeCache: AcumeCache) extends BasicDataLoader(acumeCacheContextTrait, conf, acumeCache) { 
   
   override def getRowSchemaRDD(sqlContext: SQLContext, baseDir: String, fields: Fields, datatypearray: Array[FieldDataType], schema : StructType): SchemaRDD = {
     

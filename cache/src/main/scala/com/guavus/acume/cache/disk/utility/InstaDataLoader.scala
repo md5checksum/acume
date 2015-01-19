@@ -28,15 +28,17 @@ import org.apache.spark.sql.catalyst.expressions.GenericRow
 import scala.collection.mutable.ArrayBuffer
 import org.apache.spark.AccumulatorParam
 
-class InstaDataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf) extends DataLoader(acumeCacheContext, conf, null) {
+class InstaDataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, acumeCache: AcumeCache) extends DataLoader(acumeCacheContext, conf, null) {
 
   var insta: Insta = null
   val sqlContext = acumeCacheContext.cacheSqlContext
   var cubeList: List[InstaCubeMetaInfo] = null
+  init
   
   def init() {
     val insta = new Insta(acumeCacheContext.cacheSqlContext.sparkContext)
-    insta.init(conf.get(ConfConstants.backendDbName, throw new IllegalArgumentException(" Insta DBname is necessary for loading data from insta")), conf.get(ConfConstants.cubedefinitionxml, throw new IllegalArgumentException(" Insta cubeDefinitionxml is necessary for loading data from insta")))
+//    insta.init(conf.get(ConfConstants.backendDbName, throw new IllegalArgumentException(" Insta DBname is necessary for loading data from insta")), conf.get(ConfConstants.cubedefinitionxml, throw new IllegalArgumentException(" Insta cubeDefinitionxml is necessary for loading data from insta")))
+    insta.init(conf.get(ConfConstants.backendDbName), conf.get(ConfConstants.cubedefinitionxml))
     cubeList = insta.getInstaCubeList
   }
 

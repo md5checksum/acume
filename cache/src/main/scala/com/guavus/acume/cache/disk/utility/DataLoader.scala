@@ -47,13 +47,25 @@ object DataLoader{
     else
       getMetadata(key)
   }
-  
+
   def getDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache) = {
-    
+
+    val dataloadermap = acumeCacheContext.dataloadermap
     val dataLoaderClass = StorageType.getStorageType(conf.get(ConfConstants.storagetype)).dataClass
-    val loadedClass = Class.forName(dataLoaderClass)
-    val newInstance = loadedClass.getConstructor(classOf[AcumeCacheContextTrait], classOf[AcumeCacheConf], classOf[AcumeCache]).newInstance(acumeCacheContext, conf, acumeCache)
-    newInstance.asInstanceOf[DataLoader]
+    val instance = dataloadermap.get(dataLoaderClass)
+    //    if(dataloadermap.contains(dataLoaderClass)) {
+    //      dataloadermap.get(dataLoaderClass)
+    //    }
+    if (instance == null) {
+      val loadedClass = Class.forName(dataLoaderClass)
+      val newInstance = loadedClass.getConstructor(classOf[AcumeCacheContextTrait], classOf[AcumeCacheConf], classOf[AcumeCache]).newInstance(acumeCacheContext, conf, acumeCache)
+      dataloadermap.put(dataLoaderClass, newInstance.asInstanceOf[DataLoader])
+      newInstance.asInstanceOf[DataLoader]
+    } else {
+      {
+        instance
+      }
+    }
   }
 }
 
