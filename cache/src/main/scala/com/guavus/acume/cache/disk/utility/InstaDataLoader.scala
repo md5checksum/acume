@@ -41,8 +41,6 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
 //    insta.init(conf.get(ConfConstants.backendDbName, throw new IllegalArgumentException(" Insta DBname is necessary for loading data from insta")), conf.get(ConfConstants.cubedefinitionxml, throw new IllegalArgumentException(" Insta cubeDefinitionxml is necessary for loading data from insta")))
     insta.init(conf.get(ConfConstants.backendDbName), conf.get(ConfConstants.cubedefinitionxml))
     cubeList = insta.getInstaCubeList
-    print(getFirstBinPersistedTime("__DEFAULT_BINSRC__"))
-    print(getLastBinPersistedTime("__DEFAULT_BINSRC__"))
   }
 
   override def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable): Tuple2[SchemaRDD, String] = {
@@ -178,9 +176,13 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
       var isValidCubeGran = false
       breakable {
         for (gran <- cube.aggregationIntervals) {
-          if (startTime == Utility.floorFromGranularity(startTime, gran) && endTime == Utility.getNextTimeFromGranularity(startTime, gran, Utility.newCalendar)) {
-            isValidCubeGran = true
-            break
+          if (startTime == Utility.floorFromGranularity(startTime, gran)) {
+            var tempEndTime = Utility.getNextTimeFromGranularity(startTime, gran, Utility.newCalendar)
+            while(tempEndTime < endTime) tempEndTime = Utility.getNextTimeFromGranularity(startTime, gran, Utility.newCalendar)
+            if(tempEndTime == endTime) {
+            	isValidCubeGran = true
+            	break
+            }
           }
         }
       }
