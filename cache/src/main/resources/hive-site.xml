@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+
+    <property>
+        <name>javax.jdo.option.ConnectionURL</name>
+        <value>jdbc:postgresql://192.168.173.112/hivedb</value>
+    </property>
+
+    <property>
+        <name>javax.jdo.option.ConnectionDriverName</name>
+        <value>org.postgresql.Driver</value>
+    </property>
+
+    <property>
+        <name>javax.jdo.option.ConnectionUserName</name>
+        <value>hive</value>
+    </property>
+
+    <property>
+        <name>mapreduce.user.classpath.first</name>
+        <value>true</value>
+    </property>
+
+    <property>
+        <name>javax.jdo.option.ConnectionPassword</name>
+        <value>hive@123</value>
+    </property>
+
+    <property>
+        <name>datanucleus.autoCreateSchema</name>
+        <value>false</value>
+    </property>
+
+    <property>
+        <name>datanucleus.fixedDatastore</name>
+        <value>true</value>
+    </property>
+
+    <property>
+        <name>hive.querylog.location</name>
+        <value>/data/hive_logs</value>
+    </property>
+
+    <property>
+        <name>hive.aux.jars.path</name>
+        <value>file:///opt/tms/java/search-atlas3.4.jar,file:///opt/hive/lib/jackson-core-asl-1.8.8.jar,file:///opt/hive/lib/jackson-mapper-asl-1.8.8.jar</value>
+    </property>
+
+    <property>
+        <name>mapred.input.pathFilter.class</name>
+        <value>com.guavus.search.hive.FileFilterExcludeTmpFiles</value>
+    </property>
+
+    <property>
+        <name>mapred.job.queue.name</name>
+        <value>query</value>
+    </property>
+
+</configuration>

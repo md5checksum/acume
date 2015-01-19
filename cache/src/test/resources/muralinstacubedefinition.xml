@@ -1,0 +1,1906 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tns:CubeDef xsi:schemaLocation="http://www.guavus.com/CubeDefinition CubeDefinition.xsd" xmlns:tns="http://www.guavus.com/CubeDefinition" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+
+<!--Fields-->
+
+    <!--Dimension Fields-->
+
+    <tns:RefField FieldName="APP_CATEGORY">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="TT_APP_CAT">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="APP_TYPE">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="GGSN">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="RAT">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="SEGMENT">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="URL_CATEGORY">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="SP">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="DC">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="SGSN">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="CELL_SECTOR">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="APN">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="DEVICE">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="SUBCR">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="APP">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="TT_APP">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="RNC">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+
+    <tns:RefField FieldName="ByteArr">
+        <tns:String2Id>false</tns:String2Id>
+        <tns:Type>ByteArray</tns:Type>
+        <tns:DataType>Varbinary</tns:DataType>
+        <tns:ColumnWidth>4104</tns:ColumnWidth>
+    </tns:RefField>
+    <tns:RefField FieldName="LargeByteArr">
+        <tns:String2Id>false</tns:String2Id>
+        <tns:Type>ByteArray</tns:Type>
+        <tns:DataType>Varbinary</tns:DataType>
+        <tns:ColumnWidth>2048</tns:ColumnWidth>
+    </tns:RefField>
+    <tns:RefField FieldName="Source">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="DimensionListContainsSubscriber">
+        <tns:String2Id>false</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Int</tns:DataType>
+    </tns:RefField>
+
+    <!--Measure Fields-->
+
+    <tns:RefField FieldName="f_PEAK_FLOW_DUR">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Double</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="f_FLOW_DURATION">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Double</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="f_SESSION_DUR">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Double</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="f_FLOW_COUNT">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Double</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="f_UP_BYTES">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Double</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="f_DOWN_BYTES">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Double</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="f_SESSION_COUNT">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Double</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="f_SUBCR_COUNT">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Double</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="f_HIT_COUNT">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Double</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="f_CONC_HIT">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Double</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="f_CONC_SESSION">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Double</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="f_HIT_DURATION">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Double</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="f_PEAK_HIT_DUR">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Double</tns:DataType>
+    </tns:RefField>
+    <tns:RefField FieldName="f_CONC_FLOW">
+        <tns:String2Id>true</tns:String2Id>
+        <tns:Type>Generic</tns:Type>
+        <tns:DataType>Double</tns:DataType>
+    </tns:RefField>
+
+    <!--Measures-->
+    
+    <tns:RefMeasure MeasureName="PEAK_FLOW_DUR">
+        <tns:Function>Maximum</tns:Function>
+        <tns:Field Field="f_PEAK_FLOW_DUR"/>
+    </tns:RefMeasure>
+
+    <tns:RefMeasure MeasureName="FLOW_DURATION">
+        <tns:Function>Summation</tns:Function>
+        <tns:Field Field="f_FLOW_DURATION"/>
+    </tns:RefMeasure>
+
+    <tns:RefMeasure MeasureName="SESSION_DUR">
+        <tns:Function>Summation</tns:Function>
+        <tns:Field Field="f_SESSION_DUR"/>
+    </tns:RefMeasure>
+
+    <tns:RefMeasure MeasureName="FLOW_COUNT">
+        <tns:Function>Summation</tns:Function>
+        <tns:Field Field="f_FLOW_COUNT"/>
+    </tns:RefMeasure>
+
+    <tns:RefMeasure MeasureName="UP_BYTES">
+        <tns:Function>Summation</tns:Function>
+        <tns:Field Field="f_UP_BYTES"/>
+    </tns:RefMeasure>
+
+    <tns:RefMeasure MeasureName="DOWN_BYTES">
+        <tns:Function>Summation</tns:Function>
+        <tns:Field Field="f_DOWN_BYTES"/>
+    </tns:RefMeasure>
+
+    <tns:RefMeasure MeasureName="SESSION_COUNT">
+        <tns:Function>Summation</tns:Function>
+        <tns:Field Field="f_SESSION_COUNT"/>
+    </tns:RefMeasure>
+
+    <tns:RefMeasure MeasureName="HIT_COUNT">
+        <tns:Function>Summation</tns:Function>
+        <tns:Field Field="f_HIT_COUNT"/>
+    </tns:RefMeasure>
+   
+    <tns:RefMeasure MeasureName="PEAK_HIT_DUR">
+        <tns:Function>Maximum</tns:Function>
+        <tns:Field Field="f_PEAK_HIT_DUR"/>
+    </tns:RefMeasure>
+
+    <tns:RefMeasure MeasureName="HIT_DURATION">
+        <tns:Function>Summation</tns:Function>
+        <tns:Field Field="f_HIT_DURATION"/>
+    </tns:RefMeasure>
+
+    <tns:RefMeasure MeasureName="SUBCR_COUNT">
+        <tns:Function>PCSA</tns:Function>
+        <tns:StorageMode>MultiPartNonCombinable</tns:StorageMode>
+        <tns:Field Field="ByteArr" Persist="true"/>
+        <tns:Range Name="PCSA_AllValues" Type="ByteArray" RangeStart="MIN" RangeEnd="MAX"/>
+    </tns:RefMeasure>
+
+    <tns:RefMeasure MeasureName="CONC_FLOW">
+        <tns:Function>CONC</tns:Function>
+        <tns:StorageMode>MultiPartNonCombinable</tns:StorageMode>
+        <tns:Field Field="LargeByteArr" Persist="true"/>
+        <tns:Range Name="PCSA_AllValues" Type="ByteArray" RangeStart="MIN" RangeEnd="MAX"/>
+    </tns:RefMeasure>
+
+    <tns:RefMeasure MeasureName="CONC_HIT">
+        <tns:Function>CONC</tns:Function>
+        <tns:StorageMode>MultiPartNonCombinable</tns:StorageMode>
+        <tns:Field Field="LargeByteArr" Persist="true"/>
+        <tns:Range Name="PCSA_AllValues" Type="ByteArray" RangeStart="MIN" RangeEnd="MAX"/>
+    </tns:RefMeasure>
+
+    <tns:RefMeasure MeasureName="CONC_SESSION">
+        <tns:Function>CONC</tns:Function>
+        <tns:StorageMode>MultiPartNonCombinable</tns:StorageMode>
+        <tns:Field Field="LargeByteArr" Persist="true"/>
+        <tns:Range Name="PCSA_AllValues" Type="ByteArray" RangeStart="MIN" RangeEnd="MAX"/>
+    </tns:RefMeasure>
+
+    <!-- This is a generic PCSA measure -->
+    <tns:RefMeasure MeasureName="GenericPCSAMeasure_Example">
+        <tns:Function>PCSA</tns:Function>
+        <tns:StorageMode>MultiPartNonCombinable</tns:StorageMode>
+        <tns:Field Field="ByteArr" Persist="true"/>
+        <tns:Range Name="PCSA_AllValues" Type="ByteArray" RangeStart="MIN" RangeEnd="MAX"/>
+    </tns:RefMeasure>
+
+   <!--Filter-->
+   <tns:RefFilter FilterName="None">
+       <tns:Condition>And</tns:Condition>
+       <tns:Expression>
+           <tns:Field Field="Source"/>
+           <tns:Operator>Equal</tns:Operator>
+           <tns:Value>0</tns:Value>
+       </tns:Expression>
+   </tns:RefFilter>
+
+   <tns:RefFilter FilterName="HTTP">
+       <tns:Condition>And</tns:Condition>
+       <tns:Expression>
+           <tns:Field Field="Source"/>
+           <tns:Operator>Equal</tns:Operator>
+           <tns:Value>1</tns:Value>
+       </tns:Expression>
+   </tns:RefFilter>
+
+   <tns:RefFilter FilterName="NONHTTP">
+       <tns:Condition>And</tns:Condition>
+       <tns:Expression>
+           <tns:Field Field="Source"/>
+           <tns:Operator>Equal</tns:Operator>
+           <tns:Value>2</tns:Value>
+       </tns:Expression>
+   </tns:RefFilter>
+
+   <tns:RefFilter FilterName="NoneSUBCR">
+       <tns:Condition>And</tns:Condition>
+       <tns:Expression>
+           <tns:Field Field="DimensionListContainsSubscriber"/>
+           <tns:Operator>Equal</tns:Operator>
+           <tns:Value>0</tns:Value>
+       </tns:Expression>
+   </tns:RefFilter>
+
+   <tns:RefFilter FilterName="HTTPSUBCR">
+       <tns:Condition>And</tns:Condition>
+       <tns:Expression>
+           <tns:Field Field="Source"/>
+           <tns:Operator>Equal</tns:Operator>
+           <tns:Value>1</tns:Value>
+       </tns:Expression>
+       <tns:Expression>
+           <tns:Field Field="DimensionListContainsSubscriber"/>
+           <tns:Operator>Equal</tns:Operator>
+           <tns:Value>0</tns:Value>
+       </tns:Expression>
+   </tns:RefFilter>
+
+   <tns:RefFilter FilterName="NONHTTPSUBCR">
+       <tns:Condition>And</tns:Condition>
+       <tns:Expression>
+           <tns:Field Field="Source"/>
+           <tns:Operator>Equal</tns:Operator>
+           <tns:Value>2</tns:Value>
+       </tns:Expression>
+       <tns:Expression>
+           <tns:Field Field="DimensionListContainsSubscriber"/>
+           <tns:Operator>Equal</tns:Operator>
+           <tns:Value>0</tns:Value>
+       </tns:Expression>
+   </tns:RefFilter>
+
+    <!-- DIMENSIONSETS BEGIN -->
+    <tns:RefDimensionSet DimensionSetName="ALL_DEV">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="DEVICE"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="RAT_RNC">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="RAT"/>
+        <tns:Field Field="GGSN"/>
+        <tns:Field Field="SGSN"/>
+        <tns:Field Field="RNC"/>
+        <tns:Field Field="CELL_SECTOR"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="RAT_DEV_URL">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="RAT"/>
+        <tns:Field Field="DEVICE"/>
+        <tns:Field Field="URL_CATEGORY"/>
+        <tns:Field Field="SP"/>
+        <tns:Field Field="APP_TYPE"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="RAT_DEV_APP">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="RAT"/>
+        <tns:Field Field="DEVICE"/>
+        <tns:Field Field="APP_CATEGORY"/>
+        <tns:Field Field="APP"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="RAT_DEV_TT_APP">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="RAT"/>
+        <tns:Field Field="DEVICE"/>
+        <tns:Field Field="TT_APP_CAT"/>
+        <tns:Field Field="TT_APP"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="RAT_SEG_DEV">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="DEVICE"/>
+        <tns:Field Field="SEGMENT"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="RAT_SEG_DEV_URL">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="DEVICE"/>
+        <tns:Field Field="URL_CATEGORY"/>
+        <tns:Field Field="SEGMENT"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="RAT_SEG_DEV_APP">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="DEVICE"/>
+        <tns:Field Field="APP_CATEGORY"/>
+        <tns:Field Field="SEGMENT"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="RAT_SEG_TT_APP">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="RAT"/>
+        <tns:Field Field="TT_APP"/>
+        <tns:Field Field="TT_APP_CAT"/>
+        <tns:Field Field="SEGMENT"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="RAT_SEG_DEV_TT_APP">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="DEVICE"/>
+        <tns:Field Field="TT_APP_CAT"/>
+        <tns:Field Field="SEGMENT"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="RAT_SUBCR_URL">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="SUBCR"/>
+        <tns:Field Field="URL_CATEGORY"/>
+        <tns:Field Field="SP"/>
+        <tns:Field Field="APP_TYPE"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="RAT_SUBCR_DEV_URL">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="RAT"/>
+        <tns:Field Field="SUBCR"/>
+        <tns:Field Field="URL_CATEGORY"/>
+        <tns:Field Field="DEVICE"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="RAT_SUBCR_APP">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="SUBCR"/>
+        <tns:Field Field="APP_CATEGORY"/>
+        <tns:Field Field="APP"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="RAT_SUBCR_TT_APP">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="SUBCR"/>
+        <tns:Field Field="TT_APP_CAT"/>
+        <tns:Field Field="TT_APP"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="RAT_SUBCR_DEV_APP">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="RAT"/>
+        <tns:Field Field="SUBCR"/>
+        <tns:Field Field="APP_CATEGORY"/>
+        <tns:Field Field="DEVICE"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="RAT_SEG_URL">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="RAT"/>
+        <tns:Field Field="SEGMENT"/>
+        <tns:Field Field="URL_CATEGORY"/>
+        <tns:Field Field="SP"/>
+        <tns:Field Field="APP_TYPE"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="RAT_SEG_APP">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="RAT"/>
+        <tns:Field Field="SEGMENT"/>
+        <tns:Field Field="APP_CATEGORY"/>
+        <tns:Field Field="APP"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="RAT_SUBCR_DEV_TT_APP">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="RAT"/>
+        <tns:Field Field="SUBCR"/>
+        <tns:Field Field="TT_APP_CAT"/>
+        <tns:Field Field="DEVICE"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="RAT_SUBCR">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="SUBCR"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="APN_DEV_WEBCAT">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="APN"/>
+        <tns:Field Field="DEVICE"/>
+        <tns:Field Field="URL_CATEGORY"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="APN_DEV_APPCAT">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="APN"/>
+        <tns:Field Field="DEVICE"/>
+        <tns:Field Field="APP_CATEGORY"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="APN_DEV_TTCAT">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="APN"/>
+        <tns:Field Field="DEVICE"/>
+        <tns:Field Field="TT_APP_CAT"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="APN_RNC">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="APN"/>
+        <tns:Field Field="GGSN"/>
+        <tns:Field Field="SGSN"/>
+        <tns:Field Field="RNC"/>
+        <tns:Field Field="CELL_SECTOR"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="APN_SEG_URL">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="APN"/>
+        <tns:Field Field="URL_CATEGORY"/>
+        <tns:Field Field="SEGMENT"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="APN_SEG_APP">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="APN"/>
+        <tns:Field Field="APP_CATEGORY"/>
+        <tns:Field Field="SEGMENT"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="APN_SEG_TT_APP">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="APN"/>
+        <tns:Field Field="TT_APP_CAT"/>
+        <tns:Field Field="SEGMENT"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="APN_TT_APP">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="APN"/>
+        <tns:Field Field="TT_APP_CAT"/>
+        <tns:Field Field="TT_APP"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="APN_SUBCR_URL">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="APN"/>
+        <tns:Field Field="SUBCR"/>
+        <tns:Field Field="URL_CATEGORY"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="APN_SUBCR_APP">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="APN"/>
+        <tns:Field Field="SUBCR"/>
+        <tns:Field Field="APP_CATEGORY"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="APN_SUBCR_TT_APP">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="APN"/>
+        <tns:Field Field="SUBCR"/>
+        <tns:Field Field="TT_APP_CAT"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="APN_URL">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="APN"/>
+        <tns:Field Field="URL_CATEGORY"/>
+        <tns:Field Field="SP"/>
+        <tns:Field Field="APP_TYPE"/>
+    </tns:RefDimensionSet>
+
+    <tns:RefDimensionSet DimensionSetName="APN_APP">
+        <tns:Type>Dynamic</tns:Type>
+        <tns:Field Field="DC"/>
+        <tns:Field Field="APN"/>
+        <tns:Field Field="APP_CATEGORY"/>
+        <tns:Field Field="APP"/>
+    </tns:RefDimensionSet>
+
+    <!-- BINS BEGIN -->
+    <tns:Bins>
+        <tns:Name>60min</tns:Name>
+        <tns:BinType>SE</tns:BinType>
+        <tns:BinInterval>3600</tns:BinInterval>
+        <tns:AggregationInterval>86400</tns:AggregationInterval>
+        <tns:AggregationInterval>604800</tns:AggregationInterval>
+        <tns:AggregationInterval>2419200</tns:AggregationInterval>
+        <tns:FreezeInterval>43200</tns:FreezeInterval>
+        <tns:Cubes>
+            <tns:Name>ALL_DEV_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="ALL_DEV"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_RNC_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_RNC"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_RNC_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_RNC"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_RNC_FLOW_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_RNC"/>
+            <tns:Measure Measure="FLOW_COUNT"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_RNC_PEAK_FLOW_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_RNC"/>
+            <tns:Measure Measure="PEAK_FLOW_DUR"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_RNC_FLOW_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_RNC"/>
+            <tns:Measure Measure="FLOW_DURATION"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_RNC_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_RNC"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_RNC_CONC_FLOW</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_RNC"/>
+            <tns:Measure Measure="CONC_FLOW"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_RNC_SESSION_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_RNC"/>
+            <tns:Measure Measure="SESSION_COUNT"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_RNC_SESSION_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_RNC"/>
+            <tns:Measure Measure="SESSION_DUR"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_RNC_CONC_SESSION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_RNC"/>
+            <tns:Measure Measure="CONC_SESSION"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_URL_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_URL"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_URL_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_URL"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_URL_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_URL"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_URL_PEAK_HIT_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_URL"/>
+            <tns:Measure Measure="PEAK_HIT_DUR"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_URL_HIT_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_URL"/>
+            <tns:Measure Measure="HIT_DURATION"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_URL_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_URL"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_URL_CONC_HIT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_URL"/>
+            <tns:Measure Measure="CONC_HIT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_APP_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_APP"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_APP_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_APP"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_APP_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_APP"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_APP_PEAK_HIT_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_APP"/>
+            <tns:Measure Measure="PEAK_HIT_DUR"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_APP_HIT_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_APP"/>
+            <tns:Measure Measure="HIT_DURATION"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_APP_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_APP"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_APP_CONC_HIT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_APP"/>
+            <tns:Measure Measure="CONC_HIT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_TT_APP_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_TT_APP"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_TT_APP_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_TT_APP"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_TT_APP_FLOW_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_TT_APP"/>
+            <tns:Measure Measure="FLOW_COUNT"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_TT_APP_PEAK_FLOW_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_TT_APP"/>
+            <tns:Measure Measure="PEAK_FLOW_DUR"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_TT_APP_FLOW_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_TT_APP"/>
+            <tns:Measure Measure="FLOW_DURATION"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_TT_APP_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_TT_APP"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_DEV_TT_APP_CONC_FLOW</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_DEV_TT_APP"/>
+            <tns:Measure Measure="CONC_FLOW"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_FLOW_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV"/>
+            <tns:Measure Measure="FLOW_COUNT"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_PEAK_FLOW_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV"/>
+            <tns:Measure Measure="PEAK_FLOW_DUR"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_FLOW_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV"/>
+            <tns:Measure Measure="FLOW_DURATION"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_CONC_FLOW</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV"/>
+            <tns:Measure Measure="CONC_FLOW"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_URL_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_URL"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_URL_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_URL"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_URL_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_URL"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_URL_PEAK_HIT_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_URL"/>
+            <tns:Measure Measure="PEAK_HIT_DUR"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_URL_HIT_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_URL"/>
+            <tns:Measure Measure="HIT_DURATION"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_URL_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_URL"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_URL_CONC_HIT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_URL"/>
+            <tns:Measure Measure="CONC_HIT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_APP_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_APP"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_APP_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_APP"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_APP_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_APP"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_APP_PEAK_HIT_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_APP"/>
+            <tns:Measure Measure="PEAK_HIT_DUR"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_APP_HIT_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_APP"/>
+            <tns:Measure Measure="HIT_DURATION"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_APP_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_APP"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_APP_CONC_HIT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_APP"/>
+            <tns:Measure Measure="CONC_HIT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_TT_APP_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_TT_APP"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_TT_APP_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_TT_APP"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_TT_APP_FLOW_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_TT_APP"/>
+            <tns:Measure Measure="FLOW_COUNT"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_TT_APP_PEAK_FLOW_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_TT_APP"/>
+            <tns:Measure Measure="PEAK_FLOW_DUR"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_TT_APP_FLOW_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_TT_APP"/>
+            <tns:Measure Measure="FLOW_DURATION"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_TT_APP_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_TT_APP"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_TT_APP_CONC_FLOW</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_TT_APP"/>
+            <tns:Measure Measure="CONC_FLOW"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_TT_APP_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_TT_APP"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_TT_APP_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_TT_APP"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_TT_APP_FLOW_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_TT_APP"/>
+            <tns:Measure Measure="FLOW_COUNT"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_TT_APP_PEAK_FLOW_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_TT_APP"/>
+            <tns:Measure Measure="PEAK_FLOW_DUR"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_TT_APP_FLOW_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_TT_APP"/>
+            <tns:Measure Measure="FLOW_DURATION"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_TT_APP_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_TT_APP"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_DEV_TT_APP_CONC_FLOW</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_DEV_TT_APP"/>
+            <tns:Measure Measure="CONC_FLOW"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_URL_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_URL"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_URL_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_URL"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_URL_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_URL"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_URL_PEAK_HIT_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_URL"/>
+            <tns:Measure Measure="PEAK_HIT_DUR"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_URL_HIT_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_URL"/>
+            <tns:Measure Measure="HIT_DURATION"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_URL_CONC_HIT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_URL"/>
+            <tns:Measure Measure="CONC_HIT"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DEV_URL_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_DEV_URL"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DEV_URL_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_DEV_URL"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DEV_URL_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_DEV_URL"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DEV_URL_PEAK_HIT_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_DEV_URL"/>
+            <tns:Measure Measure="PEAK_HIT_DUR"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DEV_URL_HIT_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_DEV_URL"/>
+            <tns:Measure Measure="HIT_DURATION"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DEV_URL_CONC_HIT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_DEV_URL"/>
+            <tns:Measure Measure="CONC_HIT"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_APP_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_APP"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_APP_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_APP"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_APP_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_APP"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_APP_PEAK_HIT_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_APP"/>
+            <tns:Measure Measure="PEAK_HIT_DUR"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_APP_HIT_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_APP"/>
+            <tns:Measure Measure="HIT_DURATION"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_APP_CONC_HIT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_APP"/>
+            <tns:Measure Measure="CONC_HIT"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_TT_APP_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_TT_APP"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="NONHTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_TT_APP_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_TT_APP"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="NONHTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_TT_APP_FLOW_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_TT_APP"/>
+            <tns:Measure Measure="FLOW_COUNT"/>
+            <tns:Filter Filter="NONHTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_TT_APP_PEAK_FLOW_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_TT_APP"/>
+            <tns:Measure Measure="PEAK_FLOW_DUR"/>
+            <tns:Filter Filter="NONHTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_TT_APP_FLOW_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_TT_APP"/>
+            <tns:Measure Measure="FLOW_DURATION"/>
+            <tns:Filter Filter="NONHTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_TT_APP_CONC_FLOW</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_TT_APP"/>
+            <tns:Measure Measure="CONC_FLOW"/>
+            <tns:Filter Filter="NONHTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DEV_APP_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_DEV_APP"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DEV_APP_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_DEV_APP"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DEV_APP_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_DEV_APP"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DEV_APP_PEAK_HIT_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_DEV_APP"/>
+            <tns:Measure Measure="PEAK_HIT_DUR"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DEV_APP_HIT_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_DEV_APP"/>
+            <tns:Measure Measure="HIT_DURATION"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DEV_APP_CONC_HIT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_DEV_APP"/>
+            <tns:Measure Measure="CONC_HIT"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_URL_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_URL"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_URL_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_URL"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_URL_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_URL"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_URL_PEAK_HIT_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_URL"/>
+            <tns:Measure Measure="PEAK_HIT_DUR"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_URL_HIT_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_URL"/>
+            <tns:Measure Measure="HIT_DURATION"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_URL_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_URL"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_URL_CONC_HIT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_URL"/>
+            <tns:Measure Measure="CONC_HIT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_APP_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_APP"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_APP_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_APP"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_APP_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_APP"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_APP_PEAK_HIT_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_APP"/>
+            <tns:Measure Measure="PEAK_HIT_DUR"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_APP_HIT_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_APP"/>
+            <tns:Measure Measure="HIT_DURATION"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_APP_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_APP"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SEG_APP_CONC_HIT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SEG_APP"/>
+            <tns:Measure Measure="CONC_HIT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DEV_TT_APP_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_DEV_TT_APP"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="NONHTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DEV_TT_APP_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_DEV_TT_APP"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="NONHTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DEV_TT_APP_FLOW_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_DEV_TT_APP"/>
+            <tns:Measure Measure="FLOW_COUNT"/>
+            <tns:Filter Filter="NONHTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DEV_TT_APP_PEAK_FLOW_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_DEV_TT_APP"/>
+            <tns:Measure Measure="PEAK_FLOW_DUR"/>
+            <tns:Filter Filter="NONHTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DEV_TT_APP_FLOW_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_DEV_TT_APP"/>
+            <tns:Measure Measure="FLOW_DURATION"/>
+            <tns:Filter Filter="NONHTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DEV_TT_APP_CONC_FLOW</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR_DEV_TT_APP"/>
+            <tns:Measure Measure="CONC_FLOW"/>
+            <tns:Filter Filter="NONHTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="NoneSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="NoneSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_FLOW_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR"/>
+            <tns:Measure Measure="FLOW_COUNT"/>
+            <tns:Filter Filter="NoneSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_PEAK_FLOW_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR"/>
+            <tns:Measure Measure="PEAK_FLOW_DUR"/>
+            <tns:Filter Filter="NoneSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_FLOW_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR"/>
+            <tns:Measure Measure="FLOW_DURATION"/>
+            <tns:Filter Filter="NoneSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>RAT_SUBCR_CONC_FLOW</tns:Name>
+            <tns:DimensionSet DimensionSet="RAT_SUBCR"/>
+            <tns:Measure Measure="CONC_FLOW"/>
+            <tns:Filter Filter="NoneSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_WEBCAT_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_WEBCAT"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_WEBCAT_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_WEBCAT"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_WEBCAT_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_WEBCAT"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_WEBCAT_PEAK_HIT_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_WEBCAT"/>
+            <tns:Measure Measure="PEAK_HIT_DUR"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_WEBCAT_HIT_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_WEBCAT"/>
+            <tns:Measure Measure="HIT_DURATION"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_WEBCAT_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_WEBCAT"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_WEBCAT_CONC_HIT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_WEBCAT"/>
+            <tns:Measure Measure="CONC_HIT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_APPCAT_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_APPCAT"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_APPCAT_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_APPCAT"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_APPCAT_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_APPCAT"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_APPCAT_PEAK_HIT_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_APPCAT"/>
+            <tns:Measure Measure="PEAK_HIT_DUR"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_APPCAT_HIT_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_APPCAT"/>
+            <tns:Measure Measure="HIT_DURATION"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_APPCAT_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_APPCAT"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_APPCAT_CONC_HIT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_APPCAT"/>
+            <tns:Measure Measure="CONC_HIT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_TTCAT_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_TTCAT"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_TTCAT_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_TTCAT"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_TTCAT_FLOW_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_TTCAT"/>
+            <tns:Measure Measure="FLOW_COUNT"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_TTCAT_PEAK_FLOW_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_TTCAT"/>
+            <tns:Measure Measure="PEAK_FLOW_DUR"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_TTCAT_FLOW_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_TTCAT"/>
+            <tns:Measure Measure="FLOW_DURATION"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_TTCAT_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_TTCAT"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_DEV_TTCAT_CONC_FLOW</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_DEV_TTCAT"/>
+            <tns:Measure Measure="CONC_FLOW"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_RNC_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_RNC"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_RNC_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_RNC"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_RNC_FLOW_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_RNC"/>
+            <tns:Measure Measure="FLOW_COUNT"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_RNC_PEAK_FLOW_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_RNC"/>
+            <tns:Measure Measure="PEAK_FLOW_DUR"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_RNC_FLOW_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_RNC"/>
+            <tns:Measure Measure="FLOW_DURATION"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_RNC_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_RNC"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_RNC_CONC_FLOW</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_RNC"/>
+            <tns:Measure Measure="CONC_FLOW"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_RNC_SESSION_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_RNC"/>
+            <tns:Measure Measure="SESSION_COUNT"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_RNC_SESSION_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_RNC"/>
+            <tns:Measure Measure="SESSION_DUR"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_RNC_CONC_SESSION</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_RNC"/>
+            <tns:Measure Measure="CONC_SESSION"/>
+            <tns:Filter Filter="None"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_URL_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_URL"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_URL_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_URL"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_URL_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_URL"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_URL_PEAK_HIT_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_URL"/>
+            <tns:Measure Measure="PEAK_HIT_DUR"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_URL_HIT_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_URL"/>
+            <tns:Measure Measure="HIT_DURATION"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_URL_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_URL"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_URL_CONC_HIT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_URL"/>
+            <tns:Measure Measure="CONC_HIT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_APP_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_APP"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_APP_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_APP"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_APP_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_APP"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_APP_PEAK_HIT_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_APP"/>
+            <tns:Measure Measure="PEAK_HIT_DUR"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_APP_HIT_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_APP"/>
+            <tns:Measure Measure="HIT_DURATION"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_APP_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_APP"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_APP_CONC_HIT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_APP"/>
+            <tns:Measure Measure="CONC_HIT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_TT_APP_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_TT_APP"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_TT_APP_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_TT_APP"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_TT_APP_FLOW_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_TT_APP"/>
+            <tns:Measure Measure="FLOW_COUNT"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_TT_APP_PEAK_FLOW_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_TT_APP"/>
+            <tns:Measure Measure="PEAK_FLOW_DUR"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_TT_APP_FLOW_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_TT_APP"/>
+            <tns:Measure Measure="FLOW_DURATION"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_TT_APP_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_TT_APP"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SEG_TT_APP_CONC_FLOW</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SEG_TT_APP"/>
+            <tns:Measure Measure="CONC_FLOW"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_TT_APP_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_TT_APP"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_TT_APP_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_TT_APP"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_TT_APP_FLOW_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_TT_APP"/>
+            <tns:Measure Measure="FLOW_COUNT"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_TT_APP_PEAK_FLOW_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_TT_APP"/>
+            <tns:Measure Measure="PEAK_FLOW_DUR"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_TT_APP_FLOW_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_TT_APP"/>
+            <tns:Measure Measure="FLOW_DURATION"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_TT_APP_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_TT_APP"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_TT_APP_CONC_FLOW</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_TT_APP"/>
+            <tns:Measure Measure="CONC_FLOW"/>
+            <tns:Filter Filter="NONHTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SUBCR_URL_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SUBCR_URL"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SUBCR_URL_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SUBCR_URL"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SUBCR_URL_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SUBCR_URL"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SUBCR_URL_PEAK_HIT_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SUBCR_URL"/>
+            <tns:Measure Measure="PEAK_HIT_DUR"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SUBCR_URL_HIT_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SUBCR_URL"/>
+            <tns:Measure Measure="HIT_DURATION"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SUBCR_URL_CONC_HIT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SUBCR_URL"/>
+            <tns:Measure Measure="CONC_HIT"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SUBCR_APP_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SUBCR_APP"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SUBCR_APP_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SUBCR_APP"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SUBCR_APP_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SUBCR_APP"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SUBCR_APP_PEAK_HIT_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SUBCR_APP"/>
+            <tns:Measure Measure="PEAK_HIT_DUR"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SUBCR_APP_HIT_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SUBCR_APP"/>
+            <tns:Measure Measure="HIT_DURATION"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SUBCR_APP_CONC_HIT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SUBCR_APP"/>
+            <tns:Measure Measure="CONC_HIT"/>
+            <tns:Filter Filter="HTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SUBCR_TT_APP_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SUBCR_TT_APP"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="NONHTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SUBCR_TT_APP_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SUBCR_TT_APP"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="NONHTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SUBCR_TT_APP_FLOW_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SUBCR_TT_APP"/>
+            <tns:Measure Measure="FLOW_COUNT"/>
+            <tns:Filter Filter="NONHTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SUBCR_TT_APP_PEAK_FLOW_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SUBCR_TT_APP"/>
+            <tns:Measure Measure="PEAK_FLOW_DUR"/>
+            <tns:Filter Filter="NONHTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SUBCR_TT_APP_FLOW_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SUBCR_TT_APP"/>
+            <tns:Measure Measure="FLOW_DURATION"/>
+            <tns:Filter Filter="NONHTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_SUBCR_TT_APP_CONC_FLOW</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_SUBCR_TT_APP"/>
+            <tns:Measure Measure="CONC_FLOW"/>
+            <tns:Filter Filter="NONHTTPSUBCR"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_URL_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_URL"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_URL_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_URL"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_URL_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_URL"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_URL_PEAK_HIT_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_URL"/>
+            <tns:Measure Measure="PEAK_HIT_DUR"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_URL_HIT_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_URL"/>
+            <tns:Measure Measure="HIT_DURATION"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_URL_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_URL"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_URL_CONC_HIT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_URL"/>
+            <tns:Measure Measure="CONC_HIT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_APP_DOWN_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_APP"/>
+            <tns:Measure Measure="DOWN_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_APP_UP_BYTES</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_APP"/>
+            <tns:Measure Measure="UP_BYTES"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_APP_HIT_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_APP"/>
+            <tns:Measure Measure="HIT_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_APP_PEAK_HIT_DUR</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_APP"/>
+            <tns:Measure Measure="PEAK_HIT_DUR"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_APP_HIT_DURATION</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_APP"/>
+            <tns:Measure Measure="HIT_DURATION"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_APP_SUBCR_COUNT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_APP"/>
+            <tns:Measure Measure="SUBCR_COUNT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+        <tns:Cubes>
+            <tns:Name>APN_APP_CONC_HIT</tns:Name>
+            <tns:DimensionSet DimensionSet="APN_APP"/>
+            <tns:Measure Measure="CONC_HIT"/>
+            <tns:Filter Filter="HTTP"/>
+        </tns:Cubes>
+    </tns:Bins>
+</tns:CubeDef>
