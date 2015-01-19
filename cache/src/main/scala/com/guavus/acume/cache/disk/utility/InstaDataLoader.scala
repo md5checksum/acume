@@ -45,12 +45,12 @@ class InstaDataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCach
       val endTime = Utility.getNextTimeFromGranularity(levelTimestamp.timestamp, levelTimestamp.level.localId, Utility.newCalendar)
       val dimSet = getBestCubeName(businessCube, levelTimestamp.timestamp, endTime)
       val fields = CubeUtil.getCubeFields(businessCube)
-      val dimensionFilters = (dimSet.dimensions).map(x => {
-        if (fields.contains(x))
-          1
-        else
-          0
-      }) ++ dimSet.measures.map(x => 0)
+//      val dimensionFilters = (dimSet.dimensions).map(x => {
+//        if (fields.contains(x))
+//          1
+//        else
+//          0
+//      }) ++ dimSet.measures.map(x => 0)
 
       val measureFilters = (dimSet.dimensions ++ dimSet.measures).map(x => {
         if (fields.contains(x))

@@ -11,6 +11,7 @@ import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.core.AcumeCache
 import java.util.concurrent.ConcurrentHashMap
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 
 /**
  * @author archit.thakur
@@ -51,7 +52,7 @@ object DataLoader{
     
     val dataLoaderClass = StorageType.getStorageType(conf.get(ConfConstants.storagetype)).dataClass
     val loadedClass = Class.forName(dataLoaderClass)
-    val newInstance = loadedClass.getConstructor(classOf[AcumeCacheContext], classOf[AcumeCacheConf], classOf[AcumeCache]).newInstance(acumeCacheContext, conf, acumeCache)
+    val newInstance = loadedClass.getConstructor(classOf[AcumeCacheContextTrait], classOf[AcumeCacheConf], classOf[AcumeCache]).newInstance(acumeCacheContext, conf, acumeCache)
     newInstance.asInstanceOf[DataLoader]
   }
 }
