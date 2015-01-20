@@ -28,7 +28,7 @@
     <Cubes>
         <Cube>
           <Info>
-            searchEgressPeerCube
+            searchEgressPeerCube, 60min
           </Info>
             <Fields>
 				DC, DEVICE, HIT_COUNT

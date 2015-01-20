@@ -24,19 +24,19 @@ trait AcumeCacheContextTrait extends Serializable {
   private [acume] def cacheSqlContext() : SQLContext
   
   def getFirstBinPersistedTime(binSource : String) : Long =  {
-		  throw new NoSuchMethodException("Method not present")
+    throw new NoSuchMethodException("Method not present")
   }
   
   def getLastBinPersistedTime(binSource : String) : Long =  {
-		  throw new NoSuchMethodException("Method not present")
+    throw new NoSuchMethodException("Method not present")
   }
   
   def getBinSourceToIntervalMap(binSource : String) : Map[Long, (Long,Long)] =  {
-		  throw new NoSuchMethodException("Method not present")
+    throw new NoSuchMethodException("Method not present")
   }
   
   def getAllBinSourceToIntervalMap() : Map[String, Map[Long, (Long,Long)]] =  {
-		  throw new NoSuchMethodException("Method not present")
+    throw new NoSuchMethodException("Method not present")
   }
 }
 

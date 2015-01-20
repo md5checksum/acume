@@ -20,19 +20,19 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 abstract class DataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, acumeCache: AcumeCache) extends Serializable {
 
   def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable): Tuple2[SchemaRDD, String]
-  def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable, instabase: String, instainstanceid: String): Tuple2[SchemaRDD, String] 
+  def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable, instabase: String, instainstanceid: String): Tuple2[SchemaRDD, String]
   //This should be removed and things like instabase and instanceid should be retrieviable from MetaDataLoader for better code designing.
   
   def getFirstBinPersistedTime(binSource : String) : Long =  {
-		  throw new NoSuchMethodException("Method not present")
+    throw new NoSuchMethodException("Method not present")
   }
   
   def getLastBinPersistedTime(binSource : String) : Long =  {
-		  throw new NoSuchMethodException("Method not present")
+    throw new NoSuchMethodException("Method not present")
   }
   
   def getBinSourceToIntervalMap(binSource : String) : Map[Long, (Long,Long)] =  {
-		  throw new NoSuchMethodException("Method not present")
+    throw new NoSuchMethodException("Method not present")
   }
 
   def getAllBinSourceToIntervalMap(): Map[String,Map[Long, (Long, Long)]] = {
@@ -41,25 +41,24 @@ abstract class DataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: Acume
 
 }
 
-object DataLoader{
+object DataLoader {
   private val metadataMap = new ConcurrentHashMap[AcumeCache, DataLoadedMetadata]
-  
-  private [cache] def getMetadata(key: AcumeCache) = metadataMap.get(key)
-  private [cache] def putMetadata(key: AcumeCache, value: DataLoadedMetadata) = metadataMap.put(key, value)
-  private [cache] def getOrElseInsert(key: AcumeCache, defaultValue: DataLoadedMetadata): DataLoadedMetadata = {
-    
-    if(getMetadata(key) == null) {
+
+  private[cache] def getMetadata(key: AcumeCache) = metadataMap.get(key)
+  private[cache] def putMetadata(key: AcumeCache, value: DataLoadedMetadata) = metadataMap.put(key, value)
+  private[cache] def getOrElseInsert(key: AcumeCache, defaultValue: DataLoadedMetadata): DataLoadedMetadata = {
+
+    if (getMetadata(key) == null) {
 
       putMetadata(key, defaultValue)
       defaultValue
-    }
-    else
+    } else
       getMetadata(key)
   }
 
-  private [cache] def getOrElseMetadata(key: AcumeCache, defaultValue: DataLoadedMetadata): DataLoadedMetadata = {
-    
-    if(getMetadata(key) == null)
+  private[cache] def getOrElseMetadata(key: AcumeCache, defaultValue: DataLoadedMetadata): DataLoadedMetadata = {
+
+    if (getMetadata(key) == null)
       defaultValue
     else
       getMetadata(key)

@@ -47,19 +47,10 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
   Utility.init(conf)
+  val dataLoader: DataLoader = DataLoader.getDataLoader(this, conf, null)
   
   def cacheConf() = conf
-  
   def cacheSqlContext() = sqlContext
-
-  var dataLoader: DataLoader = null
-  
-  
-  
-  def init() {
-    dataLoader = DataLoader.getDataLoader(this, conf, null)
-
-  }
 
   override def getFirstBinPersistedTime(binSource: String): Long = {
     dataLoader.getFirstBinPersistedTime(binSource)
@@ -170,13 +161,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     rrCacheLoader.getRdd((sql, ql))
   }
   
-//  private [acume] def getFieldsForCube(name: String) = {
-      
-//    val cube_binsource = defaultPropertyMap.getOrElse(ConfConstants.binsource, throw new RuntimeException("Determination of Fields for Cube is not possible without knowing bin source for it."))
-//    val cube = cubeMap.getOrElse(CubeKey(name, cube_binsource), throw new RuntimeException(s"Cube $name Not in AcumeCache knowledge."))
-//    cube.dimension.dimensionSet.map(_.getName) ++ cube.measure.measureSet.map(_.getName)
-//  }
-  
   private [acume] def getFieldsForCube(name: String, binsource: String) = {
       
     val cube = cubeMap.getOrElse(CubeKey(name, binsource), throw new RuntimeException(s"Cube $name Not in AcumeCache knowledge."))
@@ -216,8 +200,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   private [workflow] def loadBaseXML(filedir: String) = {
   }
-  init()
-  
 }
 
 object AcumeCacheContext{
