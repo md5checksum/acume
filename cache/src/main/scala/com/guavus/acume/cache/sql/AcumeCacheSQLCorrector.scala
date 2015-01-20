@@ -81,10 +81,13 @@ class AcumeCacheSQLCorrector extends ISqlCorrector {
         if (e2.isInstanceOf[Column] && e2.asInstanceOf[Column].getColumnName.equalsIgnoreCase("binsource") ||
           e3.isInstanceOf[Column] && e3.asInstanceOf[Column].getColumnName.equalsIgnoreCase("binsource")) {
           true
-        } else if(e2.isInstanceOf[Column] && e2.asInstanceOf[Column].getColumnName.equalsIgnoreCase("RUBIX_CACHE_COMPRESSION_INTERVAL") ||
-          e3.isInstanceOf[Column] && e3.asInstanceOf[Column].getColumnName.equalsIgnoreCase("RUBIX_CACHE_COMPRESSION_INTERVAL")) {
+        } else if(e2.isInstanceOf[Column] && e2.asInstanceOf[Column].getColumnName.equalsIgnoreCase("RUBIX_CACHE_COMPRESSION_INTERVAL")){
+          queryoptionalParams.setTimeSeriesGranularity(e3.asInstanceOf[StringValue].getValue.toLong)
+          true
+        } 
+        else if(e3.isInstanceOf[Column] && e3.asInstanceOf[Column].getColumnName.equalsIgnoreCase("RUBIX_CACHE_COMPRESSION_INTERVAL")) {
           queryoptionalParams.setTimeSeriesGranularity(e2.asInstanceOf[StringValue].getValue.toLong)
-            true
+          true
         } else { 
           false
         }
