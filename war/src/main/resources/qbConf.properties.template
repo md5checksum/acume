@@ -1,0 +1,20 @@
+qb.processors.Growth=com.guavus.qb.processor.GrowthProcessor
+qb.processors.SingleParamGrowth=com.guavus.qb.processor.SingleParamGrowthProcessor
+qb.processors.Percentabc=com.guavus.qb.processor.PercentProcessor
+
+qb.function.derivedmeasure.growth_TTS_B=Growth(TTS_B, Off_net_B)
+qb.function.derivedmeasure.singleparamgrowth_TTS_B=SingleParamGrowth(TTS_B)
+qb.function.derivedmeasure.percent_TTS_B=Percentabc(TTS_B)
+qb.function.derivedmeasure.percent_percent_TTS_B = Percentabc(percent_TTS_B)
+qb.function.derivedmeasure.percent_percent_percent_TTS_B = Percentabc(percent_percent_TTS_B)
+qb.function.derivedmeasure.percent_Off_net_B=Percentabc(Off_net_B)
+qb.function.derivedmeasure.growth_percent_TTS_B = Growth(percent_TTS_B, Off_net_B)
+qb.function.derivedmeasure.max_ttsb = max(TTS_B)
+
+qb.function.deriveddimension.derived_Ingress=ascii(Ingressas)
+qb.function.deriveddimension.derived_Egress=ascii(Egressas)
+qb.function.deriveddimension.derived_trim_Ingressas=trim(Ingressas)
+
+qb.userdefined.max=aggregate
+qb.userdefined.ascii=nonaggregate
+qb.userdefined.trim=nonaggregate
