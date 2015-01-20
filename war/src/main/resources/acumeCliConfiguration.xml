@@ -1052,11 +1052,63 @@ Please don't use the following reserved property names:
             </targets>
         </property>
 
-        <property>
+		 <property>
             <name>acumeCoreAppConfig</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[com.guavus.acume.core.configuration.AcumeAppConfig]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>cacheschedulerpolicy</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.acume.core.scheduler.VariableGranularitySchedulerPolicy]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+         <property>
+            <name>acumebinsource</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[default]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>cachedbname</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[default]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>corequeryengine</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[acume]]></default>
             <targets>
                 <target>
                     <file><![CDATA[acume.conf]]></file>

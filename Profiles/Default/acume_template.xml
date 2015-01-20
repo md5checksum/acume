@@ -387,6 +387,34 @@
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheDeleteLastBinPersistedTime</Property_OriginalName>
         </Property>
+         <Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cacheschedulerpolicy</Property_Name>
+            <Property_Value>com.guavus.acume.core.scheduler.VariableGranularitySchedulerPolicy</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheschedulerpolicy</Property_OriginalName>
+        </Property>
+         <Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.acumebinsource</Property_Name>
+            <Property_Value>default</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.acumebinsource</Property_OriginalName>
+        </Property>
+         <Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cachedbname</Property_Name>
+            <Property_Value>default</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cachedbname</Property_OriginalName>
+        </Property>
+         <Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.corequeryengine</Property_Name>
+            <Property_Value>acume</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.corequeryengine</Property_OriginalName>
+        </Property>
         <Property>
             <Property_Name>Acume Instance: &gt;</Property_Name>
         </Property>
