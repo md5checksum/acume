@@ -21,6 +21,8 @@ import scala.collection.mutable.HashMap
 import com.guavus.acume.core.configuration.ConfigFactory
 //import com.guavus.acume.core.AcumeContextTrait
 //import com.guavus.acume.core.DummyContext
+import com.guavus.qb.conf.QBConf
+import com.guavus.qb.services.QueryBuilderService
 
 object QueryRequestPrefetchTaskManager {
 
@@ -36,13 +38,14 @@ object QueryRequestPrefetchTaskManager {
   
 //  def main(args: Array[String]) {
 //    
-//    val querybuilderservice = new DummyQueryBuilderService
+//	  val querybuilder = new DummyQueryBuilderSchema
+//    val querybuilderservice = new QueryBuilderService(querybuilder, new QBConf)
 //    val acumeContext: AcumeContextTrait = new DummyContext
 //    val dataservice = new DataService(List(querybuilderservice), acumeContext)
 //    
-//    val querybuilder = new DummyQueryBuilderSchema
 //    
 //    val acumeconf = new AcumeConf(true, this.getClass.getResourceAsStream("/acume.conf"))
+//	  acumeconf.set("acume.core.global.timezone", "GMT")
 ////    acumeconf.set
 //    
 //    val acumeservice = new AcumeService(dataservice);
@@ -57,14 +60,14 @@ object QueryRequestPrefetchTaskManager {
 //  }
 }
 
-class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService, @BeanProperty schemas: List[QueryBuilderSchema], acumeConf : AcumeConf, acumeService : AcumeService, schedulerPolicy : ISchedulerPolicy) {
+class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService, @BeanProperty schemas: List[QueryBuilderSchema], acumeConf : AcumeConf, acumeService : AcumeService, schedulerPolicy : ISchedulerPolicy, controller : Controller) {
 
   val logger = LoggerFactory.getLogger(classOf[QueryRequestPrefetchTaskManager])
   private var consumerCombinerThreadPool: ExecutorService = _
   private var consumerThreadPool: ExecutorService = _
   private var producerThreadPool: ScheduledExecutorService = Executors.newScheduledThreadPool(QueryRequestPrefetchTaskManager.MAX_TASK_PRODUCERS, new NamedThreadPoolFactory("PrefetchTaskProducer"))
   private var scheduledFuture: ScheduledFuture[_] = _
-  private var queryPrefetchTaskProducer: QueryPrefetchTaskProducer = new QueryPrefetchTaskProducer(acumeConf, schemas, this, dataService, acumeService, false, schedulerPolicy)
+  private var queryPrefetchTaskProducer: QueryPrefetchTaskProducer = new QueryPrefetchTaskProducer(acumeConf, schemas, this, dataService, acumeService, false, schedulerPolicy, controller)
 
   @BeanProperty
   var binSourceToCacheAvailability: HashMap[String, HashMap[Long, Interval]] = new HashMap[String, HashMap[Long, Interval]]()

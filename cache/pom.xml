@@ -81,8 +81,8 @@
 			<version>platform5.0</version>
                 </dependency>
 		<dependency>
-                        <groupId>com.guavus</groupId>
-                        <artifactId>insta2.0</artifactId>
+                        <groupId>com.guavus.insta</groupId>
+                        <artifactId>insta-api</artifactId>
 			<version>platform5.0</version>
                 </dependency>
 		<dependency>

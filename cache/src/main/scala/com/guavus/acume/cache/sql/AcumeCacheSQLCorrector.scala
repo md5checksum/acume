@@ -1,6 +1,7 @@
 package com.guavus.acume.cache.sql
 
 import com.guavus.acume.cache.utility.Tuple
+import com.guavus.acume.cache.utility.QueryOptionalParam
 import com.guavus.acume.cache.workflow.RequestType._
 import net.sf.jsqlparser.expression.operators.conditional._
 import net.sf.jsqlparser.expression.operators.relational._
@@ -18,6 +19,7 @@ import net.sf.jsqlparser.statement.select.PlainSelect
 
 object AcumeCacheSQLCorrector {
   def main(args: Array[String]) {
+    val queryoptionalParams = new QueryOptionalParam()
     val sql = List("Select * from x where (binsource = 10 and xz=42) or y=z and fkd>10 and dg>24",
         "Select * from x where (binsource = 10 and xz=42 or y=z) and fkd>10 and dg>24",
         "Select * from x where binsource = 10 and (xz=42 or y=z) and fkd>10 and dg>24",
@@ -33,15 +35,17 @@ object AcumeCacheSQLCorrector {
       val ex2 = AcumeCacheCorrectorExpression(y.asInstanceOf[Select].getSelectBody.asInstanceOf[PlainSelect].getWhere)
       println(y.asInstanceOf[Select].getSelectBody.asInstanceOf[PlainSelect].toString)
       println("original => " + ex1)
-      j123.edit(ex1, ex2)
+      j123.edit(ex1, ex2, queryoptionalParams)
       println(ex1)
     })
   }
 }
 case class AcumeCacheCorrectorExpression(var expression: Expression)
 class AcumeCacheSQLCorrector extends ISqlCorrector {
+  
 
-  override def correctSQL(unparsedsql: String, parsedsql: Tuple2[List[Tuple], RequestType]): (String, (List[Tuple], RequestType)) = {
+  override def correctSQL(unparsedsql: String, parsedsql: Tuple2[List[Tuple], RequestType]): ((String, QueryOptionalParam), (List[Tuple], RequestType)) = {
+	  val queryoptionalParams = new QueryOptionalParam()
 
     val sql = SQLParserFactory.getParserManager()
     val sql_statement = sql.parse(new StringReader(unparsedsql))
@@ -49,7 +53,7 @@ class AcumeCacheSQLCorrector extends ISqlCorrector {
     val sql_where = plainselect.getWhere
     val expression = AcumeCacheCorrectorExpression(sql_where)
     
-    edit(expression, expression)
+    edit(expression, expression, queryoptionalParams)
     plainselect.setWhere(expression.expression)
     
     val newunparsedsql = plainselect.toString.replaceAll("\"", "")
@@ -64,10 +68,10 @@ class AcumeCacheSQLCorrector extends ISqlCorrector {
       newtuple.set(x.getStartTime, x.getEndTime, newtablename, x.getBinsource)
       newtuple
     }), parsedsql._2)
-    (newunparsedsql, newparsedsql)
+    ((newunparsedsql, queryoptionalParams), newparsedsql)
   }
 
-  def edit(parentExpression: AcumeCacheCorrectorExpression, expression: AcumeCacheCorrectorExpression): Boolean = {
+  def edit(parentExpression: AcumeCacheCorrectorExpression, expression: AcumeCacheCorrectorExpression, queryoptionalParams : QueryOptionalParam): Boolean = {
 
     def checkNode(expression3: Expression) = {
       if (expression3.isInstanceOf[EqualsTo]) {
@@ -77,7 +81,14 @@ class AcumeCacheSQLCorrector extends ISqlCorrector {
         if (e2.isInstanceOf[Column] && e2.asInstanceOf[Column].getColumnName.equalsIgnoreCase("binsource") ||
           e3.isInstanceOf[Column] && e3.asInstanceOf[Column].getColumnName.equalsIgnoreCase("binsource")) {
           true
-        } else {
+        } else if(e2.isInstanceOf[Column] && e2.asInstanceOf[Column].getColumnName.equalsIgnoreCase("RUBIX_CACHE_COMPRESSION_INTERVAL")){
+          queryoptionalParams.setTimeSeriesGranularity(e3.asInstanceOf[StringValue].getValue.toLong)
+          true
+        } 
+        else if(e3.isInstanceOf[Column] && e3.asInstanceOf[Column].getColumnName.equalsIgnoreCase("RUBIX_CACHE_COMPRESSION_INTERVAL")) {
+          queryoptionalParams.setTimeSeriesGranularity(e2.asInstanceOf[StringValue].getValue.toLong)
+          true
+        } else { 
           false
         }
       } else false
@@ -114,7 +125,7 @@ class AcumeCacheSQLCorrector extends ISqlCorrector {
           //        edit(parentExpression, AcumeCacheCorrectorExpression(expression))}
         }
       }
-      edit(expression, AcumeCacheCorrectorExpression(expression.expression.asInstanceOf[Parenthesis].getExpression))
+      edit(expression, AcumeCacheCorrectorExpression(expression.expression.asInstanceOf[Parenthesis].getExpression), queryoptionalParams)
       false
 
     } else if (expression.expression.isInstanceOf[AndExpression]) {
@@ -175,8 +186,8 @@ class AcumeCacheSQLCorrector extends ISqlCorrector {
         }
       }
 
-      edit(expression, AcumeCacheCorrectorExpression(andE.getLeftExpression))
-      edit(expression, AcumeCacheCorrectorExpression(andE.getRightExpression))
+      edit(expression, AcumeCacheCorrectorExpression(andE.getLeftExpression), queryoptionalParams)
+      edit(expression, AcumeCacheCorrectorExpression(andE.getRightExpression), queryoptionalParams)
 
       false
     } else if (expression.expression.isInstanceOf[OrExpression]) {
@@ -231,8 +242,8 @@ class AcumeCacheSQLCorrector extends ISqlCorrector {
           expression.expression = leftE
         }
       }
-      edit(expression, AcumeCacheCorrectorExpression(orE.getLeftExpression))
-      edit(expression, AcumeCacheCorrectorExpression(orE.getRightExpression))
+      edit(expression, AcumeCacheCorrectorExpression(orE.getLeftExpression), queryoptionalParams)
+      edit(expression, AcumeCacheCorrectorExpression(orE.getRightExpression), queryoptionalParams)
       false
     }
     false

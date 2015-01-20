@@ -611,7 +611,7 @@
 
     <!-- BINS BEGIN -->
     <tns:Bins>
-        <tns:Name>60min</tns:Name>
+        <tns:Name>__DEFAULT_BINSRC__</tns:Name>
         <tns:BinType>SE</tns:BinType>
         <tns:BinInterval>3600</tns:BinInterval>
         <tns:AggregationInterval>86400</tns:AggregationInterval>

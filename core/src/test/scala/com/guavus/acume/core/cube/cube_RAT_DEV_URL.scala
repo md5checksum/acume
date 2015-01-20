@@ -27,6 +27,7 @@ class cube_RAT_DEV_URL extends ICube {
     fieldList.add(new Field(FieldType.MEASURE, FieldType.MEASURE, new java.lang.Integer(0), "HIT_COUNT", "SUM"))
     fieldList.add(new Field(FieldType.MEASURE, FieldType.MEASURE, new java.lang.Integer(0), "HIT_DURATION", "SUM"))
     fieldList.add(new Field(FieldType.MEASURE, FieldType.MEASURE, new java.lang.Integer(0), "PEAK_HIT_DUR", "SUM"))
+    fieldList.add(new Field(FieldType.DIMENSION, FieldType.DIMENSION, new java.lang.Long(0), "ts", ""))
     fieldList
   }
   

@@ -45,7 +45,7 @@ object QueryPrefetchTaskProducer {
 
 }
 
-class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schemas : List[QueryBuilderSchema], private var taskManager: QueryRequestPrefetchTaskManager, private var dataService: DataService, acumeService : AcumeService, saveRequests : Boolean, policy : ISchedulerPolicy) extends Runnable {
+class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schemas : List[QueryBuilderSchema], private var taskManager: QueryRequestPrefetchTaskManager, private var dataService: DataService, acumeService : AcumeService, saveRequests : Boolean, policy : ISchedulerPolicy, controller : Controller) extends Runnable {
 
   private val lastCacheUpdateTimeMap: HashMap[String, HashMap[PrefetchCubeConfiguration, Long]] = new HashMap[String, HashMap[PrefetchCubeConfiguration, Long]]()
 
@@ -170,7 +170,7 @@ class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schemas : List[QueryBuild
         isFirstRun = true
       }
       val combinerSet = new java.util.TreeSet[QueryPrefetchTaskCombiner]()
-      var binSourcesToIntervalsMap = Controller.getInstaTimeInterval
+      var binSourcesToIntervalsMap = controller.getInstaTimeInterval
       val binSourceToCubeConfigurations = cubeLocator.getPrefetchCubeConfigurations
       if (logger.isDebugEnabled) {
         logger.debug("prefetch cube configuration is==>" + binSourceToCubeConfigurations)
@@ -182,7 +182,7 @@ class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schemas : List[QueryBuild
           tempLastCacheUpdateTimeMap.put(key, cubeConfigurationToCacheTime)
         }
         if (!isFirstRun) {
-          binSourcesToIntervalsMap = Controller.getInstaTimeInterval
+          binSourcesToIntervalsMap = controller.getInstaTimeInterval
         }
         val intervalMap = binSourcesToIntervalsMap.get(key).getOrElse({throw new IllegalStateException("StartTime for binsource " + key + " can not be null")})
 //          var cubeConfigurationToCacheTime = binSourceToCacheTime.get(key).getOrElse({null})
@@ -196,7 +196,7 @@ class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schemas : List[QueryBuild
           val map = new java.util.TreeMap[Long, QueryPrefetchTaskCombiner]()
           var tempEndTime = getNextEndTime(startTime, endTime)
           while (startTime < endTime) {
-            val combiner = new QueryPrefetchTaskCombiner(isFirstRun, taskManager, version, acumeConf, acumeService)
+            val combiner = new QueryPrefetchTaskCombiner(isFirstRun, taskManager, version, acumeConf, acumeService, controller)
             for (prefetchCubeConfiguration <- value) {
               val lastCacheUpdatedTime = cubeConfigurationToCacheTime.get(prefetchCubeConfiguration).getOrElse({null}).asInstanceOf[Long]
               if (lastCacheUpdatedTime != null && lastCacheUpdatedTime != 0 && tempEndTime < lastCacheUpdatedTime) {

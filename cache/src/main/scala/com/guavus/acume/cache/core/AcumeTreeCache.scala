@@ -53,7 +53,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
       StructField(field.getName, ConversionToSpark.convertToSparkDataType(CubeUtil.getFieldType(field)), true)
     })
   val latestschema = StructType(StructField("id", LongType, true) +: schema.toList)
-  Utility.getEmptySchemaRDD(acumeCacheContext.cacheSqlContext, latestschema).registerTempTable(dimensionTable.tblnm)
+  acumeCacheContext.cacheSqlContext.registerRDDAsTable(Utility.getEmptySchemaRDD(acumeCacheContext.cacheSqlContext, latestschema), dimensionTable.tblnm)
         
   override def createTempTable(startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
     requestType match {
@@ -140,7 +140,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     }
     else { 
       
-      Utility.getEmptySchemaRDD(acumeCacheContext.sqlContext, cube).registerTempTable(tableName)
+      acumeCacheContext.cacheSqlContext.registerRDDAsTable(Utility.getEmptySchemaRDD(acumeCacheContext.sqlContext, cube), tableName)
       MetaData(-1, Nil)
     }
   }

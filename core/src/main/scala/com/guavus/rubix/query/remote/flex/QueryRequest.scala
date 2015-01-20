@@ -309,6 +309,9 @@ class QueryRequest extends Serializable {
       return ""
     }
     var sql = " "
+    if(responseFilters == null) {
+    	return sql
+    }
     for (nameValue <- responseFilters) {
       sql += nameValue.toSql() + " AND "
     }

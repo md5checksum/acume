@@ -47,10 +47,26 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
   Utility.init(conf)
+  val dataLoader: DataLoader = DataLoader.getDataLoader(this, conf, null)
   
   def cacheConf() = conf
+  def cacheSqlContext() = sqlContext
+
+  override def getFirstBinPersistedTime(binSource: String): Long = {
+    dataLoader.getFirstBinPersistedTime(binSource)
+  }
+
+  override def getLastBinPersistedTime(binSource: String): Long = {
+    dataLoader.getLastBinPersistedTime(binSource)
+  }
+
+  override def getBinSourceToIntervalMap(binSource: String): Map[Long, (Long, Long)] = {
+    dataLoader.getBinSourceToIntervalMap(binSource)
+  }
   
-  def cacheSqlContext() = sqlContext 
+  override def getAllBinSourceToIntervalMap() : Map[String, Map[Long, (Long,Long)]] =  {
+		dataLoader.getAllBinSourceToIntervalMap
+  }
  
   @transient
   val rrCacheLoader = Class.forName(conf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]
@@ -92,7 +108,8 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     
     println("AcumeRequest obtained " + sql)
     var correctsql = ISqlCorrector.getSQLCorrector(conf).correctSQL(sql, (originalparsedsql._1.toList, originalparsedsql._2))
-    var updatedsql = correctsql._1
+    var updatedsql = correctsql._1._1
+    val queryOptionalParams = correctsql._1._2
     var updatedparsedsql = correctsql._2
     
     val rt = updatedparsedsql._2
@@ -116,7 +133,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       val idd = new CacheIdentifier()
       idd.put("cube", id.hashCode)
       val instance = AcumeCacheFactory.getInstance(this, conf, idd, id)
-      val temp = instance.createTempTableAndMetadata(startTime, endTime, rt, i,None)
+      val temp = instance.createTempTableAndMetadata(startTime, endTime, rt, i,Some(queryOptionalParams))
       temp
     }
     val klist = list.flatMap(_.timestamps).toList
@@ -144,13 +161,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   def executeQl(sql : String, ql : QLType.QLType) = {
     rrCacheLoader.getRdd((sql, ql))
   }
-  
-//  private [acume] def getFieldsForCube(name: String) = {
-      
-//    val cube_binsource = defaultPropertyMap.getOrElse(ConfConstants.binsource, throw new RuntimeException("Determination of Fields for Cube is not possible without knowing bin source for it."))
-//    val cube = cubeMap.getOrElse(CubeKey(name, cube_binsource), throw new RuntimeException(s"Cube $name Not in AcumeCache knowledge."))
-//    cube.dimension.dimensionSet.map(_.getName) ++ cube.measure.measureSet.map(_.getName)
-//  }
   
   private [acume] def getFieldsForCube(name: String, binsource: String) = {
       
@@ -191,7 +201,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   private [workflow] def loadBaseXML(filedir: String) = {
   }
-  
 }
 
 object AcumeCacheContext{
