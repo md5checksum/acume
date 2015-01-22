@@ -31,9 +31,9 @@ import com.guavus.insta.BinPersistTimeInfoRequest
 
 class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @transient  conf: AcumeCacheConf, @transient acumeCache: AcumeCache) extends DataLoader(acumeCacheContext, conf, null) {
 
-  @transient  var insta: Insta = null
+  @transient var insta: Insta = null
   @transient val sqlContext = acumeCacheContext.cacheSqlContext
-  @transient  var cubeList: List[InstaCubeMetaInfo] = null
+  @transient var cubeList: List[InstaCubeMetaInfo] = null
   init
   
   def init() {
@@ -235,9 +235,6 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
     val newInstance = loadedClass.getConstructor(classOf[AcumeCacheContext], classOf[AcumeCacheConf], classOf[AcumeCache]).newInstance(acumeCacheContext, conf, acumeCache)
     newInstance.asInstanceOf[DataLoader]
   }
-  
-  
-  
   override def getFirstBinPersistedTime(binSource : String) : Long =  {
 		  insta.getFirstBinPersistedTime(new BinPersistTimeInfoRequest(binSource, -1))
   }
@@ -253,8 +250,6 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
   override def getAllBinSourceToIntervalMap() : Map[String,Map[Long, (Long,Long)]] =  {
 		  insta.getAllBinPersistedTimes
   }
-
-
 }
 
 case class Vector(val data: Array[Long]) extends Serializable{}

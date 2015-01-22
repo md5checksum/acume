@@ -47,7 +47,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
   Utility.init(conf)
-  val dataLoader: DataLoader = DataLoader.getDataLoader(this, conf, null)
   
   def cacheConf() = conf
   def cacheSqlContext() = sqlContext
@@ -71,6 +70,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   @transient
   val rrCacheLoader = Class.forName(conf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]
   private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
+  val dataLoader: DataLoader = DataLoader.getDataLoader(this, conf, null)
   private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
   private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
   private [cache] val baseCubeMap = new HashMap[CubeKey, BaseCube]
