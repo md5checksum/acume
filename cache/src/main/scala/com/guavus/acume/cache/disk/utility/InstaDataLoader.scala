@@ -48,6 +48,12 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
       val endTime = Utility.getNextTimeFromGranularity(levelTimestamp.timestamp, levelTimestamp.level.localId, Utility.newCalendar)
       val dimSet = getBestCubeName(businessCube, levelTimestamp.timestamp, endTime)
       val fields = CubeUtil.getCubeFields(businessCube)
+      val baseFields = CubeUtil.getCubeBaseFields(businessCube)
+      var i = -1;
+      val baseFieldToAcumeFieldMap = Map[String, String]() ++ (for(acumeField <- fields) yield {
+    	 i+=1
+        baseFields(i) -> acumeField
+      })
 //      val dimensionFilters = (dimSet.dimensions).map(x => {
 //        if (fields.contains(x))
 //          1
@@ -56,7 +62,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
 //      }) ++ dimSet.measures.map(x => 0)
 
       val measureFilters = (dimSet.dimensions ++ dimSet.measures).map(x => {
-        if (fields.contains(x))
+        if (baseFields.contains(x))
           1
         else
           0
@@ -67,8 +73,14 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
         print("Firing aggregate query on insta "  + instaMeasuresRequest)
       val aggregatedMeasureDataInsta = insta.getAggregatedData(instaMeasuresRequest)
       val dtnm = dTableName.tblnm
+      val aggregatedTblTemp = "aggregatedMeasureDataInstaTemp" + levelTimestamp.level + "_" + levelTimestamp.timestamp
+      sqlContext.registerRDDAsTable(aggregatedMeasureDataInsta, aggregatedTblTemp)
+      //change schema for this schema rdd
+      val renameToAcumeFields = (for(baseFieldName <- aggregatedMeasureDataInsta.schema.fieldNames) yield {
+        baseFieldName-> baseFieldToAcumeFieldMap.get(baseFieldName).get
+      }).map(x => x._1 + " as " + x._2).mkString(",")
       val aggregatedTbl = "aggregatedMeasureDataInsta" + levelTimestamp.level + "_" + levelTimestamp.timestamp
-      sqlContext.registerRDDAsTable(aggregatedMeasureDataInsta, aggregatedTbl)
+      sqlContext.registerRDDAsTable(sqlContext.sql(s"select $renameToAcumeFields from $aggregatedTblTemp"), aggregatedTbl) 
       
 
       val selectField = dtnm + ".id, " +  CubeUtil.getCubeFields(businessCube).map(aggregatedTbl+ "." + _).mkString(",")
@@ -186,7 +198,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
           }
         }
       }
-      if (isValidCubeGran && cube.binSource == businessCube.binsource && CubeUtil.getCubeFields(businessCube).toSet.subsetOf((cube.dimensions ++ cube.measures).toSet)) {
+      if (isValidCubeGran && cube.binSource == businessCube.binsource && CubeUtil.getCubeBaseFields(businessCube).toSet.subsetOf((cube.dimensions ++ cube.measures).toSet)) {
         if (bestCube == null) {
           bestCube = cube
         } else {

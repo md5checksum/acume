@@ -123,10 +123,10 @@ object ParquetDataConvertor {
     
     val jc = JAXBContext.newInstance("com.guavus.acume.cache.gen")
     val unmarsh = jc.createUnmarshaller()
-    val dim_id = new Dimension("id", DataType.ACLong, 0)
-    val dim_ts = new Dimension("timestamp", DataType.ACLong, 0)
-    val m_id = new Measure("tupleid", DataType.ACLong, "none", 0)
-    val m_ts = new Measure("ts", DataType.ACLong, "none", 0)
+    val dim_id = new Dimension("id","id", DataType.ACLong, 0)
+    val dim_ts = new Dimension("timestamp","timestamp", DataType.ACLong, 0)
+    val m_id = new Measure("tupleid","tupleid", DataType.ACLong, "none", 0)
+    val m_ts = new Measure("ts","ts", DataType.ACLong, "none", 0)
     val acumeCube = unmarsh.unmarshal(new FileInputStream(xml)).asInstanceOf[Acume]
    
     for(lx <- acumeCube.getFields().getField().toList) { 
@@ -138,9 +138,9 @@ object ParquetDataConvertor {
       val functionName = if(info.length<4) "none" else info(3).trim	
       fitype match{
         case FieldType.Dimension => 
-          dimensionMap.put(name.trim, new Dimension(name, datatype, 0))
+          dimensionMap.put(name.trim, new Dimension(name, name, datatype, 0))
         case FieldType.Measure => 
-          measureMap.put(name.trim, new Measure(name, datatype, functionName, 0 ))
+          measureMap.put(name.trim, new Measure(name, name, datatype, functionName, 0 ))
       }
     }
     

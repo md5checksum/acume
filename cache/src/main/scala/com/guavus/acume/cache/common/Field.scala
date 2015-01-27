@@ -7,9 +7,10 @@ import com.guavus.acume.cache.common.DataType._
  * @author archit.thakur
  *
  */
-trait Field extends Serializable {
+abstract class Field(baseFieldName : String) extends Serializable {
 
   def getName: String
+  def getBaseFieldName: String = baseFieldName
   def getDataType: DataType
   def getDefaultValue: Any
   def getFieldType: FieldType

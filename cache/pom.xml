@@ -59,6 +59,26 @@
 			<artifactId>jsqlparser</artifactId>
 			<version>0.9</version>
 		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>9.2-1002-jdbc4</version>
+		</dependency>
+		<dependency>
+            <groupId>com.guavus</groupId>
+            <artifactId>search</artifactId>
+            <version>0.1-SNAPSHOT</version>
+            <exclusions>
+                 <exclusion>
+                      <groupId>org.apache.hive</groupId>
+                      <artifactId>hive-exec</artifactId>
+                 </exclusion>
+                 <exclusion>
+                      <groupId>com.guavus</groupId>
+                      <artifactId>crux</artifactId>
+                  </exclusion>
+            </exclusions>
+        </dependency>
 		<dependency> <!-- Spark dependency -->
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-core_2.10</artifactId>

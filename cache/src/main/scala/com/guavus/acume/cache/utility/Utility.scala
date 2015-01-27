@@ -300,10 +300,13 @@ object Utility extends Logging {
     for(lx <- acumeCube.getFields().getField().toList) { 
 
       val info = lx.getInfo.split(",")
+      var baseFieldName = lx.getBaseFieldName();
       if(info.length != 5)
         throw new RuntimeException("Incorrect fieldInfo in cubedefiniton.xml")
       
       val name = info(0).trim
+      if(baseFieldName == null)
+        baseFieldName = name
       val datatype = DataType.getDataType(info(1).trim)
       val fitype = FieldType.getFieldType(info(2).trim)
       val functionName = info(3).trim
@@ -328,9 +331,9 @@ object Utility extends Logging {
       
       fitype match{
         case FieldType.Dimension => 
-          dimensionMap.put(name.trim, new Dimension(name, datatype, defaultVal))
+          dimensionMap.put(name.trim, new Dimension(name, baseFieldName, datatype, defaultVal))
         case FieldType.Measure => 
-          measureMap.put(name.trim, new Measure(name, datatype, functionName, defaultVal))
+          measureMap.put(name.trim, new Measure(name, baseFieldName, datatype, functionName, defaultVal))
       }
     }
     acumeCube

@@ -36,6 +36,8 @@ object CubeUtil {
   
   def getCubeFields(cube: CubeTrait) = cube.superDimension.dimensionSet.map(_.getName) ++ cube.superMeasure.measureSet.map(_.getName)
   
+  def getCubeBaseFields(cube: CubeTrait) = cube.superDimension.dimensionSet.map(_.getBaseFieldName) ++ cube.superMeasure.measureSet.map(_.getBaseFieldName)
+  
   def getLevel(level: LevelTimestamp) = {
     
     //This should be moved inside metadataloader implementations.
