@@ -9,6 +9,7 @@
                 <xs:complexType>
                   <xs:sequence>
                     <xs:element type="xs:string" name="Info"/>
+                    <xs:element type="xs:string" name="baseFieldName" minOccurs="0" maxOccurs="1"/>
                     <xs:element name="AnnotationFunction">
                       <xs:complexType>
                         <xs:sequence>
