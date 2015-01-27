@@ -39,7 +39,7 @@ class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: InputStream) 
   setDefault
 
   if (loadSystemPropertyOverDefault) {
-    for ((k, v) <- System.getProperties.asScala if k.toLowerCase.startsWith("acume.cache.")) {
+    for ((k, v) <- System.getProperties.asScala if k.toLowerCase.startsWith("acume.")) {
       settings(k) = v.trim
     }
   }

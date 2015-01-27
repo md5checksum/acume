@@ -2,15 +2,12 @@ package com.guavus.acume.cache.workflow
 
 import java.io.StringReader
 import java.util.Random
-
 import scala.Array.canBuildFrom
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
-
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.BaseCube
@@ -28,7 +25,6 @@ import com.guavus.acume.cache.utility.SQLParserFactory
 import com.guavus.acume.cache.utility.SQLUtility
 import com.guavus.acume.cache.utility.Tuple
 import com.guavus.acume.cache.utility.Utility
-
 import net.sf.jsqlparser.expression.Expression
 import net.sf.jsqlparser.expression.Parenthesis
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression
@@ -37,6 +33,8 @@ import net.sf.jsqlparser.expression.operators.relational.EqualsTo
 import net.sf.jsqlparser.schema.Column
 import net.sf.jsqlparser.statement.select.PlainSelect
 import net.sf.jsqlparser.statement.select.Select
+import java.util.concurrent.ConcurrentHashMap
+import com.guavus.acume.cache.disk.utility.DataLoader
 
 /**
  * @author archit.thakur
@@ -48,11 +46,31 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   case sqlContext: SQLContext => 
   case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
+  Utility.init(conf)
   
   def cacheConf() = conf
+  def cacheSqlContext() = sqlContext
+
+  override def getFirstBinPersistedTime(binSource: String): Long = {
+    dataLoader.getFirstBinPersistedTime(binSource)
+  }
+
+  override def getLastBinPersistedTime(binSource: String): Long = {
+    dataLoader.getLastBinPersistedTime(binSource)
+  }
+
+  override def getBinSourceToIntervalMap(binSource: String): Map[Long, (Long, Long)] = {
+    dataLoader.getBinSourceToIntervalMap(binSource)
+  }
+  
+  override def getAllBinSourceToIntervalMap() : Map[String, Map[Long, (Long,Long)]] =  {
+		dataLoader.getAllBinSourceToIntervalMap
+  }
  
   @transient
   val rrCacheLoader = Class.forName(conf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]
+  private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
+  val dataLoader: DataLoader = DataLoader.getDataLoader(this, conf, null)
   private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
   private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
   private [cache] val baseCubeMap = new HashMap[CubeKey, BaseCube]
@@ -144,13 +162,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     rrCacheLoader.getRdd((sql, ql))
   }
   
-//  private [acume] def getFieldsForCube(name: String) = {
-      
-//    val cube_binsource = defaultPropertyMap.getOrElse(ConfConstants.binsource, throw new RuntimeException("Determination of Fields for Cube is not possible without knowing bin source for it."))
-//    val cube = cubeMap.getOrElse(CubeKey(name, cube_binsource), throw new RuntimeException(s"Cube $name Not in AcumeCache knowledge."))
-//    cube.dimension.dimensionSet.map(_.getName) ++ cube.measure.measureSet.map(_.getName)
-//  }
-  
   private [acume] def getFieldsForCube(name: String, binsource: String) = {
       
     val cube = cubeMap.getOrElse(CubeKey(name, binsource), throw new RuntimeException(s"Cube $name Not in AcumeCache knowledge."))
@@ -190,7 +201,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   private [workflow] def loadBaseXML(filedir: String) = {
   }
-  
 }
 
 object AcumeCacheContext{

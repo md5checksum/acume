@@ -305,6 +305,9 @@ class QueryRequest extends Serializable {
   }
 
   protected def calculateResponseFilters(): String = {
+    if(responseFilters == null) {
+      return ""
+    }
     var sql = " "
     if(responseFilters == null) {
     	return sql

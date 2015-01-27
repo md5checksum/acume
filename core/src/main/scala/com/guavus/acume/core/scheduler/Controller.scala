@@ -2,27 +2,28 @@ package com.guavus.acume.core.scheduler
 
 import com.guavus.acume.cache.core.Interval
 import scala.collection.immutable.HashMap
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 
-object Controller {
+case class Controller(acumeCacheContextTrait : AcumeCacheContextTrait) {
 
-  val hashmap = Map[String, Map[Long, Interval]](
-      ("default" -> Map[Long, Interval](3600l -> new Interval(3600l, 2*86400l),-1l -> new Interval(3600l, 2*86400l))),
-      ("default123" -> Map[Long, Interval](86400l -> new Interval(0l, 86400l), -1l -> new Interval(3600l, 86400l)))
-      )
   
   def getFirstBinPersistedTime(binSource : String) : Long = {
-    hashmap.getOrElse(binSource, throw new RuntimeException("not found")).getOrElse(-1, throw new RuntimeException("not fond.")).getStartTime
+    acumeCacheContextTrait.getFirstBinPersistedTime(binSource)
   }
   
-  def getRubixTimeIntervalForBinSource(binSource : String) : Map[Long, Interval] = {
-    hashmap.getOrElse(binSource, throw new RuntimeException("not found"))
-  }
+//  def getRubixTimeIntervalForBinSource(binSource : String) : Map[Long, Interval] = {
+//    hashmap.getOrElse(binSource, throw new RuntimeException("not found"))
+//  }
   
-  def getInstaTimeIntervalForBinSource(binSource : String) : Map[Long, Interval] = {
-    hashmap.getOrElse(binSource, throw new RuntimeException("not found"))
+  def getInstaTimeIntervalForBinSource(binSource : String) : Map[Long, (Long, Long)] = {
+    acumeCacheContextTrait.getBinSourceToIntervalMap(binSource)
   }
   
   def getInstaTimeInterval() : Map[String, Map[Long, Interval]] = {
-    hashmap
+	acumeCacheContextTrait.getAllBinSourceToIntervalMap.map(x => {
+	  (x._1 , x._2.map(y => {
+	    (y._1, new Interval(y._2._1, y._2._1))
+	  }))
+	})
   }
 }

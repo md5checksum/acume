@@ -30,13 +30,15 @@ import org.apache.spark.sql.SchemaRDD
 import com.guavus.acume.cache.common.DimensionTable
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 
 /**
  * @author archit.thakur
  *
  */
-abstract class BasicDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache) extends DataLoader(acumeCacheContext, conf, acumeCache) { 
+abstract class BasicDataLoader(acumeCacheContextTrait: AcumeCacheContextTrait, conf: AcumeCacheConf, acumeCache: AcumeCache) extends DataLoader(acumeCacheContextTrait, conf, acumeCache) { 
   
+  val acumeCacheContext = acumeCacheContextTrait.asInstanceOf[AcumeCacheContext]
   val logger: Logger = LoggerFactory.getLogger(classOf[BasicDataLoader])
   val cube = acumeCache.cube
   override def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, DTableName: DimensionTable) = { 

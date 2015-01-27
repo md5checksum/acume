@@ -42,6 +42,7 @@ private [acume] object ConfConstants {
   val firstbinpersistedtime = "acume.cache.delete.firstbinpersistedtime"
   val lastbinpersistedtime = "acume.cache.delete.lastbinpersistedtime"
   val completelist = "acume.cache.delete.completelist"
+  val backendDbName = "acume.cache.backend.dbname"
     
 }
 

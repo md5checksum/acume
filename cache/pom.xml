@@ -76,6 +76,16 @@
 			</exclusions>
 		</dependency>
 		<dependency>
+                        <groupId>ps</groupId>
+                        <artifactId>CubeXMLManager</artifactId>
+			<version>platform5.0</version>
+                </dependency>
+		<dependency>
+                        <groupId>com.guavus.insta</groupId>
+                        <artifactId>insta-api</artifactId>
+			<version>platform5.0</version>
+                </dependency>
+		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-sql_2.10</artifactId>
 			<version>1.2.0</version>

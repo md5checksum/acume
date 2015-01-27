@@ -1,0 +1,41 @@
+<Acume>
+    <Fields>
+      <Field>
+      <Info>
+      DC,int,dimension,none,0
+      </Info>
+      </Field>
+      
+      <Field>
+      <Info>
+      DEVICE,int,dimension,none,0
+      </Info>
+      </Field>
+      
+      <Field>
+      <Info>
+      HIT_COUNT,double,measure,sum,0
+      </Info>
+      </Field>
+    </Fields>
+    <!--
+    Annotation function in Field, 
+    aggregation function in Cube.
+    -->
+    <Default>
+        levelpolicymap: 1h:53, timeserieslevelpolicymap: 1h:53, binsource: __DEFAULT_BINSRC__
+    </Default>
+    <Cubes>
+        <Cube>
+          <Info>
+            searchEgressPeerCube, 60min
+          </Info>
+            <Fields>
+				DC, DEVICE, HIT_COUNT
+            </Fields>
+            <Properties>
+                basegranularity:1h, cubetype:normal, levelpolicymap:1h:53, timeserieslevelpolicymap:1h:720, evictionpolicyclass: com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy   
+            </Properties>
+        </Cube>
+    </Cubes>
+</Acume>
