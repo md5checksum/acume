@@ -2,6 +2,7 @@
 package com.guavus.acume.cache.core
 
 import scala.Array.canBuildFrom
+import scala.util.control.Breaks._
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable.{Map => MutableMap}
 import scala.collection.mutable.MutableList
@@ -35,6 +36,8 @@ import com.guavus.acume.cache.disk.utility.CubeUtil
 import org.apache.spark.sql.StructField
 import com.guavus.acume.cache.common.ConversionToSpark
 import org.apache.spark.sql.catalyst.types.LongType
+import com.guavus.rubix.cache.util.CacheUtils
+import org.apache.spark.rdd.EmptyRDD
 
 /**
  * @author archit.thakur
@@ -73,7 +76,38 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
   .build(
       new CacheLoader[LevelTimestamp, AcumeTreeCacheValue]() {
         def load(key: LevelTimestamp): AcumeTreeCacheValue = {
-          return getData(key);
+          //First check if point can be populated through children
+          var schema: StructType = null
+          breakable {
+            var rdds = for (child <- cacheLevelPolicy.getChildrenIntervals(key.timestamp, key.level.localId)) yield {
+              val outputRdd = CacheUtils.getCachedElement.get(key).getOrElse(break).asInstanceOf[AcumeTreeCacheValue].measureschemardd
+              schema = outputRdd.schema
+              outputRdd
+            }
+            if (schema != null) {
+              val emptyRdd = acumeCacheContext.cacheSqlContext.applySchema(acumeCacheContext.cacheSqlContext.sparkContext.emptyRDD[Row].map(x => x), schema)
+
+              val _tableName = cube.cubeName + key.level.toString + key.timestamp.toString
+
+              val value = rdds.foldLeft(emptyRdd) { (result, current) =>
+                acumeCacheContext.cacheSqlContext.applySchema(current.union(result), current.schema)
+              }
+              
+              import acumeCacheContext.sqlContext._
+              value.registerTempTable(_tableName)
+              
+              cacheTable(_tableName)
+              //aggregate over measures after union
+              
+              val selectMeasures = CubeUtil.getMeasureSet(cube).map(x=> x.getAggregationFunction + "(" + x.getName + ")").mkString(",")
+              acumeCacheContext.sqlContext.sql("select count(*) from (select tupleid, " + key.timestamp + " as ts, " + selectMeasures + " from " + _tableName + " group by id)").collect
+              return new AcumeTreeCacheValue(dimensionTable.tblnm, _tableName, value)
+            }
+          }
+          if (key.loadFromBackend)
+            return getData(key);
+          else
+            throw new IllegalArgumentException("Couldnt populate parent point " + key + " from child points")
         }
       });
   
@@ -166,8 +200,40 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
   
   private def getUniqueRandomeNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt)
   
+  private def populateParent(childlevel : Long, childTimestamp : Long) {
+    val parentSiblingMap = cacheLevelPolicy.getParentSiblingMap(childlevel, childTimestamp)
+    for ((parent, children) <- parentSiblingMap) {
+      val parentTimestamp = Utility.floorFromGranularity(childTimestamp, parent)
+      val parentPoint = cachePointToTable.getIfPresent(new LevelTimestamp(CacheLevel.getCacheLevel(parent), parentTimestamp))
+      if (parentPoint == null) {
+        var shouldPopulateParent = true
+        breakable {
+          for (child <- children) {
+            val childData = cachePointToTable.getIfPresent(new LevelTimestamp(CacheLevel.getCacheLevel(childlevel), child))
+            if (childData == null) {
+              shouldPopulateParent = false
+              break
+            } else {
+              CacheUtils.getCachedElement.put(new LevelTimestamp(CacheLevel.getCacheLevel(childlevel), child), childData)
+            }
+          }
+        }
+        if (shouldPopulateParent) {
+          val parentData = cachePointToTable.get(new LevelTimestamp(CacheLevel.getCacheLevel(parent), parentTimestamp, false))
+          CacheUtils.getCachedElement.put(new LevelTimestamp(CacheLevel.getCacheLevel(parent), parentTimestamp), parentData)
+          notifyObserverList
+          populateParent(parent, Utility.floorFromGranularity(childTimestamp, parent))
+        }
+
+      }
+    }
+  }
+  
+  
   private def buildTableForIntervals(levelTimestampMap: MutableMap[Long, MutableList[Long]], tableName: String, isMetaData: Boolean): MetaData = {
     import acumeCacheContext.sqlContext._
+    CacheUtils.setCachedElement(scala.collection.mutable.Map[Any, Any]())
+    try {
     val timestamps: MutableList[Long] = MutableList[Long]()
     var finalSchema = null.asInstanceOf[StructType]
     val x = getCubeName(tableName)
@@ -178,8 +244,10 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
         timestamps.+=(item)
         val levelTimestamp = LevelTimestamp(cachelevel, item)
         val acumeTreeCacheValue = cachePointToTable.get(levelTimestamp)
-        val diskread = acumeTreeCacheValue.measureschemardd
         notifyObserverList
+        //check if its parent can be populated
+        populateParent(levelTimestamp.level.localId, levelTimestamp.timestamp)
+        val diskread = acumeTreeCacheValue.measureschemardd
         finalSchema = diskread.schema
         val _$diskread = diskread        
         _$diskread
@@ -200,5 +268,8 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
     }
     val klist = timestamps.toList
     MetaData(-1, klist)
+    } finally {
+      CacheUtils.setCachedElement(null)
+    }
   }
 }
