@@ -30,6 +30,15 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
+            <name>runOnlyOnMaster</name>
+            <type>basic</type>
+            <help><![CDATA[ - Run only on master node]]></help>
+            <default><![CDATA[true]]></default>
+            <targets>
+            </targets>
+        </property>
+
+        <property>
             <name>acumeSparkPropertyLocation</name>
             <type>basic</type>
             <help><![CDATA[ - Acume Spark Property Location]]></help>
@@ -340,6 +349,7 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
+
         <property>
             <name>L2CacheClusterName</name>
             <help><![CDATA[ - Unique cluster name, used by L2 cache jgroup]]></help>
