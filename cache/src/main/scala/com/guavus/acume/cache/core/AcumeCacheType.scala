@@ -55,6 +55,7 @@ object AcumeCacheType extends Enumeration {
     conf123.set("acume.core.global.timezone", "GMT")
     conf123.set(ConfConstants.backendDbName, "default")
     conf123.set(ConfConstants.cubedefinitionxml,"src/test/resources/muralinstacubedefinition.xml")
+    conf123.set(ConfConstants.acumecorebinsource, "__DEFAULT_BINSRC__")
     
     val cntxt = new com.guavus.acume.cache.workflow.AcumeCacheContext(sqlContext, conf123)
 //    cntxt.acql("select egressruleid from searchEgressPeerCube where ts >=1384750800 and ts <1384758000")

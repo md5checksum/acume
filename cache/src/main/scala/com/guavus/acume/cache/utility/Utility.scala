@@ -339,24 +339,19 @@ object Utility extends Logging {
     acumeCube
   }
   
-  def loadXML(xml: String, globalbinsource: String, dimensionMap : InsensitiveStringKeyHashMap[Dimension], measureMap : InsensitiveStringKeyHashMap[Measure],
-    cubeMap : HashMap[CubeKey, Cube], defaultPropertyMap : HashMap[String, String], cubeList : MutableList[Cube]) = { 
+  def loadXML(conf: AcumeCacheConf, dimensionMap : InsensitiveStringKeyHashMap[Dimension], measureMap : InsensitiveStringKeyHashMap[Measure],
+    cubeMap : HashMap[CubeKey, Cube], cubeList : MutableList[Cube]) = { 
     
+    val xml: String = conf.get(ConfConstants.businesscubexml) 
+    val globalbinsource: String = conf.get(ConfConstants.acumecorebinsource)
     val acumeCube = unmarshalXML(xml, dimensionMap, measureMap)
-    
-    val defaultPropertyTuple = acumeCube.getDefault.split(",").map(in => {
-          val i = in.indexOf(":")
-          (in.substring(0, i).trim, in.substring(i+1, in.length).trim)
-        })
-        
-    defaultPropertyMap.++=(defaultPropertyTuple.toMap)
-    
+
     val list = 
       for(c <- acumeCube.getCubes().getCube().toList) yield {
         val cubeinfo = c.getInfo().trim.split(",")
         val (cubeName, cubebinsource) = 
           if(cubeinfo.length == 1) {
-            val _$binning = defaultPropertyMap.getOrElse(ConfConstants.binsource, globalbinsource)
+            val _$binning = globalbinsource
             if(_$binning.isEmpty) throw new RuntimeException("binsource for the cube " + cubeinfo + " cannot be determined.")
             (cubeinfo(0).trim, _$binning)
           }
@@ -395,11 +390,11 @@ object Utility extends Logging {
         })
         val propertyMap = _$propertyMap.toMap
         
-        val levelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, defaultPropertyMap.toMap, ConfConstants.levelpolicymap, cubeName))
-        val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, defaultPropertyMap.toMap, ConfConstants.timeserieslevelpolicymap, cubeName))
-        val Gnx = getProperty(propertyMap, defaultPropertyMap.toMap, ConfConstants.basegranularity, cubeName)
+        val levelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.levelpolicymap, ConfConstants.acumecorelevelmap, conf, cubeName))
+        val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.timeserieslevelpolicymap, ConfConstants.acumecoretimeserieslevelmap, conf, cubeName))
+        val Gnx = getProperty(propertyMap, ConfConstants.basegranularity, ConfConstants.acumeglobalbasegranularity, conf, cubeName)
         val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
-        val _$eviction = Class.forName(getProperty(propertyMap, defaultPropertyMap.toMap, ConfConstants.evictionpolicyforcube, cubeName)).asSubclass(classOf[EvictionPolicy])
+        val _$eviction = Class.forName(getProperty(propertyMap, ConfConstants.evictionpolicyforcube, ConfConstants.acumeglobalevictionpolicycube, conf, cubeName)).asSubclass(classOf[EvictionPolicy])
         val cube = Cube(cubeName, cubebinsource, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), granularity, true, levelpolicymap, timeserieslevelpolicymap, _$eviction)
         cubeMap.put(CubeKey(cubeName, cubebinsource), cube)
         cube
@@ -407,8 +402,8 @@ object Utility extends Logging {
     cubeList.++=(list)
   }
   
-   private def getProperty(propertyMap: Map[String, String], defaultPropertyMap: Map[String, String], name: String, nmCube: String) = {
-    propertyMap.getOrElse(name, defaultPropertyMap.getOrElse(name, throw new RuntimeException(s"The configurtion $name should be done for cube $nmCube")))
+   private def getProperty(propertyMap: Map[String, String], name: String, globalname: String, conf: AcumeCacheConf, gnmCube: String) = {
+    propertyMap.getOrElse(name, conf.get(globalname, throw new RuntimeException(s"The configurtion $name should be done for cube $gnmCube")))
   }
   
 //  def getLevelPointMap1(mapString: String): SortedMap[Long, Integer] = {

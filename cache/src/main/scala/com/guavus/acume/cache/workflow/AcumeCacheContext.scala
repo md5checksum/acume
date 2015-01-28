@@ -76,11 +76,9 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   private [cache] val baseCubeMap = new HashMap[CubeKey, BaseCube]
   private [cache] val baseCubeList = MutableList[BaseCube]()
   private [cache] val cubeMap = new HashMap[CubeKey, Cube]
-  private val defaultPropertyMap = new HashMap[String, String]()
   private [cache] val cubeList = MutableList[Cube]()
 
-  Utility.loadXML(conf.get(ConfConstants.businesscubexml), conf.get(ConfConstants.acumecorebinsource, "") ,     
-      dimensionMap, measureMap, cubeMap, defaultPropertyMap, cubeList)
+  Utility.loadXML(conf, dimensionMap, measureMap, cubeMap, cubeList)
   loadXMLCube("")
   
   private [acume] def getCubeList = cubeList.toList
@@ -125,7 +123,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
         if(binsource != null)
           binsource
       else
-        defaultPropertyMap.getOrElse(ConfConstants.binsource, throw new RuntimeException("The value of Bin Source cannot be determined from query for cube. " + cube))
+        conf.get(ConfConstants.acumecorebinsource)
 
       i = AcumeCacheContext.getTable(cube)
       val id = getCube(CubeKey(cube, key_binsource))

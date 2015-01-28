@@ -26,18 +26,22 @@ private [acume] object ConfConstants {
   val instabase = "acume.cache.baselayer.instabase"
   val cubedefinitionxml = "acume.cache.baselayer.cubedefinitionxml"
   val qltype = "acume.cache.execute.qltype"
-  val evictionpolicyforcube = "evictionpolicyclass"
   val rrloader = "acume.cache.rrcache.loader"
   val acumecachesqlcorrector = "acume.cache.sql.corrector"
   val acumecachesqlparser = "acume.cache.sql.parser"
-    
-  val acumecorebinsource = "acume.core.global.binsource"
   
   val cubetype = "cubetype"
   val levelpolicymap = "levelpolicymap"
   val binsource = "binsource"
   val basegranularity = "basegranularity"
   val timeserieslevelpolicymap = "timeserieslevelpolicymap"
+  val evictionpolicyforcube = "evictionpolicyclass"
+    
+  val acumecorebinsource = "acume.core.global."+binsource
+  val acumecorelevelmap = "acume.core.global."+levelpolicymap
+  val acumecoretimeserieslevelmap = "acume.core.global."+timeserieslevelpolicymap
+  val acumeglobalbasegranularity = "acume.core.global."+basegranularity
+  val acumeglobalevictionpolicycube = "acume.core.global."+evictionpolicyforcube
   
   val firstbinpersistedtime = "acume.cache.delete.firstbinpersistedtime"
   val lastbinpersistedtime = "acume.cache.delete.lastbinpersistedtime"
