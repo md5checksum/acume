@@ -1,33 +1,35 @@
 package com.guavus.acume.cache.disk.utility
 
-import com.guavus.acume.cache.workflow.AcumeCacheContext
-import com.guavus.acume.cache.core.AcumeCache
-import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.common.LevelTimestamp
+import java.util.Arrays
+import java.util.concurrent.ConcurrentHashMap
+
+import scala.util.control.Breaks._
+
+import org.apache.spark.AccumulatorParam
+import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SchemaRDD
-import com.guavus.acume.cache.common.DimensionTable
-import com.guavus.acume.cache.common.Cube
-import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import org.apache.spark.sql.StructField
+import org.apache.spark.sql.StructType
+import org.apache.spark.sql.catalyst.expressions.GenericRow
+import org.apache.spark.sql.catalyst.expressions.Row
+import org.apache.spark.sql.catalyst.types.LongType
+
+import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.cache.common.ConversionToSpark
+import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.DimensionTable
+import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.core.AcumeCache
 import com.guavus.acume.cache.utility.Utility
+import com.guavus.acume.cache.workflow.AcumeCacheContext
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import com.guavus.insta.BinPersistTimeInfoRequest
+import com.guavus.insta.BinPersistTimeInfoRequest
 import com.guavus.insta.Insta
 import com.guavus.insta.InstaCubeMetaInfo
 import com.guavus.insta.InstaRequest
-import scala.util.control.Breaks._
-import java.util.Arrays
-import java.util.concurrent.ConcurrentHashMap
-import com.guavus.insta.BinPersistTimeInfoRequest
-import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
-import org.apache.spark.sql.StructField
-import org.apache.spark.sql.StructType
-import com.guavus.acume.cache.common.ConversionToSpark
-import org.apache.spark.sql.catalyst.types.LongType
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.catalyst.expressions.Row
-import org.apache.spark.sql.catalyst.expressions.GenericRow
-import scala.collection.mutable.ArrayBuffer
-import org.apache.spark.AccumulatorParam
-import com.guavus.insta.BinPersistTimeInfoRequest
 
 class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @transient  conf: AcumeCacheConf, @transient acumeCache: AcumeCache) extends DataLoader(acumeCacheContext, conf, null) {
 
@@ -66,6 +68,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
         businessCube.binsource, dimSet.cubeName, List(), measureFilters)
         print("Firing aggregate query on insta "  + instaMeasuresRequest)
       val aggregatedMeasureDataInsta = insta.getAggregatedData(instaMeasuresRequest)
+      print(aggregatedMeasureDataInsta.count)
       val dtnm = dTableName.tblnm
       val aggregatedTbl = "aggregatedMeasureDataInsta" + levelTimestamp.level + "_" + levelTimestamp.timestamp
       sqlContext.registerRDDAsTable(aggregatedMeasureDataInsta, aggregatedTbl)
@@ -175,10 +178,10 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
     for (cube <- cubeList) {
       var isValidCubeGran = false
       breakable {
-        for (gran <- cube.aggregationIntervals) {
+        for (gran <- cube.aggregationIntervals.filter(_ != -1)) {
           if (startTime == Utility.floorFromGranularity(startTime, gran)) {
             var tempEndTime = Utility.getNextTimeFromGranularity(startTime, gran, Utility.newCalendar)
-            while(tempEndTime < endTime) tempEndTime = Utility.getNextTimeFromGranularity(startTime, gran, Utility.newCalendar)
+            while(tempEndTime < endTime) tempEndTime = Utility.getNextTimeFromGranularity(tempEndTime, gran, Utility.newCalendar)
             if(tempEndTime == endTime) {
             	isValidCubeGran = true
             	break
@@ -236,19 +239,34 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
     newInstance.asInstanceOf[DataLoader]
   }
   override def getFirstBinPersistedTime(binSource : String) : Long =  {
-		  insta.getFirstBinPersistedTime(new BinPersistTimeInfoRequest(binSource, -1))
+	  		val granToIntervalMap = getBinSourceToIntervalMap(binSource)
+		  granToIntervalMap.get(-1).getOrElse(throw new IllegalArgumentException("No Data found in insta for default gran -1 and binSource :" + binSource))._1
   }
   
   override def getLastBinPersistedTime(binSource : String) : Long =  {
-		   insta.getLastBinPersistedTime(new BinPersistTimeInfoRequest(binSource, -1))
+	  		val granToIntervalMap = getBinSourceToIntervalMap(binSource)
+		   granToIntervalMap.get(-1).getOrElse(throw new IllegalArgumentException("No Data found in insta for default gran -1 and binSource :" + binSource))._2
   }
   
   override def getBinSourceToIntervalMap(binSource : String) : Map[Long, (Long,Long)] =  {
-		  insta.getAllBinPersistedTimes.get(binSource).getOrElse(throw new IllegalArgumentException("No Data found in insta for binsource" + binSource))
+		  getAllBinSourceToIntervalMap.getOrElse(binSource, throw new IllegalArgumentException("No Data found for binSource " +  binSource))
   }
   
   override def getAllBinSourceToIntervalMap() : Map[String,Map[Long, (Long,Long)]] =  {
-		  insta.getAllBinPersistedTimes
+    val persistTime = insta.getAllBinPersistedTimes
+    print(persistTime)
+    persistTime.map(binSourceToGranToAvailability => {
+      val minGran = binSourceToGranToAvailability._2.filter(_._1 != -1).keys.min
+      val granularityToAvailability = binSourceToGranToAvailability._2.map(granToAvailability => {
+        if (granToAvailability._1 == -1) {
+          (granToAvailability._1, (granToAvailability._2._1, Utility.getNextTimeFromGranularity(granToAvailability._2._2, minGran, Utility.newCalendar)))
+        } else {
+          (granToAvailability._1, (granToAvailability._2._1, Utility.getNextTimeFromGranularity(granToAvailability._2._2, granToAvailability._1, Utility.newCalendar)))
+        }
+      })
+      (binSourceToGranToAvailability._1,  granularityToAvailability ++ Map(-1L -> granularityToAvailability.get(minGran).get) 
+      )
+    })
   }
 }
 
