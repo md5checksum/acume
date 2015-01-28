@@ -66,8 +66,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
 
     val cacheResponse = execute(sql)
     val schemaRdd = cacheResponse.schemaRDD
-    val schema = schemaRdd.schema
-    val fields = schema.fieldNames
+    val fields = queryBuilderService.get(0).getQuerySchema(sql, schemaRdd.schema.fieldNames)//schemaRdd.schemaschema.fieldNames
     val rows = schemaRdd.collect
     val acumeSchema: QueryBuilderSchema = queryBuilderService.get(0).getQueryBuilderSchema
     val dimsNames = new ArrayBuffer[String]()
@@ -87,7 +86,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
       j += 1
     }
     if (isTimeseries) {
-      val sortedRows = rows.sortBy(row => row.getLong(tsIndex))
+      val sortedRows = rows.sortBy(row => row(tsIndex).toString)
       val timestamps = cacheResponse.metadata.timestamps
       val timestampsToIndexMap = new scala.collection.mutable.HashMap[Long, Int]()
       var index  = -1

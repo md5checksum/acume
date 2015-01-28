@@ -22,7 +22,7 @@ case class Controller(acumeCacheContextTrait : AcumeCacheContextTrait) {
   def getInstaTimeInterval() : Map[String, Map[Long, Interval]] = {
 	acumeCacheContextTrait.getAllBinSourceToIntervalMap.map(x => {
 	  (x._1 , x._2.map(y => {
-	    (y._1, new Interval(y._2._1, y._2._1))
+	    (y._1, new Interval(y._2._1, y._2._2))
 	  }))
 	})
   }
