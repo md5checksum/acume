@@ -65,7 +65,7 @@ object AcumeCacheType extends Enumeration {
 //    cntxt.acql("SELECT (T1.sum_TTS_B/T2.totalsum) * T3.total1 AS percent_TTS_B, (T1.sum_TTS_B - T1.sum_Off_net_B)/T1.sum_Off_net_B * 100 AS growth_TTS_B, T1.FlowDirection AS FlowDirection, T1.EgressAS AS EgressAS FROM (SELECT sum(TTS_B) AS sum_TTS_B, sum(Off_net_B) AS sum_Off_net_B, FlowDirection, EgressAS FROM searchEgressPeerCube GROUP BY FlowDirection, EgressAS) T1 FULL JOIN (SELECT totalsum FROM (SELECT SUM(TTS_B) AS totalsum FROM searchEgressPeerCube) T1) T2 FULL JOIN (SELECT T1.FlowDirection, total1 FROM (SELECT FlowDirection, SUM(TTS_B) AS total1 FROM searchEgressPeerCube GROUP BY FlowDirection) T1) T3 ON T1.FlowDirection = T3.FlowDirection WHERE T1.sum_TTS_B > 5 and ts >=1384750800 and ts <1384754400")
 //    conf123.set(ConfConstants.evictionpolicy, "com.guavus.acume.cache.eviction.VREvictionPolicy")
     //cntxt.acql("select TTS_B from \"searchEgressPeerCube\" where ts >=3600 and ts <18000 and binsource = '60min'")
-    cntxt.acql("select HIT_COUNT_TEMP from searchEgressPeerCube where ts >=1415624400 and ts <1415628000 and binsource = '__DEFAULT_BINSRC__'").schemaRDD.collect.map(x => println(x.mkString(",")))
+    cntxt.acql("select HIT_COUNT_TEMP from searchEgressPeerCube where ts >=1415577600 and ts <1415664000 and binsource = '__DEFAULT_BINSRC__'").schemaRDD.collect.map(x => println(x.mkString(",")))
     cntxt.acql("select HIT_COUNT_TEMP from searchEgressPeerCube where ts >=1415620800 and ts <1415624400 and binsource = '__DEFAULT_BINSRC__'").schemaRDD.collect.map(x => println(x.mkString(",")))
     print("")
 //    cntxt.acql("SELECT T1.ts AS ts, T1.sum_TTS_B AS TTS_B FROM (SELECT ts, sum(TTS_B) AS sum_TTS_B FROM searchEgressPeerCube WHERE ts < 36000 and  ts >= 3600 GROUP BY ts) T1")

@@ -43,4 +43,9 @@ abstract class AcumeCache[k, v](val acumeCacheContext: AcumeCacheContext, val co
   
   def createTempTableAndMetadata(keyMap : List[Map[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData 	
 
+  
+  def notifyObserverList = {
+    list.foreach(_.update(this, conf))
+  }
+
 }

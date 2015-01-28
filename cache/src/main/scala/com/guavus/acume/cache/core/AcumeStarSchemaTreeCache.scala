@@ -1,13 +1,26 @@
 
 package com.guavus.acume.cache.core
 
+import java.util.Arrays
+import java.util.Random
+
 import scala.Array.canBuildFrom
 import scala.collection.immutable.SortedMap
-import scala.collection.mutable.{ Map => MutableMap }
+import scala.collection.mutable.{Map => MutableMap}
 import scala.collection.mutable.MutableList
-import org.apache.spark.rdd.RDD
+import scala.util.control.Breaks.break
+import scala.util.control.Breaks.breakable
+
+import org.apache.spark.AccumulatorParam
+import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.SchemaRDD
+import org.apache.spark.sql.StructField
 import org.apache.spark.sql.catalyst.expressions.Row
+import org.apache.spark.sql.catalyst.types.LongType
 import org.apache.spark.sql.catalyst.types.StructType
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import com.google.common.cache.RemovalListener
@@ -15,32 +28,21 @@ import com.google.common.cache.RemovalNotification
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.CacheLevel
 import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.cache.common.ConversionToSpark
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.DimensionTable
 import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.disk.utility.CubeUtil
+import com.guavus.acume.cache.disk.utility.DataLoadedMetadata
 import com.guavus.acume.cache.disk.utility.DataLoader
 import com.guavus.acume.cache.utility.QueryOptionalParam
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.workflow.AcumeCacheContext
 import com.guavus.acume.cache.workflow.MetaData
 import com.guavus.acume.cache.workflow.RequestType.Aggregate
-import com.guavus.acume.cache.workflow.RequestType.Timeseries
-import java.util.Observer
-import java.util.Random
 import com.guavus.acume.cache.workflow.RequestType.RequestType
-import org.apache.spark.sql.SchemaRDD
-import org.slf4j.LoggerFactory
-import org.slf4j.Logger
-import com.guavus.acume.cache.disk.utility.CubeUtil
-import org.apache.spark.sql.StructField
-import com.guavus.acume.cache.common.ConversionToSpark
-import org.apache.spark.sql.catalyst.types.LongType
-import org.apache.spark.AccumulatorParam
-import java.util.Arrays
-import com.guavus.acume.cache.common.LevelTimestamp
-import org.apache.spark.sql.SQLContext
-import scala.collection.mutable.HashMap
-import com.guavus.acume.cache.disk.utility.DataLoadedMetadata
+import com.guavus.acume.cache.workflow.RequestType.Timeseries
+import com.guavus.rubix.cache.util.CacheUtils
 
 /**
  * @author archit.thakur
@@ -80,7 +82,29 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
     .build(
       new CacheLoader[LevelTimestamp, AcumeTreeCacheValue]() {
         def load(key: LevelTimestamp): AcumeTreeCacheValue = {
-          return getDataFromBackend(key);
+          val output = checkIfTableAlreadyExist(key)
+          if (output != null) {
+        	  return new AcumeTreeCacheValue(dimensionTable.tblnm, output.measuretableName, output.measureschemardd)
+          }
+          //First check if point can be populated through children
+          var schema: StructType = null
+          try {
+            var rdds = for (child <- cacheLevelPolicy.getChildrenIntervals(key.timestamp, key.level.localId)) yield {
+              val _tableName = cube.cubeName + cacheLevelPolicy.getLowerLevel(key.level.localId) + child
+              val outputRdd = sqlContext.table(_tableName)
+              schema = outputRdd.schema
+              outputRdd
+            }
+            if (schema != null) {
+              return populateParentPointFromChildren(key, rdds, schema)
+            }
+          } catch {
+            case _: Exception => println(s"Getting data from Insta for $key as all children are not present")
+          }
+          if (key.loadFromBackend)
+            return getDataFromBackend(key);
+          else
+            throw new IllegalArgumentException("Couldnt populate parent point " + key + " from child points")
         }
       });
 
@@ -92,11 +116,30 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
       case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam, true)
     }
   }
+  
+  def populateParentPointFromChildren(key : LevelTimestamp, rdds : Seq[SchemaRDD], schema : StructType) : AcumeTreeCacheValue = {
+              val emptyRdd = Utility.getEmptySchemaRDD(sqlContext, schema).cache
 
-  def notifyObserverList = {
+              val _tableName = cube.cubeName + key.level.toString + key.timestamp.toString
 
-    list.foreach(_.update(AcumeStarSchemaTreeCache.this, conf))
-  }
+              val value = rdds.foldLeft(emptyRdd) { (result, current) =>
+                acumeCacheContext.cacheSqlContext.applySchema(current.union(result), current.schema)
+              }
+              
+              import acumeCacheContext.sqlContext._
+              val tempTable = _tableName + "tempUnion"
+              
+              value.registerTempTable(tempTable)
+              //aggregate over measures after union
+              val selectMeasures = CubeUtil.getMeasureSet(cube).map(x=> x.getAggregationFunction + "(" + x.getName + ") as " + x.getName).mkString(",")
+              val selectDimensions = CubeUtil.getDimensionSet(cube).map(_.getName).mkString(",")
+              val parentRdd = acumeCacheContext.sqlContext.sql("select tupleid, " + key.timestamp + " as ts, " + selectMeasures + " from " + _tableName + " group by tupleid)")
+              parentRdd.registerTempTable(_tableName)
+              
+              cacheTable(_tableName)
+              
+              return new AcumeTreeCacheValue(dimensionTable.tblnm, _tableName, value)
+            }
 
   private def createTableForAggregate(startTime: Long, endTime: Long, tableName: String, isMetaData: Boolean): MetaData = {
 
@@ -148,10 +191,6 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
   }
 
   override def getDataFromBackend(levelTimestamp: LevelTimestamp): AcumeTreeCacheValue = {
-    val output = super.getDataFromBackend(levelTimestamp)
-    if (output != null) {
-      return new AcumeTreeCacheValue(dimensionTable.tblnm, output.measuretableName, output.measureschemardd)
-    }
     val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
     import acumeCacheContext.sqlContext._
     val cacheLevel = levelTimestamp.level
@@ -179,7 +218,6 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
       } else {
         val dimensionSetRdd = diskUtility.loadDimensionSet(keyMap, businessCube, Utility.floorFromGranularity(dimensionSetLoadedEndTime.toLong, businessCube.baseGran.getGranularity), endTime)
         val fullRdd = AcumeStarSchemaTreeCache.generateId(dimensionSetRdd, dTableName, acumeCacheContext.cacheSqlContext, latestschema)
-        //    	  fullRdd.cache
         val finalDimensionRdd = acumeCacheContext.sqlContext.applySchema(acumeCacheContext.sqlContext.table(dTableName.tblnm).union(fullRdd), latestschema)
         dTableName.Modify
         acumeCacheContext.sqlContext.registerRDDAsTable(finalDimensionRdd, dTableName.tblnm)
@@ -205,25 +243,6 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
     sqlContext.sql(s"select id as tupleid, $timestamp as ts, $measureSet from $joinedTbl")
   }
 
-  def correctDTable(cube: Cube, dimensiontable: DimensionTable, joinedTbl: String, timestamp: Long): String = {
-
-    val cubeDimensionSet = CubeUtil.getDimensionSet(cube)
-    val schema =
-      cubeDimensionSet.map(field => {
-        StructField(field.getName, ConversionToSpark.convertToSparkDataType(CubeUtil.getFieldType(field)), true)
-      })
-
-    import sqlContext._
-    val latestschema = StructType(StructField("id", LongType, true) +: schema.toList)
-    val selectDimensionSet = cubeDimensionSet.map(_.getName).mkString(",")
-    val newdrdd = sqlContext.sql(s"select id as tupleid, $selectDimensionSet from $joinedTbl")
-    newdrdd.cache
-    val dimensionRdd = newdrdd.union(table(dimensiontable.tblnm))
-    dimensiontable.Modify
-    sqlContext.registerRDDAsTable(sqlContext.applySchema(dimensionRdd, latestschema), dimensiontable.tblnm)
-    dimensiontable.tblnm
-  }
-
   private def getUniqueRandomeNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt)
 
   private def buildTableForIntervals(levelTimestampMap: MutableMap[Long, MutableList[Long]], tableName: String, isMetaData: Boolean): MetaData = {
@@ -238,8 +257,9 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
         timestamps.+=(item)
         val levelTimestamp = LevelTimestamp(cachelevel, item)
         val acumeTreeCacheValue = cachePointToTable.get(levelTimestamp)
-        val diskread = acumeTreeCacheValue.measureschemardd
         notifyObserverList
+        populateParent(levelTimestamp.level.localId, levelTimestamp.timestamp)
+        val diskread = acumeTreeCacheValue.measureschemardd
         finalSchema = diskread.schema
         val _$diskread = diskread
         _$diskread
