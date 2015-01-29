@@ -12,17 +12,10 @@
         </Property>
         <Property>
             <Property_Name>application.${acumeApp}.configXml</Property_Name>
-            <Property_Value>/opt/tms/xml_schema/rubixConfiguration.xml</Property_Value>
+            <Property_Value>/opt/tms/xml_schema/acumeCliConfiguration.xml</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.configXml</Property_OriginalName>
-        </Property>
-        <Property>
-            <Property_Name>application.${acumeApp}.solnConfigXml</Property_Name>
-            <Property_Value></Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.solnConfigXml</Property_OriginalName>
         </Property>
         <Property>
             <Property_Name>application.${acumeApp}.solnConfigXml</Property_Name>
@@ -40,17 +33,10 @@
         </Property>
         <Property>
             <Property_Name>application.${acumeApp}.apacheTomcatRoot</Property_Name>
-            <Property_Value></Property_Value>
+            <Property_Value>/opt/tms/acume/tomcat/*</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.apacheTomcatRoot</Property_OriginalName>
-        </Property>
-        <Property>
-            <Property_Name>application.${acumeApp}.clusterName</Property_Name>
-            <Property_Value>Oam-Cluster-2</Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.clusterName</Property_OriginalName>
         </Property>
         <Property>
             <Property_Name>application.${acumeApp}.distributedConnectionUserName</Property_Name>
@@ -109,13 +95,6 @@
             <Property_OriginalName>application.${acumeApp}.distributedDialect</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${acumeApp}.directMemorySize</Property_Name>
-            <Property_Value>0</Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.directMemorySize</Property_OriginalName>
-        </Property>
-        <Property>
             <Property_Name>Acume Instance: &lt;</Property_Name>
             <Property_Value>Acume-Instance</Property_Value>
             <Property_Type>read-only</Property_Type>
@@ -144,52 +123,17 @@
         </Property>
         <Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.PERMSIZE</Property_Name>
-            <Property_Value>128m</Property_Value>
+            <Property_Value>512m</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.PERMSIZE</Property_OriginalName>
         </Property>
         <Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.MAXPERMSIZE</Property_Name>
-            <Property_Value>256m</Property_Value>
+            <Property_Value>512m</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.MAXPERMSIZE</Property_OriginalName>
-        </Property>
-        <Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.IntegerCacheSize</Property_Name>
-            <Property_Value>1000000</Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>integer</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.IntegerCacheSize</Property_OriginalName>
-        </Property>
-        <Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.SKIPUPDATECHECK</Property_Name>
-            <Property_Value>true</Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>boolean</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.SKIPUPDATECHECK</Property_OriginalName>
-        </Property>
-        <Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.JMXAUTHENTICATE</Property_Name>
-            <Property_Value>false</Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>boolean</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.JMXAUTHENTICATE</Property_OriginalName>
-        </Property>
-        <Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.JMXSSL</Property_Name>
-            <Property_Value>false</Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>boolean</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.JMXSSL</Property_OriginalName>
-        </Property>
-        <Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.JMXPORT</Property_Name>
-            <Property_Value>8089</Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>integer</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.JMXPORT</Property_OriginalName>
         </Property>
         <Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.debugPort</Property_Name>
@@ -262,27 +206,6 @@
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.keyStorePassword</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.tomcatInstanceMaxSize</Property_Name>
-            <Property_Value>5g</Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.tomcatInstanceMaxSize</Property_OriginalName>
-        </Property>
-        <Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.runMode</Property_Name>
-            <Property_Value>insta</Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.runMode</Property_OriginalName>
-        </Property>
-        <Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.initialJavaHeapSize</Property_Name>
-            <Property_Value>5g</Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.initialJavaHeapSize</Property_OriginalName>
-        </Property>
-        <Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.channelReceiverPort</Property_Name>
             <Property_Value>4000</Property_Value>
             <Property_Type>read-write</Property_Type>
@@ -311,15 +234,8 @@
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheCoreVariableRetentionMap</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cacheBaselayerInstainstanceId</Property_Name>
-            <Property_Value>0</Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheBaselayerInstainstanceId</Property_OriginalName>
-        </Property>
-        <Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cacheBaselayerStorageType</Property_Name>
-            <Property_Value>text</Property_Value>
+            <Property_Value>insta</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheBaselayerStorageType</Property_OriginalName>
@@ -330,13 +246,6 @@
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheCoreTimezone</Property_OriginalName>
-        </Property>
-        <Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cacheBaselayerInstabase</Property_Name>
-            <Property_Value>instabase</Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheBaselayerInstabase</Property_OriginalName>
         </Property>
         <Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cacheBaselayerCubedefinitionXml</Property_Name>
@@ -361,31 +270,17 @@
         </Property>
         <Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cacheCoreRRCacheConcurrenyLevel</Property_Name>
-            <Property_Value>3</Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheCoreRRCacheConcurrenyLevel</Property_OriginalName>
-        </Property>
-        <Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cacheCoreRRCacheConcurrenyLevel</Property_Name>
-            <Property_Value>3</Property_Value>
+            <Property_Value>16</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheCoreRRCacheConcurrenyLevel</Property_OriginalName>
         </Property>
         <Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cacheCoreRRCahceSize</Property_Name>
-            <Property_Value>502</Property_Value>
+            <Property_Value>1000</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheCoreRRCahceSize</Property_OriginalName>
-        </Property>
-        <Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cacheDeleteLastBinPersistedTime</Property_Name>
-            <Property_Value></Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheDeleteLastBinPersistedTime</Property_OriginalName>
         </Property>
          <Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cacheschedulerpolicy</Property_Name>
@@ -394,7 +289,259 @@
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheschedulerpolicy</Property_OriginalName>
         </Property>
-         <Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.runOnlyOnMaster</Property_Name>
+            <Property_Value>true</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.runOnlyOnMaster</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.acumeSparkPropertyLocation</Property_Name>
+            <Property_Value></Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.acumeSparkPropertyLocation</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.ipAddress</Property_Name>
+            <Property_Value>localhost</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.ipAddress</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.connectionPoolSize</Property_Name>
+            <Property_Value>2</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.connectionPoolSize</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.connectionProviderClass</Property_Name>
+            <Property_Value>org.hibernate.connection.C3P0ConnectionProvider</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.connectionProviderClass</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.currentSessionContextClass</Property_Name>
+            <Property_Value>thread</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.currentSessionContextClass</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.hibernateSecondLevelCache</Property_Name>
+            <Property_Value>true</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.hibernateSecondLevelCache</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.hibernateCacheRegionFactoryClass</Property_Name>
+            <Property_Value>org.hibernate.cache.infinispan.InfinispanRegionFactory</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.hibernateCacheRegionFactoryClass</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.hibernateQueryCache</Property_Name>
+            <Property_Value>true</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.hibernateQueryCache</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.hibernateCacheInfinispanCfg</Property_Name>
+            <Property_Value>cluster-infinispan-configs.xml</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.hibernateCacheInfinispanCfg</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.hibernateRubixFile</Property_Name>
+            <Property_Value>um.sql</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.hibernateRubixFile</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.hibernateSolutionFile</Property_Name>
+            <Property_Value>solution.sql</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.hibernateSolutionFile</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.customPolicyClass</Property_Name>
+            <Property_Value>com.guavus.rubix.user.management.policy.DefaultCustomUserMgmtPolicies</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.customPolicyClass</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.passwordExpiryInDays</Property_Name>
+            <Property_Value>0</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.passwordExpiryInDays</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.passwordHistoryCount</Property_Name>
+            <Property_Value>0</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.passwordHistoryCount</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.solutionName</Property_Name>
+            <Property_Value>unknown_solution</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.solutionName</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.rubixClusterId</Property_Name>
+            <Property_Value>unknown_cluster</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.rubixClusterId</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.L2CacheClusterName</Property_Name>
+            <Property_Value>infinispan-hibernate-cluster</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.L2CacheClusterName</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.umBindPort</Property_Name>
+            <Property_Value>7900</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.umBindPort</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.umDiscoveryTimeout</Property_Name>
+            <Property_Value>12000</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.umDiscoveryTimeout</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.umInitialHost</Property_Name>
+            <Property_Value>localhost</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.umInitialHost</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.umPortRange</Property_Name>
+            <Property_Value>1</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.umPortRange</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.umNumInitialMembers</Property_Name>
+            <Property_Value>3</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.umNumInitialMembers</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.nodeUniqueIdentifier</Property_Name>
+            <Property_Value>localhost</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.nodeUniqueIdentifier</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.umDBVersion</Property_Name>
+            <Property_Value>3.5.1</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.umDBVersion</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.protectedFileExtension</Property_Name>
+            <Property_Value>swf</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.protectedFileExtension</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.unRestrictedResources</Property_Name>
+            <Property_Value>main.swf</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.unRestrictedResources</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.applyServicePermission</Property_Name>
+            <Property_Value>true</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.applyServicePermission</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.staticSecurityManagerEnabledShiroEnv</Property_Name>
+            <Property_Value>false</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.staticSecurityManagerEnabledShiroEnv</Property_OriginalName>
+        </Property>
+	 <Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.ssoIssuerId</Property_Name>
+            <Property_Value>ssoTest</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.ssoIssuerId</Property_OriginalName>
+        </Property>
+	 <Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.customNamingStrategyEnabledHibernate</Property_Name>
+            <Property_Value>false</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.customNamingStrategyEnabledHibernate</Property_OriginalName>
+        </Property>
+	 <Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.pojoNameForCustomTablename</Property_Name>
+            <Property_Value>Filter</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.pojoNameForCustomTablename</Property_OriginalName>
+        </Property>
+	 <Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.pojoNamesToUseHibernateSequence</Property_Name>
+            <Property_Value></Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.pojoNamesToUseHibernateSequence</Property_OriginalName>
+        </Property>
+	 <Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cacheRRCacheLoader</Property_Name>
+            <Property_Value>com.guavus.acume.cache.workflow.RequestResponseCache</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheRRCacheLoader</Property_OriginalName>
+        </Property>
+	 <Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.coreEnableJDBCServer</Property_Name>
+            <Property_Value>false</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.coreEnableJDBCServer</Property_OriginalName>
+        </Property>
+	 <Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.acumeCoreAppConfig</Property_Name>
+            <Property_Value>com.guavus.acume.core.configuration.AcumeAppConfig</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.acumeCoreAppConfig</Property_OriginalName>
+        </Property>
+	 <Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.acumebinsource</Property_Name>
             <Property_Value>default</Property_Value>
             <Property_Type>read-write</Property_Type>
