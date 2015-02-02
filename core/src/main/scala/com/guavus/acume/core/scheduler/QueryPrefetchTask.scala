@@ -46,7 +46,7 @@ class QueryPrefetchTask(private var dataService: DataService, @BeanProperty var 
         reTryCount += 1
         try {
           HttpUtils.setLoginInfo(acumeConf.getSuperUser)
-          dataService.servRequest(request.toSql("ts"))
+          print(dataService.servRequest(request.toSql("ts")))
           success = true
         } catch {
           case t: Throwable => {
