@@ -66,9 +66,8 @@ object Utility extends Logging {
   
   def getEmptySchemaRDD(sqlContext: SQLContext, schema: StructType)= {
     
-    val sparkContext = sqlContext.sparkContext
-    val _$rdd = sparkContext.parallelize(1 to 1).map(x =>Row.fromSeq(Nil)).filter(x => false)
-    sqlContext.applySchema(_$rdd, schema)
+    val rdd = sqlContext.sparkContext.emptyRDD[Row]
+    sqlContext.applySchema(rdd, schema)
   }
   
   def getStartTimeFromLevel(endTime : Long, granularity : Long, points : Int) : Long = {
@@ -98,7 +97,7 @@ object Utility extends Logging {
   def getEmptySchemaRDD(sqlContext: SQLContext, cube: Cube) = {
     
     val sparkContext = sqlContext.sparkContext
-    val _$rdd = sparkContext.parallelize(1 to 1).map(x =>Row.fromSeq(Nil)).filter(x => false)
+    val _$rdd = sparkContext.emptyRDD[Row]
     val cubeFieldList = cube.dimension.dimensionSet ++ cube.measure.measureSet
     val schema = cubeFieldList.map(field => { 
             StructField(field.getName, ConversionToSpark.convertToSparkDataType(CubeUtil.getFieldType(field)), true)

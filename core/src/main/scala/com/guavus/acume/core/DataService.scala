@@ -165,7 +165,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
         }
         list += new AggregateResultSet(dims, measures)
       }
-      new AggregateResponse(list, dimsNames, measuresNames, rows.size)
+      new AggregateResponse(list, dimsNames, measuresNames, cacheResponse.metadata.totalRecords.toInt)
     }
   }
 

@@ -74,7 +74,6 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
         businessCube.binsource, dimSet.cubeName, List(), measureFilters)
         print("Firing aggregate query on insta "  + instaMeasuresRequest)
       val aggregatedMeasureDataInsta = insta.getAggregatedData(instaMeasuresRequest)
-      print(aggregatedMeasureDataInsta.count)
       val dtnm = dTableName.tblnm
       val aggregatedTblTemp = "aggregatedMeasureDataInstaTemp" + levelTimestamp.level + "_" + levelTimestamp.timestamp
       sqlContext.registerRDDAsTable(aggregatedMeasureDataInsta, aggregatedTblTemp)
