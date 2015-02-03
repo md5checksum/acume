@@ -1,13 +1,10 @@
 package com.guavus.acume.core
 
 import java.util.Calendar
-
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.JavaConversions.seqAsJavaList
-
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
@@ -15,6 +12,7 @@ import com.guavus.acume.cache.utility.TimeZoneInfo
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.utility.ZoneInfoParams
 import com.guavus.acume.core.configuration.ConfigFactory
+import com.guavus.acume.core.scheduler.Controller
 
 object PSUserService {
 
@@ -23,7 +21,9 @@ object PSUserService {
 
 class PSUserService {
 
-  def getTimeRange(): Array[Long] = Array(AcumeContextTrait.acumeContext.get.acumeContext.cacheConf.getLong("acume.cache.delete.firstbinpersistedtime"), AcumeContextTrait.acumeContext.get.acumeContext.cacheConf.getLong("acume.cache.delete.lastbinpersistedtime"))
+  val controller = ConfigFactory.getInstance.getBean(classOf[Controller])
+  val defaultBinSource = controller.acumeCacheContextTrait.cacheConf.get(ConfConstants.acumecorebinsource)
+  def getTimeRange(): Array[Long] = Array[Long](controller.getFirstBinPersistedTime(defaultBinSource), controller.getLastBinPersistedTime(defaultBinSource))
   
   def getZoneInfo(ids : java.util.List[String] , params : ZoneInfoParams) : java.util.List[TimeZoneInfo] = {
 		val timeGran = ConfigFactory.getInstance().getBean(classOf[TimeGranularity]).getGranularity()
