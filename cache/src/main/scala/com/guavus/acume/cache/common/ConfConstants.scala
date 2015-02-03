@@ -43,8 +43,8 @@ private [acume] object ConfConstants {
   val acumeglobalbasegranularity = "acume.core.global."+basegranularity
   val acumeglobalevictionpolicycube = "acume.core.global."+evictionpolicyforcube
   
-  val firstbinpersistedtime = "acume.cache.delete.firstbinpersistedtime"
-  val lastbinpersistedtime = "acume.cache.delete.lastbinpersistedtime"
+//  val firstbinpersistedtime = "acume.cache.delete.firstbinpersistedtime"
+//  val lastbinpersistedtime = "acume.cache.delete.lastbinpersistedtime"
   val completelist = "acume.cache.delete.completelist"
   val backendDbName = "acume.cache.backend.dbname"
     

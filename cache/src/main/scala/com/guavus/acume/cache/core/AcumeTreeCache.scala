@@ -127,7 +127,7 @@ extends AcumeCache(acumeCacheContext, conf, cube) {
         else 
           0
       case None => 
-        Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, conf.get(ConfConstants.lastbinpersistedtime).toLong))
+        Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, acumeCacheContext.getLastBinPersistedTime(acumeCacheContext.cacheConf.get(ConfConstants.acumecorebinsource))))
     }
     
     val startTimeCeiling = cacheLevelPolicy.getCeilingToLevel(startTime, level)
