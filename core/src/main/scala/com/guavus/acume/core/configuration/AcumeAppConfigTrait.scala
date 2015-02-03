@@ -9,6 +9,7 @@ import com.guavus.acume.core.DataService
 import com.guavus.acume.core.scheduler.QueryRequestPrefetchTaskManager
 import com.guavus.qb.services.IQueryBuilderService
 import com.guavus.rubix.user.permission.IPermissionTemplate
+import com.guavus.acume.core.scheduler.Controller
 
 /*
  * @author kashish.jain
@@ -27,6 +28,8 @@ trait AcumeAppConfigTrait extends Serializable {
   
   def permissionTemplate(): IPermissionTemplate 
   
-  def queryRequestPrefetchTaskManager(acumeService : AcumeService, dataService : DataService , queryBuilderService : Seq[IQueryBuilderService], acumeContext : AcumeContext) : QueryRequestPrefetchTaskManager = throw new AbstractMethodError
+  def queryRequestPrefetchTaskManager(acumeService : AcumeService, dataService : DataService , queryBuilderService : Seq[IQueryBuilderService], acumeContext : AcumeContext, controller : Controller) : QueryRequestPrefetchTaskManager = throw new AbstractMethodError
+  
+  def controller(acumeContext : AcumeContextTrait) : Controller = throw new AbstractMethodError("Method not implemented.")
   
 }
