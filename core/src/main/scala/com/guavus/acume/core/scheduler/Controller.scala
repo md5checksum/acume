@@ -11,6 +11,10 @@ case class Controller(acumeCacheContextTrait : AcumeCacheContextTrait) {
     acumeCacheContextTrait.getFirstBinPersistedTime(binSource)
   }
   
+  def getLastBinPersistedTime(binSource : String) : Long = {
+    acumeCacheContextTrait.getLastBinPersistedTime(binSource)
+  }
+  
 //  def getRubixTimeIntervalForBinSource(binSource : String) : Map[Long, Interval] = {
 //    hashmap.getOrElse(binSource, throw new RuntimeException("not found"))
 //  }
