@@ -3,7 +3,7 @@ package com.guavus.acume.core.converter
 import com.guavus.qb.cube.schema.IField
 import com.guavus.qb.cube.schema.FieldType
 
-class Field(fieldType : FieldType, dataType : FieldType, defaultValue : AnyRef, name : String, functionName: String) extends IField {
+case class Field(fieldType : FieldType, dataType : FieldType, defaultValue : AnyRef, name : String, functionName: String) extends IField {
 
 	override def getType() = fieldType
 
