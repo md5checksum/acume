@@ -7,6 +7,7 @@ import org.apache.spark.sql.hive.HiveContext
 
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.workflow.AcumeCacheContext
+import com.guavus.acume.core.listener.AcumeSparkListener
 
 /**
  * @author pankaj.arora
@@ -22,6 +23,8 @@ class AcumeContext(confFilePath: String) extends AcumeContextTrait {
   val acumeConfiguration = new AcumeConf(true, this.getClass.getResourceAsStream(confFilePath))  
     
   val sparkContext = new SparkContext(conf)
+  val acumeEventListener = new AcumeSparkListener 
+  sparkContext.addSparkListener(acumeEventListener)
 
   val hc = new HiveContext(sparkContext)
 
