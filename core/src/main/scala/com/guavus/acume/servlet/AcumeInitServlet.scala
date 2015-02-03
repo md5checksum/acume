@@ -17,7 +17,7 @@ object AcumeInitServlet {
 class AcumeInitServlet extends HttpServlet {
 
   override def init(servletConfig: ServletConfig) {
-    AcumeMain.startAcume("/acume.conf")
+    AcumeMain.startAcumeComponents("/acume.conf", "acume")
   }
 }
   
@@ -31,7 +31,7 @@ object AcumeHiveInitServlet {
 class AcumeHiveInitServlet extends HttpServlet {
 
   override def init(servletConfig: ServletConfig) {
-    AcumeMain.startHive("/acume.conf")
+    AcumeMain.startAcumeComponents("/acume.conf", "hive")
   }
 }
 /*

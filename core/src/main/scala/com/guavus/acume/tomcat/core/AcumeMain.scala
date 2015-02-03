@@ -25,10 +25,11 @@ import com.guavus.acume.core.scheduler.QueryRequestPrefetchTaskManager
 object AcumeMain {
   
   private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeMain])
-
-  def startAcume(args: String) {
-	AcumeContextTrait.init(args, "acume")
-	AcumeContextTrait.acumeContext.get.acumeConf.setSqlQueryEngine("acume")
+  
+  def startAcumeComponents(args:String, sqlQueryEngine:String) = {
+    
+    AcumeContextTrait.init(args, sqlQueryEngine)
+	AcumeContextTrait.acumeContext.get.acumeConf.setSqlQueryEngine(sqlQueryEngine)
 	
 	var enableJDBC = AcumeContextTrait.acumeContext.get.acumeConf.getEnableJDBCServer
 	 
@@ -38,37 +39,18 @@ object AcumeMain {
 	//Initiate the session Factory for user management db
     SessionFactory.getInstance(SessionContext.DISTRIBUTED)
     InitDatabase.initializeDatabaseTables(ArrayBuffer[IDML]())
-    println("Called AcumeMain")
+    println("Called AcumeMain on " + sqlQueryEngine)
+    
     val startTime = System.currentTimeMillis()
     //start Prefetch Scheduler
     if(AcumeContextTrait.acumeContext.get.acumeConf.getEnableScheduler)
     	ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).startPrefetchScheduler
+   
     //Initialize all components for Acume Core
-//    val config = ConfigFactory.getInstance()
+    //val config = ConfigFactory.getInstance()
     val timeTaken = (System.currentTimeMillis() - startTime)
     logger.info("Time taken to initialize Acume {} seconds", timeTaken / 1000)
   }
-  
-  
-  def startHive(args: String) {
-	AcumeContextTrait.init(args, "hive")
-	AcumeContextTrait.acumeContext.get.acumeConf.setSqlQueryEngine("hive")
-	var enableJDBC = AcumeContextTrait.acumeContext.get.acumeConf.getEnableJDBCServer
-	 
-	if(Try(enableJDBC.toBoolean).getOrElse(false))
-		AcumeThriftServer.main(Array[String]())
-	
-	//Initiate the session Factory for user management db
-    SessionFactory.getInstance(SessionContext.DISTRIBUTED)
-    InitDatabase.initializeDatabaseTables(ArrayBuffer[IDML]())
-    println("Called AcumeHiveMain")
-    val startTime = System.currentTimeMillis()
-    //Initialize all components for Acume Core
-
-    val timeTaken = (System.currentTimeMillis() - startTime)
-    logger.info("Time taken to initialize Acume {} seconds", timeTaken / 1000)
-  }
-  
   
   /**
    * Start tomcat
