@@ -10,6 +10,7 @@ import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.common.Cube
 import scala.collection.mutable.MutableList
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 
 /**
  * @author archit.thakur
@@ -52,7 +53,7 @@ object AcumeTreeCacheEvictionPolicy {
   }
 }
 
-class AcumeTreeCacheEvictionPolicy(cube: Cube, conf: AcumeCacheConf) extends EvictionPolicy(cube, conf) {
+class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextTrait) extends EvictionPolicy(cube, cacheContext) {
 
   def getEvictableCandidate(list: List[LevelTimestamp]): Option[LevelTimestamp] = {
     
@@ -75,7 +76,7 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, conf: AcumeCacheConf) extends Evi
   private def getPriority(timeStamp: Long, level: Long, variableRetentionMap: Map[Long, Int]): Int = {
     if (!variableRetentionMap.contains(level)) return 0
     val numPoints = variableRetentionMap.get(level).getOrElse(throw new RuntimeException("Level not in VariableRetentionMap."))
-    val lastBinTime = conf.get(ConfConstants.lastbinpersistedtime).toLong //Controller.getInstance.getLastBinPersistedTime(ConfigFactory.getInstance.getBean(classOf[TimeGranularity])
+    val lastBinTime = cacheContext.getLastBinPersistedTime(cacheContext.cacheConf.get(ConfConstants.acumecorebinsource)) //Controller.getInstance.getLastBinPersistedTime(ConfigFactory.getInstance.getBean(classOf[TimeGranularity])
         //.getName, BinSource.getDefault.name(), Controller.RETRY_COUNT)
       if (timeStamp > AcumeTreeCacheEvictionPolicy.getRangeStartTime(lastBinTime, level, numPoints)) 1 else 0
   }
@@ -85,7 +86,7 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, conf: AcumeCacheConf) extends Evi
   }
 
   private def intializeMetaData(variableRetentionMap: Map[Long, Int]): HashMap[Long, Long] = {
-    val lastBinTime = conf.get(ConfConstants.lastbinpersistedtime).toLong //Controller.getInstance.getLastBinPersistedTime(ConfigFactory.getInstance.getBean(classOf[TimeGranularity])
+    val lastBinTime = cacheContext.getLastBinPersistedTime(cacheContext.cacheConf.get(ConfConstants.acumecorebinsource)) //Controller.getInstance.getLastBinPersistedTime(ConfigFactory.getInstance.getBean(classOf[TimeGranularity])
       //.getName, BinSource.getDefault.name(), Controller.RETRY_COUNT)
     val map = HashMap[Long, Long]()
     for ((key, value) <- variableRetentionMap) {
