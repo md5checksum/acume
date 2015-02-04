@@ -7,6 +7,7 @@ import com.guavus.acume.tomcat.core.AcumeMain
 
 import javax.servlet.ServletConfig
 import javax.servlet.http.HttpServlet
+import javax.servlet.ServletException
 
 object AcumeInitServlet {
 
@@ -17,11 +18,17 @@ object AcumeInitServlet {
 class AcumeInitServlet extends HttpServlet {
 
   override def init(servletConfig: ServletConfig) {
-    AcumeMain.startAcume("/acume.conf")
+    try {
+      AcumeMain.startAcume("/acume.conf")
+    } catch {
+      case ex : RuntimeException => {
+        AcumeInitServlet.logger.error("Starting Acume failed. Exiting...")
+        System.exit(-1)
+      }
+    }
   }
 }
   
-
 object AcumeHiveInitServlet {
   private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeHiveInitServlet])
 }
@@ -31,9 +38,17 @@ object AcumeHiveInitServlet {
 class AcumeHiveInitServlet extends HttpServlet {
 
   override def init(servletConfig: ServletConfig) {
-    AcumeMain.startHive("/acume.conf")
+    try {
+      AcumeMain.startHive("/acume.conf")
+    } catch {
+      case ex : RuntimeException => {
+        AcumeHiveInitServlet.logger.error("Starting Acume failed. Exiting...")
+        System.exit(-1)
+      }
+    }
   }
 }
+
 /*
 Original Java:
 |**
