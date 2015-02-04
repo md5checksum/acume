@@ -1,23 +1,19 @@
 package com.guavus.acume.tomcat.core
 
-import com.guavus.rubix.user.management.InitDatabase
-import com.guavus.rubix.hibernate.SessionFactory
-import com.guavus.acume.core.configuration.ConfigFactory
+import scala.collection.JavaConversions.bufferAsJavaList
 import scala.collection.mutable.ArrayBuffer
-import com.guavus.rubix.hibernate.SessionContext
-import com.guavus.rubix.user.management.IDML
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
+
+import org.apache.spark.sql.hive.thriftserver.AcumeThriftServer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import com.guavus.acume.core.AcumeContext
-import org.apache.spark.sql.hive.thriftserver.AcumeThriftServer
-import com.guavus.acume.core.AcumeConf
-import com.guavus.acume.core.configuration.AcumeAppConfig
-import com.guavus.acume.cache.common.ConfConstants
-import scala.util.Try
+
 import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.core.configuration.ConfigFactory
 import com.guavus.acume.core.scheduler.QueryRequestPrefetchTaskManager
+import com.guavus.rubix.hibernate.SessionContext
+import com.guavus.rubix.hibernate.SessionFactory
+import com.guavus.rubix.user.management.IDML
+import com.guavus.rubix.user.management.InitDatabase
 
 /**
  * Entry point to start the tomcat. this must be called by spark or command line to start the application
@@ -33,7 +29,7 @@ object AcumeMain {
 	
 	var enableJDBC = AcumeContextTrait.acumeContext.get.acumeConf.getEnableJDBCServer
 	 
-	if(Try(enableJDBC.toBoolean).getOrElse(false))
+	if(enableJDBC.toBoolean)
 		AcumeThriftServer.main(Array[String]())
 	
 	//Initiate the session Factory for user management db

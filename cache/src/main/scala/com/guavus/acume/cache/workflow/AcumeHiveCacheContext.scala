@@ -32,15 +32,13 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
   case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
   
-  
   private [acume] def cacheSqlContext() : SQLContext = sqlContext
   
   Utility.unmarshalXML(conf.get(ConfConstants.businesscubexml), dimensionMap, measureMap)
 
   def cacheConf = conf
+  rrCacheLoader = Class.forName(conf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]
  
-  private [acume] def getCubeList = throw new RuntimeException("Method not supported")
-  
   def isDimension(name: String) : Boolean =  {
     if(dimensionMap.contains(name)) {
       true 
@@ -51,10 +49,6 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
     }
   }
   
-  private [acume] def getFieldsForCube(name: String, binsource: String) = {
-    throw new RuntimeException("Method not supported")
-  }
-  
   def getDefaultValue(fieldName: String) = {
 	if(isDimension(fieldName))
       dimensionMap.get(fieldName).get.getDefaultValue
@@ -62,34 +56,25 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
       measureMap.get(fieldName).get.getDefaultValue
   }
   
-  private [acume] def getCubeListContainingFields(lstfieldNames: List[String]) = {
-    throw new RuntimeException("Method not supported")
-  }
-  
-  private [acume] def getAggregationFunction(stringname : String) : String = {
-    throw new RuntimeException("Method not supported")
-  }
-  
-  def acql(sql: String, qltype: String): AcumeCacheResponse = { 
+  def acql(sql: String, qltype: String = null): AcumeCacheResponse = { 
+     val ql : QLType.QLType = if(qltype == null)
+      QLType.getQLType(conf.get(ConfConstants.qltype)) 
+    else
+      QLType.getQLType(qltype)
     
-    val ql = QLType.getQLType(qltype)
-    if (!AcumeHiveCacheContext.checkQLValidation(sqlContext, ql))
-      throw new RuntimeException(s"ql not supported with ${sqlContext}");
-    executeQl(sql, ql)
+    validateQLType(ql)
+    rrCacheLoader.getRdd((sql, ql))
   }
   
-  def acql(sql: String): AcumeCacheResponse = { 
-    
-    val ql = AcumeHiveCacheContext.getQLType(conf)
-    if (!AcumeHiveCacheContext.checkQLValidation(sqlContext, ql))
-      throw new RuntimeException(s"ql not supported with ${sqlContext}");
-    executeQl(sql, ql)
-  }
-  
-  def executeQl(sql : String, ql : QLType.QLType) = {
+  def executeQuery(sql: String, qltype: QLType.QLType) = {
     sqlContext.setConf("spark.sql.hive.convertMetastoreParquet","true")
     val resultSchemaRDD = sqlContext.sql(sql)
     new AcumeCacheResponse(resultSchemaRDD, MetaData(-1, Nil))
+  }
+  
+  private def validateQLType(qltype: QLType.QLType) = {
+    if (!AcumeCacheContext.checkQLValidation(sqlContext, qltype))
+      throw new RuntimeException(s"ql not supported with ${sqlContext}");
   }
 }
 
@@ -130,7 +115,5 @@ object AcumeHiveCacheContext{
         }
     }
   }
-  
-  private def getQLType(conf: AcumeCacheConf) = QLType.getQLType(conf.get(ConfConstants.qltype)) 	
 
 }

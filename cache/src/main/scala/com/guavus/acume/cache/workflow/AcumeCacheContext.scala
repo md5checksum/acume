@@ -50,6 +50,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   def cacheConf() = conf
   def cacheSqlContext() = sqlContext
+  rrCacheLoader = Class.forName(conf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]
 
   override def getFirstBinPersistedTime(binSource: String): Long = {
     dataLoader.getFirstBinPersistedTime(binSource)
@@ -66,9 +67,8 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   override def getAllBinSourceToIntervalMap() : Map[String, Map[Long, (Long,Long)]] =  {
 		dataLoader.getAllBinSourceToIntervalMap
   }
- 
-  @transient
-  val rrCacheLoader = Class.forName(conf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]
+  
+
   private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
   val dataLoader: DataLoader = DataLoader.getDataLoader(this, conf, null)
   private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
@@ -81,7 +81,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   Utility.loadXML(conf, dimensionMap, measureMap, cubeMap, cubeList)
   loadXMLCube("")
   
-  private [acume] def getCubeList = cubeList.toList
+  override private [acume] def getCubeList = cubeList.toList
   
   def isDimension(name: String) : Boolean =  {
     if(dimensionMap.contains(name)) {
@@ -100,7 +100,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     baseCubeMap.++=(baseCubeHashMap)
   }
   
-  private [acume] def utilQL(sql: String, qltype: QLType) = {
+  def executeQuery(sql: String, qltype: QLType.QLType) = {
     
     val originalparsedsql = AcumeCacheContext.parseSql(sql)
     
@@ -140,33 +140,28 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     AcumeCacheResponse(kfg, MetaData(-1, klist))
 }
   
-  def acql(sql: String, qltype: String): AcumeCacheResponse = { 
+  def acql(sql: String, qltype: String = null): AcumeCacheResponse = { 
+    val ql : QLType.QLType = if(qltype == null)
+      QLType.getQLType(conf.get(ConfConstants.qltype)) 
+    else
+      QLType.getQLType(qltype)
     
-    val ql = QLType.getQLType(qltype)
-    if (!AcumeCacheContext.checkQLValidation(sqlContext, ql))
-      throw new RuntimeException(s"ql not supported with ${sqlContext}");
-    executeQl(sql, ql)
-  }
-  
-  def acql(sql: String): AcumeCacheResponse = { 
-    
-    val ql = AcumeCacheContext.getQLType(conf)
-    if (!AcumeCacheContext.checkQLValidation(sqlContext, ql))
-      throw new RuntimeException(s"ql not supported with ${sqlContext}");
-    executeQl(sql, ql)
-  }
-  
-  def executeQl(sql : String, ql : QLType.QLType) = {
+    validateQLType(ql)
     rrCacheLoader.getRdd((sql, ql))
   }
   
-  private [acume] def getFieldsForCube(name: String, binsource: String) = {
+  private def validateQLType(qltype: QLType.QLType) = {
+    if (!AcumeCacheContext.checkQLValidation(sqlContext, qltype))
+      throw new RuntimeException(s"ql not supported with ${sqlContext}");
+  }
+  
+  override private [acume] def getFieldsForCube(name: String, binsource: String) = {
       
     val cube = cubeMap.getOrElse(CubeKey(name, binsource), throw new RuntimeException(s"Cube $name Not in AcumeCache knowledge."))
     cube.dimension.dimensionSet.map(_.getName) ++ cube.measure.measureSet.map(_.getName)
   }
   
-  private [acume] def getAggregationFunction(stringname: String) = {
+  override private [acume] def getAggregationFunction(stringname: String) = {
     val measure = measureMap.getOrElse(stringname, throw new RuntimeException(s"Measure $stringname not in Acume knowledge."))
     measure.getAggregationFunction
   }
@@ -178,7 +173,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       measureMap.get(fieldName).get.getDefaultValue
   }
   
-  private [acume] def getCubeListContainingFields(lstfieldNames: List[String]) = {
+  override private [acume] def getCubeListContainingFields(lstfieldNames: List[String]) = {
     
     val dimensionSet = scala.collection.mutable.Set[Dimension]()
     val measureSet = scala.collection.mutable.Set[Measure]()
@@ -444,8 +439,6 @@ object AcumeCacheContext{
         }
     }
   }
-  
-  private def getQLType(conf: AcumeCacheConf) = QLType.getQLType(conf.get(ConfConstants.qltype)) 	
   
   private[cache] def ACQL(qltype: QLType, sqlContext: SQLContext) = { 
     
