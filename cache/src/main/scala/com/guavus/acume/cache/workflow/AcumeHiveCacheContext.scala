@@ -1,20 +1,16 @@
 package com.guavus.acume.cache.workflow
 
-import scala.Array.canBuildFrom
-import scala.collection.JavaConversions.asScalaBuffer
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
+
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.cache.common.Dimension
+import com.guavus.acume.cache.common.Measure
 import com.guavus.acume.cache.common.QLType
 import com.guavus.acume.cache.common.QLType.QLType
-import org.apache.spark.sql.SchemaRDD
 import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
-import com.guavus.acume.cache.common.Measure
-import com.guavus.acume.cache.common.Dimension
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import com.guavus.acume.cache.utility.Utility
 
 /**
@@ -73,7 +69,7 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
   }
   
   private def validateQLType(qltype: QLType.QLType) = {
-    if (!AcumeCacheContext.checkQLValidation(sqlContext, qltype))
+    if (!AcumeHiveCacheContext.checkQLValidation(sqlContext, qltype))
       throw new RuntimeException(s"ql not supported with ${sqlContext}");
   }
 }
