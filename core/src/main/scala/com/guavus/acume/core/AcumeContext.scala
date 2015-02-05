@@ -6,7 +6,6 @@ import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.workflow.AcumeCacheContext
-import com.guavus.acume.cache.workflow.AcumeCacheContext
 import com.guavus.acume.core.listener.AcumeSparkListener
 
 /**

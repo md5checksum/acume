@@ -1,6 +1,7 @@
 package com.guavus.acume.cache.common
 
 import scala.collection.mutable.Map
+import com.guavus.acume.cache.core.AcumeCacheType
 
 /**
  * @author archit.thakur
@@ -10,8 +11,8 @@ import scala.collection.mutable.Map
 private [acume] object ConfConstants {
 
   val defaultValueMap = Map[String, Any]()
-  defaultValueMap += 
-    businesscubexml -> "src/test/resources/cubedefinition1.xml"
+  defaultValueMap += businesscubexml -> "src/test/resources/cubedefinition1.xml"
+  defaultValueMap += acumeCacheDefaultType -> AcumeCacheType.acumeStarSchemaTreeCache.name
   val businesscubexml = "acume.cache.baselayer.businesscubexml"
   val schedularinterval = "acume.cache.core.schedularinterval"
   val variableretentionmap = "acume.cache.core.variableretentionmap"
@@ -47,6 +48,7 @@ private [acume] object ConfConstants {
 //  val lastbinpersistedtime = "acume.cache.delete.lastbinpersistedtime"
   val completelist = "acume.cache.delete.completelist"
   val backendDbName = "acume.cache.backend.dbname"
+  val acumeCacheDefaultType = "acume.cache.default.cache.type"
     
 }
 

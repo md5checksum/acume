@@ -19,8 +19,8 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
  */
 abstract class DataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, acumeCache: AcumeCache) extends Serializable {
 
-  def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable): Tuple2[SchemaRDD, String]
-  def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable, instabase: String, instainstanceid: String): Tuple2[SchemaRDD, String]
+  def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp): SchemaRDD
+//  def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable, instabase: String, instainstanceid: String): Tuple2[SchemaRDD, String]
   //This should be removed and things like instabase and instanceid should be retrieviable from MetaDataLoader for better code designing.
   
   def getFirstBinPersistedTime(binSource : String) : Long =  {

@@ -79,7 +79,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   private [cache] val cubeList = MutableList[Cube]()
 
   Utility.loadXML(conf, dimensionMap, measureMap, cubeMap, cubeList)
-  loadXMLCube("")
   
   override private [acume] def getCubeList = cubeList.toList
   
@@ -91,13 +90,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     } else {
         throw new RuntimeException("Field " + name + " nither in Dimension Map nor in Measure Map.")
     }
-  }
-  
-   private [workflow] def loadXMLCube(xml: String) = {
-   //This is for loading base cube xml, should be changed as and when finalized where should base cube configuration come from.
-    baseCubeList.++=(cubeList.map(x => BaseCube(x.cubeName, x.binsource, x.dimension, x.measure, x.baseGran)))
-    val baseCubeHashMap = cubeMap.map(x => (x._1, BaseCube(x._2.cubeName, x._2.binsource, x._2.dimension, x._2.measure, x._2.baseGran)))
-    baseCubeMap.++=(baseCubeHashMap)
   }
   
   def executeQuery(sql: String, qltype: QLType.QLType) = {

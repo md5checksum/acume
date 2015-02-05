@@ -13,15 +13,16 @@ import com.guavus.acume.cache.common.ConfConstants
  */
 object AcumeCacheType extends Enumeration {
 
-  val TreeCache = new AcumeCacheType("com.guavus.acume.cache.core.AcumeTreeCache", classOf[AcumeTreeCache])
+  val acumeStarSchemaTreeCache = new AcumeCacheType("AcumeStarSchemaTreeCache", classOf[AcumeTreeCache])
+  val acumeFlatSchemaTreeCache = new AcumeCacheType("AcumeFlatSchemaTreeCache", classOf[AcumeFlatSchemaTreeCache])
   
   def getAcumeCacheType(name: String): AcumeCacheType = { 
     
     for(actualName <- AcumeCacheType.values){
-      if(name equals actualName.name)
+      if(name equalsIgnoreCase actualName.name)
         return actualName
     }
-    TreeCache
+    throw new IllegalArgumentException(s"Cache Type passed is invalid $name")
   }
   
   class AcumeCacheType(val name: String, val acumeCache: Class[_<:AcumeCache]) extends Val

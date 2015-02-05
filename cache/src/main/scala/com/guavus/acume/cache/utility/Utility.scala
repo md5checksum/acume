@@ -49,6 +49,7 @@ import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.MeasureSet
 import com.guavus.acume.cache.common.DimensionSet
 import com.guavus.acume.cache.eviction.EvictionPolicy
+import com.guavus.acume.cache.core.AcumeCacheType
 
 
 /**
@@ -389,12 +390,14 @@ object Utility extends Logging {
         })
         val propertyMap = _$propertyMap.toMap
         
+        
         val levelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.levelpolicymap, ConfConstants.acumecorelevelmap, conf, cubeName))
         val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.timeserieslevelpolicymap, ConfConstants.acumecoretimeserieslevelmap, conf, cubeName))
         val Gnx = getProperty(propertyMap, ConfConstants.basegranularity, ConfConstants.acumeglobalbasegranularity, conf, cubeName)
         val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
         val _$eviction = Class.forName(getProperty(propertyMap, ConfConstants.evictionpolicyforcube, ConfConstants.acumeglobalevictionpolicycube, conf, cubeName)).asSubclass(classOf[EvictionPolicy])
-        val cube = Cube(cubeName, cubebinsource, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), granularity, true, levelpolicymap, timeserieslevelpolicymap, _$eviction)
+        val schemaType = AcumeCacheType.getAcumeCacheType(getProperty(propertyMap, "cacheType", ConfConstants.acumeCacheDefaultType, conf, cubeName))
+        val cube = Cube(cubeName, cubebinsource, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), granularity, true, levelpolicymap, timeserieslevelpolicymap, _$eviction, schemaType)
         cubeMap.put(CubeKey(cubeName, cubebinsource), cube)
         cube
       }

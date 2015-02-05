@@ -1,15 +1,16 @@
 package com.guavus.acume.cache.common
 
-import com.guavus.acume.cache.core.AcumeCacheType._
+//import com.guavus.acume.cache.core.AcumeCacheType._
 import com.guavus.acume.cache.core.TimeGranularity._
 import com.guavus.acume.cache.eviction.EvictionPolicy
+import com.guavus.acume.cache.core.AcumeCacheType._
 
 /**
  * @author archit.thakur
  *
  */
-abstract class CubeTrait(val superCubeName: String, val superDimension: DimensionSet, val superMeasure: MeasureSet) extends Serializable
-case class BaseCube(cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, baseGran: TimeGranularity) extends CubeTrait(cubeName, dimension, measure)
+abstract class CubeTrait(val superCubeName: String, val superDimension: DimensionSet, val superMeasure: MeasureSet, schemaType : AcumeCacheType) extends Serializable
+case class BaseCube(cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, baseGran: TimeGranularity, schemaType : AcumeCacheType = null) extends CubeTrait(cubeName, dimension, measure, schemaType)
 
 case class Function(functionClass: String, functionName: String) extends Serializable 
 case class DimensionSet(dimensionSet: List[Dimension]) extends Serializable 
@@ -29,8 +30,8 @@ case class DimensionTable(var tblnm: String, var maxid: Long) extends Serializab
 
 case class Cube(cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, 
     baseGran: TimeGranularity, isCacheable: Boolean, levelPolicyMap: Map[Long, Int], cacheTimeseriesLevelPolicyMap: Map[Long, Int], 
-    evictionPolicyClass: Class[_ <: EvictionPolicy]) 
-    extends CubeTrait(cubeName, dimension, measure) with Equals {
+    evictionPolicyClass: Class[_ <: EvictionPolicy], schemaType : AcumeCacheType) 
+    extends CubeTrait(cubeName, dimension, measure, schemaType) with Equals {
   
   def canEqual(other: Any) = {
     other.isInstanceOf[Cube]
