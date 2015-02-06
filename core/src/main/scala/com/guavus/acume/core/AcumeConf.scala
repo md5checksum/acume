@@ -281,6 +281,10 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
     set("acume.core.sql.query.engine", sqlQueryEngine)
   }
   
+  def getUdfConfigurationxml() :  String = {
+    get("acume.core.udf.configurationxml", "udfConfiguration.xml")
+  }
+  
   /** Set multiple parameters together */
   def setAll(settings: Traversable[(String, String)]) = {
     this.settings ++= settings

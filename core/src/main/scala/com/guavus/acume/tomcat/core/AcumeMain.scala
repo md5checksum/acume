@@ -26,6 +26,7 @@ object AcumeMain {
     
     AcumeContextTrait.init(args, sqlQueryEngine)
 	AcumeContextTrait.acumeContext.get.acumeConf.setSqlQueryEngine(sqlQueryEngine)
+	AcumeContextTrait.acumeContext.get.registerUserDefinedFunctions
 	
 	var enableJDBC = AcumeContextTrait.acumeContext.get.acumeConf.getEnableJDBCServer
 	 
