@@ -2,12 +2,11 @@ package com.guavus.acume.servlet
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import com.guavus.acume.tomcat.core.AcumeMain
-
 import javax.servlet.ServletConfig
 import javax.servlet.http.HttpServlet
 import javax.servlet.ServletException
+import com.guavus.acume.core.exceptions.ErrorHandler
 
 object AcumeInitServlet {
 
@@ -21,10 +20,7 @@ class AcumeInitServlet extends HttpServlet {
     try {
       AcumeMain.startAcume("/acume.conf")
     } catch {
-      case ex : RuntimeException => {
-        AcumeInitServlet.logger.error("Starting Acume failed. Exiting...")
-        System.exit(-1)
-      }
+      case th : Throwable => ErrorHandler.handleError(new Error("Acume initialization failed...", th))
     }
   }
 }
@@ -41,10 +37,7 @@ class AcumeHiveInitServlet extends HttpServlet {
     try {
       AcumeMain.startHive("/acume.conf")
     } catch {
-      case ex : RuntimeException => {
-        AcumeHiveInitServlet.logger.error("Starting Acume failed. Exiting...")
-        System.exit(-1)
-      }
+      case th : Throwable => ErrorHandler.handleError(new Error("Acume initialization failed...", th))
     }
   }
 }
