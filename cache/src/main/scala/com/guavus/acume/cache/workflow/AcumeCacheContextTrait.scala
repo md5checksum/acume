@@ -1,9 +1,15 @@
 package com.guavus.acume.cache.workflow
 
-import com.guavus.acume.cache.common.Cube
-import com.guavus.acume.cache.common.AcumeCacheConf
 import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.hive.HiveContext
+
+import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.Dimension
+import com.guavus.acume.cache.common.Measure
 import com.guavus.acume.cache.common.QLType
+import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
 
 /**
  * @author archit.thakur
@@ -12,19 +18,62 @@ import com.guavus.acume.cache.common.QLType
 trait AcumeCacheContextTrait extends Serializable {
   
   @transient
-  private [acume] var rrCacheLoader : RRCache = _
-
-  def isDimension(name: String): Boolean 
+  private [cache] var rrCacheLoader : RRCache = Class.forName(cacheConf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, cacheConf).asInstanceOf[RRCache]
+  private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
+  private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
   
-  def acql(sql: String, qltype: String = null): AcumeCacheResponse
+  def acql(sql: String, qltype: String = null): AcumeCacheResponse = { 
+     val ql : QLType.QLType = if(qltype == null)
+      QLType.getQLType(cacheConf.get(ConfConstants.qltype)) 
+    else
+      QLType.getQLType(qltype)
+    
+    validateQLType(ql)
+    rrCacheLoader.getRdd((sql, ql))
+  }
+    
+  private [cache] def validateQLType(qltype: QLType.QLType) = {
+    if (!checkQLValidation(cacheSqlContext, qltype))
+      throw new RuntimeException(s"ql not supported with ${cacheSqlContext}");
+  }
   
-  def executeQuery(sql : String, qltype : QLType.QLType) : AcumeCacheResponse
+  private [cache] def checkQLValidation(sqlContext: SQLContext, qltype: QLType.QLType) = { 
+    sqlContext match{
+      case hiveContext: HiveContext =>
+        qltype match {
+          case QLType.hql | QLType.sql => true
+          case rest => false
+        }
+      case sqlContext: SQLContext => 
+        qltype match {
+          case QLType.sql => true
+          case rest => false
+        }
+    }
+  }
+  
+  def isDimension(name: String) : Boolean =  {
+    if(dimensionMap.contains(name)) {
+      true 
+    } else if(measureMap.contains(name)) {
+      false
+    } else {
+        throw new RuntimeException("Field " + name + " nither in Dimension Map nor in Measure Map.")
+    }
+  }
+  
+  def getDefaultValue(fieldName: String) : Any = {
+    if(isDimension(fieldName))
+      dimensionMap.get(fieldName).get.getDefaultValue
+    else
+      measureMap.get(fieldName).get.getDefaultValue
+  }
+  
+  private [acume] def executeQuery(sql : String, qltype : QLType.QLType) : AcumeCacheResponse
   
   private [acume] def cacheConf : AcumeCacheConf
   
   private [acume] def cacheSqlContext() : SQLContext
-
-  def getDefaultValue(fieldName: String): Any
   
   private[acume] def getCubeList: List[Cube] = {
     throw new NoSuchMethodException("Method not present")

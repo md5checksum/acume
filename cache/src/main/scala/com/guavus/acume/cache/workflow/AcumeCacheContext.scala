@@ -2,12 +2,15 @@ package com.guavus.acume.cache.workflow
 
 import java.io.StringReader
 import java.util.Random
-import scala.Array.canBuildFrom
+import java.util.concurrent.ConcurrentHashMap
+
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
+
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
+
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.BaseCube
@@ -19,12 +22,13 @@ import com.guavus.acume.cache.common.QLType
 import com.guavus.acume.cache.common.QLType.QLType
 import com.guavus.acume.cache.core.AcumeCacheFactory
 import com.guavus.acume.cache.core.CacheIdentifier
+import com.guavus.acume.cache.disk.utility.DataLoader
 import com.guavus.acume.cache.sql.ISqlCorrector
-import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
 import com.guavus.acume.cache.utility.SQLParserFactory
 import com.guavus.acume.cache.utility.SQLUtility
 import com.guavus.acume.cache.utility.Tuple
 import com.guavus.acume.cache.utility.Utility
+
 import net.sf.jsqlparser.expression.Expression
 import net.sf.jsqlparser.expression.Parenthesis
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression
@@ -33,24 +37,31 @@ import net.sf.jsqlparser.expression.operators.relational.EqualsTo
 import net.sf.jsqlparser.schema.Column
 import net.sf.jsqlparser.statement.select.PlainSelect
 import net.sf.jsqlparser.statement.select.Select
-import java.util.concurrent.ConcurrentHashMap
-import com.guavus.acume.cache.disk.utility.DataLoader
 
 /**
  * @author archit.thakur
  *
  */
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends AcumeCacheContextTrait {
-  sqlContext match{
-  case hiveContext: HiveContext =>
-  case sqlContext: SQLContext => 
-  case rest => throw new RuntimeException("This type of SQLContext is not supported.")
-  }
-  Utility.init(conf)
   
-  def cacheConf() = conf
-  def cacheSqlContext() = sqlContext
-  rrCacheLoader = Class.forName(conf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]
+  private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
+  val dataLoader: DataLoader = DataLoader.getDataLoader(this, conf, null)
+  private [cache] val baseCubeList = MutableList[BaseCube]()
+  private [cache] val cubeMap = new HashMap[CubeKey, Cube]
+  private [cache] val cubeList = MutableList[Cube]()
+
+  sqlContext match {
+    case hiveContext: HiveContext =>
+    case sqlContext: SQLContext => 
+    case rest => throw new RuntimeException("This type of SQLContext is not supported.")
+  }
+  
+  Utility.init(conf)
+  Utility.loadXML(conf, dimensionMap, measureMap, cubeMap, cubeList)
+  
+  private [cache] def cacheConf() = conf
+  
+  private [cache] def cacheSqlContext() = sqlContext
 
   override def getFirstBinPersistedTime(binSource: String): Long = {
     dataLoader.getFirstBinPersistedTime(binSource)
@@ -68,31 +79,9 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
 		dataLoader.getAllBinSourceToIntervalMap
   }
   
-
-  private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
-  val dataLoader: DataLoader = DataLoader.getDataLoader(this, conf, null)
-  private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
-  private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
-  private [cache] val baseCubeMap = new HashMap[CubeKey, BaseCube]
-  private [cache] val baseCubeList = MutableList[BaseCube]()
-  private [cache] val cubeMap = new HashMap[CubeKey, Cube]
-  private [cache] val cubeList = MutableList[Cube]()
-
-  Utility.loadXML(conf, dimensionMap, measureMap, cubeMap, cubeList)
-  
   override private [acume] def getCubeList = cubeList.toList
-  
-  def isDimension(name: String) : Boolean =  {
-    if(dimensionMap.contains(name)) {
-      true 
-    } else if(measureMap.contains(name)) {
-      false
-    } else {
-        throw new RuntimeException("Field " + name + " nither in Dimension Map nor in Measure Map.")
-    }
-  }
-  
-  def executeQuery(sql: String, qltype: QLType.QLType) = {
+   
+  private [cache] def executeQuery(sql: String, qltype: QLType.QLType) = {
     
     val originalparsedsql = AcumeCacheContext.parseSql(sql)
     
@@ -132,21 +121,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     AcumeCacheResponse(kfg, MetaData(-1, klist))
 }
   
-  def acql(sql: String, qltype: String = null): AcumeCacheResponse = { 
-    val ql : QLType.QLType = if(qltype == null)
-      QLType.getQLType(conf.get(ConfConstants.qltype)) 
-    else
-      QLType.getQLType(qltype)
-    
-    validateQLType(ql)
-    rrCacheLoader.getRdd((sql, ql))
-  }
-  
-  private def validateQLType(qltype: QLType.QLType) = {
-    if (!AcumeCacheContext.checkQLValidation(sqlContext, qltype))
-      throw new RuntimeException(s"ql not supported with ${sqlContext}");
-  }
-  
   override private [acume] def getFieldsForCube(name: String, binsource: String) = {
       
     val cube = cubeMap.getOrElse(CubeKey(name, binsource), throw new RuntimeException(s"Cube $name Not in AcumeCache knowledge."))
@@ -156,13 +130,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   override private [acume] def getAggregationFunction(stringname: String) = {
     val measure = measureMap.getOrElse(stringname, throw new RuntimeException(s"Measure $stringname not in Acume knowledge."))
     measure.getAggregationFunction
-  }
-  
-  def getDefaultValue(fieldName: String) = {
-    if(isDimension(fieldName))
-      dimensionMap.get(fieldName).get.getDefaultValue
-    else
-      measureMap.get(fieldName).get.getDefaultValue
   }
   
   override private [acume] def getCubeListContainingFields(lstfieldNames: List[String]) = {
@@ -414,22 +381,6 @@ object AcumeCacheContext{
     val list = util.getList(sql);
     val requestType = util.getRequestType(sql);
     (list, RequestType.getRequestType(requestType))
-  }
-  
-  private [cache] def checkQLValidation(sqlContext: SQLContext, qltype: QLType) = { 
-    
-    sqlContext match{
-      case hiveContext: HiveContext =>
-        qltype match{
-          case QLType.hql | QLType.sql => true
-          case rest => false
-        }
-      case sqlContext: SQLContext => 
-        qltype match{
-          case QLType.sql => true
-          case rest => false
-        }
-    }
   }
   
   private[cache] def ACQL(qltype: QLType, sqlContext: SQLContext) = { 

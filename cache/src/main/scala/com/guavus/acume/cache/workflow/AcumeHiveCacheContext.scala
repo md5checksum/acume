@@ -6,11 +6,7 @@ import org.apache.spark.sql.hive.HiveContext
 
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
-import com.guavus.acume.cache.common.Dimension
-import com.guavus.acume.cache.common.Measure
 import com.guavus.acume.cache.common.QLType
-import com.guavus.acume.cache.common.QLType.QLType
-import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
 import com.guavus.acume.cache.utility.Utility
 
 /**
@@ -19,59 +15,24 @@ import com.guavus.acume.cache.utility.Utility
  */
 class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends AcumeCacheContextTrait { 
  
-  private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
-  private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
-  
-  sqlContext match{
-  case hiveContext: HiveContext =>
-  case sqlContext: SQLContext => 
-  case rest => throw new RuntimeException("This type of SQLContext is not supported.")
+  sqlContext match {
+    case hiveContext: HiveContext =>
+    case sqlContext: SQLContext => 
+    case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
+  
+  Utility.unmarshalXML(conf.get(ConfConstants.businesscubexml), dimensionMap, measureMap)
   
   private [acume] def cacheSqlContext() : SQLContext = sqlContext
   
-  Utility.unmarshalXML(conf.get(ConfConstants.businesscubexml), dimensionMap, measureMap)
-
-  def cacheConf = conf
-  rrCacheLoader = Class.forName(conf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]
- 
-  def isDimension(name: String) : Boolean =  {
-    if(dimensionMap.contains(name)) {
-      true 
-    } else if(measureMap.contains(name)) {
-      false
-    } else {
-        throw new RuntimeException("Field " + name + " nither in Dimension Map nor in Measure Map.")
-    }
-  }
+  private [acume] def cacheConf = conf
   
-  def getDefaultValue(fieldName: String) = {
-	if(isDimension(fieldName))
-      dimensionMap.get(fieldName).get.getDefaultValue
-    else
-      measureMap.get(fieldName).get.getDefaultValue
-  }
-  
-  def acql(sql: String, qltype: String = null): AcumeCacheResponse = { 
-     val ql : QLType.QLType = if(qltype == null)
-      QLType.getQLType(conf.get(ConfConstants.qltype)) 
-    else
-      QLType.getQLType(qltype)
-    
-    validateQLType(ql)
-    rrCacheLoader.getRdd((sql, ql))
-  }
-  
-  def executeQuery(sql: String, qltype: QLType.QLType) = {
+  private [cache] def executeQuery(sql: String, qltype: QLType.QLType) = {
     sqlContext.setConf("spark.sql.hive.convertMetastoreParquet","true")
     val resultSchemaRDD = sqlContext.sql(sql)
     new AcumeCacheResponse(resultSchemaRDD, MetaData(-1, Nil))
   }
   
-  private def validateQLType(qltype: QLType.QLType) = {
-    if (!AcumeHiveCacheContext.checkQLValidation(sqlContext, qltype))
-      throw new RuntimeException(s"ql not supported with ${sqlContext}");
-  }
 }
 
 object AcumeHiveCacheContext{
@@ -96,20 +57,6 @@ object AcumeHiveCacheContext{
     cntxt.acql("select * from searchEgressPeerCube_12345")
   }
 
-  private [cache] def checkQLValidation(sqlContext: SQLContext, qltype: QLType) = { 
-    
-    sqlContext match{
-      case hiveContext: HiveContext =>
-        qltype match{
-          case QLType.hql | QLType.sql => true
-          case rest => false
-        }
-      case sqlContext: SQLContext => 
-        qltype match{
-          case QLType.sql => true
-          case rest => false
-        }
-    }
-  }
+  
 
 }
