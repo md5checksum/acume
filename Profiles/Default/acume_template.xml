@@ -555,7 +555,7 @@
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cachedbname</Property_OriginalName>
         </Property>
-         <Property>
+        <Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.corequeryengine</Property_Name>
             <Property_Value>acume</Property_Value>
             <Property_Type>read-write</Property_Type>
@@ -568,8 +568,106 @@
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.coreudfconfigurationxml</Property_OriginalName>
+    </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.schedulerPrefetchTaskRetryInterval</Property_Name>
+            <Property_Value>300000</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.schedulerPrefetchTaskRetryInterval</Property_OriginalName>
         </Property>
-        <Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.schedulerThreadPoolSize</Property_Name>
+            <Property_Value>2</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.schedulerThreadPoolSize</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.acumeSuperUser</Property_Name>
+            <Property_Value>admin</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.acumeSuperUser</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.instaDefaultAggrInterval</Property_Name>
+            <Property_Value>-1</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.instaDefaultAggrInterval</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.acumeSpringResolver</Property_Name>
+            <Property_Value>com.guavus.acume.core.spring.AcumeResolver</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.acumeSpringResolver</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.schedulerEnable</Property_Name>
+            <Property_Value>true</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.schedulerEnable</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.instaComboPoints</Property_Name>
+            <Property_Value>24</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.instaComboPoints</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.schedulerVariableRetentionMap</Property_Name>
+            <Property_Value>1h:24</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.schedulerVariableRetentionMap</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.schedulerVariableRetentionCombinePoints</Property_Name>
+            <Property_Value>1</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.schedulerVariableRetentionCombinePoints</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.schedulerQueryPrefetchTaskNumRetries</Property_Name>
+            <Property_Value>3</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.schedulerQueryPrefetchTaskNumRetries</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.schedulerMaxSegmentDuration</Property_Name>
+            <Property_Value>86400</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.schedulerMaxSegmentDuration</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.acumeMaxQueryLogRecord</Property_Name>
+            <Property_Value>10</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.acumeMaxQueryLogRecord</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.schedulerCheckInterval</Property_Name>
+            <Property_Value>300</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.schedulerCheckInterval</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.acumeDefaultCacheType</Property_Name>
+            <Property_Value>AcumeFlatSchemaTreeCache</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.acumeDefaultCacheType</Property_OriginalName>
+        </Property>	
+	<Property>
             <Property_Name>Acume Instance: &gt;</Property_Name>
         </Property>
     </Properties>

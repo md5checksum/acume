@@ -76,187 +76,146 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
    * Default Super User in system
    */
   def setQueryPrefetchTaskRetryIntervalInMillis(prefetchTaskRetryIntervalInMillis : String): AcumeConf = {
-    set("Acume.scheduler.prefetchTaskRetryIntervalInMillis", prefetchTaskRetryIntervalInMillis)
+    set("acume.scheduler.prefetchTaskRetryIntervalInMillis", prefetchTaskRetryIntervalInMillis)
   }
   
   def getQueryPrefetchTaskRetryIntervalInMillis() : Long = {
-    getLong("Acume.scheduler.prefetchTaskRetryIntervalInMillis", 300000)
+    getLong("acume.scheduler.prefetchTaskRetryIntervalInMillis", 300000)
   }
   
   /**
    * Default Super User in system
    */
   def setSchedulerThreadPoolSize(schedulerThreadPoolSize : Int): AcumeConf = {
-    set("Acume.scheduler.threadPoolSize", String.valueOf(schedulerThreadPoolSize))
+    set("acume.scheduler.threadPoolSize", String.valueOf(schedulerThreadPoolSize))
   }
   
   def getSchedulerThreadPoolSize() : Int = {
-    getInt("Acume.scheduler.SchedulerThreadPoolSize", 2)
+    getInt("acume.scheduler.threadPoolSize", 2)
   }
   
   /**
    * Default Super User in system
    */
   def setSuperUser(superUser : String): AcumeConf = {
-    set("Acume.super.user", superUser)
+    set("acume.super.user", superUser)
   }
   
   def getSuperUser() : String = {
-    get("Acume.super.user", "admin")
+    get("acume.super.user", "admin")
   }
   
   /**
    * Sets the resolver to be used to start app.
    */
   def setDefaultAggrInterval(defaultAggrInterval : String): AcumeConf = {
-    set("Acume.insta.defaultAggrInterval", defaultAggrInterval)
+    set("acume.insta.defaultAggrInterval", defaultAggrInterval)
   }
   
   def getDefaultAggrInterval() : Int = {
-    getInt("Acume.insta.defaultAggrInterval", -1)
+    getInt("acume.insta.defaultAggrInterval", -1)
   }
   
   /**
    * Sets the resolver to be used to start app.
    */
   def setResolver(resolver : String): AcumeConf = {
-    set("Acume.resolver", resolver)
+    set("acume.resolver", resolver)
   }
   
   def getResolver() : String = {
-    get("Acume.resolver", "com.guavus.acume.core.spring.AcumeResolver")
+    get("acume.resolver", "com.guavus.acume.core.spring.AcumeResolver")
   }
   
   /**
    * If true it will start scheduler on server startup 
    */
   def setEnableScheduler(enableScheduler : Boolean): AcumeConf = {
-    set("Acume.scheduler.enable", String.valueOf(enableScheduler))
+    set("acume.scheduler.enable", String.valueOf(enableScheduler))
   }
   
   def getEnableScheduler() : Boolean = {
-    getBoolean("Acume.scheduler.enable", true)
+    getBoolean("acume.scheduler.enable", true)
   }
   
   /**
    * Determines maximum duration query that insta can serve. 
    */
   def setInstaComboPoints(instaComboPoints : Int): AcumeConf = {
-    set("Acume.insta.comboPoints", String.valueOf(instaComboPoints))
+    set("acume.insta.comboPoints", String.valueOf(instaComboPoints))
   }
   
   def getInstaComboPoints() : Int = {
-    getInt("Acume.insta.comboPoints", 24)
+    getInt("acume.insta.comboPoints", 24)
   }
   
   /**
    * This tell for which granularity how back scheduler will run 
    */
   def setSchedulerVariableRetentionMap(schedulerVariableRetentionMap : String): AcumeConf = {
-    set("Acume.scheduler.variableRetentionMap", schedulerVariableRetentionMap)
+    set("acume.scheduler.variableRetentionMap", schedulerVariableRetentionMap)
   }
   
   def getSchedulerVariableRetentionMap() : String = {
-    get("Acume.scheduler.variableRetentionMap", "1h:24")
+    get("acume.scheduler.variableRetentionMap", "1h:24")
   }
   
   /**
    * This tells how long queries can be combined together. 
    */
   def setSchedulerVariableRetentionCombinePoints(schedulerVariableRetentionCombinePoints : String): AcumeConf = {
-    set("Acume.scheduler.variableRetentionCombinePoints", schedulerVariableRetentionCombinePoints)
+    set("acume.scheduler.variableRetentionCombinePoints", schedulerVariableRetentionCombinePoints)
   }
   
   def getSchedulerVariableRetentionCombinePoints() : Int = {
-    getInt("Acume.scheduler.variableRetentionCombinePoints", 1)
+    getInt("acume.scheduler.variableRetentionCombinePoints", 1)
   }
   
   /**
    * No of retries before this task mark as failed 
    */
   def setQueryPrefetchTaskNoOfRetries(queryPrefetchTaskNoOfRetries : Int): AcumeConf = {
-    set("Acume.scheduler.queryPrefetchTaskNoOfRetries", String.valueOf(queryPrefetchTaskNoOfRetries))
+    set("acume.scheduler.queryPrefetchTaskNoOfRetries", String.valueOf(queryPrefetchTaskNoOfRetries))
   }
   
   def getQueryPrefetchTaskNoOfRetries() : Int = {
-    getInt("Acume.scheduler.queryPrefetchTaskNoOfRetries", 3)
+    getInt("acume.scheduler.queryPrefetchTaskNoOfRetries", 3)
   }
-  
-  
   
   
   /**
    * Scheduler segments which will executw together and increase acume availability 
    */
   def setSchedulerMaxSegmentDuration(schedulerMaxSegmentDuration : Int): AcumeConf = {
-    set("Acume.scheduler.maxSegmentDuration", String.valueOf(schedulerMaxSegmentDuration))
+    set("acume.scheduler.maxSegmentDuration", String.valueOf(schedulerMaxSegmentDuration))
   }
   
   def getSchedulerMaxSegmentDurationCombinePoints() : Int = {
-    getInt("Acume.scheduler.maxSegmentDuration", 86400)
+    getInt("acume.scheduler.maxSegmentDuration", 86400)
   }
   
   /**
    * Sets the input paths for the cubes to be used. Format to use is CubeName1:path1;path2|CubeName2:path1;path2
    */
   def setMaxQueryLogRecords(maxQueryLogRecords : Int): AcumeConf = {
-    set("Acume.max.query.log.record", maxQueryLogRecords.toString)
+    set("acume.max.query.log.record", maxQueryLogRecords.toString)
   }
 
   def getMaxQueryLogRecords(): Int = {
-    getInt("Acume.max.query.log.record", 10)
-  }
-  
-  /**
-   * Sets the outputcubes base path to be used.
-   */
-  def setOutputCubeBasePath(outputCubesBasePath: String): AcumeConf = {
-    set("Acume.output.cubes.basepath", outputCubesBasePath)
-  }
-  
-  def getOutputCubeBasePath(): String = {
-    get("Acume.output.cubes.basepath")
+    getInt("acume.max.query.log.record", 10)
   }
   
   /**
    * Sets the outputcubes base path to be used.
    */
   def setSchedulerScheckInterval(schedulerCheckInterval : Int): AcumeConf = {
-    set("Acume.scheduler.checkInterval", String.valueOf(schedulerCheckInterval))
+    set("acume.scheduler.checkInterval", String.valueOf(schedulerCheckInterval))
   }
   
   def getSchedulerCheckInterval(): Int = {
-    getInt("Acume.scheduler.checkInterval", 300)
-  }
-  
-  /** Some output streams are not exported to insta
-   *  This takes the list of comma separated names.
-   * */
-  def setNotExportedStreams(streams : String): AcumeConf = {
-    set("Acume.streams.insta.no.export", streams)
+    getInt("acume.scheduler.checkInterval", 300)
   }
 
-  def getNotExportedStreams(): String = {
-    get("Acume.streams.insta.no.export", "")
-  }
-  
-  def getNotExportedStreamsArray = if(getNotExportedStreams == null || getNotExportedStreams.size == 0) 
-    new Array[String](0)
-    else
-    getNotExportedStreams().split(',')
-
-  /** Set the cubes names to be disabled while excuting jobs. This takes the list of comma separated names.
-   *  If this property is not set no cube will be disabled
-   *  
-   */
-  def setDisabledCubes(cubesToBeDisabled : String): AcumeConf = {
-    set("Acume.cubesToBeDisabled", cubesToBeDisabled)
-  }
-
-  def getDisabledCubes(): String = {
-    get("Acume.cubesToBeDisabled", "")
-  }
-  
   def setEnableJDBCServer(enableJDBCFlag : String): AcumeConf = {
     set("acume.core.enableJDBCServer", enableJDBCFlag)
   }

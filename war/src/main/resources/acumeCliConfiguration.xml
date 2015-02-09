@@ -946,5 +946,187 @@ Please don't use the following reserved property names:
             </targets>
         </property>
         
+        <property>
+            <name>schedulerPrefetchTaskRetryInterval</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[300000]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>schedulerThreadPoolSize</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[2]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>acumeSuperUser</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[admin]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>instaDefaultAggrInterval</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[-1]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>acumeSpringResolver</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.acume.core.spring.AcumeResolver]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>schedulerEnable</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[true]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>instaComboPoints</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[24]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>schedulerVariableRetentionMap</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[1h:24]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>schedulerVariableRetentionCombinePoints</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[1]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>schedulerQueryPrefetchTaskNumRetries</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[3]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>schedulerMaxSegmentDuration</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[86400]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>acumeMaxQueryLogRecord</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[10]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>schedulerCheckInterval</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[300]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
+        <property>
+            <name>acumeDefaultCacheType</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[AcumeFlatSchemaTreeCache]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        
     </PropertiesPerInstance>
 </RubixConfigurations>
