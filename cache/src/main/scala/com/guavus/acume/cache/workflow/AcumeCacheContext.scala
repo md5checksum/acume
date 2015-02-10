@@ -59,9 +59,9 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   Utility.init(conf)
   Utility.loadXML(conf, dimensionMap, measureMap, cubeMap, cubeList)
   
-  private [cache] def cacheConf() = conf
+  private [acume] def cacheConf() = conf
   
-  private [cache] def cacheSqlContext() = sqlContext
+  private [acume] def cacheSqlContext() = sqlContext
 
   override def getFirstBinPersistedTime(binSource: String): Long = {
     dataLoader.getFirstBinPersistedTime(binSource)
@@ -81,7 +81,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   override private [acume] def getCubeList = cubeList.toList
    
-  private [cache] def executeQuery(sql: String, qltype: QLType.QLType) = {
+  private [acume] def executeQuery(sql: String, qltype: QLType.QLType) = {
     
     val originalparsedsql = AcumeCacheContext.parseSql(sql)
     
