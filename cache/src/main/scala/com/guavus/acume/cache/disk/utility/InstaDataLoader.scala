@@ -31,7 +31,7 @@ import com.guavus.insta.Insta
 import com.guavus.insta.InstaCubeMetaInfo
 import com.guavus.insta.InstaRequest
 
-class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @transient  conf: AcumeCacheConf, @transient acumeCache: AcumeCache) extends DataLoader(acumeCacheContext, conf, null) {
+class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @transient  conf: AcumeCacheConf, @transient acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends DataLoader(acumeCacheContext, conf, null) {
 
   @transient var insta: Insta = null
   @transient val sqlContext = acumeCacheContext.cacheSqlContext
@@ -145,11 +145,11 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
       getMetadata(key)
   }
 
-  def getDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache) = {
+  def getDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache[_ <: Any, _ <: Any]) = {
 
     val dataLoaderClass = StorageType.getStorageType(conf.get(ConfConstants.storagetype)).dataClass
     val loadedClass = Class.forName(dataLoaderClass)
-    val newInstance = loadedClass.getConstructor(classOf[AcumeCacheContext], classOf[AcumeCacheConf], classOf[AcumeCache]).newInstance(acumeCacheContext, conf, acumeCache)
+    val newInstance = loadedClass.getConstructor(classOf[AcumeCacheContext], classOf[AcumeCacheConf], classOf[AcumeCache[_ <: Any, _ <: Any]]).newInstance(acumeCacheContext, conf, acumeCache)
     newInstance.asInstanceOf[DataLoader]
   }
   override def getFirstBinPersistedTime(binSource : String) : Long =  {

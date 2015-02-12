@@ -49,7 +49,7 @@ private [acume] object ConfConstants {
   val completelist = "acume.cache.delete.completelist"
   val backendDbName = "acume.cache.backend.dbname"
   val acumeCacheDefaultType = "acume.cache.default.cache.type"
-    
+  val acumeCacheSingleEntityCacheSize = "acume.cache.singleentity.cache.size"
 }
 
 

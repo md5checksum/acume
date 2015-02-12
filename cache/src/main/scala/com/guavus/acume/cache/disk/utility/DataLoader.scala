@@ -17,7 +17,7 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
  * @author archit.thakur
  *
  */
-abstract class DataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, acumeCache: AcumeCache) extends Serializable {
+abstract class DataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, acumeCache: AcumeCache[_ >: Any , _ >: Any]) extends Serializable {
 
   def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp): SchemaRDD
 //  def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable, instabase: String, instainstanceid: String): Tuple2[SchemaRDD, String]
@@ -42,11 +42,11 @@ abstract class DataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: Acume
 }
 
 object DataLoader {
-  private val metadataMap = new ConcurrentHashMap[AcumeCache, DataLoadedMetadata]
+  private val metadataMap = new ConcurrentHashMap[AcumeCache[_ >: Any, _ >: Any], DataLoadedMetadata]
 
-  private[cache] def getMetadata(key: AcumeCache) = metadataMap.get(key)
-  private[cache] def putMetadata(key: AcumeCache, value: DataLoadedMetadata) = metadataMap.put(key, value)
-  private[cache] def getOrElseInsert(key: AcumeCache, defaultValue: DataLoadedMetadata): DataLoadedMetadata = {
+  private[cache] def getMetadata(key: AcumeCache[_ >: Any, _ >: Any]) = metadataMap.get(key)
+  private[cache] def putMetadata(key: AcumeCache[_ >: Any, _ >: Any], value: DataLoadedMetadata) = metadataMap.put(key, value)
+  private[cache] def getOrElseInsert(key: AcumeCache[_ >: Any, _ >: Any], defaultValue: DataLoadedMetadata): DataLoadedMetadata = {
 
     if (getMetadata(key) == null) {
 
@@ -56,7 +56,7 @@ object DataLoader {
       getMetadata(key)
   }
 
-  private[cache] def getOrElseMetadata(key: AcumeCache, defaultValue: DataLoadedMetadata): DataLoadedMetadata = {
+  private[cache] def getOrElseMetadata(key: AcumeCache[_ >: Any,_ >: Any], defaultValue: DataLoadedMetadata): DataLoadedMetadata = {
 
     if (getMetadata(key) == null)
       defaultValue
@@ -64,7 +64,7 @@ object DataLoader {
       getMetadata(key)
   }
 
-  def getDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache) = {
+  def getDataLoader[k,v](acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache[k, v]) = {
 
     val dataloadermap = acumeCacheContext.dataloadermap
     val dataLoaderClass = StorageType.getStorageType(conf.get(ConfConstants.storagetype)).dataClass
@@ -74,7 +74,7 @@ object DataLoader {
     //    }
     if (instance == null) {
       val loadedClass = Class.forName(dataLoaderClass)
-      val newInstance = loadedClass.getConstructor(classOf[AcumeCacheContextTrait], classOf[AcumeCacheConf], classOf[AcumeCache]).newInstance(acumeCacheContext, conf, acumeCache)
+      val newInstance = loadedClass.getConstructor(classOf[AcumeCacheContextTrait], classOf[AcumeCacheConf], classOf[AcumeCache[_ >: Any,_ >: Any]]).newInstance(acumeCacheContext, conf, acumeCache)
       dataloadermap.put(dataLoaderClass, newInstance.asInstanceOf[DataLoader])
       newInstance.asInstanceOf[DataLoader]
     } else {

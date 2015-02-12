@@ -13,7 +13,6 @@ import com.guavus.rubix.query.remote.flex.AggregateResultSet
 import com.guavus.rubix.query.remote.flex.TimeseriesResultSet
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
-import com.guavus.acume.cache.workflow.AcumeCacheContext
 import scala.collection.mutable.HashMap
 import java.util.Arrays
 import com.guavus.rubix.query.remote.flex.SearchResponse

@@ -387,9 +387,18 @@ object Utility extends Logging {
         val _$propertyMap = _$cubeProperties.split(",").map(x => {
           val i = x.indexOf(":")
           (x.substring(0, i).trim, x.substring(i+1, x.length).trim)
-        })
+        })	
         val propertyMap = _$propertyMap.toMap
         
+        //getSingle entity keys from xml
+        val singleEntityKeys = c.getSingleEntityKeys()
+        var singleEntityKeysMap : Map[String, String] = null
+        if (singleEntityKeys != null) {
+          singleEntityKeysMap = singleEntityKeys.split(",").map(x => {
+            val i = x.indexOf(":")
+            (x.substring(0, i).trim, x.substring(i + 1, x.length).trim)
+          }).toMap
+        }
         
         val levelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.levelpolicymap, ConfConstants.acumecorelevelmap, conf, cubeName))
         val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.timeserieslevelpolicymap, ConfConstants.acumecoretimeserieslevelmap, conf, cubeName))
@@ -397,7 +406,7 @@ object Utility extends Logging {
         val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
         val _$eviction = Class.forName(getProperty(propertyMap, ConfConstants.evictionpolicyforcube, ConfConstants.acumeglobalevictionpolicycube, conf, cubeName)).asSubclass(classOf[EvictionPolicy])
         val schemaType = AcumeCacheType.getAcumeCacheType(getProperty(propertyMap, "cacheType", ConfConstants.acumeCacheDefaultType, conf, cubeName))
-        val cube = Cube(cubeName, cubebinsource, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), granularity, true, levelpolicymap, timeserieslevelpolicymap, _$eviction, schemaType)
+        val cube = Cube(cubeName, cubebinsource, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), singleEntityKeysMap, granularity, true, levelpolicymap, timeserieslevelpolicymap, _$eviction, schemaType)
         cubeMap.put(CubeKey(cubeName, cubebinsource), cube)
         cube
       }

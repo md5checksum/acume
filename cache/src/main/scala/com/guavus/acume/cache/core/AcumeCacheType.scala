@@ -25,7 +25,7 @@ object AcumeCacheType extends Enumeration {
     throw new IllegalArgumentException(s"Cache Type passed is invalid $name")
   }
   
-  class AcumeCacheType(val name: String, val acumeCache: Class[_<:AcumeCache]) extends Val
+  class AcumeCacheType(val name: String, val acumeCache: Class[_ <: AcumeCache[_ <: Any, _ <: Any]]) extends Val
   implicit def convertValue(v: Value): AcumeCacheType = v.asInstanceOf[AcumeCacheType]
   
   def main(args: Array[String]) { 

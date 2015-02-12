@@ -28,7 +28,7 @@ case class DimensionTable(var tblnm: String, var maxid: Long) extends Serializab
   } 	
 }
 
-case class Cube(cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, 
+case class Cube(cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, singleEntityKeys : Map[String, String], 
     baseGran: TimeGranularity, isCacheable: Boolean, levelPolicyMap: Map[Long, Int], cacheTimeseriesLevelPolicyMap: Map[Long, Int], 
     evictionPolicyClass: Class[_ <: EvictionPolicy], schemaType : AcumeCacheType) 
     extends CubeTrait(cubeName, dimension, measure, schemaType) with Equals {

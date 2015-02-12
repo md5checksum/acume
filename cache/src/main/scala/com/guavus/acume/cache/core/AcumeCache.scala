@@ -11,20 +11,30 @@ import org.apache.spark.sql.SchemaRDD
 import com.guavus.acume.cache.workflow.AcumeCacheResponse
 import com.guavus.acume.cache.workflow.MetaData
 import java.util.Observable
+import scala.collection.mutable.MutableList
 
 /**
  * @author archit.thakur
  *
  */
-abstract class AcumeCache(val acumeCacheContext: AcumeCacheContext, val conf: AcumeCacheConf, val cube: Cube) extends Observable {
+abstract class AcumeCache[k, v](val acumeCacheContext: AcumeCacheContext, val conf: AcumeCacheConf, val cube: Cube) extends Observable {
 
+  protected val list = new MutableList[AcumeCacheObserver]
+  
+  var cachePointToTable : com.google.common.cache.LoadingCache[k , v] = _
   /**
    * This will take the call type and startTime , endTime and then generate the tempTable by joining dimension table and corresponding factTables. 
    * it might have to search for all the fact tables which will be used to calculate the data set.
    */
-  def newObserverAddition(acumeCacheObserver: AcumeCacheObserver)
-  def getCacheCollection: Any
-  def createTempTable(startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam])
-  def createTempTableAndMetadata(startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData 	
+  def newObserverAddition(acumeCacheObserver: AcumeCacheObserver) = {
+    
+    list.+=(acumeCacheObserver)
+  }
+  
+  def getCacheCollection =  cachePointToTable
+  
+  def createTempTable(keyMap : Map[String, Any], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam])
+  
+  def createTempTableAndMetadata(keyMap : Map[String, Any], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData 	
 
 }

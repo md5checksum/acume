@@ -16,7 +16,7 @@ import com.guavus.acume.cache.common.AcumeCacheConf
  *
  */
 
-class AcumeCacheEvictionObserver(_$acumeCache: AcumeCache) extends AcumeCacheObserver {
+class AcumeCacheEvictionObserver(_$acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends AcumeCacheObserver {
   
   _$acumeCache.newObserverAddition(this)
   

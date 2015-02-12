@@ -18,16 +18,16 @@ import com.guavus.acume.cache.eviction.AcumeCacheEvictionObserver
  */
 object AcumeCacheFactory {
 
-  val caches = new ConcurrentHashMap[CacheIdentifier, AcumeCache]()
+  val caches = new ConcurrentHashMap[CacheIdentifier, Any]()
   
   /**
    * Factory method to return AcumeCache instances based on types.
    */
-  def getInstance(acumeCacheContext: AcumeCacheContext, acumeCacheConf: AcumeCacheConf, cacheIdentifier: CacheIdentifier, cube: Cube) : AcumeCache = {
+  def getInstance[k, v](acumeCacheContext: AcumeCacheContext, acumeCacheConf: AcumeCacheConf, cacheIdentifier: CacheIdentifier, cube: Cube) : AcumeCache[k, v] = {
     /**
      * Logic to compute Cache goes here
      */
-    class abc[v >: AcumeCache] extends java.util.function.Function[CacheIdentifier, v]() {
+    class abc extends java.util.function.Function[CacheIdentifier, AcumeCache[k, v]]() {
        def apply(t : CacheIdentifier) = {
         val levelSet = cube.levelPolicyMap.keySet.+(cube.baseGran.getGranularity)
         val levels = levelSet.toArray
@@ -37,20 +37,21 @@ object AcumeCacheFactory {
         //todo fill below cahcetimelevelmap from cube.
         //todo check if there is a better way for `SortedMap` creation belw.
         val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]() ++ cube.cacheTimeseriesLevelPolicyMap)
-        val _$instance : AcumeCache = cube.schemaType match {
+        
+        val _$instance : AcumeCache[k, v] = cube.schemaType match {
           case `acumeStarSchemaTreeCache` => {
-            new AcumeTreeCache(acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy)
+            new AcumeTreeCache(acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy).asInstanceOf[AcumeCache[k,v]]
           }
           case `acumeFlatSchemaTreeCache` => {
-            new AcumeFlatSchemaTreeCache(acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy)
+            new AcumeFlatSchemaTreeCache(acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy).asInstanceOf[AcumeCache[k,v]]
           }
           case _ => throw new IllegalArgumentException(s"No Cache exist for cache type cube $cube.schemaType")
         }
         _$instance
       }
     }
-    val _$instance = caches.computeIfAbsent(cacheIdentifier, new abc[AcumeCache]())
-    val acumeCacheEvictionObserver = new AcumeCacheEvictionObserver(_$instance)
-    _$instance
+    val _$instance = caches.computeIfAbsent(cacheIdentifier, new abc())
+    val acumeCacheEvictionObserver = new AcumeCacheEvictionObserver(_$instance.asInstanceOf[AcumeCache[k,v]])
+    _$instance.asInstanceOf[AcumeCache[k,v]]
   }
 }
