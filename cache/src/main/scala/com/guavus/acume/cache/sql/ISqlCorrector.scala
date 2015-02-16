@@ -6,6 +6,8 @@ import com.guavus.acume.cache.workflow.RequestType._
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
 import scala.collection.mutable.{HashMap => SHashMapMutable}
+import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 
 
 /**
@@ -15,7 +17,7 @@ import scala.collection.mutable.{HashMap => SHashMapMutable}
 
 trait ISqlCorrector {
   
-  def correctSQL(unparsedsql: String, parsedsql: Tuple2[List[Tuple], RequestType]): ((String, QueryOptionalParam), (List[Tuple], RequestType))
+  def correctSQL(acumeCacheContextTrait: AcumeCacheContextTrait, unparsedsql: String, parsedsql: Tuple2[List[Tuple], RequestType]): ((String, QueryOptionalParam), (List[Tuple], RequestType))
 }
 
 object ISqlCorrector {

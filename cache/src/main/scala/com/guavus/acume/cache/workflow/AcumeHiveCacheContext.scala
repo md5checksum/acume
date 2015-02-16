@@ -27,6 +27,8 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
   
   private [acume] def cacheConf = conf
   
+  private [acume] def getCubeMap = throw new RuntimeException("Operation not supported")
+  
   private [acume] def executeQuery(sql: String, qltype: QLType.QLType) = {
     val resultSchemaRDD = sqlContext.sql(sql)
     new AcumeCacheResponse(resultSchemaRDD, MetaData(-1, Nil))

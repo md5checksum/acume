@@ -35,7 +35,7 @@
 				DCTemp, DEVICE, HIT_COUNT_TEMP
             </Fields>
             <Properties>
-                basegranularity:1h, cubetype:normal, levelpolicymap:1h:53, timeserieslevelpolicymap:1h:720, evictionpolicyclass: com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy   
+                basegranularity:1h, cubetype:normal, levelpolicymap:1h:53, timeserieslevelpolicymap:1h:720, evictionpolicyclass: com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy, cacheType: AcumeStarSchemaTreeCache 	
             </Properties>
         </Cube>
     </Cubes>

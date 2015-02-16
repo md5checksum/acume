@@ -69,6 +69,8 @@ trait AcumeCacheContextTrait extends Serializable {
       measureMap.get(fieldName).get.getDefaultValue
   }
   
+  private [acume] def getCubeMap: Map[CubeKey, Cube]
+  
   private [acume] def executeQuery(sql : String, qltype : QLType.QLType) : AcumeCacheResponse
   
   private [acume] def cacheConf : AcumeCacheConf
