@@ -1,15 +1,32 @@
 package com.guavus.acume.core
 
-abstract class QueryPoolPolicy(acumeconf : AcumeConf) {
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
 
-  def getPoolNameForQuery(query : String, poolStats : PoolStats) : String = null
+abstract class QueryPoolPolicy() {
+  
+  def getQueryClassification(query : String, classificationStats : ClassificationStats) : String = null
+
+  def getPoolNameForClassification(classification : String, poolStats : PoolStats) : String = null
   
 }
 
-class QueryPoolPolicyImpl(conf : AcumeConf) extends QueryPoolPolicy(conf)
+class QueryPoolPolicyImpl() extends QueryPoolPolicy()
 
 class PoolStats
 {
-  val stats = Map[String, (Long , Long)]()
-  def getStatsForPool(name : String)=  stats.getOrElse(name, (0, 0))
+  @volatile var stats = Map[String, StatAttributes]()
+  def getStatsForPool(name : String)=  stats.getOrElse(name, new StatAttributes(new AtomicInteger(0), new AtomicInteger(0), new AtomicLong(0L)))
+  
+  def setStatsForPool(name:String, poolStatAttribute : StatAttributes) = stats += (name -> poolStatAttribute)
 }
+
+class ClassificationStats
+{
+  @volatile var stats = Map[String, StatAttributes]()
+  def getStatsForClassification(name : String)=  stats.getOrElse(name, new StatAttributes(new AtomicInteger(0), new AtomicInteger(0), new AtomicLong(0L)))
+  
+  def setStatsForClassification(name:String, classificationStatAttribute : StatAttributes) = stats += (name -> classificationStatAttribute)
+}
+
+case class StatAttributes(var currentRunningQries : AtomicInteger, var totalNumQueries : AtomicInteger, var totalTimeDuration : AtomicLong)

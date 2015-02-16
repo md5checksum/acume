@@ -666,6 +666,13 @@
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.acumeDefaultCacheType</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.schedulerpolicyclass</Property_Name>
+            <Property_Value>com.guavus.acume.core.QueryPoolPolicyImpl</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.schedulerpolicyclass</Property_OriginalName>
         </Property>	
 	<Property>
             <Property_Name>Acume Instance: &gt;</Property_Name>

@@ -9,6 +9,7 @@ import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.Dimension
 import com.guavus.acume.cache.common.Measure
 import com.guavus.acume.cache.common.QLType
+import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
 
 /**
@@ -21,6 +22,7 @@ trait AcumeCacheContextTrait extends Serializable {
   private [cache] var rrCacheLoader : RRCache = Class.forName(cacheConf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, cacheConf).asInstanceOf[RRCache]
   private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
   private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
+  private [cache] val poolThreadLocal = new ThreadLocal[HashMap[String, Any]]()
   
   def acql(sql: String, qltype: String = null): AcumeCacheResponse = { 
      val ql : QLType.QLType = if(qltype == null)
@@ -31,6 +33,8 @@ trait AcumeCacheContextTrait extends Serializable {
     validateQLType(ql)
     rrCacheLoader.getRdd((sql, ql))
   }
+  
+  def threadLocal: ThreadLocal[HashMap[String, Any]] = poolThreadLocal
     
   private [cache] def validateQLType(qltype: QLType.QLType) = {
     if (!checkQLValidation(cacheSqlContext, qltype))
