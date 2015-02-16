@@ -45,7 +45,7 @@ import net.sf.jsqlparser.statement.select.Select
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends AcumeCacheContextTrait {
   
   private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
-  val dataLoader: DataLoader = DataLoader.getDataLoader(this, conf, null)
+  val dataLoader: DataLoader = null//DataLoader.getDataLoader(this, conf, null)
   private [cache] val baseCubeList = MutableList[BaseCube]()
   private [cache] val cubeMap = new HashMap[CubeKey, Cube]
   private [cache] val cubeList = MutableList[Cube]()
@@ -58,6 +58,9 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   Utility.init(conf)
   Utility.loadXML(conf, dimensionMap, measureMap, cubeMap, cubeList)
+
+  
+  override def getCubeMap = cubeMap.toMap
   
   private [acume] def cacheConf() = conf
   
@@ -86,7 +89,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     val originalparsedsql = AcumeCacheContext.parseSql(sql)
     
     println("AcumeRequest obtained " + sql)
-    var correctsql = ISqlCorrector.getSQLCorrector(conf).correctSQL(sql, (originalparsedsql._1.toList, originalparsedsql._2))
+    var correctsql = ISqlCorrector.getSQLCorrector(conf).correctSQL(this, sql, (originalparsedsql._1.toList, originalparsedsql._2))
     var updatedsql = correctsql._1._1
     val queryOptionalParams = correctsql._1._2
     var updatedparsedsql = correctsql._2
