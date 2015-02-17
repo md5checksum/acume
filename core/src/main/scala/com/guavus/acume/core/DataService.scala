@@ -91,11 +91,20 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
     
     try {
       def calculateJobLevelProperties() {
-        classificationname = queryPoolPolicy.getQueryClassification(sql, classificationStats);
-        poolname = queryPoolPolicy.getPoolNameForClassification(classificationname, poolStats)
-        poolStatAttribute = poolStats.getStatsForPool(poolname)
-        classificationStatAttribute = classificationStats.getStatsForClassification(classificationname)
-        updateInitialStats(poolname, poolStatAttribute, classificationStatAttribute)
+        this.synchronized {
+          classificationname = queryPoolPolicy.getQueryClassification(sql, classificationStats);
+          poolname = queryPoolPolicy.getPoolNameForClassification(classificationname, poolStats)
+          if(acumeContext.ac.threadLocal.get() == null) {
+        	  acumeContext.ac.threadLocal.set(new HashMap[String, Any]())
+          }
+          
+          if(classificationname != null && poolname != null)
+          {
+        	  poolStatAttribute = poolStats.getStatsForPool(poolname)
+        	  classificationStatAttribute = classificationStats.getStatsForClassification(classificationname)
+        	  updateInitialStats(poolname, poolStatAttribute, classificationStatAttribute)
+          }
+        }
       }
       calculateJobLevelProperties()
       setSparkJobLocalProperties
@@ -204,7 +213,9 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
       }
     } finally {
       unsetSparkJobLocalProperties
-      updateFinalStats(poolname, classificationname, poolStatAttribute, classificationStatAttribute, starttime, System.currentTimeMillis())
+      
+      if(classificationname != null && poolname != null)
+    	  updateFinalStats(poolname, classificationname, poolStatAttribute, classificationStatAttribute, starttime, System.currentTimeMillis())
     }
   }
 
@@ -212,10 +223,6 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
   {
       poolStatAttribute.currentRunningQries.addAndGet(1)
       classificationStatAttribute.currentRunningQries.addAndGet(1)
-      
-      if(acumeContext.ac.threadLocal.get() == null) {
-        acumeContext.ac.threadLocal.set(new HashMap[String, Any]())
-      }
       
       acumeContext.ac.threadLocal.get().put("spark.scheduler.pool", poolname)
   }
