@@ -13,16 +13,16 @@
 		<property name="connection.sslrootcert">$CLI_REPLACE_ROOTCAPATH$</property>
 
 
-	<!-- JDBC connection pool (use the built-in) -->
-	<!-- As a change of RIX-1210, C3P0 connection pool library will be used. -->
-	<!--property name="connection.pool_size">2</property-->
-	<property name="hibernate.connection.provider_class">$CLI_REPLACE_CONNECTIONPROVIDERCLASS$</property>
+	        <!-- JDBC connection pool (use the built-in) -->
+	        <!-- As a change of RIX-1210, C3P0 connection pool library will be used. -->
+	        <!--property name="connection.pool_size">2</property-->
+	        <property name="hibernate.connection.provider_class">$CLI_REPLACE_CONNECTIONPROVIDERCLASS$</property>
 
 		<!-- SQL dialect -->
 		<property name="dialect">$CLI_REPLACE_DISTRIBUTEDDIALECT$</property>
 
 		<!-- Enable Hibernate's automatic session context management -->
-	<property name="current_session_context_class">$CLI_REPLACE_CURRENTSESSIONCONTEXTCLASS$</property>
+	        <property name="current_session_context_class">$CLI_REPLACE_CURRENTSESSIONCONTEXTCLASS$</property>
 
 		<!-- If using to Hibernate, add to your hibernate.cfg.xml -->
 		<property name="cache.use_second_level_cache">$CLI_REPLACE_HIBERNATESECONDLEVELCACHE$</property>
@@ -35,13 +35,13 @@
 		</property>
 
 
-	<!-- Drop and re-create the database schema on startup -->
-    <!--property name="hbm2ddl.auto">update</property-->
+	        <!-- Drop and re-create the database schema on startup -->
+                <!--property name="hbm2ddl.auto">update</property-->
 
-	<property name="hbm2ddl.rubix_files">$CLI_REPLACE_HIBERNATERUBIXFILE$</property>
-	<property name="hbm2ddl.solution_files">$CLI_REPLACE_HIBERNATESOLUTIONFILE$</property>
+	        <property name="hbm2ddl.rubix_files">$CLI_REPLACE_HIBERNATERUBIXFILE$</property>
+	        <property name="hbm2ddl.solution_files">$CLI_REPLACE_HIBERNATESOLUTIONFILE$</property>
 
-	<!-- Echo all executed SQL to stdout -->
+	        <!-- Echo all executed SQL to stdout -->
 		<property name="show_sql">true</property>
 		<mapping class="com.guavus.rubix.user.management.pojo.UserInfo" />
 		<mapping class="com.guavus.rubix.user.management.pojo.Group" />
@@ -55,5 +55,6 @@
 		<mapping class="com.guavus.rubix.user.management.pojo.DbLock" />
 		<mapping class="com.guavus.launchboard.pojo.LaunchBoard" />
                 <mapping class="com.guavus.launchboard.pojo.UserFlow" />
+                <mapping class="com.guavus.rubix.user.management.pojo.Application"/>"
 	</session-factory>
 </hibernate-configuration>
