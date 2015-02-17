@@ -19,11 +19,10 @@ class QueryPoolPolicyImpl() extends QueryPoolPolicy()
 class PoolStats
 {
   @volatile var stats = new ConcurrentHashMap[String, StatAttributes]()
-  def getStatsForPool(name : String)=  stats.computeIfAbsent(name, new Function[String, StatAttributes]() {
-    def apply(name : String) = {
-          new StatAttributes(new AtomicInteger(0), new AtomicInteger(0), new AtomicLong(0L))
-    }
-  })
+  def getStatsForPool(name : String) =  {
+    stats.putIfAbsent(name, new StatAttributes(new AtomicInteger(0), new AtomicInteger(0), new AtomicLong(0L)))
+    stats.get(name)
+  }
 
   def setStatsForPool(name:String, poolStatAttribute : StatAttributes) = stats.put(name, poolStatAttribute)
 }
@@ -31,11 +30,10 @@ class PoolStats
 class ClassificationStats
 {
   @volatile var stats = new ConcurrentHashMap[String, StatAttributes]()
-  def getStatsForClassification(name : String)=  stats.computeIfAbsent(name, new Function[String, StatAttributes]() {
-    def apply(name : String) = {
-          new StatAttributes(new AtomicInteger(0), new AtomicInteger(0), new AtomicLong(0L))
-    }
-  })
+  def getStatsForClassification(name : String)=  {
+    stats.putIfAbsent(name, new StatAttributes(new AtomicInteger(0), new AtomicInteger(0), new AtomicLong(0L)))
+    stats.get(name)
+  }
 
   def setStatsForClassification(name:String, classificationStatAttribute : StatAttributes) = stats.put(name, classificationStatAttribute)
 }
