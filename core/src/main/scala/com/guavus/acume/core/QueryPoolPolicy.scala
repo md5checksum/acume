@@ -1,15 +1,43 @@
 package com.guavus.acume.core
 
-abstract class QueryPoolPolicy(acumeconf : AcumeConf) {
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.atomic.AtomicLong
+import java.util.concurrent.ConcurrentHashMap
+import scala.collection.JavaConversions._
+import java.util.function.Function
 
-  def getPoolNameForQuery(query : String, poolStats : PoolStats) : String = null
-  
+abstract class QueryPoolPolicy() {
+
+  def getQueryClassification(query : String, classificationStats : ClassificationStats) : String = null
+
+  def getPoolNameForClassification(classification : String, poolStats : PoolStats) : String = null
+
 }
 
-class QueryPoolPolicyImpl(conf : AcumeConf) extends QueryPoolPolicy(conf)
+class QueryPoolPolicyImpl() extends QueryPoolPolicy()
 
 class PoolStats
 {
-  val stats = Map[String, (Long , Long)]()
-  def getStatsForPool(name : String)=  stats.getOrElse(name, (0, 0))
+  @volatile var stats = new ConcurrentHashMap[String, StatAttributes]()
+  def getStatsForPool(name : String)=  stats.computeIfAbsent(name, new Function[String, StatAttributes]() {
+    def apply(name : String) = {
+          new StatAttributes(new AtomicInteger(0), new AtomicInteger(0), new AtomicLong(0L))
+    }
+  })
+
+  def setStatsForPool(name:String, poolStatAttribute : StatAttributes) = stats.put(name, poolStatAttribute)
 }
+
+class ClassificationStats
+{
+  @volatile var stats = new ConcurrentHashMap[String, StatAttributes]()
+  def getStatsForClassification(name : String)=  stats.computeIfAbsent(name, new Function[String, StatAttributes]() {
+    def apply(name : String) = {
+          new StatAttributes(new AtomicInteger(0), new AtomicInteger(0), new AtomicLong(0L))
+    }
+  })
+
+  def setStatsForClassification(name:String, classificationStatAttribute : StatAttributes) = stats.put(name, classificationStatAttribute)
+}
+
+case class StatAttributes(var currentRunningQries : AtomicInteger, var totalNumQueries : AtomicInteger, var totalTimeDuration : AtomicLong)

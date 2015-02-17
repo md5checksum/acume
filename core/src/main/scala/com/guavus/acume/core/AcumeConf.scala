@@ -151,6 +151,10 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
   def setSqlQueryEngine(sqlQueryEngine: String): AcumeConf = {
     set("acume.core.sql.query.engine", sqlQueryEngine)
   }
+
+  def getSchedulerPolicyClass() : String = {
+    get("acume.cache.scheduler.policyclass", "com.guavus.acume.core.QueryPoolPolicyImpl")
+  }
   
   /** Set multiple parameters together */
   def setAll(settings: Traversable[(String, String)]) = {
