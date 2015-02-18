@@ -4,7 +4,6 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions._
-import java.util.function.Function
 
 abstract class QueryPoolPolicy() {
 
