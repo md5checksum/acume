@@ -263,10 +263,12 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
     if(!modifiedSql.equals("")) {
       if (!queryBuilderService.iterator.next.isSchedulerQuery(sql)) {
         print(modifiedSql)
-        val resp = acumeContext.ac.acql(modifiedSql)
+        var totalRecords = 0l
         if (!queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql)) {
-          resp.metadata.totalRecords = acumeContext.ac.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getLong(0)
+          totalRecords = acumeContext.ac.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getLong(0)
         }
+        val resp = acumeContext.ac.acql(modifiedSql)
+        resp.metadata.totalRecords = totalRecords
         resp
       } else {
         acumeContext.ac.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql))

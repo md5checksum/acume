@@ -68,7 +68,7 @@ extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf,
   .build(
       new CacheLoader[LevelTimestamp, AcumeTreeCacheValue]() {
         def load(key: LevelTimestamp): AcumeTreeCacheValue = {
-          return getData(key);
+          return getDataFromBackend(key)
         }
       });
   
@@ -137,12 +137,15 @@ extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf,
     SortedMap[Long, Int]() ++ cubelocal
   }
   
-  def getData(levelTimestamp: LevelTimestamp) = {
+  def _getDataFromBackend(pointRdd : SchemaRDD, levelTimestamp: LevelTimestamp) : AcumeTreeCacheValue= {
+	val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
+    if(pointRdd != null) {
+      return new AcumeTreeCacheValue(null, _tableName, pointRdd)
+    }
 
     import acumeCacheContext.sqlContext._
     val cacheLevel = levelTimestamp.level
     val diskloaded = diskUtility.loadData(cube, levelTimestamp)
-    val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
     val _tableNameTemp = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString + "_temp"
     diskloaded.registerTempTable(_tableName + "_temp")
     val timestamp = levelTimestamp.timestamp

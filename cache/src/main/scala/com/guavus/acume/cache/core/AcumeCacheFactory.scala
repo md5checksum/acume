@@ -47,11 +47,11 @@ object AcumeCacheFactory {
           }
           case _ => throw new IllegalArgumentException(s"No Cache exist for cache type cube $cube.schemaType")
         }
+        val acumeCacheEvictionObserver = new AcumeCacheEvictionObserver(_$instance.asInstanceOf[AcumeCache[k,v]])
         _$instance
       }
     }
     val _$instance = caches.computeIfAbsent(cacheIdentifier, new abc())
-    val acumeCacheEvictionObserver = new AcumeCacheEvictionObserver(_$instance.asInstanceOf[AcumeCache[k,v]])
     _$instance.asInstanceOf[AcumeCache[k,v]]
   }
 }
