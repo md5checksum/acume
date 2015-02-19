@@ -80,7 +80,7 @@ class AcumeCacheSQLCorrector extends ISqlCorrector {
       val xlist = x.getSingleEntityKeyValueList
       val singleEntityKey = acumeCacheContextTrait.getCubeMap.getOrElse(CubeKey(x.getCubeName, x.getBinsource), throw new RuntimeException("Cube not found")).singleEntityKeys
       if (singleEntityKey == null || singleEntityKey.isEmpty) {
-        x.setSingleEntityKeyValueList(new ListBuffer[HashMap[String, Any]])
+        x.setSingleEntityKeyValueList(new java.util.LinkedList[java.util.HashMap[String, Object]])
       } else {
         xlist.map(y => {
           for (ix <- y.entrySet()) {

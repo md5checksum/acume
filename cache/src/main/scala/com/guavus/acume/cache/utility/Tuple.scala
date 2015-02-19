@@ -1,10 +1,8 @@
 package com.guavus.acume.cache.utility
 
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
-import scala.collection.mutable.HashMap
-import scala.collection.mutable.ListBuffer
+import java.util.LinkedList
+import java.util.HashMap
 
 class Tuple {
 
@@ -21,10 +19,9 @@ class Tuple {
   var binsource: String = null
 
   
-  var singleEntityKeyValueList: ListBuffer[HashMap[String, Any]] = ListBuffer[HashMap[String, Any]]()
+  var singleEntityKeyValueList: LinkedList[HashMap[String, Object]] = new LinkedList[HashMap[String, Object]]()
   
-  
-  def setSingleEntityKeyValueList(list : ListBuffer[HashMap[String, Any]]) {
+  def setSingleEntityKeyValueList(list : LinkedList[HashMap[String, Object]]) {
     singleEntityKeyValueList = list
   }
   
@@ -32,17 +29,17 @@ class Tuple {
     singleEntityKeyValueList
   }
 
-  def addSingleEntityKeyValueMap(keyvaluemap: HashMap[String, Any]) {
-    (keyvaluemap) +: singleEntityKeyValueList 
+  def addSingleEntityKeyValueMap(keyvaluemap: HashMap[String, Object]) {
+    singleEntityKeyValueList.add(keyvaluemap) 
   }
 
-  def getNewBlankHashMap(): HashMap[String, Any] = {
-    val hashmap = new HashMap[String, Any]()
-    (hashmap) +: singleEntityKeyValueList
+  def getNewBlankHashMap(): HashMap[String, Object] = {
+    val hashmap = new HashMap[String, Object]()
+    singleEntityKeyValueList.add(hashmap)
     hashmap
   }
 
-  def set(startTime: Long, endTime: Long, cubeName: String, binsource: String, hashmap: ListBuffer[HashMap[String, Any]]) {
+  def set(startTime: Long, endTime: Long, cubeName: String, binsource: String, hashmap: LinkedList[HashMap[String, Object]]) {
     this.startTime = startTime
     this.endTime = endTime
     this.binsource = binsource

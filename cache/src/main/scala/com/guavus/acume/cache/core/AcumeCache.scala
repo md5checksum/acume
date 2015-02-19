@@ -39,8 +39,8 @@ abstract class AcumeCache[k, v](val acumeCacheContext: AcumeCacheContext, val co
   
   def getCacheCollection =  cachePointToTable
   
-  def createTempTable(keyMap : List[HashMap[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam])
+  def createTempTable(keyMap : List[Map[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam])
   
-  def createTempTableAndMetadata(keyMap : List[HashMap[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData 	
+  def createTempTableAndMetadata(keyMap : List[Map[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData 	
 
 }

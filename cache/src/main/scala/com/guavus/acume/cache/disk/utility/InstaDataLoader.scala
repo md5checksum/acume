@@ -43,7 +43,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
     cubeList = insta.getInstaCubeList
   }
 
-  override def loadData(keyMap : HashMap[String, Any], businessCube: Cube, levelTimestamp: LevelTimestamp): SchemaRDD = {
+  override def loadData(keyMap : Map[String, Any], businessCube: Cube, levelTimestamp: LevelTimestamp): SchemaRDD = {
     this.synchronized {
       val endTime = Utility.getNextTimeFromGranularity(levelTimestamp.timestamp, levelTimestamp.level.localId, Utility.newCalendar)
       val dimSet = getBestCubeName(businessCube, levelTimestamp.timestamp, endTime)
