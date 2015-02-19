@@ -40,7 +40,7 @@ object AcumeCacheFactory {
         
         val _$instance : AcumeCache[k, v] = cube.schemaType match {
           case `acumeStarSchemaTreeCache` => {
-            new AcumeTreeCache(acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy).asInstanceOf[AcumeCache[k,v]]
+            new AcumeStarSchemaTreeCache(acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy).asInstanceOf[AcumeCache[k,v]]
           }
           case `acumeFlatSchemaTreeCache` => {
             new AcumeFlatSchemaTreeCache(acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy).asInstanceOf[AcumeCache[k,v]]

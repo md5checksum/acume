@@ -33,11 +33,11 @@ extends AcumeCache[CacheIdentifier, AcumeCache[LevelTimestamp, AcumeTreeCacheVal
   .build(
       new CacheLoader[CacheIdentifier, AcumeCache[LevelTimestamp, AcumeTreeCacheValue]]() {
         def load(key: CacheIdentifier): AcumeCache[LevelTimestamp, AcumeTreeCacheValue] = {
-          return getData(key);
+          return getDataFromBackend(key);
         }
       });
   
-  def getData(cacheIdentifier : CacheIdentifier) : AcumeCache[LevelTimestamp, AcumeTreeCacheValue] = {
+  override def getDataFromBackend(cacheIdentifier : CacheIdentifier) : AcumeCache[LevelTimestamp, AcumeTreeCacheValue] = {
 	AcumeCacheFactory.getInstance(acumeCacheContext, conf, cacheIdentifier, cube)
   }
 
