@@ -19,6 +19,8 @@ import com.guavus.acume.cache.common.ConfConstants
 import com.google.common.cache.RemovalListener
 import com.google.common.cache.RemovalNotification
 import com.google.common.cache.CacheLoader
+import scala.collection.mutable.LinkedList
+import scala.collection.mutable.HashMap
 
 class SingleEntityAcumeTreeCache(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy) 
 extends AcumeCache[CacheIdentifier, AcumeCache[LevelTimestamp, AcumeTreeCacheValue]](acumeCacheContext, conf, cube) {
@@ -41,27 +43,33 @@ extends AcumeCache[CacheIdentifier, AcumeCache[LevelTimestamp, AcumeTreeCacheVal
 	AcumeCacheFactory.getInstance(acumeCacheContext, conf, cacheIdentifier, cube)
   }
 
-  def createTempTable(keyMap : Map[String, Any], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) = {
-	  val tempTables = for((key,value) <- keyMap) yield {
+  def createTempTable(keyMap : List[HashMap[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) = {
+	  val tempTables = for(keyValueMap <- keyMap) yield {
 	    val cacheIdentifier = new CacheIdentifier()
 	    cacheIdentifier.put("cube", cube.hashCode)
-	    cacheIdentifier.put(key, value)
+	    for((key, value) <- keyValueMap) {
+	    	cacheIdentifier.put(key, value)
+	    }
 	    val singleEntityCache = cachePointToTable.get(cacheIdentifier)
-	    singleEntityCache.createTempTable(keyMap, startTime, endTime, requestType, (tableName + "_" + key + "_" + value), queryOptionalParam)
-	    acumeCacheContext.sqlContext.table((tableName + "_" + key + "_" + value))
+	    val tableNameAppender = keyValueMap.map(x => x._1+ "=" + x._2).mkString("_")
+	    singleEntityCache.createTempTable(List(keyValueMap), startTime, endTime, requestType, (tableName + "_" + tableNameAppender), queryOptionalParam)
+	    acumeCacheContext.sqlContext.table((tableName + "_" + tableNameAppender))
 	  }
 	  val finalRdd = tempTables.reduce(_.unionAll(_))
 	  finalRdd.registerTempTable(tableName)
   }
   
-  def createTempTableAndMetadata(keyMap : Map[String, Any], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData = {
-    val tempTables = for((key,value) <- keyMap) yield {
+  def createTempTableAndMetadata(keyMap : List[HashMap[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData = {
+    val tempTables = for(keyValueMap <- keyMap) yield {
 	    val cacheIdentifier = new CacheIdentifier()
 	    cacheIdentifier.put("cube", cube.hashCode)
-	    cacheIdentifier.put(key, value)
+	    for((key, value) <- keyValueMap) {
+	    	cacheIdentifier.put(key, value)
+	    }
 	    val singleEntityCache = cachePointToTable.get(cacheIdentifier)
-	    val metadata = singleEntityCache.createTempTableAndMetadata(keyMap, startTime, endTime, requestType, (tableName + "_" + key + "_" + value), queryOptionalParam)
-	    (acumeCacheContext.sqlContext.table((tableName + "_" + key + "_" + value)),metadata)
+	    val tableNameAppender = keyValueMap.map(x => x._1+ "=" + x._2).mkString("_")
+	    val metadata = singleEntityCache.createTempTableAndMetadata(keyMap, startTime, endTime, requestType, (tableName + "_" + tableNameAppender), queryOptionalParam)
+	    (acumeCacheContext.sqlContext.table((tableName + "_" + tableNameAppender)),metadata)
 	  }
 	  val finalRdd = tempTables.reduce((x,y)=>(x._1.unionAll(y._1), x._2))
 	  finalRdd._1.registerTempTable(tableName)

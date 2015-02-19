@@ -2,9 +2,7 @@ package com.guavus.acume.cache.disk.utility
 
 import java.util.Arrays
 import java.util.concurrent.ConcurrentHashMap
-
 import scala.util.control.Breaks._
-
 import org.apache.spark.AccumulatorParam
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SchemaRDD
@@ -13,7 +11,6 @@ import org.apache.spark.sql.StructType
 import org.apache.spark.sql.catalyst.expressions.GenericRow
 import org.apache.spark.sql.catalyst.expressions.Row
 import org.apache.spark.sql.catalyst.types.LongType
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.ConversionToSpark
@@ -30,6 +27,7 @@ import com.guavus.insta.BinPersistTimeInfoRequest
 import com.guavus.insta.Insta
 import com.guavus.insta.InstaCubeMetaInfo
 import com.guavus.insta.InstaRequest
+import scala.collection.mutable.HashMap
 
 class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @transient  conf: AcumeCacheConf, @transient acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends DataLoader(acumeCacheContext, conf, null) {
 
@@ -45,7 +43,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
     cubeList = insta.getInstaCubeList
   }
 
-  override def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp): SchemaRDD = {
+  override def loadData(keyMap : HashMap[String, Any], businessCube: Cube, levelTimestamp: LevelTimestamp): SchemaRDD = {
     this.synchronized {
       val endTime = Utility.getNextTimeFromGranularity(levelTimestamp.timestamp, levelTimestamp.level.localId, Utility.newCalendar)
       val dimSet = getBestCubeName(businessCube, levelTimestamp.timestamp, endTime)
@@ -68,9 +66,16 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
         else
           0
       })
+      
+      val rowFilters = (dimSet.dimensions ++ dimSet.measures).map(x => {
+        if (baseFields.contains(x))
+          keyMap.getOrElse(x, -1)
+        else
+          -1
+      })
 
       val instaMeasuresRequest = InstaRequest(levelTimestamp.timestamp, endTime,
-        businessCube.binsource, dimSet.cubeName, List(), measureFilters)
+        businessCube.binsource, dimSet.cubeName, List(rowFilters), measureFilters)
         print("Firing aggregate query on insta "  + instaMeasuresRequest)
       val aggregatedMeasureDataInsta = insta.getAggregatedData(instaMeasuresRequest)
       val aggregatedTblTemp = "aggregatedMeasureDataInstaTemp" + levelTimestamp.level + "_" + levelTimestamp.timestamp

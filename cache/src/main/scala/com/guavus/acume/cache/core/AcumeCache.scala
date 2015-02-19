@@ -13,6 +13,8 @@ import com.guavus.acume.cache.workflow.MetaData
 import java.util.Observable
 import scala.collection.mutable.MutableList
 import com.guavus.acume.cache.common.LevelTimestamp
+import java.util.LinkedList
+import scala.collection.mutable.HashMap
 
 
 /**
@@ -37,8 +39,8 @@ abstract class AcumeCache[k, v](val acumeCacheContext: AcumeCacheContext, val co
   
   def getCacheCollection =  cachePointToTable
   
-  def createTempTable(keyMap : Map[String, Any], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam])
+  def createTempTable(keyMap : List[HashMap[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam])
   
-  def createTempTableAndMetadata(keyMap : Map[String, Any], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData 	
+  def createTempTableAndMetadata(keyMap : List[HashMap[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData 	
 
 }
