@@ -58,9 +58,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   Utility.init(conf)
   Utility.loadXML(conf, dimensionMap, measureMap, cubeMap, cubeList)
-
-  
-  override def getCubeMap = cubeMap.toMap
   
   private [acume] def cacheConf() = conf
   
@@ -89,7 +86,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     val originalparsedsql = AcumeCacheContext.parseSql(sql)
     
     println("AcumeRequest obtained " + sql)
-    var correctsql = ISqlCorrector.getSQLCorrector(conf).correctSQL(this, sql, (originalparsedsql._1.toList, originalparsedsql._2))
+    var correctsql = ISqlCorrector.getSQLCorrector(conf).correctSQL(sql, (originalparsedsql._1.toList, originalparsedsql._2))
     var updatedsql = correctsql._1._1
     val queryOptionalParams = correctsql._1._2
     var updatedparsedsql = correctsql._2

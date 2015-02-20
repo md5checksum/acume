@@ -206,7 +206,6 @@ public class QueryBinSourceWhereClauseVisitor implements SelectVisitor, Expressi
 		equalsTo.getRightExpression().accept(this);
 		if(isbinsource) {
 			t.setBinsource(((StringValue)equalsTo.getRightExpression()).getValue());
-//			t.setBinsource(equalsTo.getRightExpression().toString());
 			isbinsource = false;
 		}
 	}
