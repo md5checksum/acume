@@ -45,7 +45,7 @@ import net.sf.jsqlparser.statement.select.Select
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends AcumeCacheContextTrait {
   
   private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
-  val dataLoader: DataLoader = DataLoader.getDataLoader(this, conf, null)
+  val dataLoader: DataLoader = null//DataLoader.getDataLoader(this, conf, null)
   private [cache] val baseCubeList = MutableList[BaseCube]()
   private [cache] val cubeMap = new HashMap[CubeKey, Cube]
   private [cache] val cubeList = MutableList[Cube]()
