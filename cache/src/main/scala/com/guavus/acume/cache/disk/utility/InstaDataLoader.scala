@@ -73,15 +73,16 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
         acumeField -> baseFields(i)
       })
       val renameToAcumeFields = (for(acumeField <- fields) yield {
-        //baseFieldName-> baseFieldToAcumeFieldMap.get(baseFieldName).get
-        acumeField -> acumeFieldToBaseFieldMap.get(acumeField).get
+        acumeFieldToBaseFieldMap.get(acumeField).get -> acumeField
+//        acumeField -> acumeFieldToBaseFieldMap.get(acumeField).get
       }).map(x => x._1 + " as " + x._2).mkString(",")
       
     val instaDimRequest = InstaRequest(startTime, endTime,
-        businessCube.binsource, dimSet.cubeName, List(rowFilters), measureFilters)
+        businessCube.binsource, dimSet.cubeName, List(), measureFilters)
         print("Firing aggregate query on insta "  + instaDimRequest)
         val dimensionTblTemp = "dimensionDataInstaTemp" + businessCube.cubeName+ endTime
-    insta.getNewTuples(instaDimRequest).registerTempTable(dimensionTblTemp)
+    val newTuplesRdd = insta.getNewTuples(instaDimRequest)
+    sqlContext.registerRDDAsTable(newTuplesRdd, dimensionTblTemp)
     sqlContext.sql(s"select $renameToAcumeFields from $dimensionTblTemp")
   }
 
@@ -117,15 +118,14 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
       })
 
       val instaMeasuresRequest = InstaRequest(levelTimestamp.timestamp, endTime,
-        businessCube.binsource, dimSet.cubeName, List(rowFilters), measureFilters)
+        businessCube.binsource, dimSet.cubeName, List(), measureFilters)
         print("Firing aggregate query on insta "  + instaMeasuresRequest)
       val aggregatedMeasureDataInsta = insta.getAggregatedData(instaMeasuresRequest)
       val aggregatedTblTemp = "aggregatedMeasureDataInstaTemp" + levelTimestamp.level + "_" + levelTimestamp.timestamp
       sqlContext.registerRDDAsTable(aggregatedMeasureDataInsta, aggregatedTblTemp)
       //change schema for this schema rdd
       val renameToAcumeFields = (for(acumeField <- fields) yield {
-        //baseFieldName-> baseFieldToAcumeFieldMap.get(baseFieldName).get
-        acumeField -> acumeFieldToBaseFieldMap.get(acumeField).get
+        acumeFieldToBaseFieldMap.get(acumeField).get -> acumeField
       }).map(x => x._1 + " as " + x._2).mkString(",")
       sqlContext.sql(s"select $renameToAcumeFields from $aggregatedTblTemp") 
     }
