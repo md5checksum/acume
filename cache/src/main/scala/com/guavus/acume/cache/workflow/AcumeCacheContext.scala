@@ -115,11 +115,8 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       val idd = new CacheIdentifier()
       idd.put("cube", id.hashCode)
       val instance = AcumeCacheFactory.getInstance(this, conf, idd, id)
-      if(l.getSingleEntityKeyValueList() == null  || l.getSingleEntityKeyValueList().size == 0) {
-    	  instance.createTempTableAndMetadata(List(HashMap[String, Any]()), startTime, endTime, rt, i,Some(queryOptionalParams))
-      } else {
-        instance.createTempTableAndMetadata(l.getSingleEntityKeyValueList().toList, startTime, endTime, rt, i,Some(queryOptionalParams))
-      }
+      val temp = instance.createTempTableAndMetadata(Map(), startTime, endTime, rt, i,Some(queryOptionalParams))
+      temp
     }
     val klist = list.flatMap(_.timestamps).toList
     val kfg = AcumeCacheContext.ACQL(qltype, sqlContext)(updatedsql)

@@ -19,7 +19,7 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
  */
 abstract class DataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, acumeCache: AcumeCache[_ >: Any , _ >: Any]) extends Serializable {
 
-  def loadData(keyMap : HashMap[String, Any], businessCube: Cube, levelTimestamp: LevelTimestamp): SchemaRDD
+  def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp): SchemaRDD
 //  def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable, instabase: String, instainstanceid: String): Tuple2[SchemaRDD, String]
   //This should be removed and things like instabase and instanceid should be retrieviable from MetaDataLoader for better code designing.
   

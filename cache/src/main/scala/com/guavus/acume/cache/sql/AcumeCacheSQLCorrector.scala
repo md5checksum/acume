@@ -18,10 +18,6 @@ import java.util.{LinkedList => JLinkedList}
 import java.util.{HashMap => JHashMap }
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import com.guavus.acume.cache.workflow.CubeKey
-import scala.collection.mutable.HashMap
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
-import scala.collection.mutable.ListBuffer
 
 /**
  * @author archit.thakur
@@ -80,7 +76,7 @@ class AcumeCacheSQLCorrector extends ISqlCorrector {
       val xlist = x.getSingleEntityKeyValueList
       val singleEntityKey = acumeCacheContextTrait.getCubeMap.getOrElse(CubeKey(x.getCubeName, x.getBinsource), throw new RuntimeException("Cube not found")).singleEntityKeys
       if (singleEntityKey == null || singleEntityKey.isEmpty) {
-        x.setSingleEntityKeyValueList(new ListBuffer[HashMap[String, Any]])
+        x.setSingleEntityKeyValueList(new JLinkedList[JHashMap[String, Object]])
       } else {
         xlist.map(y => {
           for (ix <- y.entrySet()) {

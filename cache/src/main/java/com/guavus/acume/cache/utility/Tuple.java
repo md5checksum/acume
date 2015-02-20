@@ -1,72 +1,12 @@
-package com.guavus.acume.cache.utility
-
-import scala.reflect.{BeanProperty, BooleanBeanProperty}
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
-import scala.collection.mutable.HashMap
-import scala.collection.mutable.ListBuffer
-
-class Tuple {
-
-  @BeanProperty
-  var startTime: Long = 0l
-
-  @BeanProperty
-  var endTime: Long = 0l
-
-  @BeanProperty
-  var cubeName: String = ""
-
-  @BeanProperty
-  var binsource: String = null
-
-  
-  var singleEntityKeyValueList: ListBuffer[HashMap[String, Any]] = ListBuffer[HashMap[String, Any]]()
-  
-  
-  def setSingleEntityKeyValueList(list : ListBuffer[HashMap[String, Any]]) {
-    singleEntityKeyValueList = list
-  }
-  
-  def getSingleEntityKeyValueList() = {
-    singleEntityKeyValueList
-  }
-
-  def addSingleEntityKeyValueMap(keyvaluemap: HashMap[String, Any]) {
-    (keyvaluemap) +: singleEntityKeyValueList 
-  }
-
-  def getNewBlankHashMap(): HashMap[String, Any] = {
-    val hashmap = new HashMap[String, Any]()
-    (hashmap) +: singleEntityKeyValueList
-    hashmap
-  }
-
-  def set(startTime: Long, endTime: Long, cubeName: String, binsource: String, hashmap: ListBuffer[HashMap[String, Any]]) {
-    this.startTime = startTime
-    this.endTime = endTime
-    this.binsource = binsource
-    this.cubeName = cubeName
-    this.singleEntityKeyValueList = hashmap
-  }
-
-  def set(startTime: Long, endTime: Long, cubeName: String, binsource: String) {
-    this.startTime = startTime
-    this.endTime = endTime
-    this.binsource = binsource
-    this.cubeName = cubeName
-  }
-
-/*
-Original Java:
 package com.guavus.acume.cache.utility;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
-|**
+/**
  * @author archit.thakur
- *|
+ */
 
 public class Tuple {
 	
@@ -131,6 +71,3 @@ public class Tuple {
 }
 
 
-
-*/
-}

@@ -39,13 +39,12 @@ import org.apache.spark.AccumulatorParam
 import java.util.Arrays
 import com.guavus.acume.cache.common.LevelTimestamp
 import org.apache.spark.sql.SQLContext
-import scala.collection.mutable.HashMap
 
 /**
  * @author archit.thakur
  *
  */
-private [cache] class AcumeStarSchemaTreeCache(keyMap : HashMap[String, Any], acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy) 
+private [cache] class AcumeStarSchemaTreeCache(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy) 
 extends AcumeTreeCache(acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeriesAggregationPolicy) {
 
   @transient val sqlContext = acumeCacheContext.cacheSqlContext
@@ -61,7 +60,7 @@ extends AcumeTreeCache(acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeri
   val latestschema = StructType(StructField("id", LongType, true) +: schema.toList)
   acumeCacheContext.cacheSqlContext.registerRDDAsTable(Utility.getEmptySchemaRDD(acumeCacheContext.cacheSqlContext, latestschema), dimensionTable.tblnm)
         
-  override def createTempTable(keyMap : List[HashMap[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
+  override def createTempTable(keyMap : Map[String, Any], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
     requestType match {
       case Aggregate => createTableForAggregate(startTime, endTime, tableName, false)
       case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam, false)
@@ -85,7 +84,7 @@ extends AcumeTreeCache(acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeri
   
   private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf("_"))
   
-  override def createTempTableAndMetadata(keyMap : List[HashMap[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData = {
+  override def createTempTableAndMetadata(keyMap : Map[String, Any], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData = {
     requestType match {
       case Aggregate => createTableForAggregate(startTime, endTime, tableName, true)
       case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam, true)
@@ -169,7 +168,7 @@ extends AcumeTreeCache(acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeri
   
    def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable): Tuple2[SchemaRDD, String] = {
     val aggregatedTbl = "aggregatedMeasureDataInsta" + levelTimestamp.level + "_" + levelTimestamp.timestamp
-    diskUtility.loadData(keyMap, businessCube, levelTimestamp).registerTempTable(aggregatedTbl)
+    diskUtility.loadData(businessCube, levelTimestamp).registerTempTable(aggregatedTbl)
     
     
     val sqlContext = acumeCacheContext.cacheSqlContext
