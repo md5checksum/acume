@@ -3,9 +3,9 @@ package com.guavus.acume.cache.core
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.hive.HiveContext
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.cache.utility.Utility
 
 /**
  * @author archit.thakur
@@ -58,7 +58,7 @@ object AcumeCacheType extends Enumeration {
     conf123.set(ConfConstants.cubedefinitionxml,"src/test/resources/muralinstacubedefinition.xml")
     conf123.set(ConfConstants.acumecorebinsource, "__DEFAULT_BINSRC__")
     conf123.set("acume.cache.default.cache.type", "AcumeStarSchemaTreeCache")
-    
+    Utility.init(conf123)
     val cntxt = new com.guavus.acume.cache.workflow.AcumeCacheContext(sqlContext, conf123)
 //    cntxt.acql("select egressruleid from searchEgressPeerCube where ts >=1384750800 and ts <1384758000")
 //    cntxt.acql("SELECT tx.sum_TTS_B AS TTS_B FROM (SELECT sum(TTS_B) AS sum_TTS_B FROM searchEgressPeerCube WHERE ts < 1384761600 AND ts >= 1384750800) tx")

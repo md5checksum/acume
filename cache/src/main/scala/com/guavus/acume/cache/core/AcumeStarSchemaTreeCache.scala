@@ -40,6 +40,7 @@ import java.util.Arrays
 import com.guavus.acume.cache.common.LevelTimestamp
 import org.apache.spark.sql.SQLContext
 import scala.collection.mutable.HashMap
+import com.guavus.acume.cache.disk.utility.DataLoadedMetadata
 
 /**
  * @author archit.thakur
@@ -58,7 +59,7 @@ extends AcumeTreeCache(acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeri
     cubeDimensionSet.map(field => {
       StructField(field.getName, ConversionToSpark.convertToSparkDataType(CubeUtil.getFieldType(field)), true)
     })
-  val latestschema = StructType(StructField("id", LongType, true) +: schema.toList)
+  val latestschema = StructType(schema.toList :+ StructField("id", LongType, true))
   acumeCacheContext.cacheSqlContext.registerRDDAsTable(Utility.getEmptySchemaRDD(acumeCacheContext.cacheSqlContext, latestschema), dimensionTable.tblnm)
         
   override def createTempTable(keyMap : List[Map[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
@@ -171,18 +172,30 @@ extends AcumeTreeCache(acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeri
     val aggregatedTbl = "aggregatedMeasureDataInsta" + levelTimestamp.level + "_" + levelTimestamp.timestamp
     diskUtility.loadData(keyMap, businessCube, levelTimestamp).registerTempTable(aggregatedTbl)
     
-    
+    this.synchronized {
+          val endTime = Utility.getNextTimeFromGranularity(levelTimestamp.timestamp, levelTimestamp.level.localId, Utility.newCalendar)
+          val metaData = diskUtility.getOrElseInsert(cube, new DataLoadedMetadata(Map[String, String](DataLoadedMetadata.dimensionSetStartTime -> "0", DataLoadedMetadata.dimensionSetEndTime -> "0")))
+          
+    	  val dimensionSetRdd = diskUtility.loadDimensionSet(keyMap, businessCube, Utility.floorFromGranularity(metaData.get(DataLoadedMetadata.dimensionSetEndTime).toLong, businessCube.baseGran.getGranularity), endTime)
+    	  val fullRdd = AcumeStarSchemaTreeCache.generateId(dimensionSetRdd, dTableName, acumeCacheContext.cacheSqlContext)
+    	  fullRdd.cache
+    	  dTableName.Modify
+    	  val finalDimensionRdd = acumeCacheContext.sqlContext.applySchema(acumeCacheContext.sqlContext.table(dTableName.tblnm).union(fullRdd), latestschema)
+    	  acumeCacheContext.sqlContext.registerRDDAsTable(finalDimensionRdd, dTableName.tblnm)
+    	  metaData.put(DataLoadedMetadata.dimensionSetEndTime, endTime.toString)
+    }
+
     val sqlContext = acumeCacheContext.cacheSqlContext
     val dtnm = dTableName.tblnm
           val selectField = dtnm + ".id, " +  CubeUtil.getCubeFields(businessCube).map(aggregatedTbl+ "." + _).mkString(",")
       val onField = CubeUtil.getDimensionSet(businessCube).map(x => aggregatedTbl + "." + x.getName + "=" + dtnm + "." + x.getName).mkString(" AND ")
       val ar = sqlContext.sql(s"select $selectField from $aggregatedTbl left outer join $dtnm on $onField")
-      val fullRdd = AcumeStarSchemaTreeCache.generateId(ar, dTableName, sqlContext)
+//      val fullRdd = AcumeStarSchemaTreeCache.generateId(ar, dTableName, sqlContext)
       val joinedTbl = businessCube.cubeName + levelTimestamp.level + "_" + levelTimestamp.timestamp
-      sqlContext.registerRDDAsTable(fullRdd, joinedTbl)
+      sqlContext.registerRDDAsTable(ar, joinedTbl)
 
       (correctMTable(businessCube, joinedTbl, levelTimestamp.timestamp),
-        correctDTable(businessCube, dTableName, joinedTbl, levelTimestamp.timestamp))
+        dTableName.tblnm)
   }
    def correctMTable(businessCube: Cube, joinedTbl: String, timestamp : Long) = {
     
@@ -202,7 +215,8 @@ extends AcumeTreeCache(acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeri
     val latestschema = StructType(StructField("id", LongType, true) +: schema.toList)
     val selectDimensionSet = cubeDimensionSet.map(_.getName).mkString(",")
     val newdrdd = sqlContext.sql(s"select id as tupleid, $selectDimensionSet from $joinedTbl")
-    val dimensionRdd = newdrdd.union(table(dimensiontable.tblnm)).distinct
+    newdrdd.cache
+    val dimensionRdd = newdrdd.union(table(dimensiontable.tblnm))
     dimensiontable.Modify
     sqlContext.registerRDDAsTable(sqlContext.applySchema(dimensionRdd, latestschema), dimensiontable.tblnm)
     dimensiontable.tblnm
@@ -279,18 +293,15 @@ object AcumeStarSchemaTreeCache {
     val returnRdd = sqlContext.applySchema(drdd.mapPartitionsWithIndex((partionIndex, itr) => {
       var k,j = 0
       val temp = itr.map(x => {
-        if(x(0) == null) {
-          val arr = new Array[Any](x.size)
+          val arr = new Array[Any](x.size + 1)
           x.copyToArray(arr)
           if(j >= 10) {
             j=0
             k+=1
           }
-          arr(0) = k* numPartitions*10 + partionIndex*10 + lastMax + 1 + j
+          arr(x.size) = k* numPartitions*10 + partionIndex*10 + lastMax + 1 + j
           j+=1
           Row.fromSeq(arr)
-        } else 
-        	x
       })
       val arr = new Array[Long](numPartitions)
       Arrays.fill(arr, 0)

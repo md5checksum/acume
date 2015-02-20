@@ -41,6 +41,48 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
 //    insta.init(conf.get(ConfConstants.backendDbName, throw new IllegalArgumentException(" Insta DBname is necessary for loading data from insta")), conf.get(ConfConstants.cubedefinitionxml, throw new IllegalArgumentException(" Insta cubeDefinitionxml is necessary for loading data from insta")))
     insta.init(conf.get(ConfConstants.backendDbName), conf.get(ConfConstants.cubedefinitionxml))
     cubeList = insta.getInstaCubeList
+    print(getFirstBinPersistedTime("__DEFAULT_BINSRC__"))
+  }
+  
+  override def loadDimensionSet(keyMap : Map[String, Any], businessCube: Cube, startTime : Long, endTime : Long) : SchemaRDD = {
+    val dimSet = getBestCubeName(businessCube, startTime, endTime)
+    val baseFields = CubeUtil.getDimensionSet(businessCube).map(_.getBaseFieldName)
+    val fields = CubeUtil.getDimensionSet(businessCube).map(_.getName)
+    val measureFilters = (dimSet.dimensions ++ dimSet.measures).map(x => {
+        if (baseFields.contains(x))
+          1
+        else
+          0
+      })
+      
+      val rowFilters = (dimSet.dimensions ++ dimSet.measures).map(x => {
+        if (baseFields.contains(x))
+          keyMap.getOrElse(x, -1)
+        else
+          -1
+      })
+      
+      var i = -1
+      val baseFieldToAcumeFieldMap = Map[String, String]() ++ (for(acumeField <- fields) yield {
+    	 i+=1
+        baseFields(i) -> acumeField
+      })
+      i = -1
+      val acumeFieldToBaseFieldMap = Map[String, String]() ++ (for(acumeField <- fields) yield {
+    	 i+=1
+        acumeField -> baseFields(i)
+      })
+      val renameToAcumeFields = (for(acumeField <- fields) yield {
+        //baseFieldName-> baseFieldToAcumeFieldMap.get(baseFieldName).get
+        acumeField -> acumeFieldToBaseFieldMap.get(acumeField).get
+      }).map(x => x._1 + " as " + x._2).mkString(",")
+      
+    val instaDimRequest = InstaRequest(startTime, endTime,
+        businessCube.binsource, dimSet.cubeName, List(rowFilters), measureFilters)
+        print("Firing aggregate query on insta "  + instaDimRequest)
+        val dimensionTblTemp = "dimensionDataInstaTemp" + businessCube.cubeName+ endTime
+    insta.getNewTuples(instaDimRequest).registerTempTable(dimensionTblTemp)
+    sqlContext.sql(s"select $renameToAcumeFields from $dimensionTblTemp")
   }
 
   override def loadData(keyMap : Map[String, Any], businessCube: Cube, levelTimestamp: LevelTimestamp): SchemaRDD = {
@@ -67,7 +109,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
           0
       })
       
-      val rowFilters = (dimSet.dimensions ++ dimSet.measures).map(x => {
+      val rowFilters = (dimSet.dimensions).map(x => {
         if (baseFields.contains(x))
           keyMap.getOrElse(x, -1)
         else
@@ -126,28 +168,6 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
       throw new IllegalArgumentException("Could not find any cube for fields " + CubeUtil.getCubeFields(businessCube))
     }
     bestCube
-  }
-
-  private val metadataMap = new ConcurrentHashMap[Cube, DataLoadedMetadata]
-
-  private[cache] def getMetadata(key: Cube) = metadataMap.get(key)
-  private[cache] def putMetadata(key: Cube, value: DataLoadedMetadata) = metadataMap.put(key, value)
-  private[cache] def getOrElseInsert(key: Cube, defaultValue: DataLoadedMetadata): DataLoadedMetadata = {
-
-    if (getMetadata(key) == null) {
-
-      putMetadata(key, defaultValue)
-      defaultValue
-    } else
-      getMetadata(key)
-  }
-
-  private[cache] def getOrElseMetadata(key: Cube, defaultValue: DataLoadedMetadata): DataLoadedMetadata = {
-
-    if (getMetadata(key) == null)
-      defaultValue
-    else
-      getMetadata(key)
   }
 
   def getDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache[_ <: Any, _ <: Any]) = {
