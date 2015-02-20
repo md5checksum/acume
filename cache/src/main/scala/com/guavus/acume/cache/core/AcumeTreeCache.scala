@@ -38,7 +38,6 @@ import org.apache.spark.sql.catalyst.types.LongType
 import org.apache.spark.AccumulatorParam
 import java.util.Arrays
 import com.guavus.acume.cache.common.LevelTimestamp
-import org.apache.spark.sql.SQLContext
 
 /**
  * @author archit.thakur
@@ -78,7 +77,7 @@ extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf,
   .build(
       new CacheLoader[LevelTimestamp, AcumeTreeCacheValue]() {
         def load(key: LevelTimestamp): AcumeTreeCacheValue = {
-          return getDataFromBackend(key);
+          return getData(key);
         }
       });
   
@@ -148,17 +147,15 @@ extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf,
     SortedMap[Long, Int]() ++ cubelocal
   }
   
-   override def _getDataFromBackend(pointRdd : SchemaRDD, levelTimestamp: LevelTimestamp) : AcumeTreeCacheValue = {
-	val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
-	if(pointRdd != null) {
-	  return new AcumeTreeCacheValue(dimensionTable.tblnm, _tableName, pointRdd)
-	}
+  def getData(levelTimestamp: LevelTimestamp) = {
+
     import acumeCacheContext.sqlContext._
     val cacheLevel = levelTimestamp.level
     val diskloaded = loadData(cube, levelTimestamp, dimensionTable)
     
     val _$dataset = diskloaded._1
     val _$dimt = diskloaded._2
+    val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
     val value = _$dataset
     value.registerTempTable(_tableName)
     cacheTable(_tableName) 
@@ -175,7 +172,7 @@ extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf,
           val selectField = dtnm + ".id, " +  CubeUtil.getCubeFields(businessCube).map(aggregatedTbl+ "." + _).mkString(",")
       val onField = CubeUtil.getDimensionSet(businessCube).map(x => aggregatedTbl + "." + x.getName + "=" + dtnm + "." + x.getName).mkString(" AND ")
       val ar = sqlContext.sql(s"select $selectField from $aggregatedTbl left outer join $dtnm on $onField")
-      val fullRdd = AcumeTreeCache.generateId(ar, dTableName, sqlContext)
+      val fullRdd = generateId(ar, dTableName)
       val joinedTbl = businessCube.cubeName + levelTimestamp.level + "_" + levelTimestamp.timestamp
       sqlContext.registerRDDAsTable(fullRdd, joinedTbl)
 
@@ -206,49 +203,9 @@ extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf,
     dimensiontable.tblnm
   }
   
-  private def getUniqueRandomeNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt)
+  case class Vector(val data: Array[Long]) extends Serializable{}
   
-  private def buildTableForIntervals(levelTimestampMap: MutableMap[Long, MutableList[Long]], tableName: String, isMetaData: Boolean): MetaData = {
-    import acumeCacheContext.sqlContext._
-    val timestamps: MutableList[Long] = MutableList[Long]()
-    var finalSchema = null.asInstanceOf[StructType]
-    val x = getCubeName(tableName)
-    val levelTime = for(levelTsMapEntry <- levelTimestampMap) yield {
-      val (level, ts) = levelTsMapEntry
-      val cachelevel = CacheLevel.getCacheLevel(level)
-      val timeIterated = for(item <- ts) yield {
-        timestamps.+=(item)
-        val levelTimestamp = LevelTimestamp(cachelevel, item)
-        val acumeTreeCacheValue = cachePointToTable.get(levelTimestamp)
-        val diskread = acumeTreeCacheValue.measureschemardd
-        notifyObserverList
-        finalSchema = diskread.schema
-        val _$diskread = diskread        
-        _$diskread
-      }
-      timeIterated
-    }
-    if(!levelTime.isEmpty) {
-    val schemarddlist = levelTime.flatten
-    val dataloadedrdd = schemarddlist.reduce(_.unionAll(_))
-    val baseMeasureSetTable = cube.cubeName + "MeasureSet" + getUniqueRandomeNo
-    val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
-    dataloadedrdd.registerTempTable(baseMeasureSetTable)
-    AcumeCacheUtility.dMJoin(acumeCacheContext.sqlContext, dimensionTable.tblnm, baseMeasureSetTable, joinDimMeasureTableName)
-//    val _$acumecache = AcumeCacheUtility.getSchemaRDD(acumeCacheContext, cube, joinDimMeasureTableName)
-    val _$acumecache = table(joinDimMeasureTableName)
-    if(logger.isTraceEnabled)
-      _$acumecache.collect.map(x=>logger.trace(x.toString))
-    _$acumecache.registerTempTable(tableName)
-    }
-    val klist = timestamps.toList
-    MetaData(-1, klist)
-  }
-}
-
-object AcumeTreeCache {
-  
-  def generateId(drdd: SchemaRDD, dtable : DimensionTable, sqlContext : SQLContext): SchemaRDD = {
+   def generateId(drdd: SchemaRDD, dtable : DimensionTable): SchemaRDD = {
 
     //    val size = drdd.partitions.size
     //    drdd.coalesce(size/10+1)
@@ -256,7 +213,6 @@ object AcumeTreeCache {
     /**
      * formula = (k*n*10+index*10+max+j+1,k*n*10+index*10+10+max+j+1)
      */
-   case class Vector(val data: Array[Long]) extends Serializable{}
 
     implicit object VectorAP extends AccumulatorParam[Vector] {
       def zero(v: Vector) = new Vector(new Array(v.data.size))
@@ -301,4 +257,43 @@ object AcumeTreeCache {
 //    drdd.mapPartitions(f, preservesPartitioning)
   }
 
+   
+  private def getUniqueRandomeNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt)
+  
+  private def buildTableForIntervals(levelTimestampMap: MutableMap[Long, MutableList[Long]], tableName: String, isMetaData: Boolean): MetaData = {
+    import acumeCacheContext.sqlContext._
+    val timestamps: MutableList[Long] = MutableList[Long]()
+    var finalSchema = null.asInstanceOf[StructType]
+    val x = getCubeName(tableName)
+    val levelTime = for(levelTsMapEntry <- levelTimestampMap) yield {
+      val (level, ts) = levelTsMapEntry
+      val cachelevel = CacheLevel.getCacheLevel(level)
+      val timeIterated = for(item <- ts) yield {
+        timestamps.+=(item)
+        val levelTimestamp = LevelTimestamp(cachelevel, item)
+        val acumeTreeCacheValue = cachePointToTable.get(levelTimestamp)
+        val diskread = acumeTreeCacheValue.measureschemardd
+        notifyObserverList
+        finalSchema = diskread.schema
+        val _$diskread = diskread        
+        _$diskread
+      }
+      timeIterated
+    }
+    if(!levelTime.isEmpty) {
+    val schemarddlist = levelTime.flatten
+    val dataloadedrdd = schemarddlist.reduce(_.unionAll(_))
+    val baseMeasureSetTable = cube.cubeName + "MeasureSet" + getUniqueRandomeNo
+    val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
+    dataloadedrdd.registerTempTable(baseMeasureSetTable)
+    AcumeCacheUtility.dMJoin(acumeCacheContext.sqlContext, dimensionTable.tblnm, baseMeasureSetTable, joinDimMeasureTableName)
+//    val _$acumecache = AcumeCacheUtility.getSchemaRDD(acumeCacheContext, cube, joinDimMeasureTableName)
+    val _$acumecache = table(joinDimMeasureTableName)
+    if(logger.isTraceEnabled)
+      _$acumecache.collect.map(x=>logger.trace(x.toString))
+    _$acumecache.registerTempTable(tableName)
+    }
+    val klist = timestamps.toList
+    MetaData(-1, klist)
+  }
 }
