@@ -43,7 +43,7 @@ extends AcumeCache[CacheIdentifier, AcumeCache[LevelTimestamp, AcumeTreeCacheVal
 	AcumeCacheFactory.getInstance(acumeCacheContext, conf, cacheIdentifier, cube)
   }
 
-  def createTempTable(keyMap : List[Map[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) = {
+  def createTempTable(keyMap : List[HashMap[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) = {
 	  val tempTables = for(keyValueMap <- keyMap) yield {
 	    val cacheIdentifier = new CacheIdentifier()
 	    cacheIdentifier.put("cube", cube.hashCode)
@@ -52,14 +52,14 @@ extends AcumeCache[CacheIdentifier, AcumeCache[LevelTimestamp, AcumeTreeCacheVal
 	    }
 	    val singleEntityCache = cachePointToTable.get(cacheIdentifier)
 	    val tableNameAppender = keyValueMap.map(x => x._1+ "=" + x._2).mkString("_")
-	    singleEntityCache.createTempTable(List(keyValueMap.toMap), startTime, endTime, requestType, (tableName + "_" + tableNameAppender), queryOptionalParam)
+	    singleEntityCache.createTempTable(List(keyValueMap), startTime, endTime, requestType, (tableName + "_" + tableNameAppender), queryOptionalParam)
 	    acumeCacheContext.sqlContext.table((tableName + "_" + tableNameAppender))
 	  }
 	  val finalRdd = tempTables.reduce(_.unionAll(_))
 	  finalRdd.registerTempTable(tableName)
   }
   
-  def createTempTableAndMetadata(keyMap : List[Map[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData = {
+  def createTempTableAndMetadata(keyMap : List[HashMap[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData = {
     val tempTables = for(keyValueMap <- keyMap) yield {
 	    val cacheIdentifier = new CacheIdentifier()
 	    cacheIdentifier.put("cube", cube.hashCode)

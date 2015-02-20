@@ -49,10 +49,10 @@ object AcumeCacheFactory {
           cube.schemaType match {
             
             case `acumeStarSchemaTreeCache` => {
-              new AcumeStarSchemaTreeCache(keyMap.toMap, acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy).asInstanceOf[AcumeCache[k, v]]
+              new AcumeStarSchemaTreeCache(keyMap, acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy).asInstanceOf[AcumeCache[k, v]]
             }
             case `acumeFlatSchemaTreeCache` => {
-              new AcumeFlatSchemaTreeCache(keyMap.toMap, acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy).asInstanceOf[AcumeCache[k, v]]
+              new AcumeFlatSchemaTreeCache(keyMap, acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy).asInstanceOf[AcumeCache[k, v]]
             }
             case _ => throw new IllegalArgumentException(s"No Cache exist for cache type cube $cube.schemaType")
           }

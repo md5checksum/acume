@@ -45,14 +45,14 @@ import scala.collection.mutable.HashMap
  * @author archit.thakur
  *
  */
-private [cache] class AcumeFlatSchemaTreeCache(keyMap : Map[String, Any], acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy) 
+private [cache] class AcumeFlatSchemaTreeCache(keyMap : HashMap[String, Any], acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy) 
 extends AcumeTreeCache(acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeriesAggregationPolicy)  {
 
   @transient val sqlContext = acumeCacheContext.cacheSqlContext
   private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeFlatSchemaTreeCache])
   val diskUtility = DataLoader.getDataLoader(acumeCacheContext, conf, this)
 
-  override def createTempTable(keyMap : List[Map[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
+  override def createTempTable(keyMap : List[HashMap[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
     requestType match {
       case Aggregate => createTableForAggregate(startTime, endTime, tableName, false)
       case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam, false)
@@ -76,7 +76,7 @@ extends AcumeTreeCache(acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeri
   
   private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf("_"))
   
-  override def createTempTableAndMetadata(keyMap : List[Map[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData = {
+  override def createTempTableAndMetadata(keyMap : List[HashMap[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData = {
     requestType match {
       case Aggregate => createTableForAggregate(startTime, endTime, tableName, true)
       case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam, true)

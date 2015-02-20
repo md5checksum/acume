@@ -10,8 +10,7 @@ import scala.collection.mutable.MutableList
 
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
+
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.BaseCube
@@ -117,12 +116,9 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       idd.put("cube", id.hashCode)
       val instance = AcumeCacheFactory.getInstance(this, conf, idd, id)
       if(l.getSingleEntityKeyValueList() == null  || l.getSingleEntityKeyValueList().size == 0) {
-    	  instance.createTempTableAndMetadata(List(Map[String, Any]()), startTime, endTime, rt, i,Some(queryOptionalParams))
+    	  instance.createTempTableAndMetadata(List(HashMap[String, Any]()), startTime, endTime, rt, i,Some(queryOptionalParams))
       } else {
-        val singleEntityKeys = (for(singleEntityKeys <- l.getSingleEntityKeyValueList()) yield {
-          singleEntityKeys.map(x => (x._1 -> x._2.asInstanceOf[Any])).toMap
-        }).toList
-        instance.createTempTableAndMetadata(singleEntityKeys, startTime, endTime, rt, i,Some(queryOptionalParams))
+        instance.createTempTableAndMetadata(l.getSingleEntityKeyValueList().toList, startTime, endTime, rt, i,Some(queryOptionalParams))
       }
     }
     val klist = list.flatMap(_.timestamps).toList
