@@ -33,7 +33,22 @@ abstract class AcumeCache[k, v](val acumeCacheContext: AcumeCacheContext, val co
     list.+=(acumeCacheObserver)
   }
   
-  def getDataFromBackend(levelTimestamp: k) : v
+  def getDataFromBackend(levelTimestamp: LevelTimestamp) : v = {
+    import acumeCacheContext.sqlContext._
+    import scala.StringContext._
+    val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
+    try {
+    	val pointRdd = acumeCacheContext.sqlContext.table(_tableName)
+    	print(s"Recalculating data for $levelTimestamp as it was evicted earlier")
+    	pointRdd.cache
+    	_getDataFromBackend(pointRdd, levelTimestamp)
+    } catch {
+      case _ : Exception => print(s"Getting data from Insta for $levelTimestamp as it was never calculated")
+    }
+    _getDataFromBackend(null, levelTimestamp)
+  }
+  
+  def _getDataFromBackend(pointRdd : SchemaRDD , levelTimestamp: LevelTimestamp) : v
   
   def getCacheCollection =  cachePointToTable
   

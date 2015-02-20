@@ -44,7 +44,7 @@ import com.guavus.acume.cache.common.LevelTimestamp
  *
  */
 private [cache] class AcumeFlatSchemaTreeCache(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy) 
-extends AcumeTreeCache(acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeriesAggregationPolicy)  {
+extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf, cube) {
 
   @transient val sqlContext = acumeCacheContext.cacheSqlContext
   private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeFlatSchemaTreeCache])
@@ -137,13 +137,12 @@ extends AcumeTreeCache(acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeri
     SortedMap[Long, Int]() ++ cubelocal
   }
   
-  override def getDataFromBackend(levelTimestamp: LevelTimestamp) : AcumeTreeCacheValue= {
+  def _getDataFromBackend(pointRdd : SchemaRDD, levelTimestamp: LevelTimestamp) : AcumeTreeCacheValue= {
 	val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
-	val output = super.getDataFromBackend(levelTimestamp)
-    if(output != null) {
-      return new AcumeTreeCacheValue(null, output.measuretableName, output.measureschemardd)
+    if(pointRdd != null) {
+      return new AcumeTreeCacheValue(null, _tableName, pointRdd)
     }
-	
+
     import acumeCacheContext.sqlContext._
     val cacheLevel = levelTimestamp.level
     val diskloaded = diskUtility.loadData(cube, levelTimestamp)

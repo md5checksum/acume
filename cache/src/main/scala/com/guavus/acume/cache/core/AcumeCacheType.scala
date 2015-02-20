@@ -13,7 +13,7 @@ import com.guavus.acume.cache.common.ConfConstants
  */
 object AcumeCacheType extends Enumeration {
 
-  val acumeStarSchemaTreeCache = new AcumeCacheType("AcumeStarSchemaTreeCache", classOf[AcumeStarSchemaTreeCache])
+  val acumeStarSchemaTreeCache = new AcumeCacheType("AcumeStarSchemaTreeCache", classOf[AcumeTreeCache])
   val acumeFlatSchemaTreeCache = new AcumeCacheType("AcumeFlatSchemaTreeCache", classOf[AcumeFlatSchemaTreeCache])
   
   def getAcumeCacheType(name: String): AcumeCacheType = { 
