@@ -55,6 +55,6 @@
 		<mapping class="com.guavus.rubix.user.management.pojo.DbLock" />
 		<mapping class="com.guavus.launchboard.pojo.LaunchBoard" />
                 <mapping class="com.guavus.launchboard.pojo.UserFlow" />
-                <mapping class="com.guavus.rubix.user.management.pojo.Application"/>"
+                <mapping class="com.guavus.rubix.user.management.pojo.Application" />
 	</session-factory>
 </hibernate-configuration>
