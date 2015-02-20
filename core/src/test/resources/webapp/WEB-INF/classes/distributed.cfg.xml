@@ -50,6 +50,6 @@
 		<mapping class="com.guavus.rubix.user.permission.pojo.ModulePermissionData" />
 		<mapping class="com.guavus.rubix.user.management.pojo.DbLock" />
 		<mapping class="com.guavus.rubix.user.management.pojo.UserManagementRevisionHistory" />
-		
+	        <mapping class="com.guavus.rubix.user.management.pojo.Application"/>	
 	</session-factory>
 </hibernate-configuration>
