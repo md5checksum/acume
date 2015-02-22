@@ -15,11 +15,11 @@ extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf,
     val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
     try {
       val pointRdd = acumeCacheContext.sqlContext.table(_tableName)
-      print(s"Recalculating data for $levelTimestamp as it was evicted earlier")
+      println(s"Recalculating data for $levelTimestamp as it was evicted earlier")
       pointRdd.cache
       return new AcumeTreeCacheValue(null, _tableName, pointRdd)
     } catch {
-      case _: Exception => print(s"Getting data from Insta for $levelTimestamp as it was never calculated")
+      case _: Exception => println(s"Getting data from Insta for $levelTimestamp as it was never calculated")
     }
     null
   }

@@ -41,7 +41,6 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
 //    insta.init(conf.get(ConfConstants.backendDbName, throw new IllegalArgumentException(" Insta DBname is necessary for loading data from insta")), conf.get(ConfConstants.cubedefinitionxml, throw new IllegalArgumentException(" Insta cubeDefinitionxml is necessary for loading data from insta")))
     insta.init(conf.get(ConfConstants.backendDbName), conf.get(ConfConstants.cubedefinitionxml))
     cubeList = insta.getInstaCubeList
-    print(getFirstBinPersistedTime("__DEFAULT_BINSRC__"))
   }
   
   override def loadDimensionSet(keyMap : Map[String, Any], businessCube: Cube, startTime : Long, endTime : Long) : SchemaRDD = {
@@ -55,11 +54,11 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
           0
       })
       
-      val rowFilters = (dimSet.dimensions ++ dimSet.measures).map(x => {
+      val rowFilters = (dimSet.dimensions).map(x => {
         if (baseFields.contains(x))
-          keyMap.getOrElse(x, -1)
+          keyMap.getOrElse(x, null)
         else
-          -1
+          null
       })
       
       var i = -1
@@ -78,7 +77,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
       }).map(x => x._1 + " as " + x._2).mkString(",")
       
     val instaDimRequest = InstaRequest(startTime, endTime,
-        businessCube.binsource, dimSet.cubeName, List(), measureFilters)
+        businessCube.binsource, dimSet.cubeName, List(rowFilters), measureFilters)
         print("Firing aggregate query on insta "  + instaDimRequest)
         val dimensionTblTemp = "dimensionDataInstaTemp" + businessCube.cubeName+ endTime
     val newTuplesRdd = insta.getNewTuples(instaDimRequest)
@@ -112,13 +111,13 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
       
       val rowFilters = (dimSet.dimensions).map(x => {
         if (baseFields.contains(x))
-          keyMap.getOrElse(x, -1)
+          keyMap.getOrElse(x, null)
         else
-          -1
+          null
       })
 
       val instaMeasuresRequest = InstaRequest(levelTimestamp.timestamp, endTime,
-        businessCube.binsource, dimSet.cubeName, List(), measureFilters)
+        businessCube.binsource, dimSet.cubeName, List(rowFilters), measureFilters)
         print("Firing aggregate query on insta "  + instaMeasuresRequest)
       val aggregatedMeasureDataInsta = insta.getAggregatedData(instaMeasuresRequest)
       val aggregatedTblTemp = "aggregatedMeasureDataInstaTemp" + levelTimestamp.level + "_" + levelTimestamp.timestamp
