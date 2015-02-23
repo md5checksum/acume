@@ -28,12 +28,35 @@ import com.guavus.insta.Insta
 import com.guavus.insta.InstaCubeMetaInfo
 import com.guavus.insta.InstaRequest
 import scala.collection.mutable.HashMap
+import com.google.common.cache.CacheBuilder
+import com.google.common.cache.CacheLoader
+import java.util.concurrent.TimeUnit
 
 class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @transient  conf: AcumeCacheConf, @transient acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends DataLoader(acumeCacheContext, conf, null) {
 
   @transient var insta: Insta = null
   @transient val sqlContext = acumeCacheContext.cacheSqlContext
   @transient var cubeList: List[InstaCubeMetaInfo] = null
+  val binSourceToIntervalMap = CacheBuilder.newBuilder().refreshAfterWrite(5, TimeUnit.MINUTES)
+    .build(
+      new CacheLoader[String, Map[String,Map[Long, (Long,Long)]]]() {
+        def load(key: String): Map[String,Map[Long, (Long,Long)]] = {
+    val persistTime = insta.getAllBinPersistedTimes
+    println(persistTime)
+    persistTime.map(binSourceToGranToAvailability => {
+      val minGran = binSourceToGranToAvailability._2.filter(_._1 != -1).keys.min
+      val granularityToAvailability = binSourceToGranToAvailability._2.map(granToAvailability => {
+        if (granToAvailability._1 == -1) {
+          (granToAvailability._1, (granToAvailability._2._1, Utility.getNextTimeFromGranularity(granToAvailability._2._2, minGran, Utility.newCalendar)))
+        } else {
+          (granToAvailability._1, (granToAvailability._2._1, Utility.getNextTimeFromGranularity(granToAvailability._2._2, granToAvailability._1, Utility.newCalendar)))
+        }
+      })
+      (binSourceToGranToAvailability._1,  granularityToAvailability ++ Map(-1L -> granularityToAvailability.get(minGran).get) 
+      )
+    })
+  }
+      });
   init
   
   def init() {
@@ -41,6 +64,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
 //    insta.init(conf.get(ConfConstants.backendDbName, throw new IllegalArgumentException(" Insta DBname is necessary for loading data from insta")), conf.get(ConfConstants.cubedefinitionxml, throw new IllegalArgumentException(" Insta cubeDefinitionxml is necessary for loading data from insta")))
     insta.init(conf.get(ConfConstants.backendDbName), conf.get(ConfConstants.cubedefinitionxml))
     cubeList = insta.getInstaCubeList
+    
   }
   
   override def loadDimensionSet(keyMap : Map[String, Any], businessCube: Cube, startTime : Long, endTime : Long) : SchemaRDD = {
@@ -191,19 +215,6 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
   }
   
   override def getAllBinSourceToIntervalMap() : Map[String,Map[Long, (Long,Long)]] =  {
-    val persistTime = insta.getAllBinPersistedTimes
-    print(persistTime)
-    persistTime.map(binSourceToGranToAvailability => {
-      val minGran = binSourceToGranToAvailability._2.filter(_._1 != -1).keys.min
-      val granularityToAvailability = binSourceToGranToAvailability._2.map(granToAvailability => {
-        if (granToAvailability._1 == -1) {
-          (granToAvailability._1, (granToAvailability._2._1, Utility.getNextTimeFromGranularity(granToAvailability._2._2, minGran, Utility.newCalendar)))
-        } else {
-          (granToAvailability._1, (granToAvailability._2._1, Utility.getNextTimeFromGranularity(granToAvailability._2._2, granToAvailability._1, Utility.newCalendar)))
-        }
-      })
-      (binSourceToGranToAvailability._1,  granularityToAvailability ++ Map(-1L -> granularityToAvailability.get(minGran).get) 
-      )
-    })
+    binSourceToIntervalMap.get("binSourceToIntervalMap")
   }
 }

@@ -75,7 +75,7 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
   
   @Bean
   @Autowired
-  override def queryRequestPrefetchTaskManager(acumeService : AcumeService, dataService : DataService , queryBuilderService : Seq[IQueryBuilderService], acumeContext : AcumeContext, controller : Controller) : QueryRequestPrefetchTaskManager = {
+  override def queryRequestPrefetchTaskManager(acumeService : AcumeService, dataService : DataService , queryBuilderService : Seq[IQueryBuilderService], acumeContext : AcumeContextTrait, controller : Controller) : QueryRequestPrefetchTaskManager = {
     
     val ischedulerpolicy = ISchedulerPolicy.getISchedulerPolicy(acumeContext.acumeConf)
     new QueryRequestPrefetchTaskManager(dataService, queryBuilderService.map(_.getQueryBuilderSchema).toList, acumeContext.acumeConf, acumeService, ischedulerpolicy, controller)

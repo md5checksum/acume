@@ -3,14 +3,12 @@ package com.guavus.acume.cache.core
 
 import java.util.Arrays
 import java.util.Random
-
 import scala.Array.canBuildFrom
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable.{Map => MutableMap}
 import scala.collection.mutable.MutableList
 import scala.util.control.Breaks.break
 import scala.util.control.Breaks.breakable
-
 import org.apache.spark.AccumulatorParam
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.SchemaRDD
@@ -20,7 +18,6 @@ import org.apache.spark.sql.catalyst.types.LongType
 import org.apache.spark.sql.catalyst.types.StructType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import com.google.common.cache.RemovalListener
@@ -42,7 +39,7 @@ import com.guavus.acume.cache.workflow.MetaData
 import com.guavus.acume.cache.workflow.RequestType.Aggregate
 import com.guavus.acume.cache.workflow.RequestType.RequestType
 import com.guavus.acume.cache.workflow.RequestType.Timeseries
-import com.guavus.rubix.cache.util.CacheUtils
+import com.google.common.cache.Cache
 
 /**
  * @author archit.thakur
@@ -73,7 +70,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
 
   val concurrencyLevel = conf.get(ConfConstants.rrcacheconcurrenylevel).toInt
   val acumetreecachesize = concurrencyLevel + concurrencyLevel * (cube.levelPolicyMap.map(_._2).reduce(_ + _))
-  cachePointToTable = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
+  cachePointToTable  = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
     .maximumSize(acumetreecachesize).removalListener(new RemovalListener[LevelTimestamp, AcumeTreeCacheValue] {
       def onRemoval(notification: RemovalNotification[LevelTimestamp, AcumeTreeCacheValue]) {
         acumeCacheContext.sqlContext.uncacheTable(notification.getValue().measuretableName)
@@ -85,6 +82,8 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
           val output = checkIfTableAlreadyExist(key)
           if (output != null) {
         	  return new AcumeTreeCacheValue(dimensionTable.tblnm, output.measuretableName, output.measureschemardd)
+          } else {
+            println(s"Getting data from Insta for $key as it was never calculated")
           }
           //First check if point can be populated through children
           var schema: StructType = null
@@ -106,8 +105,8 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
           else
             throw new IllegalArgumentException("Couldnt populate parent point " + key + " from child points")
         }
-      });
-
+      })
+      
   private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf("_"))
 
   override def createTempTableAndMetadata(keyMap: List[Map[String, Any]], startTime: Long, endTime: Long, requestType: RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData = {

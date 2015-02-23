@@ -41,7 +41,6 @@ import java.util.Arrays
 import com.guavus.acume.cache.common.LevelTimestamp
 import scala.collection.mutable.LinkedList
 import scala.collection.mutable.HashMap
-import com.guavus.rubix.cache.util.CacheUtils
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.Sum
 import com.guavus.acume.cache.common.LevelTimestamp
@@ -78,6 +77,8 @@ private[cache] class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCac
           val output = checkIfTableAlreadyExist(key)
           if (output != null) {
         	  return new AcumeTreeCacheValue(null, output.measuretableName, output.measureschemardd)
+          } else {
+            println(s"Getting data from Insta for $key as it was never calculated")
           }
           //First check if point can be populated through children
           try {

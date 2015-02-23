@@ -22,6 +22,8 @@ import scala.collection.mutable.HashMap
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
+import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.ConfConstants
 
 /**
  * @author archit.thakur
@@ -41,7 +43,7 @@ object AcumeCacheSQLCorrector {
       "select HIT_COUNT_TEMP from searchEgressPeerCube where ts >=1404723600 and ts <1404727200 and x=1 and y=2 and z=3 and binsource = 10")
     val sql1 = SQLParserFactory.getParserManager()
     val statement = sql.map(x => sql1.parse(new StringReader(x)))
-    val j123 = new AcumeCacheSQLCorrector
+    val j123 = new AcumeCacheSQLCorrector(new AcumeCacheConf)
     statement.map(y => {
       val ex1 = AcumeCacheCorrectorExpression(y.asInstanceOf[Select].getSelectBody.asInstanceOf[PlainSelect].getWhere)
       val ex2 = AcumeCacheCorrectorExpression(y.asInstanceOf[Select].getSelectBody.asInstanceOf[PlainSelect].getWhere)
@@ -53,7 +55,8 @@ object AcumeCacheSQLCorrector {
   }
 }
 case class AcumeCacheCorrectorExpression(var expression: Expression)
-class AcumeCacheSQLCorrector extends ISqlCorrector {
+class AcumeCacheSQLCorrector(val conf: AcumeCacheConf) extends ISqlCorrector {
+  
   
 
   override def correctSQL(acumeCacheContextTrait: AcumeCacheContextTrait, unparsedsql: String, parsedsql: Tuple2[List[Tuple], RequestType]): ((String, QueryOptionalParam), (List[Tuple], RequestType)) = {
@@ -77,8 +80,15 @@ class AcumeCacheSQLCorrector extends ISqlCorrector {
       else
         tablename
         
+      val querybinsource = x.getBinsource
+      val key_binsource = 
+        if(querybinsource != null)
+          querybinsource
+      else
+        conf.get(ConfConstants.acumecorebinsource)
+        
       val xlist = x.getSingleEntityKeyValueList
-      val singleEntityKey = acumeCacheContextTrait.getCubeMap.getOrElse(CubeKey(x.getCubeName, x.getBinsource), throw new RuntimeException("Cube not found")).singleEntityKeys
+      val singleEntityKey = acumeCacheContextTrait.getCubeMap.getOrElse(CubeKey(newtablename, key_binsource), throw new RuntimeException("Cube not found")).singleEntityKeys
       if (singleEntityKey == null || singleEntityKey.isEmpty) {
         x.setSingleEntityKeyValueList(new java.util.LinkedList[java.util.HashMap[String, Object]])
       } else {
@@ -91,7 +101,7 @@ class AcumeCacheSQLCorrector extends ISqlCorrector {
         })
       }
       val newtuple = new Tuple()
-      newtuple.set(x.getStartTime, x.getEndTime, newtablename, x.getBinsource, x.getSingleEntityKeyValueList)
+      newtuple.set(x.getStartTime, x.getEndTime, newtablename, key_binsource, x.getSingleEntityKeyValueList)
       newtuple
     }), parsedsql._2)
     ((newunparsedsql, queryoptionalParams), newparsedsql)

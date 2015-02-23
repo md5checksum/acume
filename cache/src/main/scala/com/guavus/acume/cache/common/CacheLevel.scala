@@ -10,6 +10,7 @@ object CacheLevel extends Enumeration {
   //This should be more flexible by providing more values and taking input from 
   //AcumeConfiguration file that which all levels they want Acume-cache to build on. 	
   val FiveMin = new CacheLevel(300)
+  val FifteenMinute = new CacheLevel(900)
   val Hourly = new CacheLevel(3600)
   val ThreeHourly = new CacheLevel(10800)
   val Daily = new CacheLevel(86400)

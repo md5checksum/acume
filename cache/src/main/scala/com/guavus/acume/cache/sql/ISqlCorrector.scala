@@ -17,6 +17,7 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 
 trait ISqlCorrector {
   
+  val conf: AcumeCacheConf
   def correctSQL(acumeCacheContextTrait: AcumeCacheContextTrait, unparsedsql: String, parsedsql: Tuple2[List[Tuple], RequestType]): ((String, QueryOptionalParam), (List[Tuple], RequestType))
 }
 
@@ -30,7 +31,8 @@ object ISqlCorrector {
     hashmap.get(sqlcorrectorKey) match {
       case Some(sqlcorrector) => sqlcorrector
       case None => val acumecachesqlcorrectorclz = Class.forName(conf.get(ConfConstants.acumecachesqlcorrector))
-      val sqlcorrector = acumecachesqlcorrectorclz.newInstance().asInstanceOf[ISqlCorrector]
+      val sqlcorrector = acumecachesqlcorrectorclz.getConstructor(classOf[AcumeCacheConf]).newInstance(conf).asInstanceOf[ISqlCorrector]
+      
       hashmap.put(sqlcorrectorKey, sqlcorrector)
       sqlcorrector
     }
