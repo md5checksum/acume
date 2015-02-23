@@ -37,7 +37,6 @@ private [acume] object ConfConstants {
   val basegranularity = "basegranularity"
   val timeserieslevelpolicymap = "timeserieslevelpolicymap"
   val evictionpolicyforcube = "evictionpolicyclass"
-  val cachetype = "cacheType"
     
   val acumecorebinsource = "acume.core.global."+binsource
   val acumecorelevelmap = "acume.core.global."+levelpolicymap

@@ -50,6 +50,7 @@ public class QueryWhereClauseVisitor extends AbstractVisitor {
 	}
 	
 	public void visit(Column tableColumn) {
+		String tableName = tableColumn.getColumnName();
 		if(tableColumn.getColumnName().equalsIgnoreCase("ts"))
 			istimestamp = true;
 	}

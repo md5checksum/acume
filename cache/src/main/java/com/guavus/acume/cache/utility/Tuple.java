@@ -1,9 +1,5 @@
 package com.guavus.acume.cache.utility;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-
 /**
  * @author archit.thakur
  */
@@ -14,30 +10,7 @@ public class Tuple {
 	private long endTime = 0l;
 	private String cubeName = "";
 	private String binsource = null;
-	private LinkedList<HashMap<String, Object>> singleEntityKeyValueList = new LinkedList<HashMap<String, Object>>();
 	
-	public LinkedList<HashMap<String, Object>> getSingleEntityKeyValueList() {
-		return singleEntityKeyValueList;
-	}
-	public void addSingleEntityKeyValueMap(HashMap<String, Object> keyvaluemap) {
-		singleEntityKeyValueList.add(keyvaluemap);
-	}
-	public void setSingleEntityKeyValueList(LinkedList<HashMap<String, Object>> hashmap) {
-		this.singleEntityKeyValueList = hashmap;
-	}
-	public HashMap<String, Object> getNewBlankHashMap() {
-		HashMap<String, Object> hashmap = new HashMap<String, Object>();
-		singleEntityKeyValueList.add(hashmap);
-		return hashmap;
-	}
-	
-	public void set(long startTime, long endTime, String cubeName, String binsource, LinkedList<HashMap<String, Object>> hashmap) {
-		this.startTime= startTime;
-		this.endTime = endTime;
-		this.binsource = binsource;
-		this.cubeName = cubeName;
-		this.singleEntityKeyValueList = hashmap;
-	}
 	public String getBinsource() {
 		return binsource;
 	}
@@ -68,6 +41,7 @@ public class Tuple {
 	public void setCubeName(String tableName) {
 		this.cubeName = tableName;
 	}
+	
 }
 
 
