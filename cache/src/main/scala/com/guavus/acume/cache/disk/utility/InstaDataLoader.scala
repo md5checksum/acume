@@ -30,12 +30,36 @@ import com.guavus.insta.BinPersistTimeInfoRequest
 import com.guavus.insta.Insta
 import com.guavus.insta.InstaCubeMetaInfo
 import com.guavus.insta.InstaRequest
+import scala.collection.mutable.HashMap
+import com.google.common.cache.CacheBuilder
+import com.google.common.cache.CacheLoader
+import java.util.concurrent.TimeUnit
 
 class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @transient  conf: AcumeCacheConf, @transient acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends DataLoader(acumeCacheContext, conf, null) {
 
   @transient var insta: Insta = null
   @transient val sqlContext = acumeCacheContext.cacheSqlContext
   @transient var cubeList: List[InstaCubeMetaInfo] = null
+  val binSourceToIntervalMap = CacheBuilder.newBuilder().refreshAfterWrite(5, TimeUnit.MINUTES)
+    .build(
+      new CacheLoader[String, Map[String,Map[Long, (Long,Long)]]]() {
+        def load(key: String): Map[String,Map[Long, (Long,Long)]] = {
+    val persistTime = insta.getAllBinPersistedTimes
+    println(persistTime)
+    persistTime.map(binSourceToGranToAvailability => {
+      val minGran = binSourceToGranToAvailability._2.filter(_._1 != -1).keys.min
+      val granularityToAvailability = binSourceToGranToAvailability._2.map(granToAvailability => {
+        if (granToAvailability._1 == -1) {
+          (granToAvailability._1, (granToAvailability._2._1, Utility.getNextTimeFromGranularity(granToAvailability._2._2, minGran, Utility.newCalendar)))
+        } else {
+          (granToAvailability._1, (granToAvailability._2._1, Utility.getNextTimeFromGranularity(granToAvailability._2._2, granToAvailability._1, Utility.newCalendar)))
+        }
+      })
+      (binSourceToGranToAvailability._1,  granularityToAvailability ++ Map(-1L -> granularityToAvailability.get(minGran).get) 
+      )
+    })
+  }
+      });
   init
   
   def init() {
@@ -43,9 +67,52 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
 //    insta.init(conf.get(ConfConstants.backendDbName, throw new IllegalArgumentException(" Insta DBname is necessary for loading data from insta")), conf.get(ConfConstants.cubedefinitionxml, throw new IllegalArgumentException(" Insta cubeDefinitionxml is necessary for loading data from insta")))
     insta.init(conf.get(ConfConstants.backendDbName), conf.get(ConfConstants.cubedefinitionxml))
     cubeList = insta.getInstaCubeList
+    
+  }
+  
+  override def loadDimensionSet(keyMap : Map[String, Any], businessCube: Cube, startTime : Long, endTime : Long) : SchemaRDD = {
+    val dimSet = getBestCubeName(businessCube, startTime, endTime)
+    val baseFields = CubeUtil.getDimensionSet(businessCube).map(_.getBaseFieldName)
+    val fields = CubeUtil.getDimensionSet(businessCube).map(_.getName)
+    val measureFilters = (dimSet.dimensions ++ dimSet.measures).map(x => {
+        if (baseFields.contains(x))
+          1
+        else
+          0
+      })
+      
+      val rowFilters = (dimSet.dimensions).map(x => {
+        if (baseFields.contains(x))
+          keyMap.getOrElse(x, null)
+        else
+          null
+      })
+      
+      var i = -1
+      val baseFieldToAcumeFieldMap = Map[String, String]() ++ (for(acumeField <- fields) yield {
+    	 i+=1
+        baseFields(i) -> acumeField
+      })
+      i = -1
+      val acumeFieldToBaseFieldMap = Map[String, String]() ++ (for(acumeField <- fields) yield {
+    	 i+=1
+        acumeField -> baseFields(i)
+      })
+      val renameToAcumeFields = (for(acumeField <- fields) yield {
+        acumeFieldToBaseFieldMap.get(acumeField).get -> acumeField
+//        acumeField -> acumeFieldToBaseFieldMap.get(acumeField).get
+      }).map(x => x._1 + " as " + x._2).mkString(",")
+      
+    val instaDimRequest = InstaRequest(startTime, endTime,
+        businessCube.binsource, dimSet.cubeName, List(rowFilters), measureFilters)
+        print("Firing aggregate query on insta "  + instaDimRequest)
+        val dimensionTblTemp = "dimensionDataInstaTemp" + businessCube.cubeName+ endTime
+    val newTuplesRdd = insta.getNewTuples(instaDimRequest)
+    sqlContext.registerRDDAsTable(newTuplesRdd, dimensionTblTemp)
+    sqlContext.sql(s"select $renameToAcumeFields from $dimensionTblTemp")
   }
 
-  override def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp): SchemaRDD = {
+  override def loadData(keyMap : Map[String, Any], businessCube: Cube, levelTimestamp: LevelTimestamp): SchemaRDD = {
     this.synchronized {
       val endTime = Utility.getNextTimeFromGranularity(levelTimestamp.timestamp, levelTimestamp.level.localId, Utility.newCalendar)
       val dimSet = getBestCubeName(businessCube, levelTimestamp.timestamp, endTime)
@@ -68,6 +135,13 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
         else
           0
       })
+      
+      val rowFilters = (dimSet.dimensions).map(x => {
+        if (baseFields.contains(x))
+          keyMap.getOrElse(x, null)
+        else
+          null
+      })
 
       val instaMeasuresRequest = InstaRequest(levelTimestamp.timestamp, endTime,
         businessCube.binsource, dimSet.cubeName, List(), measureFilters)
@@ -77,8 +151,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
       sqlContext.registerRDDAsTable(aggregatedMeasureDataInsta, aggregatedTblTemp)
       //change schema for this schema rdd
       val renameToAcumeFields = (for(acumeField <- fields) yield {
-        //baseFieldName-> baseFieldToAcumeFieldMap.get(baseFieldName).get
-        acumeField -> acumeFieldToBaseFieldMap.get(acumeField).get
+        acumeFieldToBaseFieldMap.get(acumeField).get -> acumeField
       }).map(x => x._1 + " as " + x._2).mkString(",")
       sqlContext.sql(s"select $renameToAcumeFields from $aggregatedTblTemp") 
     }
@@ -123,28 +196,6 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
     bestCube
   }
 
-  private val metadataMap = new ConcurrentHashMap[Cube, DataLoadedMetadata]
-
-  private[cache] def getMetadata(key: Cube) = metadataMap.get(key)
-  private[cache] def putMetadata(key: Cube, value: DataLoadedMetadata) = metadataMap.put(key, value)
-  private[cache] def getOrElseInsert(key: Cube, defaultValue: DataLoadedMetadata): DataLoadedMetadata = {
-
-    if (getMetadata(key) == null) {
-
-      putMetadata(key, defaultValue)
-      defaultValue
-    } else
-      getMetadata(key)
-  }
-
-  private[cache] def getOrElseMetadata(key: Cube, defaultValue: DataLoadedMetadata): DataLoadedMetadata = {
-
-    if (getMetadata(key) == null)
-      defaultValue
-    else
-      getMetadata(key)
-  }
-
   def getDataLoader(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, acumeCache: AcumeCache[_ <: Any, _ <: Any]) = {
 
     val dataLoaderClass = StorageType.getStorageType(conf.get(ConfConstants.storagetype)).dataClass
@@ -167,19 +218,6 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
   }
   
   override def getAllBinSourceToIntervalMap() : Map[String,Map[Long, (Long,Long)]] =  {
-    val persistTime = insta.getAllBinPersistedTimes
-    print(persistTime)
-    persistTime.map(binSourceToGranToAvailability => {
-      val minGran = binSourceToGranToAvailability._2.filter(_._1 != -1).keys.min
-      val granularityToAvailability = binSourceToGranToAvailability._2.map(granToAvailability => {
-        if (granToAvailability._1 == -1) {
-          (granToAvailability._1, (granToAvailability._2._1, Utility.getNextTimeFromGranularity(granToAvailability._2._2, minGran, Utility.newCalendar)))
-        } else {
-          (granToAvailability._1, (granToAvailability._2._1, Utility.getNextTimeFromGranularity(granToAvailability._2._2, granToAvailability._1, Utility.newCalendar)))
-        }
-      })
-      (binSourceToGranToAvailability._1,  granularityToAvailability ++ Map(-1L -> granularityToAvailability.get(minGran).get) 
-      )
-    })
+    binSourceToIntervalMap.get("binSourceToIntervalMap")
   }
 }

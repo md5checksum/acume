@@ -10,7 +10,8 @@ import scala.collection.mutable.MutableList
 
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
-
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.BaseCube
@@ -58,6 +59,9 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   Utility.init(conf)
   Utility.loadXML(conf, dimensionMap, measureMap, cubeMap, cubeList)
+
+  
+  override def getCubeMap = cubeMap.toMap
   
   private [acume] def cacheConf() = conf
   
@@ -86,7 +90,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     val originalparsedsql = AcumeCacheContext.parseSql(sql)
     
     println("AcumeRequest obtained " + sql)
-    var correctsql = ISqlCorrector.getSQLCorrector(conf).correctSQL(sql, (originalparsedsql._1.toList, originalparsedsql._2))
+    var correctsql = ISqlCorrector.getSQLCorrector(conf).correctSQL(this, sql, (originalparsedsql._1.toList, originalparsedsql._2))
     var updatedsql = correctsql._1._1
     val queryOptionalParams = correctsql._1._2
     var updatedparsedsql = correctsql._2
@@ -112,8 +116,14 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       val idd = new CacheIdentifier()
       idd.put("cube", id.hashCode)
       val instance = AcumeCacheFactory.getInstance(this, conf, idd, id)
-      val temp = instance.createTempTableAndMetadata(Map(), startTime, endTime, rt, i,Some(queryOptionalParams))
-      temp
+      if(l.getSingleEntityKeyValueList() == null  || l.getSingleEntityKeyValueList().size == 0) {
+    	  instance.createTempTableAndMetadata(List(Map[String, Any]()), startTime, endTime, rt, i,Some(queryOptionalParams))
+      } else {
+        val singleEntityKeys = (for(singleEntityKeys <- l.getSingleEntityKeyValueList()) yield {
+          singleEntityKeys.map(x => (x._1 -> x._2.asInstanceOf[Any])).toMap
+        }).toList
+        instance.createTempTableAndMetadata(singleEntityKeys, startTime, endTime, rt, i,Some(queryOptionalParams))
+      }
     }
     val klist = list.flatMap(_.timestamps).toList
     val kfg = AcumeCacheContext.ACQL(qltype, sqlContext)(updatedsql)
@@ -401,4 +411,3 @@ object AcumeCacheContext{
     else sqlContext.sql(_)
   }
 }
-

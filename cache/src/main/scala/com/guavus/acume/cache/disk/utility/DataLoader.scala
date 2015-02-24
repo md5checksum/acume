@@ -19,9 +19,11 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
  */
 abstract class DataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, acumeCache: AcumeCache[_ >: Any , _ >: Any]) extends Serializable {
 
-  def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp): SchemaRDD
+  def loadData(keyMap : Map[String, Any], businessCube: Cube, levelTimestamp: LevelTimestamp): SchemaRDD
 //  def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable, instabase: String, instainstanceid: String): Tuple2[SchemaRDD, String]
   //This should be removed and things like instabase and instanceid should be retrieviable from MetaDataLoader for better code designing.
+  
+  def loadDimensionSet(keyMap : Map[String, Any], businessCube: Cube, startTime : Long, endTime : Long) : SchemaRDD 
   
   def getFirstBinPersistedTime(binSource : String) : Long =  {
     throw new NoSuchMethodException("Method not present")
@@ -38,6 +40,29 @@ abstract class DataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: Acume
   def getAllBinSourceToIntervalMap(): Map[String,Map[Long, (Long, Long)]] = {
     throw new NoSuchMethodException("Method not present")
   }
+  
+  private val metadataMap = new ConcurrentHashMap[Cube, DataLoadedMetadata]
+
+  private[cache] def getMetadata(key: Cube) = metadataMap.get(key)
+  private[cache] def putMetadata(key: Cube, value: DataLoadedMetadata) = metadataMap.put(key, value)
+  private[cache] def getOrElseInsert(key: Cube, defaultValue: DataLoadedMetadata): DataLoadedMetadata = {
+
+    if (getMetadata(key) == null) {
+
+      putMetadata(key, defaultValue)
+      defaultValue
+    } else
+      getMetadata(key)
+  }
+
+  private[cache] def getOrElseMetadata(key: Cube, defaultValue: DataLoadedMetadata): DataLoadedMetadata = {
+
+    if (getMetadata(key) == null)
+      defaultValue
+    else
+      getMetadata(key)
+  }
+
 
 }
 
@@ -84,7 +109,6 @@ object DataLoader {
     }
   }
 }
-
 
 
 

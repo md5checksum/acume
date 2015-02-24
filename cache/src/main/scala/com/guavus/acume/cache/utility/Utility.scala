@@ -392,12 +392,13 @@ object Utility extends Logging {
         
         //getSingle entity keys from xml
         val singleEntityKeys = c.getSingleEntityKeys()
-        var singleEntityKeysMap : Map[String, String] = null
-        if (singleEntityKeys != null) {
-          singleEntityKeysMap = singleEntityKeys.split(",").map(x => {
+        var singleEntityKeysMap : Map[String, String] = if (singleEntityKeys != null) {
+          singleEntityKeys.split(",").map(x => {
             val i = x.indexOf(":")
             (x.substring(0, i).trim, x.substring(i + 1, x.length).trim)
           }).toMap
+        } else {
+          Map[String, String]()
         }
         
         val levelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.levelpolicymap, ConfConstants.acumecorelevelmap, conf, cubeName))
