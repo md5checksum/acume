@@ -268,12 +268,11 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
     }
     if (!levelTime.isEmpty) {
       val schemarddlist = levelTime.flatten
-      val dataloadedrdd = schemarddlist.reduce(_.unionAll(_))
+      val dataloadedrdd = mergePathRdds(schemarddlist)
       val baseMeasureSetTable = cube.cubeName + "MeasureSet" + getUniqueRandomeNo
       val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
       dataloadedrdd.registerTempTable(baseMeasureSetTable)
       AcumeCacheUtility.dMJoin(acumeCacheContext.sqlContext, dimensionTable.tblnm, baseMeasureSetTable, joinDimMeasureTableName)
-      //    val _$acumecache = AcumeCacheUtility.getSchemaRDD(acumeCacheContext, cube, joinDimMeasureTableName)
       val _$acumecache = table(joinDimMeasureTableName)
       if (logger.isTraceEnabled)
         _$acumecache.collect.map(x => logger.trace(x.toString))

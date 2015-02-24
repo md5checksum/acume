@@ -8,6 +8,7 @@ import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.CacheLevel
 import com.guavus.acume.cache.utility.Utility
 import scala.util.control.Breaks._
+import org.apache.spark.sql.SchemaRDD
 
 private[cache] abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy)
   extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf, cube) {
@@ -52,4 +53,8 @@ private[cache] abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContex
     }
   }
 
+  def mergePathRdds(rdds : Iterable[SchemaRDD]) = {
+    	rdds.reduce(_.unionAll(_))
+  }
+  
 }

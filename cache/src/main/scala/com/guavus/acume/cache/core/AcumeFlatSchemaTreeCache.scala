@@ -224,7 +224,7 @@ private[cache] class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCac
     }
     if (!levelTime.isEmpty) {
       val schemarddlist = levelTime.flatten
-      val dataloadedrdd = schemarddlist.reduce(_.unionAll(_))
+      val dataloadedrdd = mergePathRdds(schemarddlist)
       val baseMeasureSetTable = cube.cubeName + "MeasureSet" + getUniqueRandomeNo
       val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
       dataloadedrdd.registerTempTable(joinDimMeasureTableName)
