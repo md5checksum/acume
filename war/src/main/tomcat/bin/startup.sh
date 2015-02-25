@@ -218,13 +218,13 @@ if [ -z $prop_value ]
 then
   FILE_NAME=$dirpath"udfConfiguration.xml"
  if [ -f "$FILE_NAME" ]; then
-  . $DOCBASE/../bin/getUdfJarPaths.sh --udfConfXmlPath $FILE_NAME
+  . $SCRIPT_DIR/getUdfJarPaths.sh --udfConfXmlPath $FILE_NAME
  else
    echo "udfConfiguration.xml file does not exists"
    exit 1
  fi
 else
-  . $DOCBASE/../bin/getUdfJarPaths.sh --udfConfXmlPath $prop_value
+  . $SCRIPT_DIR/getUdfJarPaths.sh --udfConfXmlPath $prop_value
 fi
 udfJarPath=$ACUME_UDFJARPATHS
 if [ ! -z $ACUME_UDFJARPATHS ]
