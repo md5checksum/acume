@@ -28,8 +28,8 @@ class RequestResponseCache(acumeCacheContextTrait: AcumeCacheContextTrait, conf:
       new CacheLoader[RRCacheKey, AcumeCacheResponse]() {
         def load(input: RRCacheKey) = {
           val response = acumeCacheContextTrait.executeQuery(input.qlstring, input.qltype)
-          response.schemaRDD.cache
-          response
+          val cachedRDD = response.schemaRDD.map(x=>x).cache
+          new AcumeCacheResponse(acumeCacheContextTrait.cacheSqlContext.applySchema(cachedRDD, response.schemaRDD.schema), response.metadata)
         }
       });
 
