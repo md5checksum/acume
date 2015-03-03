@@ -22,8 +22,7 @@ class AcumeContext(confFilePath: String) extends AcumeContextTrait {
   val acumeConfiguration = new AcumeConf(true, this.getClass.getResourceAsStream(confFilePath))  
     
   val sparkContext = new SparkContext(conf)
-  val acumeEventListener = new AcumeSparkListener 
-  sparkContext.addSparkListener(acumeEventListener)
+  sparkContext.addSparkListener(new AcumeSparkListener)
 
   val hc = new HiveContext(sparkContext)
 

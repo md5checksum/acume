@@ -2,11 +2,15 @@ package com.guavus.acume.core
 
 import java.io.InputStream
 import java.util.Properties
+
 import scala.Array.canBuildFrom
 import scala.collection.JavaConverters.propertiesAsScalaMapConverter
 import scala.collection.mutable.HashMap
+
 import org.slf4j.LoggerFactory
-import com.guavus.acume.core.common.ConfigKeyEnum
+
+import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.util.PropertyValidator
 
 /**
  * Configuration for a Acume application. Used to set various Acume parameters as key-value pairs.
@@ -41,7 +45,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
   if (loadDefaults) {
     // Load any Acume.* system properties
     for ((k, v) <- System.getProperties.asScala if k.toLowerCase.startsWith("acume.") || k.toLowerCase.startsWith("qb.")) {
-      settings(k) = v
+      settings(k.trim) = v.trim
     }
   }
   
@@ -50,15 +54,17 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
 	val properties = new Properties()
 	properties.load(fileName)
 	for ((k, v) <- properties.asScala) {
-		settings(k) = v
-		System.setProperty(k, v)
+		settings(k.trim) = v.trim
+		System.setProperty(k.trim, v.trim)
 	}
+	PropertyValidator.validate(settings)
+
   }
   
   def setDefault = {
-    set(ConfigKeyEnum.schedulerpolicyclass,"com.guavus.acume.core.scheduler.VariableGranularitySchedulerPolicy")
+    set(ConfConstants.schedulerpolicyclass,"com.guavus.acume.core.scheduler.VariableGranularitySchedulerPolicy")
   }
-
+  
   /** Set a configuration variable. */
   def set(key: String, value: String): AcumeConf = {
     if (key == null) {
@@ -76,176 +82,175 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
    * Default Super User in system
    */
   def setQueryPrefetchTaskRetryIntervalInMillis(prefetchTaskRetryIntervalInMillis : String): AcumeConf = {
-    set("acume.scheduler.prefetchTaskRetryIntervalInMillis", prefetchTaskRetryIntervalInMillis)
+    set(ConfConstants.prefetchTaskRetryIntervalInMillis, prefetchTaskRetryIntervalInMillis)
   }
   
   def getQueryPrefetchTaskRetryIntervalInMillis() : Long = {
-    getLong("acume.scheduler.prefetchTaskRetryIntervalInMillis", 300000)
+    getLong(ConfConstants.prefetchTaskRetryIntervalInMillis, 300000)
   }
   
   /**
    * Default Super User in system
    */
   def setSchedulerThreadPoolSize(schedulerThreadPoolSize : Int): AcumeConf = {
-    set("acume.scheduler.threadPoolSize", String.valueOf(schedulerThreadPoolSize))
+    set(ConfConstants.threadPoolSize, String.valueOf(schedulerThreadPoolSize))
   }
   
   def getSchedulerThreadPoolSize() : Int = {
-    getInt("acume.scheduler.threadPoolSize", 2)
+    getInt(ConfConstants.threadPoolSize, 2)
   }
   
   /**
    * Default Super User in system
    */
   def setSuperUser(superUser : String): AcumeConf = {
-    set("acume.super.user", superUser)
+    set(ConfConstants.superUser, superUser)
   }
   
   def getSuperUser() : String = {
-    get("acume.super.user", "admin")
+    get(ConfConstants.superUser, "admin")
   }
   
   /**
    * Sets the resolver to be used to start app.
    */
   def setDefaultAggrInterval(defaultAggrInterval : String): AcumeConf = {
-    set("acume.insta.defaultAggrInterval", defaultAggrInterval)
+    set(ConfConstants.defaultAggInterval, defaultAggrInterval)
   }
   
   def getDefaultAggrInterval() : Int = {
-    getInt("acume.insta.defaultAggrInterval", -1)
+    getInt(ConfConstants.defaultAggInterval, -1)
   }
   
   /**
    * Sets the resolver to be used to start app.
    */
   def setResolver(resolver : String): AcumeConf = {
-    set("acume.resolver", resolver)
+    set(ConfConstants.springResolver, resolver)
   }
   
   def getResolver() : String = {
-    get("acume.resolver", "com.guavus.acume.core.spring.AcumeResolver")
+    get(ConfConstants.springResolver, "com.guavus.acume.core.spring.AcumeResolver")
   }
   
   /**
    * If true it will start scheduler on server startup 
    */
   def setEnableScheduler(enableScheduler : Boolean): AcumeConf = {
-    set("acume.scheduler.enable", String.valueOf(enableScheduler))
+    set(ConfConstants.enableScheduler, String.valueOf(enableScheduler))
   }
   
   def getEnableScheduler() : Boolean = {
-    getBoolean("acume.scheduler.enable", true)
+    getBoolean(ConfConstants.enableScheduler, true)
   }
   
   /**
    * Determines maximum duration query that insta can serve. 
    */
   def setInstaComboPoints(instaComboPoints : Int): AcumeConf = {
-    set("acume.insta.comboPoints", String.valueOf(instaComboPoints))
+    set(ConfConstants.instaComboPoints, String.valueOf(instaComboPoints))
   }
   
   def getInstaComboPoints() : Int = {
-    getInt("acume.insta.comboPoints", 24)
+    getInt(ConfConstants.instaComboPoints, 24)
   }
   
   /**
    * This tell for which granularity how back scheduler will run 
    */
   def setSchedulerVariableRetentionMap(schedulerVariableRetentionMap : String): AcumeConf = {
-    set("acume.scheduler.variableRetentionMap", schedulerVariableRetentionMap)
+    set(ConfConstants.schedulerVariableRetentionMap, schedulerVariableRetentionMap)
   }
   
   def getSchedulerVariableRetentionMap() : String = {
-    get("acume.scheduler.variableRetentionMap", "1h:24")
+    get(ConfConstants.schedulerVariableRetentionMap, "1h:24")
   }
   
   /**
    * This tells how long queries can be combined together. 
    */
   def setSchedulerVariableRetentionCombinePoints(schedulerVariableRetentionCombinePoints : String): AcumeConf = {
-    set("acume.scheduler.variableRetentionCombinePoints", schedulerVariableRetentionCombinePoints)
+    set(ConfConstants.variableRetentionCombinePoints, schedulerVariableRetentionCombinePoints)
   }
   
   def getSchedulerVariableRetentionCombinePoints() : Int = {
-    getInt("acume.scheduler.variableRetentionCombinePoints", 1)
+    getInt(ConfConstants.variableRetentionCombinePoints, 1)
   }
   
   /**
    * No of retries before this task mark as failed 
    */
   def setQueryPrefetchTaskNoOfRetries(queryPrefetchTaskNoOfRetries : Int): AcumeConf = {
-    set("acume.scheduler.queryPrefetchTaskNoOfRetries", String.valueOf(queryPrefetchTaskNoOfRetries))
+    set(ConfConstants.queryPrefetchTaskNoOfRetries, String.valueOf(queryPrefetchTaskNoOfRetries))
   }
   
   def getQueryPrefetchTaskNoOfRetries() : Int = {
-    getInt("acume.scheduler.queryPrefetchTaskNoOfRetries", 3)
+    getInt(ConfConstants.queryPrefetchTaskNoOfRetries, 3)
   }
-  
   
   /**
    * Scheduler segments which will executw together and increase acume availability 
    */
   def setSchedulerMaxSegmentDuration(schedulerMaxSegmentDuration : Int): AcumeConf = {
-    set("acume.scheduler.maxSegmentDuration", String.valueOf(schedulerMaxSegmentDuration))
+    set(ConfConstants.maxSegmentDuration, String.valueOf(schedulerMaxSegmentDuration))
   }
   
   def getSchedulerMaxSegmentDurationCombinePoints() : Int = {
-    getInt("acume.scheduler.maxSegmentDuration", 86400)
+    getInt(ConfConstants.maxSegmentDuration, 86400)
   }
   
   /**
    * Sets the input paths for the cubes to be used. Format to use is CubeName1:path1;path2|CubeName2:path1;path2
    */
   def setMaxQueryLogRecords(maxQueryLogRecords : Int): AcumeConf = {
-    set("acume.max.query.log.record", maxQueryLogRecords.toString)
+    set(ConfConstants.maxQueryLogRecords, maxQueryLogRecords.toString)
   }
 
   def getMaxQueryLogRecords(): Int = {
-    getInt("acume.max.query.log.record", 10)
+    getInt(ConfConstants.maxQueryLogRecords, 10)
   }
   
   /**
    * Sets the outputcubes base path to be used.
    */
   def setSchedulerScheckInterval(schedulerCheckInterval : Int): AcumeConf = {
-    set("acume.scheduler.checkInterval", String.valueOf(schedulerCheckInterval))
+    set(ConfConstants.schedulerCheckInterval, String.valueOf(schedulerCheckInterval))
   }
   
   def getSchedulerCheckInterval(): Int = {
-    getInt("acume.scheduler.checkInterval", 300)
+    getInt(ConfConstants.schedulerCheckInterval, 300)
   }
 
   def setEnableJDBCServer(enableJDBCFlag : String): AcumeConf = {
-    set("acume.core.enableJDBCServer", enableJDBCFlag)
+    set(ConfConstants.enableJDBCServer, enableJDBCFlag)
   }
   
   def getEnableJDBCServer(): String = {
-    get("acume.core.enableJDBCServer", "false")
+    get(ConfConstants.enableJDBCServer, "false")
   }
 
   def getAppConfig(): String = {
-    get("acume.core.app.config", "com.guavus.acume.core.configuration.AcumeAppConfig")
+    get(ConfConstants.appConfig, "com.guavus.acume.core.configuration.AcumeAppConfig")
   }
   
   def setAppConfig(appConfig: String): AcumeConf = {
-    set("acume.core.app.config", appConfig)
+    set(ConfConstants.appConfig, appConfig)
   }
   
   def getSqlQueryEngine(): String = {
-    get("acume.core.sql.query.engine", "acume")
+    get(ConfConstants.sqlQueryEngine, "acume")
   }
   
   def setSqlQueryEngine(sqlQueryEngine: String): AcumeConf = {
-    set("acume.core.sql.query.engine", sqlQueryEngine)
+    set(ConfConstants.sqlQueryEngine, sqlQueryEngine)
   }
   
   def getUdfConfigurationxml() :  String = {
-    get("acume.core.udf.configurationxml", "udfConfiguration.xml")
+    get(ConfConstants.udfConfigXml, "udfConfiguration.xml")
   }
   
   def getSchedulerPolicyClass() : String = {
-    get("acume.cache.scheduler.policyclass", "com.guavus.acume.core.QueryPoolPolicyImpl")
+    get(ConfConstants.schedulerpolicyclass, "com.guavus.acume.core.QueryPoolPolicyImpl")
   }
   
   /** Set multiple parameters together */
