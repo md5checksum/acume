@@ -24,7 +24,10 @@ trait AcumeCacheContextTrait extends Serializable {
   private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
   private [cache] val poolThreadLocal = new ThreadLocal[HashMap[String, Any]]()
   
-  def acql(sql: String, qltype: String = null): AcumeCacheResponse = { 
+  def acql(sql: String): AcumeCacheResponse = {
+    acql(sql, null)
+  }
+  def acql(sql: String, qltype: String): AcumeCacheResponse = { 
      val ql : QLType.QLType = if(qltype == null)
       QLType.getQLType(cacheConf.get(ConfConstants.qltype)) 
     else
