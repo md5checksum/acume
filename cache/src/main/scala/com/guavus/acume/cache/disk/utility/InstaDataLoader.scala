@@ -2,9 +2,7 @@ package com.guavus.acume.cache.disk.utility
 
 import java.util.Arrays
 import java.util.concurrent.ConcurrentHashMap
-
 import scala.util.control.Breaks._
-
 import org.apache.spark.AccumulatorParam
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SchemaRDD
@@ -13,7 +11,6 @@ import org.apache.spark.sql.StructType
 import org.apache.spark.sql.catalyst.expressions.GenericRow
 import org.apache.spark.sql.catalyst.expressions.Row
 import org.apache.spark.sql.catalyst.types.LongType
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.ConversionToSpark
@@ -34,6 +31,7 @@ import scala.collection.mutable.HashMap
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import java.util.concurrent.TimeUnit
+import org.apache.spark.sql.hive.HiveContext
 
 class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @transient  conf: AcumeCacheConf, @transient acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends DataLoader(acumeCacheContext, conf, null) {
 
@@ -63,7 +61,8 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
   init
   
   def init() {
-    insta = new Insta(acumeCacheContext.cacheSqlContext.sparkContext)
+    //Insta constructor requires HiveContext now, so we have to do explicit typecasting here
+    insta = new Insta(acumeCacheContext.cacheSqlContext.asInstanceOf[HiveContext])
 //    insta.init(conf.get(ConfConstants.backendDbName, throw new IllegalArgumentException(" Insta DBname is necessary for loading data from insta")), conf.get(ConfConstants.cubedefinitionxml, throw new IllegalArgumentException(" Insta cubeDefinitionxml is necessary for loading data from insta")))
     insta.init(conf.get(ConfConstants.backendDbName), conf.get(ConfConstants.cubedefinitionxml))
     cubeList = insta.getInstaCubeList
