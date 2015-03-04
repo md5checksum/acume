@@ -2,9 +2,9 @@ package com.guavus.acume.core.exceptions
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import java.lang.RuntimeException
 import com.google.common.base.Throwables
+import java.lang.Error
 
 case class ErrorHandler
 
@@ -15,7 +15,6 @@ object ErrorHandler {
   def handleError(error : Error) {
     val message = error.getMessage
     val throwable = error.getCause
-    
     throwable match {
       case r : RuntimeException =>
         logger.error("Fatal Acume Error." + message + " Exiting...", throwable)

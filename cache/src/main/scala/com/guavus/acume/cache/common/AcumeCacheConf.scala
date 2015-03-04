@@ -54,7 +54,6 @@ class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: InputStream) 
   }
   
   def setDefault = {
-    
     set(ConfConstants.rrcacheconcurrenylevel,"3")
     .set(ConfConstants.rrloader, "com.guavus.acume.cache.workflow.RequestResponseCache")
     .set(ConfConstants.acumecachesqlcorrector, "com.guavus.acume.cache.sql.AcumeCacheSQLCorrector")
