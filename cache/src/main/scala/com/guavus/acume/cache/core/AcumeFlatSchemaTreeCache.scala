@@ -44,6 +44,7 @@ import scala.collection.mutable.HashMap
 import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.Sum
 import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.common.CacheLevel
 
 /**
  * @author archit.thakur
@@ -86,7 +87,7 @@ private[cache] class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCac
           try {
         	var schema: StructType = null
             var rdds = for (child <- cacheLevelPolicy.getChildrenIntervals(key.timestamp, key.level.localId)) yield {
-              val _tableName = cube.cubeName + cacheLevelPolicy.getLowerLevel(key.level.localId) + child
+              val _tableName = cube.cubeName + CacheLevel.getCacheLevel(cacheLevelPolicy.getLowerLevel(key.level.localId)) + child
               val outputRdd = sqlContext.table(_tableName)
               schema = outputRdd.schema
               outputRdd
