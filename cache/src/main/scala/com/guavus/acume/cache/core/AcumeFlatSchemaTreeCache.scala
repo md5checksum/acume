@@ -111,7 +111,7 @@ private[cache] class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCac
     val _tableName = cube.cubeName + key.level.toString + key.timestamp.toString
 
     val value = rdds.foldLeft(emptyRdd) { (result, current) =>
-      acumeCacheContext.cacheSqlContext.applySchema(current.union(result), current.schema)
+      current.unionAll(result)
     }
     //aggregate over measures after union
     val selectMeasures = CubeUtil.getMeasureSet(cube).map(x => x.getAggregationFunction + "('" + x.getName + ") as 'x")

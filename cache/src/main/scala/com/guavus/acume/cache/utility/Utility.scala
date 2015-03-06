@@ -111,7 +111,7 @@ object Utility extends Logging {
   def insertInto(sqlContext: SQLContext, schema: StructType, newrdd: SchemaRDD, tbl: String, newtbl: String) = {
     
     import sqlContext._
-    sqlContext.applySchema(sqlContext.table(tbl).union(newrdd), schema).registerTempTable(newtbl)
+    sqlContext.table(tbl).unionAll(newrdd).registerTempTable(newtbl)
   }
   
   def createEvictionDetailsMapFromFile(): MutableMap[String, EvictionDetails] = {

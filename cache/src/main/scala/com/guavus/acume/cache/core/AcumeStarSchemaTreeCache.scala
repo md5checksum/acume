@@ -122,7 +122,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
               val _tableName = cube.cubeName + key.level.toString + key.timestamp.toString
 
               val value = rdds.foldLeft(emptyRdd) { (result, current) =>
-                acumeCacheContext.cacheSqlContext.applySchema(current.union(result), current.schema)
+                current.unionAll(result)
               }
               
               import acumeCacheContext.sqlContext._
@@ -217,7 +217,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
       } else {
         val dimensionSetRdd = diskUtility.loadDimensionSet(keyMap, businessCube, Utility.floorFromGranularity(dimensionSetLoadedEndTime.toLong, businessCube.baseGran.getGranularity), endTime)
         val fullRdd = AcumeStarSchemaTreeCache.generateId(dimensionSetRdd, dTableName, acumeCacheContext.cacheSqlContext, latestschema)
-        val finalDimensionRdd = acumeCacheContext.sqlContext.applySchema(acumeCacheContext.sqlContext.table(dTableName.tblnm).union(fullRdd), latestschema)
+        val finalDimensionRdd = acumeCacheContext.sqlContext.table(dTableName.tblnm).unionAll(fullRdd)
         dTableName.Modify
         acumeCacheContext.sqlContext.registerRDDAsTable(finalDimensionRdd, dTableName.tblnm)
         metaData.put(DataLoadedMetadata.dimensionSetEndTime, endTime.toString)
