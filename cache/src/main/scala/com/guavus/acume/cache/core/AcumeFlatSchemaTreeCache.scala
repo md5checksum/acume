@@ -88,6 +88,7 @@ private[cache] class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCac
         	var schema: StructType = null
             var rdds = for (child <- cacheLevelPolicy.getChildrenIntervals(key.timestamp, key.level.localId)) yield {
               val _tableName = cube.cubeName + CacheLevel.getCacheLevel(cacheLevelPolicy.getLowerLevel(key.level.localId)) + child
+              
               val outputRdd = sqlContext.table(_tableName)
               schema = outputRdd.schema
               outputRdd
@@ -107,24 +108,28 @@ private[cache] class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCac
   
   def populateParentPointFromChildren(key : LevelTimestamp, rdds : Seq[SchemaRDD], schema : StructType) : AcumeTreeCacheValue = {
 
+    logger.info("Populating parent point from children for key " + key)
     val emptyRdd = Utility.getEmptySchemaRDD(sqlContext, schema).cache
 
     val _tableName = cube.cubeName + key.level.toString + key.timestamp.toString
 
-    val value = rdds.foldLeft(emptyRdd) { (result, current) =>
-      current.unionAll(result)
-    }
-    //aggregate over measures after union
-    val selectMeasures = CubeUtil.getMeasureSet(cube).map(x => x.getAggregationFunction + "('" + x.getName + ") as 'x")
-    val selectDimensions = CubeUtil.getDimensionSet(cube).map(_.getName).mkString(",")
-    import sqlContext._
+    val value = mergeChildPoints(emptyRdd, rdds)
+    
+    //aggregate over measures after merging child points
+    val (selectDimensions, selectMeasures, groupBy) = CubeUtil.getDimensionsAggregateMeasuresGroupBy(cube)
+
     val tempTable = _tableName + "Temp"
     value.registerTempTable(tempTable)
     val timestamp = key.timestamp
-    val parentRdd = acumeCacheContext.sqlContext.sql(s"select $timestamp as ts, $selectDimensions, $selectMeasures from $tempTable group by $selectDimensions")
+    val parentRdd = acumeCacheContext.sqlContext.sql(s"select $timestamp as ts, $selectDimensions, $selectMeasures from $tempTable " + groupBy)
     parentRdd.registerTempTable(_tableName)
-    cacheTable(_tableName)
-    return new AcumeTreeCacheValue(null, _tableName, value)
+    sqlContext.cacheTable(_tableName)
+    return new AcumeTreeCacheValue(null, _tableName, parentRdd)
+  }
+  
+  def mergeChildPoints(emptyRdd: SchemaRDD, rdds : Seq[SchemaRDD]) : SchemaRDD = {
+    rdds.foldLeft(emptyRdd) { (result, current) =>
+      current.unionAll(result) }
   }
 
   private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf("_"))
@@ -190,14 +195,20 @@ private[cache] class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCac
     import acumeCacheContext.sqlContext._
     val cacheLevel = levelTimestamp.level
     val diskloaded = diskUtility.loadData(keyMap, cube, levelTimestamp)
+    val processedDiskLoaded = processBackendData(diskloaded)
+    
     val _tableNameTemp = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString + "_temp"
-    diskloaded.registerTempTable(_tableName + "_temp")
+    processedDiskLoaded.registerTempTable(_tableName + "_temp")
     val timestamp = levelTimestamp.timestamp
     val measureSet = (CubeUtil.getMeasureSet(cube) ++ CubeUtil.getDimensionSet(cube)).map(_.getName).mkString(",")
     val cachePoint = sqlContext.sql(s"select $timestamp as ts, $measureSet from " + _tableNameTemp)
     cachePoint.registerTempTable(_tableName)
     cacheTable(_tableName)
     AcumeTreeCacheValue(null, _tableName, cachePoint)
+  }
+  
+  def processBackendData(rdd: SchemaRDD) : SchemaRDD = {
+    rdd
   }
 
   private def getUniqueRandomeNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt)
