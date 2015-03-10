@@ -16,7 +16,6 @@ private [acume] object ConfConstants {
   
   /* Acume cache properties */ 
   val businesscubexml = "acume.cache.baselayer.businesscubexml"
-  val schedularinterval = "acume.cache.core.schedularinterval"
   val variableretentionmap = "acume.cache.core.variableretentionmap"
   val instainstanceid = "acume.cache.baselayer.instainstanceid"
   val storagetype = "acume.cache.baselayer.storagetype"
@@ -64,7 +63,8 @@ private [acume] object ConfConstants {
   /* Acume Scheduler properties */  
   val prefetchTaskRetryIntervalInMillis = "acume.scheduler.prefetchTaskRetryIntervalInMillis"
   val enableScheduler = "acume.scheduler.enable"
-  val schedulerpolicyclass = "acume.core.scheduler.schedulerpolicyclass"
+  val coreSchedulerpolicyclass = "acume.core.scheduler.schedulerpolicyclass"
+  val cacheSchedulerpolicyclass = "acume.cache.scheduler.policyclass"
   val schedulerVariableRetentionMap = "acume.scheduler.variableRetentionMap"
   val variableRetentionCombinePoints = "acume.scheduler.variableRetentionCombinePoints"
   val queryPrefetchTaskNoOfRetries = "acume.scheduler.queryPrefetchTaskNoOfRetries"

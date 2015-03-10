@@ -23,7 +23,7 @@ object ISchedulerPolicy {
   
   val objectgetter = HashMap[String, ISchedulerPolicy]()
   def getISchedulerPolicy(acumeConf: AcumeConf): ISchedulerPolicy = {
-    val schedulerpolicykey = ConfConstants.schedulerpolicyclass
+    val schedulerpolicykey = ConfConstants.coreSchedulerpolicyclass
     val ischedulerpolicy = objectgetter.getOrElse(schedulerpolicykey, Class.forName(acumeConf.get(schedulerpolicykey)).getConstructor(classOf[AcumeConf]).newInstance(acumeConf)
     .asInstanceOf[ISchedulerPolicy])
     if(!objectgetter.contains(schedulerpolicykey)) {

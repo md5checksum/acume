@@ -62,7 +62,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
   }
   
   def setDefault = {
-    set(ConfConstants.schedulerpolicyclass,"com.guavus.acume.core.scheduler.VariableGranularitySchedulerPolicy")
+    set(ConfConstants.coreSchedulerpolicyclass,"com.guavus.acume.core.scheduler.VariableGranularitySchedulerPolicy")
   }
   
   /** Set a configuration variable. */
@@ -250,7 +250,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
   }
   
   def getSchedulerPolicyClass() : String = {
-    get(ConfConstants.schedulerpolicyclass, "com.guavus.acume.core.QueryPoolPolicyImpl")
+    get(ConfConstants.cacheSchedulerpolicyclass, "com.guavus.acume.core.QueryPoolPolicyImpl")
   }
   
   /** Set multiple parameters together */
