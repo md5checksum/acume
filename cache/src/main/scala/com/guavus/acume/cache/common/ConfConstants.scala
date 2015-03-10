@@ -63,8 +63,8 @@ private [acume] object ConfConstants {
   /* Acume Scheduler properties */  
   val prefetchTaskRetryIntervalInMillis = "acume.scheduler.prefetchTaskRetryIntervalInMillis"
   val enableScheduler = "acume.scheduler.enable"
-  val coreSchedulerpolicyclass = "acume.core.scheduler.schedulerpolicyclass"
-  val cacheSchedulerpolicyclass = "acume.cache.scheduler.policyclass"
+  val schedulerPolicyClass = "acume.core.scheduler.schedulerpolicyclass"
+  val queryPoolPolicyClass = "acume.core.querypoolpolicyclass"
   val schedulerVariableRetentionMap = "acume.scheduler.variableRetentionMap"
   val variableRetentionCombinePoints = "acume.scheduler.variableRetentionCombinePoints"
   val queryPrefetchTaskNoOfRetries = "acume.scheduler.queryPrefetchTaskNoOfRetries"
