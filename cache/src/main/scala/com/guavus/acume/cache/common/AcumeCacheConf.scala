@@ -115,6 +115,10 @@ class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: InputStream) 
     getOption(key).map(_.trim.toInt).getOrElse(defaultValue)
   }
   
+  def getInt(key: String): Int = {
+    getOption(key).map(_.trim.toInt).get
+  }
+  
   /** Get a parameter as String, falling back to a default if not set */
   def getString(key: String, defaultValue: String): String = {
     get(key, defaultValue)
