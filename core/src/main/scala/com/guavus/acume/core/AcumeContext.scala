@@ -6,25 +6,22 @@ import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.workflow.AcumeCacheContext
-import com.guavus.acume.cache.workflow.AcumeCacheContext
 import com.guavus.acume.core.listener.AcumeSparkListener
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 
 /**
  * @author pankaj.arora
  *
  * This will keep the sparkcontext and hive context.
  */
-class AcumeContext(confFilePath: String) extends AcumeContextTrait {
+class AcumeContext(val acumeConfiguration: AcumeConf) extends AcumeContextTrait {
 
   //Properties will be loaded from spark-defaults.conf
   val conf = new SparkConf()
   conf.set("spark.app.name", "Acume")
-
-  val acumeConfiguration = new AcumeConf(true, this.getClass.getResourceAsStream(confFilePath))  
     
   val sparkContext = new SparkContext(conf)
-  val acumeEventListener = new AcumeSparkListener 
-  sparkContext.addSparkListener(acumeEventListener)
+  sparkContext.addSparkListener(new AcumeSparkListener)
 
   val hc = new HiveContext(sparkContext)
 

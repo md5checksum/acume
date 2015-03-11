@@ -68,6 +68,7 @@ class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schemas : List[QueryBuild
     topQuery.setTimeGranularity(topCube.getTimeGranularityValue)
     topQuery.setOffset(0)
     topQuery.setLength(-1)
+    topQuery.setFromItem(topCube.getCubeName)
     val paramerterMap = new scala.collection.mutable.ArrayBuffer[NameValue]()
     paramerterMap += new NameValue("RUBIX_CACHE_COMPRESSION_INTERVAL", String.valueOf(level))
     topQuery.setParamMap(new java.util.ArrayList(paramerterMap))

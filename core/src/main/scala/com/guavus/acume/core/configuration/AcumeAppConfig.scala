@@ -15,11 +15,11 @@ import com.guavus.acume.core.usermanagement.DefaultPermissionTemplate
 import com.guavus.qb.conf.QBConf
 import com.guavus.qb.services.IQueryBuilderService
 import com.guavus.rubix.user.permission.IPermissionTemplate
-import com.guavus.qb.services.QueryBuilderService
 import com.guavus.acume.core.scheduler.QueryRequestPrefetchTaskManager
 import com.guavus.acume.core.scheduler.VariableGranularitySchedulerPolicy
 import com.guavus.acume.core.scheduler.ISchedulerPolicy
 import com.guavus.acume.core.scheduler.Controller
+import com.guavus.qb.services.QueryBuilderService
 
 object AcumeAppConfig {
 
@@ -60,7 +60,9 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
   @Bean
   @Autowired
   override def acumeContext() : AcumeContextTrait = {
+    AcumeContextTrait.init(System.getProperty("queryEngine"))
     AcumeContextTrait.acumeContext.get
+    
   }
   
   @Bean
@@ -75,7 +77,7 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
   
   @Bean
   @Autowired
-  override def queryRequestPrefetchTaskManager(acumeService : AcumeService, dataService : DataService , queryBuilderService : Seq[IQueryBuilderService], acumeContext : AcumeContext, controller : Controller) : QueryRequestPrefetchTaskManager = {
+  override def queryRequestPrefetchTaskManager(acumeService : AcumeService, dataService : DataService , queryBuilderService : Seq[IQueryBuilderService], acumeContext : AcumeContextTrait, controller : Controller) : QueryRequestPrefetchTaskManager = {
     
     val ischedulerpolicy = ISchedulerPolicy.getISchedulerPolicy(acumeContext.acumeConf)
     new QueryRequestPrefetchTaskManager(dataService, queryBuilderService.map(_.getQueryBuilderSchema).toList, acumeContext.acumeConf, acumeService, ischedulerpolicy, controller)

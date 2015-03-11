@@ -19,5 +19,6 @@ add_custom_target(genjaxbforacume
 add_dependencies(acume genjaxbforacume)
 
 install(CODE "execute_process(COMMAND chmod +x ${CMAKE_INSTALL_PREFIX}/opt/tms/acume/tomcat/bin/startup.sh)")
+install(CODE "execute_process(COMMAND chmod +x ${CMAKE_INSTALL_PREFIX}/opt/tms/acume/tomcat/bin/getUdfJarPaths.sh)")
 install(CODE "execute_process(COMMAND mkdir -p modules/gms_${GMS_MODULE_VERSION}/config-mgmt/webtool/configure/gms/Profiles/Default/)")
 install(DIRECTORY Profiles/Default/ DESTINATION modules/gms_${GMS_MODULE_VERSION}/config-mgmt/webtool/configure/gms/Profiles/Default/ FILES_MATCHING PATTERN "*.xml")

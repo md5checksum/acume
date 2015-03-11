@@ -54,7 +54,6 @@ class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: InputStream) 
   }
   
   def setDefault = {
-    
     set(ConfConstants.rrcacheconcurrenylevel,"3")
     .set(ConfConstants.rrloader, "com.guavus.acume.cache.workflow.RequestResponseCache")
     .set(ConfConstants.acumecachesqlcorrector, "com.guavus.acume.cache.sql.AcumeCacheSQLCorrector")
@@ -114,6 +113,10 @@ class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: InputStream) 
   /** Get a parameter as an integer, falling back to a default if not set */
   def getInt(key: String, defaultValue: Int): Int = {
     getOption(key).map(_.trim.toInt).getOrElse(defaultValue)
+  }
+  
+  def getInt(key: String): Int = {
+    getOption(key).map(_.trim.toInt).get
   }
   
   /** Get a parameter as String, falling back to a default if not set */

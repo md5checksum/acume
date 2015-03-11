@@ -1,9 +1,9 @@
 package com.guavus.acume.core.scheduler
 
 import scala.collection.mutable.HashMap
-import com.guavus.acume.core.common.ConfigKeyEnum
 import com.guavus.acume.core.AcumeConf
 import scala.collection.mutable.HashMap
+import com.guavus.acume.cache.common.ConfConstants
 
 /**
  * @author archit.thakur
@@ -23,7 +23,7 @@ object ISchedulerPolicy {
   
   val objectgetter = HashMap[String, ISchedulerPolicy]()
   def getISchedulerPolicy(acumeConf: AcumeConf): ISchedulerPolicy = {
-    val schedulerpolicykey = ConfigKeyEnum.schedulerpolicyclass
+    val schedulerpolicykey = ConfConstants.schedulerPolicyClass
     val ischedulerpolicy = objectgetter.getOrElse(schedulerpolicykey, Class.forName(acumeConf.get(schedulerpolicykey)).getConstructor(classOf[AcumeConf]).newInstance(acumeConf)
     .asInstanceOf[ISchedulerPolicy])
     if(!objectgetter.contains(schedulerpolicykey)) {

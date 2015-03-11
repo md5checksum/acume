@@ -10,7 +10,7 @@ QUEUE_NAME=" --queue default"
 
 master_mode=-1
 app_name=-1
-prop_loc='$CLI_REPLACE_ACUMESPARKPROPERTYLOCATION$'
+prop_loc=''
 queue_name=-1
 
 if [[ "$prop_loc" =~ ^\$CLI* ]]; then
@@ -207,12 +207,34 @@ if [ "$num_core_jars" -eq "1" ]; then
   echo "Found core jar $core_jar" >> "$CATALINA_OUT"
 fi
 
+############
+# Add Udf jars to classpath
+############
+dirpath="$DOCBASE/WEB-INF/classes/"
+FILE_NAME=$dirpath"acume.conf"
+prop_key="acume.core.udf.configurationxml"
+prop_value=`cat ${FILE_NAME} | grep ${prop_key} | cut -d ' ' -f2`
+if [ -z $prop_value ]
+then
+  FILE_NAME=$dirpath"udfConfiguration.xml"
+ if [ -f "$FILE_NAME" ]; then
+  . $SCRIPT_DIR/getUdfJarPaths.sh --udfConfXmlPath $FILE_NAME
+ else
+   echo "udfConfiguration.xml file does not exists"
+   exit 1
+ fi
+else
+  . $SCRIPT_DIR/getUdfJarPaths.sh --udfConfXmlPath $prop_value
+fi
+udfJarPath=$ACUME_UDFJARPATHS
+if [ ! -z $ACUME_UDFJARPATHS ]
+then  udfJarPath=,$udfJarPath
+fi
 
 ############
 # Start the spark server
 ############
-cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_PROPERTIES_FILE --class com.guavus.acume.tomcat.core.AcumeMain --jars `ls -d -1 $DOCBASE/WEB-INF/lib/* | sed ':a;N;$!ba;s/\n/,/g'`  $DOCBASE/WEB-INF/lib/$core_jar "
+cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_PROPERTIES_FILE --class com.guavus.acume.tomcat.core.AcumeMain --jars `ls -d -1 $DOCBASE/WEB-INF/lib/* | sed ':a;N;$!ba;s/\n/,/g'`$udfJarPath  $DOCBASE/WEB-INF/lib/$core_jar "
 echo "Starting Spark..." >> "$CATALINA_OUT"
 eval $cmd >> "$CATALINA_OUT" 2>&1 "&"
 echo "Spark started successfully..." >> "$CATALINA_OUT"
-

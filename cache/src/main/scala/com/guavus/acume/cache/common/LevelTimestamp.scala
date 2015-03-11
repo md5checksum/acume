@@ -7,6 +7,13 @@ import CacheLevel._
  *
  */
 case class LevelTimestamp(level: CacheLevel, timestamp:Long) {
+	
+  @transient var loadFromBackend : Boolean = true
+  
+  def this(level : CacheLevel, timestamp : Long, loadFromBackend : Boolean) = {
+    this(level, timestamp)
+    this.loadFromBackend = loadFromBackend
+  }
   
   override def toString = level.localId.toString + timestamp.toString
 }

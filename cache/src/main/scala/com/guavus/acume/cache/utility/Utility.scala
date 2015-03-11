@@ -49,6 +49,7 @@ import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.MeasureSet
 import com.guavus.acume.cache.common.DimensionSet
 import com.guavus.acume.cache.eviction.EvictionPolicy
+import com.guavus.acume.cache.core.AcumeCacheType
 
 
 /**
@@ -110,7 +111,7 @@ object Utility extends Logging {
   def insertInto(sqlContext: SQLContext, schema: StructType, newrdd: SchemaRDD, tbl: String, newtbl: String) = {
     
     import sqlContext._
-    sqlContext.applySchema(sqlContext.table(tbl).union(newrdd), schema).registerTempTable(newtbl)
+    sqlContext.table(tbl).unionAll(newrdd).registerTempTable(newtbl)
   }
   
   def createEvictionDetailsMapFromFile(): MutableMap[String, EvictionDetails] = {
@@ -386,15 +387,27 @@ object Utility extends Logging {
         val _$propertyMap = _$cubeProperties.split(",").map(x => {
           val i = x.indexOf(":")
           (x.substring(0, i).trim, x.substring(i+1, x.length).trim)
-        })
+        })	
         val propertyMap = _$propertyMap.toMap
+        
+        //getSingle entity keys from xml
+        val singleEntityKeys = c.getSingleEntityKeys()
+        var singleEntityKeysMap : Map[String, String] = if (singleEntityKeys != null) {
+          singleEntityKeys.split(",").map(x => {
+            val i = x.indexOf(":")
+            (x.substring(0, i).trim, x.substring(i + 1, x.length).trim)
+          }).toMap
+        } else {
+          Map[String, String]()
+        }
         
         val levelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.levelpolicymap, ConfConstants.acumecorelevelmap, conf, cubeName))
         val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.timeserieslevelpolicymap, ConfConstants.acumecoretimeserieslevelmap, conf, cubeName))
         val Gnx = getProperty(propertyMap, ConfConstants.basegranularity, ConfConstants.acumeglobalbasegranularity, conf, cubeName)
         val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
         val _$eviction = Class.forName(getProperty(propertyMap, ConfConstants.evictionpolicyforcube, ConfConstants.acumeglobalevictionpolicycube, conf, cubeName)).asSubclass(classOf[EvictionPolicy])
-        val cube = Cube(cubeName, cubebinsource, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), granularity, true, levelpolicymap, timeserieslevelpolicymap, _$eviction)
+        val schemaType = AcumeCacheType.getAcumeCacheType(getProperty(propertyMap, "cacheType", ConfConstants.acumeCacheDefaultType, conf, cubeName))
+        val cube = Cube(cubeName, cubebinsource, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), singleEntityKeysMap, granularity, true, levelpolicymap, timeserieslevelpolicymap, _$eviction, schemaType)
         cubeMap.put(CubeKey(cubeName, cubebinsource), cube)
         cube
       }

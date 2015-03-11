@@ -95,4 +95,26 @@ object CubeUtil {
     }
     keyset.filter(!_.isEmpty()).toSet.+("min(ts) as ts ").mkString(",")
   }
+  
+  def getDimensionsAggregateMeasuresGroupBy(cube: Cube) = {
+    val selectDimensions = CubeUtil.getDimensionSet(cube).map(_.getName).mkString(",")
+    
+    if(CubeUtil.getMeasureSet(cube).isEmpty) {
+      throw new IllegalArgumentException("Measure set can't be empty for cube " + cube)
+    }
+    
+    val measuresSize = CubeUtil.getMeasureSet(cube).size
+    val noneMeasuresSize = CubeUtil.getMeasureSet(cube).filter(_.getAggregationFunction.equalsIgnoreCase("none")).size
+    
+    if(noneMeasuresSize == measuresSize) {
+      val selectMeasures = CubeUtil.getMeasureSet(cube).map(_.getName).mkString(",")
+      (selectDimensions, selectMeasures, "")
+    } else if(noneMeasuresSize == 0) {
+      val selectMeasures = CubeUtil.getMeasureSet(cube).map(x => x.getAggregationFunction + "('" + x.getName + ") as 'x").mkString(",")
+      val groupBy = "group by $selectDimensions"
+      (selectDimensions, selectMeasures, groupBy)
+    } else {
+      throw new IllegalArgumentException("Either all measures should have aggregation function as 'none' or none of them for cube " + cube)
+    }
+  }
 }

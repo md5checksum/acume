@@ -2,12 +2,16 @@ package com.guavus.acume.cache.workflow
 
 import java.io.StringReader
 import java.util.Random
-import scala.Array.canBuildFrom
+import java.util.concurrent.ConcurrentHashMap
+
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
+
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.BaseCube
@@ -19,12 +23,13 @@ import com.guavus.acume.cache.common.QLType
 import com.guavus.acume.cache.common.QLType.QLType
 import com.guavus.acume.cache.core.AcumeCacheFactory
 import com.guavus.acume.cache.core.CacheIdentifier
+import com.guavus.acume.cache.disk.utility.DataLoader
 import com.guavus.acume.cache.sql.ISqlCorrector
-import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
 import com.guavus.acume.cache.utility.SQLParserFactory
 import com.guavus.acume.cache.utility.SQLUtility
 import com.guavus.acume.cache.utility.Tuple
 import com.guavus.acume.cache.utility.Utility
+
 import net.sf.jsqlparser.expression.Expression
 import net.sf.jsqlparser.expression.Parenthesis
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression
@@ -33,23 +38,34 @@ import net.sf.jsqlparser.expression.operators.relational.EqualsTo
 import net.sf.jsqlparser.schema.Column
 import net.sf.jsqlparser.statement.select.PlainSelect
 import net.sf.jsqlparser.statement.select.Select
-import java.util.concurrent.ConcurrentHashMap
-import com.guavus.acume.cache.disk.utility.DataLoader
 
 /**
  * @author archit.thakur
  *
  */
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends AcumeCacheContextTrait {
-  sqlContext match{
-  case hiveContext: HiveContext =>
-  case sqlContext: SQLContext => 
-  case rest => throw new RuntimeException("This type of SQLContext is not supported.")
-  }
-  Utility.init(conf)
   
-  def cacheConf() = conf
-  def cacheSqlContext() = sqlContext
+  private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
+  val dataLoader: DataLoader = DataLoader.getDataLoader(this, conf, null)
+  private [cache] val baseCubeList = MutableList[BaseCube]()
+  private [cache] val cubeMap = new HashMap[CubeKey, Cube]
+  private [cache] val cubeList = MutableList[Cube]()
+
+  sqlContext match {
+    case hiveContext: HiveContext =>
+    case sqlContext: SQLContext => 
+    case rest => throw new RuntimeException("This type of SQLContext is not supported.")
+  }
+  
+  Utility.init(conf)
+  Utility.loadXML(conf, dimensionMap, measureMap, cubeMap, cubeList)
+
+  
+  override def getCubeMap = cubeMap.toMap
+  
+  private [acume] def cacheConf() = conf
+  
+  private [acume] def cacheSqlContext() = sqlContext
 
   override def getFirstBinPersistedTime(binSource: String): Long = {
     dataLoader.getFirstBinPersistedTime(binSource)
@@ -66,46 +82,15 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   override def getAllBinSourceToIntervalMap() : Map[String, Map[Long, (Long,Long)]] =  {
 		dataLoader.getAllBinSourceToIntervalMap
   }
- 
-  @transient
-  val rrCacheLoader = Class.forName(conf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, conf).asInstanceOf[RRCache]
-  private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
-  val dataLoader: DataLoader = DataLoader.getDataLoader(this, conf, null)
-  private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
-  private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
-  private [cache] val baseCubeMap = new HashMap[CubeKey, BaseCube]
-  private [cache] val baseCubeList = MutableList[BaseCube]()
-  private [cache] val cubeMap = new HashMap[CubeKey, Cube]
-  private [cache] val cubeList = MutableList[Cube]()
-
-  Utility.loadXML(conf, dimensionMap, measureMap, cubeMap, cubeList)
-  loadXMLCube("")
   
-  private [acume] def getCubeList = cubeList.toList
-  
-  def isDimension(name: String) : Boolean =  {
-    if(dimensionMap.contains(name)) {
-      true 
-    } else if(measureMap.contains(name)) {
-      false
-    } else {
-        throw new RuntimeException("Field " + name + " nither in Dimension Map nor in Measure Map.")
-    }
-  }
-  
-   private [workflow] def loadXMLCube(xml: String) = {
-   //This is for loading base cube xml, should be changed as and when finalized where should base cube configuration come from.
-    baseCubeList.++=(cubeList.map(x => BaseCube(x.cubeName, x.binsource, x.dimension, x.measure, x.baseGran)))
-    val baseCubeHashMap = cubeMap.map(x => (x._1, BaseCube(x._2.cubeName, x._2.binsource, x._2.dimension, x._2.measure, x._2.baseGran)))
-    baseCubeMap.++=(baseCubeHashMap)
-  }
-  
-  private [acume] def utilQL(sql: String, qltype: QLType) = {
+  override private [acume] def getCubeList = cubeList.toList
+   
+  private [acume] def executeQuery(sql: String, qltype: QLType.QLType) = {
     
     val originalparsedsql = AcumeCacheContext.parseSql(sql)
     
     println("AcumeRequest obtained " + sql)
-    var correctsql = ISqlCorrector.getSQLCorrector(conf).correctSQL(sql, (originalparsedsql._1.toList, originalparsedsql._2))
+    var correctsql = ISqlCorrector.getSQLCorrector(conf).correctSQL(this, sql, (originalparsedsql._1.toList, originalparsedsql._2))
     var updatedsql = correctsql._1._1
     val queryOptionalParams = correctsql._1._2
     var updatedparsedsql = correctsql._2
@@ -131,54 +116,37 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       val idd = new CacheIdentifier()
       idd.put("cube", id.hashCode)
       val instance = AcumeCacheFactory.getInstance(this, conf, idd, id)
-      val temp = instance.createTempTableAndMetadata(startTime, endTime, rt, i,Some(queryOptionalParams))
-      temp
+      if(l.getSingleEntityKeyValueList() == null  || l.getSingleEntityKeyValueList().size == 0) {
+    	  instance.createTempTableAndMetadata(List(Map[String, Any]()), startTime, endTime, rt, i,Some(queryOptionalParams))
+      } else {
+        val singleEntityKeys = (for(singleEntityKeys <- l.getSingleEntityKeyValueList()) yield {
+          singleEntityKeys.map(x => (x._1 -> x._2.asInstanceOf[Any])).toMap
+        }).toList
+        instance.createTempTableAndMetadata(singleEntityKeys, startTime, endTime, rt, i,Some(queryOptionalParams))
+      }
     }
     val klist = list.flatMap(_.timestamps).toList
-    val kfg = AcumeCacheContext.ACQL(qltype, sqlContext)(updatedsql)
+    val kfg = execute(qltype, updatedsql)
 //    kfg.collect.map(println)
     AcumeCacheResponse(kfg, MetaData(-1, klist))
 }
   
-  def acql(sql: String, qltype: String): AcumeCacheResponse = { 
-    
-    val ql = QLType.getQLType(qltype)
-    if (!AcumeCacheContext.checkQLValidation(sqlContext, ql))
-      throw new RuntimeException(s"ql not supported with ${sqlContext}");
-    executeQl(sql, ql)
+  private [acume] def execute(qltype: QLType, updatedsql: String) = {
+    AcumeCacheContext.ACQL(qltype, sqlContext)(updatedsql)
   }
   
-  def acql(sql: String): AcumeCacheResponse = { 
-    
-    val ql = AcumeCacheContext.getQLType(conf)
-    if (!AcumeCacheContext.checkQLValidation(sqlContext, ql))
-      throw new RuntimeException(s"ql not supported with ${sqlContext}");
-    executeQl(sql, ql)
-  }
-  
-  def executeQl(sql : String, ql : QLType.QLType) = {
-    rrCacheLoader.getRdd((sql, ql))
-  }
-  
-  private [acume] def getFieldsForCube(name: String, binsource: String) = {
+  override private [acume] def getFieldsForCube(name: String, binsource: String) = {
       
     val cube = cubeMap.getOrElse(CubeKey(name, binsource), throw new RuntimeException(s"Cube $name Not in AcumeCache knowledge."))
     cube.dimension.dimensionSet.map(_.getName) ++ cube.measure.measureSet.map(_.getName)
   }
   
-  private [acume] def getAggregationFunction(stringname: String) = {
+  override private [acume] def getAggregationFunction(stringname: String) = {
     val measure = measureMap.getOrElse(stringname, throw new RuntimeException(s"Measure $stringname not in Acume knowledge."))
     measure.getAggregationFunction
   }
   
-  def getDefaultValue(fieldName: String) = {
-    if(isDimension(fieldName))
-      dimensionMap.get(fieldName).get.getDefaultValue
-    else
-      measureMap.get(fieldName).get.getDefaultValue
-  }
-  
-  private [acume] def getCubeListContainingFields(lstfieldNames: List[String]) = {
+  override private [acume] def getCubeListContainingFields(lstfieldNames: List[String]) = {
     
     val dimensionSet = scala.collection.mutable.Set[Dimension]()
     val measureSet = scala.collection.mutable.Set[Measure]()
@@ -429,24 +397,6 @@ object AcumeCacheContext{
     (list, RequestType.getRequestType(requestType))
   }
   
-  private [cache] def checkQLValidation(sqlContext: SQLContext, qltype: QLType) = { 
-    
-    sqlContext match{
-      case hiveContext: HiveContext =>
-        qltype match{
-          case QLType.hql | QLType.sql => true
-          case rest => false
-        }
-      case sqlContext: SQLContext => 
-        qltype match{
-          case QLType.sql => true
-          case rest => false
-        }
-    }
-  }
-  
-  private def getQLType(conf: AcumeCacheConf) = QLType.getQLType(conf.get(ConfConstants.qltype)) 	
-  
   private[cache] def ACQL(qltype: QLType, sqlContext: SQLContext) = { 
     
     if(sqlContext.isInstanceOf[HiveContext]){
@@ -465,4 +415,3 @@ object AcumeCacheContext{
     else sqlContext.sql(_)
   }
 }
-

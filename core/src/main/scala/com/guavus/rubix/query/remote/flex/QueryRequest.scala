@@ -75,6 +75,9 @@ class QueryRequest extends Serializable {
 
   @BeanProperty
   var responseMeasures: ArrayList[String] = _
+  
+  @BeanProperty
+  var fromItem: String = "global"
 
   @BeanProperty
   var responseDimensions: ArrayList[String] = _
@@ -288,7 +291,7 @@ class QueryRequest extends Serializable {
         (if (length == -1) "" else "  limit " + length) +
         (if (offset == 0) "" else " offset " + offset + " ")
       
-    var abs = "select " + ts1 + columns.toString.substring(1, columns.toString.length - 1) + " from global " +wherestring
+    var abs = "select " + ts1 + columns.toString.substring(1, columns.toString.length - 1) + " from " + fromItem + wherestring
     abs
   }
 

@@ -12,17 +12,14 @@ import com.guavus.acume.core.listener.AcumeSparkListener
  * @author kashish.jain
  * 
  */
-class AcumeHiveContext(confFilePath: String) extends AcumeContextTrait {
+class AcumeHiveContext(val acumeConfiguration: AcumeConf) extends AcumeContextTrait {
 
   //Properties will be loaded from spark-defaults.conf
   val conf = new SparkConf()
-  conf.set("spark.app.name", "Acume").set("spark.sql.hive.convertMetastoreParquet", "true")
-
-  val acumeConfiguration = new AcumeConf(true, this.getClass.getResourceAsStream(confFilePath))  
+  conf.set("spark.app.name", "Acume")
     
   val sparkContext = new SparkContext(conf)
-  val acumeEventListener = new AcumeSparkListener 
-  sparkContext.addSparkListener(acumeEventListener)
+  sparkContext.addSparkListener(new AcumeSparkListener )
 
   val hc = new HiveContext(sparkContext)
 

@@ -8,37 +8,67 @@ import org.apache.spark.sql.hive.HiveContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import javax.xml.bind.JAXBContext
+import java.io.FileInputStream
+import com.guavus.acume.core.gen.AcumeUdfs
+import scala.collection.JavaConversions._
+import java.io.File
+import java.io.InputStream
+import java.nio.file.Files
 
 /*
  * @author kashish.jain
  */
 abstract class AcumeContextTrait {
 
-  val acumeContext : AcumeCacheContextTrait = null
-  
-  def sc() : SparkContext = null
-  
-  def ac() : AcumeCacheContextTrait = null
-  
-  def acumeConf() : AcumeConf = null
-  
-  def hqlContext() : HiveContext = null
-  
-  def sqlContext() : SQLContext = null
-  
-}
+  val acumeContext: AcumeCacheContextTrait = null
 
+  def sc(): SparkContext = null
+
+  def ac(): AcumeCacheContextTrait = null
+
+  def acumeConf(): AcumeConf = null
+
+  def hqlContext(): HiveContext = null
+
+  def sqlContext(): SQLContext = null
+
+  def registerUserDefinedFunctions() =
+    {
+      val xml = this.acumeConf.getUdfConfigurationxml
+      val jc = JAXBContext.newInstance("com.guavus.acume.core.gen")
+      val unmarsh = jc.createUnmarshaller()
+
+      var inputstream: InputStream = null
+      if (new File(xml).exists())
+        inputstream = new FileInputStream(xml)
+      else {
+        inputstream = this.getClass().getResourceAsStream("/" + xml)
+        if (inputstream == null)
+          throw new RuntimeException(s"$xml file does not exists")
+      }
+
+      val acumeUdf = unmarsh.unmarshal(inputstream).asInstanceOf[AcumeUdfs]
+      var udf: AcumeUdfs.UserDefined = null
+      for (udf <- acumeUdf.getUserDefined()) {
+        val createStatement = "create temporary function " + udf.getFunctionName() + " as '" + udf.getFullUdfclassName() + "'"
+        hqlContext.sql(createStatement)
+      }
+    }
+}
 
 object AcumeContextTrait {
   val logger: Logger = LoggerFactory.getLogger(AcumeContextTrait.getClass)
   var acumeContext: Option[AcumeContextTrait] = None
   val accumulatorMap = new LinkedHashMap[String, Accumulator[Long]]
+  
+  val acumeConf = new AcumeConf(true, this.getClass.getResourceAsStream("/acume.conf"))
 
-  def init(confFilePath : String, queryEngineType : String):AcumeContextTrait = acumeContext.getOrElse({
+  def init(queryEngineType : String):AcumeContextTrait = acumeContext.getOrElse({
     acumeContext = if(queryEngineType.equals("acume"))
-    	Some(new AcumeContext(confFilePath))
+    	Some(new AcumeContext(acumeConf))
     else
-    	Some(new AcumeHiveContext(confFilePath))
+    	Some(new AcumeHiveContext(acumeConf))
     acumeContext.get
   })
 

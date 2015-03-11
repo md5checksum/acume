@@ -99,7 +99,7 @@ class PrefetchTaskRequest {
         (if (queryRequest.length == -1) "" else "  limit " + queryRequest.length) +
         (if (queryRequest.offset == 0) "" else " offset " + queryRequest.offset + " ")
       
-    var abs = "select " + columns.toString.substring(1, columns.toString.length - 1) + " from global " +wherestring
+    var abs = "select " + columns.toString.substring(1, columns.toString.length - 1) + " from " + queryRequest.fromItem + wherestring
     abs
   }
   

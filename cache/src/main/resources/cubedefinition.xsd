@@ -32,6 +32,7 @@
                   <xs:sequence>
                     <xs:element type="xs:string" name="Info"/>
                     <xs:element type="xs:string" name="Fields"/>
+                    <xs:element type="xs:string" name="SingleEntityKeys" minOccurs="0" maxOccurs="1" /><!-- key1=value1,key2=value2 --> 
                     <xs:element type="xs:string" name="Properties"/>
                   </xs:sequence>
                 </xs:complexType>
