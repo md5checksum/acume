@@ -55,6 +55,11 @@ object AcumeCacheFactory {
             case `acumeFlatSchemaTreeCache` => {
               new AcumeFlatSchemaTreeCache(keyMap.toMap, acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy).asInstanceOf[AcumeCache[k, v]]
             }
+            
+            case `tmoCache` => {
+              new TmoCache(keyMap.toMap, acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy).asInstanceOf[AcumeCache[k, v]]
+            }
+            
             case _ => throw new IllegalArgumentException(s"No Cache exist for cache type cube $cube.schemaType")
           }
         }
