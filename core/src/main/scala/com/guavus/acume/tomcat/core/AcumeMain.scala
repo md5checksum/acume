@@ -22,13 +22,13 @@ object AcumeMain {
   
   private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeMain])
   
-  def startAcumeComponents(args:String, sqlQueryEngine:String) = {
-    
-    AcumeContextTrait.init(args, sqlQueryEngine)
-	AcumeContextTrait.acumeContext.get.acumeConf.setSqlQueryEngine(sqlQueryEngine)
-	AcumeContextTrait.acumeContext.get.registerUserDefinedFunctions
+  def startAcumeComponents(sqlQueryEngine:String) = {
+    System.setProperty("queryEngine", sqlQueryEngine)
+    val acumeContext = ConfigFactory.getInstance.getBean(classOf[AcumeContextTrait])
+	acumeContext.acumeConf.setSqlQueryEngine(sqlQueryEngine)
+	acumeContext.registerUserDefinedFunctions
 	
-	var enableJDBC = AcumeContextTrait.acumeContext.get.acumeConf.getEnableJDBCServer
+	var enableJDBC = acumeContext.acumeConf.getEnableJDBCServer
 	 
 	if(enableJDBC.toBoolean)
 		AcumeThriftServer.main(Array[String]())
@@ -40,7 +40,7 @@ object AcumeMain {
     
     val startTime = System.currentTimeMillis()
     //start Prefetch Scheduler
-    if(AcumeContextTrait.acumeContext.get.acumeConf.getEnableScheduler)
+    if(acumeContext.acumeConf.getEnableScheduler)
     	ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).startPrefetchScheduler
    
     //Initialize all components for Acume Core

@@ -61,12 +61,14 @@ object AcumeContextTrait {
   val logger: Logger = LoggerFactory.getLogger(AcumeContextTrait.getClass)
   var acumeContext: Option[AcumeContextTrait] = None
   val accumulatorMap = new LinkedHashMap[String, Accumulator[Long]]
+  
+  val acumeConf = new AcumeConf(true, this.getClass.getResourceAsStream("/acume.conf"))
 
-  def init(confFilePath : String, queryEngineType : String):AcumeContextTrait = acumeContext.getOrElse({
+  def init(queryEngineType : String):AcumeContextTrait = acumeContext.getOrElse({
     acumeContext = if(queryEngineType.equals("acume"))
-    	Some(new AcumeContext(confFilePath))
+    	Some(new AcumeContext(acumeConf))
     else
-    	Some(new AcumeHiveContext(confFilePath))
+    	Some(new AcumeHiveContext(acumeConf))
     acumeContext.get
   })
 

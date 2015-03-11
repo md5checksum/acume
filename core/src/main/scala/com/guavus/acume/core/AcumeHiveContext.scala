@@ -12,13 +12,11 @@ import com.guavus.acume.core.listener.AcumeSparkListener
  * @author kashish.jain
  * 
  */
-class AcumeHiveContext(confFilePath: String) extends AcumeContextTrait {
+class AcumeHiveContext(val acumeConfiguration: AcumeConf) extends AcumeContextTrait {
 
   //Properties will be loaded from spark-defaults.conf
   val conf = new SparkConf()
   conf.set("spark.app.name", "Acume")
-
-  val acumeConfiguration = new AcumeConf(true, this.getClass.getResourceAsStream(confFilePath))  
     
   val sparkContext = new SparkContext(conf)
   sparkContext.addSparkListener(new AcumeSparkListener )

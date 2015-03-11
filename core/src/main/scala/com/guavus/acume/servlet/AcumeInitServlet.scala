@@ -18,7 +18,7 @@ class AcumeInitServlet extends HttpServlet {
 
   override def init(servletConfig: ServletConfig) {
     try {
-      AcumeMain.startAcumeComponents("/acume.conf", "acume")
+      AcumeMain.startAcumeComponents("acume")
     } catch {
       case th : Throwable => ErrorHandler.handleError(new Error("Acume initialization failed...", th))
     }
@@ -35,7 +35,7 @@ class AcumeHiveInitServlet extends HttpServlet {
 
   override def init(servletConfig: ServletConfig) {
     try {
-      AcumeMain.startAcumeComponents("/acume.conf", "hive")
+      AcumeMain.startAcumeComponents("hive")
     } catch {
       case th : Throwable => ErrorHandler.handleError(new Error("Acume initialization failed...", th))
     }
