@@ -17,7 +17,7 @@ object AcumeApplicationContext {
   val logger = LoggerFactory.getLogger(classOf[AcumeApplicationContext])
   var context: AcumeApplicationContext = null
   try {
-    val appConfigClassName = AcumeContextTrait.acumeContext.get.acumeConf.getAppConfig
+    val appConfigClassName = AcumeContextTrait.acumeConf.getAppConfig
     context = new AcumeApplicationContext(new AnnotationConfigApplicationContext(Class.forName(appConfigClassName)))
   } catch {
     case t: Throwable =>
