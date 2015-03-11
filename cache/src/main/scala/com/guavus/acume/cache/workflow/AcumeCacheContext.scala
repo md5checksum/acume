@@ -126,10 +126,14 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       }
     }
     val klist = list.flatMap(_.timestamps).toList
-    val kfg = AcumeCacheContext.ACQL(qltype, sqlContext)(updatedsql)
+    val kfg = execute(qltype, updatedsql)
 //    kfg.collect.map(println)
     AcumeCacheResponse(kfg, MetaData(-1, klist))
 }
+  
+  private [acume] def execute(qltype: QLType, updatedsql: String) = {
+    AcumeCacheContext.ACQL(qltype, sqlContext)(updatedsql)
+  }
   
   override private [acume] def getFieldsForCube(name: String, binsource: String) = {
       
