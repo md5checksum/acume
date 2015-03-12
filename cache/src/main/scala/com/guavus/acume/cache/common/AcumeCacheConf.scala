@@ -36,6 +36,7 @@ class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: InputStream) 
   def this() = this(true, null)
   
   private val settings = new HashMap[String, String]()
+  settings++=ConfConstants.defaultValueMap
   setDefault
 
   if (loadSystemPropertyOverDefault) {

@@ -47,16 +47,7 @@ object AcumeCacheFactory {
             for(key <- cube.singleEntityKeys.keys) {
             	keyMap += (key -> cacheIdentifier.get(key))
             }
-          cube.schemaType match {
-            
-            case `acumeStarSchemaTreeCache` => {
-              new AcumeStarSchemaTreeCache(keyMap.toMap, acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy).asInstanceOf[AcumeCache[k, v]]
-            }
-            case `acumeFlatSchemaTreeCache` => {
-              new AcumeFlatSchemaTreeCache(keyMap.toMap, acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy).asInstanceOf[AcumeCache[k, v]]
-            }
-            case _ => throw new IllegalArgumentException(s"No Cache exist for cache type cube $cube.schemaType")
-          }
+          cube.schemaType.getCache(keyMap.toMap, acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy).asInstanceOf[AcumeCache[k,v]]
         }
         val acumeCacheEvictionObserver = new AcumeCacheEvictionObserver(_$instance.asInstanceOf[AcumeCache[k, v]])
         _$instance
