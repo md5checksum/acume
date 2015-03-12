@@ -18,7 +18,6 @@ object AcumeCacheType extends Enumeration {
 
   val acumeStarSchemaTreeCache = new AcumeCacheType("AcumeStarSchemaTreeCache", classOf[AcumeTreeCache])
   val acumeFlatSchemaTreeCache = new AcumeCacheType("AcumeFlatSchemaTreeCache", classOf[AcumeFlatSchemaTreeCache])
-  val tmoCache = new AcumeCacheType("TmoCache", classOf[TmoCache])
   
   def getAcumeCacheType(name: String): AcumeCacheType = { 
     for(actualName <- AcumeCacheType.values){
