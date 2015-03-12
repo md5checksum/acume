@@ -6,6 +6,9 @@ import org.apache.spark.sql.hive.HiveContext
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.utility.Utility
+import com.guavus.acume.cache.workflow.AcumeCacheContext
+import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.AcumeCacheConf
 
 /**
  * @author archit.thakur
@@ -17,15 +20,28 @@ object AcumeCacheType extends Enumeration {
   val acumeFlatSchemaTreeCache = new AcumeCacheType("AcumeFlatSchemaTreeCache", classOf[AcumeFlatSchemaTreeCache])
   
   def getAcumeCacheType(name: String): AcumeCacheType = { 
-    
     for(actualName <- AcumeCacheType.values){
       if(name equalsIgnoreCase actualName.name)
         return actualName
     }
-    throw new IllegalArgumentException(s"Cache Type passed is invalid $name")
+    val cacheTypeConfigClassName = new AcumeCacheConf().get(ConfConstants.cacheTypeConfigClassName)
+    Class.forName(cacheTypeConfigClassName).getConstructors()(0).newInstance(name , Class.forName(name).asInstanceOf[Class[_ <: AcumeCache[_ <: Any, _ <: Any]]]).asInstanceOf[AcumeCacheType]
   }
   
-  class AcumeCacheType(val name: String, val acumeCache: Class[_ <: AcumeCache[_ <: Any, _ <: Any]]) extends Val
+  class AcumeCacheType(val name: String, val acumeCache: Class[_ <: AcumeCache[_ <: Any, _ <: Any]]) extends Val {
+    def getCache(keyMap: Map[String, Any], acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy) = {
+      this match {
+        case `acumeStarSchemaTreeCache` => {
+          new AcumeStarSchemaTreeCache(keyMap.toMap, acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeriesAggregationPolicy)
+        }
+        case `acumeFlatSchemaTreeCache` => {
+          new AcumeFlatSchemaTreeCache(keyMap.toMap, acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeriesAggregationPolicy)
+        }
+        case _ => acumeCache.getConstructors()(0).newInstance(keyMap.toMap, acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeriesAggregationPolicy)
+      }
+    }
+  }
+  
   implicit def convertValue(v: Value): AcumeCacheType = v.asInstanceOf[AcumeCacheType]
   
   def main(args: Array[String]) { 
