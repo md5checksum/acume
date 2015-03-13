@@ -81,8 +81,8 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
       })
       
       val rowFilters = (dimSet.dimensions).map(x => {
-        if (baseFields.contains(x))
-          keyMap.getOrElse(x, null)
+        if (baseFields.contains(x._1))
+          keyMap.getOrElse(x._1, null)
         else
           null
       })
@@ -136,8 +136,8 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
       })
       
       val rowFilters = (dimSet.dimensions).map(x => {
-        if (baseFields.contains(x))
-          keyMap.getOrElse(x, null)
+        if (baseFields.contains(x._1))
+          keyMap.getOrElse(x._1, null)
         else
           null
       })
@@ -175,7 +175,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
           }
         }
       }
-      if (isValidCubeGran && cube.binSource == businessCube.binsource && CubeUtil.getCubeBaseFields(businessCube).toSet.subsetOf((cube.dimensions ++ cube.measures).toSet)) {
+      if (isValidCubeGran && cube.binSource == businessCube.binsource && CubeUtil.getCubeBaseFields(businessCube).toSet.subsetOf((cube.dimensions.map(_._1) ++ cube.measures.map(_._1)).toSet)) {
         if (bestCube == null) {
           bestCube = cube
         } else {
