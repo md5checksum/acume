@@ -27,8 +27,8 @@ class PartitonDistributorRDD[T: ClassTag](@transient sc: SparkContext, numPartit
      maxExecutorId += 1
      return maxExecutorId
    }
-   val executorDataArray = executorData.keySet.toArray
-   executorDataArray(split.index % executorData.size)
+   println("No new executor added. Using existing executors")
+   -1
   }
   
   private def updatePartitionToExecutorMapping(split : Partition, executorId : Int) {
@@ -57,9 +57,14 @@ class PartitonDistributorRDD[T: ClassTag](@transient sc: SparkContext, numPartit
     while(isExecutorDead(executorData, executorId)) {
       if(deadToAliveExecutorMapping.get(executorId) == None) {
         val aliveExecutorId = getNewAliveExecutorId(executorId, split, executorData)
-        deadToAliveExecutorMapping.+=(executorId -> aliveExecutorId)
-        executorId = aliveExecutorId
-        updatePartitionToExecutorMapping(split, executorId)
+        if(aliveExecutorId == -1) {
+          val executorDataArray = executorData.keySet.toArray
+          executorId = executorDataArray(split.index % executorData.size)
+        } else {
+          deadToAliveExecutorMapping.+=(executorId -> aliveExecutorId)
+          executorId = aliveExecutorId
+          updatePartitionToExecutorMapping(split, executorId)
+        }
       } else {
         executorId = deadToAliveExecutorMapping.get(executorId).get
       }
