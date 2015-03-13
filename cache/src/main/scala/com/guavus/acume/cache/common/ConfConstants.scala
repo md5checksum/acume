@@ -10,11 +10,6 @@ import com.guavus.acume.cache.core.AcumeCacheType
 
 private [acume] object ConfConstants {
 
-  val defaultValueMap = Map[String, String]()
-  defaultValueMap += businesscubexml -> "src/test/resources/cubedefinition1.xml"
-  defaultValueMap += acumeCacheDefaultType -> AcumeCacheType.acumeStarSchemaTreeCache.name
-  defaultValueMap += cacheTypeConfigClassName -> "com.guavus.acume.cache.core.AcumeCacheType"
-  
   /* Acume cache properties */ 
   val businesscubexml = "acume.cache.baselayer.businesscubexml"
   val variableretentionmap = "acume.cache.core.variableretentionmap"
@@ -73,4 +68,10 @@ private [acume] object ConfConstants {
   val schedulerCheckInterval = "acume.scheduler.checkInterval"   
   val threadPoolSize = "acume.scheduler.threadPoolSize"
   val cacheTypeConfigClassName = "acume.cache.type.config.classname"
+
+  val defaultValueMap = Map[String, String]()
+  defaultValueMap += businesscubexml -> "src/test/resources/cubedefinition1.xml"
+  defaultValueMap += acumeCacheDefaultType -> AcumeCacheType.acumeStarSchemaTreeCache.name
+  defaultValueMap += cacheTypeConfigClassName -> "com.guavus.acume.cache.core.AcumeCacheType"
+
 }
