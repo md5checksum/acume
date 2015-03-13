@@ -14,6 +14,21 @@ import com.guavus.acume.cache.common.AcumeCacheConf
  * @author archit.thakur
  *
  */
+  
+class AcumeCacheType(val name: String, val acumeCache: Class[_ <: AcumeCache[_ <: Any, _ <: Any]]) {
+    def getCache(keyMap: Map[String, Any], acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy) = {
+      this match {
+        case AcumeCacheType.acumeStarSchemaTreeCache => {
+          new AcumeStarSchemaTreeCache(keyMap.toMap, acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeriesAggregationPolicy)
+        }
+        case AcumeCacheType.acumeFlatSchemaTreeCache => {
+          new AcumeFlatSchemaTreeCache(keyMap.toMap, acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeriesAggregationPolicy)
+        }
+        case _ => acumeCache.getConstructors()(0).newInstance(keyMap.toMap, acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeriesAggregationPolicy)
+      }
+    }
+  }
+
 object AcumeCacheType extends Enumeration {
 
   val acumeStarSchemaTreeCache = new AcumeCacheType("AcumeStarSchemaTreeCache", classOf[AcumeTreeCache])
@@ -26,20 +41,6 @@ object AcumeCacheType extends Enumeration {
     }
     val cacheTypeConfigClassName = new AcumeCacheConf().get(ConfConstants.cacheTypeConfigClassName)
     Class.forName(cacheTypeConfigClassName).getConstructors()(0).newInstance(name , Class.forName(name).asInstanceOf[Class[_ <: AcumeCache[_ <: Any, _ <: Any]]]).asInstanceOf[AcumeCacheType]
-  }
-  
-  class AcumeCacheType(val name: String, val acumeCache: Class[_ <: AcumeCache[_ <: Any, _ <: Any]]) extends Val {
-    def getCache(keyMap: Map[String, Any], acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy) = {
-      this match {
-        case `acumeStarSchemaTreeCache` => {
-          new AcumeStarSchemaTreeCache(keyMap.toMap, acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeriesAggregationPolicy)
-        }
-        case `acumeFlatSchemaTreeCache` => {
-          new AcumeFlatSchemaTreeCache(keyMap.toMap, acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeriesAggregationPolicy)
-        }
-        case _ => acumeCache.getConstructors()(0).newInstance(keyMap.toMap, acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeriesAggregationPolicy)
-      }
-    }
   }
   
   implicit def convertValue(v: Value): AcumeCacheType = v.asInstanceOf[AcumeCacheType]
