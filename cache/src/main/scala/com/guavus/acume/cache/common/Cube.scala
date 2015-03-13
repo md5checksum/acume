@@ -4,6 +4,7 @@ package com.guavus.acume.cache.common
 import com.guavus.acume.cache.core.TimeGranularity._
 import com.guavus.acume.cache.eviction.EvictionPolicy
 import com.guavus.acume.cache.core.AcumeCacheType._
+import com.guavus.acume.cache.core.AcumeCacheType
 
 /**
  * @author archit.thakur
