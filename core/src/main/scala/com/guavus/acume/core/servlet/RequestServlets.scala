@@ -1,14 +1,12 @@
 package com.guavus.acume.core.servlet
 
 import java.io.Serializable
+
 import com.guavus.rubix.query.remote.flex.QueryJsonUtil
-import com.guavus.rubix.query.remote.flex.SearchRequest
-import javax.servlet.http.HttpServletRequest
-import javax.ws.rs.Consumes
-import javax.ws.rs.POST
-import javax.ws.rs.Path
-import javax.ws.rs.Produces
 import com.guavus.rubix.query.remote.flex.QueryRequest
+import com.guavus.rubix.query.remote.flex.SearchRequest
+
+import javax.servlet.http.HttpServletRequest
 
 class SearchRequestServlet extends AbstractRequestServlet {
 
@@ -84,6 +82,5 @@ class DataAvailabilityServlet extends AbstractRequestServlet {
    override def getResponse(req : HttpServletRequest) : Serializable = {
     service.getDataAvailability(req.getParameter("super"),
 			req.getParameter("user"), req.getParameter("password"), false).asInstanceOf[Serializable]
-  }
- 
+   }
 }
