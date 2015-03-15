@@ -67,6 +67,7 @@ private [acume] object ConfConstants {
   val maxSegmentDuration = "acume.scheduler.maxSegmentDuration"
   val schedulerCheckInterval = "acume.scheduler.checkInterval"   
   val threadPoolSize = "acume.scheduler.threadPoolSize"
+  val disableTotalForAggregate = "acume.core.disable.total.query"
   val cacheTypeConfigClassName = "acume.cache.type.config.classname"
 
   val defaultValueMap = Map[String, String]()
