@@ -56,10 +56,11 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
   }
 
   def servSearchRequest(sql : String) : SearchResponse = {
-    val schemaRdd = execute(sql).schemaRDD
-    val schema = schemaRdd.schema
+    val response = execute(sql)
+    val responseRdd = response.rowRDD
+    val schema = response.schemaRDD.schema
     val fields = schema.fieldNames
-    val rows = schemaRdd.collect
+    val rows = responseRdd.collect
     val acumeSchema: QueryBuilderSchema = queryBuilderService.get(0).getQueryBuilderSchema
     val dimsNames = new ArrayBuffer[String]()
     for (field <- fields) {
@@ -109,9 +110,9 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
       calculateJobLevelProperties()
       setSparkJobLocalProperties
       val cacheResponse = execute(sql)
-      val schemaRdd = cacheResponse.schemaRDD
-      val fields = queryBuilderService.get(0).getQuerySchema(sql, schemaRdd.schema.fieldNames) //schemaRdd.schemaschema.fieldNames
-      val rows = schemaRdd.collect
+      val responseRdd = cacheResponse.rowRDD
+      val fields = queryBuilderService.get(0).getQuerySchema(sql, cacheResponse.schemaRDD.schema.fieldNames) //schemaRdd.schemaschema.fieldNames
+      val rows = responseRdd.collect
       val acumeSchema: QueryBuilderSchema = queryBuilderService.get(0).getQueryBuilderSchema
       val dimsNames = new ArrayBuffer[String]()
       val measuresNames = new ArrayBuffer[String]()
