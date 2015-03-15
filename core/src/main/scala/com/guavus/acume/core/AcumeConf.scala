@@ -77,7 +77,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
     System.setProperty(key, value)
     this
   }
-
+  
   /**
    * Default Super User in system
    */
@@ -219,6 +219,17 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
   
   def getSchedulerCheckInterval(): Int = {
     getInt(ConfConstants.schedulerCheckInterval, 300)
+  }
+  
+  /**
+   * Sets the outputcubes base path to be used.
+   */
+  def setDisableTotalForAggregateQueries(disableTotalQuery : Boolean): AcumeConf = {
+    set(ConfConstants.disableTotalForAggregate, String.valueOf(disableTotalQuery))
+  }
+
+  def getDisableTotalForAggregateQueries(): Boolean = {
+    getBoolean(ConfConstants.disableTotalForAggregate, true)
   }
 
   def setEnableJDBCServer(enableJDBCFlag : String): AcumeConf = {
