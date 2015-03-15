@@ -22,14 +22,14 @@ class RequestResponseCache(acumeCacheContextTrait: AcumeCacheContextTrait, conf:
   val cache = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
     .maximumSize(conf.getInt(ConfConstants.rrsize._1, ConfConstants.rrsize._2)).removalListener(new RemovalListener[RRCacheKey, AcumeCacheResponse] {
 	  def onRemoval(notification : RemovalNotification[RRCacheKey, AcumeCacheResponse]) {
-	    notification.getValue().schemaRDD.unpersist(true)
+	    notification.getValue().rowRDD.unpersist(true)
 	  }
   }).build(
       new CacheLoader[RRCacheKey, AcumeCacheResponse]() {
         def load(input: RRCacheKey) = {
           val response = acumeCacheContextTrait.executeQuery(input.qlstring, input.qltype)
-          val cachedRDD = response.schemaRDD.map(x=>x).cache
-          new AcumeCacheResponse(acumeCacheContextTrait.cacheSqlContext.applySchema(cachedRDD, response.schemaRDD.schema), response.metadata)
+          val cachedRDD = response.rowRDD.cache
+          response
         }
       });
 
