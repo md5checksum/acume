@@ -110,8 +110,8 @@ object CubeUtil {
       val selectMeasures = CubeUtil.getMeasureSet(cube).map(_.getName).mkString(",")
       (selectDimensions, selectMeasures, "")
     } else if(noneMeasuresSize == 0) {
-      val selectMeasures = CubeUtil.getMeasureSet(cube).map(x => x.getAggregationFunction + "('" + x.getName + ") as 'x").mkString(",")
-      val groupBy = "group by $selectDimensions"
+      val selectMeasures = CubeUtil.getMeasureSet(cube).map(x => x.getAggregationFunction + "(" + x.getName + ") as " + x.getName).mkString(",")
+      val groupBy = s"group by $selectDimensions"
       (selectDimensions, selectMeasures, groupBy)
     } else {
       throw new IllegalArgumentException("Either all measures should have aggregation function as 'none' or none of them for cube " + cube)
