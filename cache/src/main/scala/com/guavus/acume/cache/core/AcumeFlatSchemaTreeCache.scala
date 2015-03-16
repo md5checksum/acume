@@ -97,7 +97,7 @@ private[cache] class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCac
               return populateParentPointFromChildren(key, rdds, schema)
             }
           } catch {
-            case _: Exception => println(s"Getting data from Insta for $key as all children are not present")
+            case e: Exception => println(s"Getting data from Insta for $key as all children are not present " + e.getStackTraceString)
           }
           if (key.loadFromBackend)
             return getDataFromBackend(key);
@@ -109,7 +109,7 @@ private[cache] class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCac
   def populateParentPointFromChildren(key : LevelTimestamp, rdds : Seq[SchemaRDD], schema : StructType) : AcumeTreeCacheValue = {
 
     logger.info("Populating parent point from children for key " + key)
-    val emptyRdd = Utility.getEmptySchemaRDD(sqlContext, schema).cache
+    val emptyRdd = Utility.getEmptySchemaRDD(sqlContext, schema)
 
     val _tableName = cube.cubeName + key.level.toString + key.timestamp.toString
 
@@ -198,9 +198,9 @@ private[cache] class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCac
     val processedDiskLoaded = processBackendData(diskloaded)
     
     val _tableNameTemp = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString + "_temp"
-    processedDiskLoaded.registerTempTable(_tableName + "_temp")
+    processedDiskLoaded.registerTempTable(_tableNameTemp)
     val timestamp = levelTimestamp.timestamp
-    val measureSet = (CubeUtil.getMeasureSet(cube) ++ CubeUtil.getDimensionSet(cube)).map(_.getName).mkString(",")
+    val measureSet = (CubeUtil.getDimensionSet(cube) ++ CubeUtil.getMeasureSet(cube)).map(_.getName).mkString(",")
     val cachePoint = sqlContext.sql(s"select $timestamp as ts, $measureSet from " + _tableNameTemp)
     cachePoint.registerTempTable(_tableName)
     cacheTable(_tableName)
