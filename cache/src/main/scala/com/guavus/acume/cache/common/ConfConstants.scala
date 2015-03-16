@@ -38,6 +38,7 @@ private [acume] object ConfConstants {
   val basegranularity = "basegranularity"
   val timeserieslevelpolicymap = "timeserieslevelpolicymap"
   val evictionpolicyforcube = "evictionpolicyclass"
+  val indexDimension = "indexdimension"
     
   /* Acume core properties */
   val timezone = "acume.core.global.timezone"
