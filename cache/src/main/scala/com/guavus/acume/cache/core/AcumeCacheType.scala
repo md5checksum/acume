@@ -33,9 +33,10 @@ object AcumeCacheType extends Enumeration {
 
   val acumeStarSchemaTreeCache = new AcumeCacheType("AcumeStarSchemaTreeCache", classOf[AcumeTreeCache])
   val acumeFlatSchemaTreeCache = new AcumeCacheType("AcumeFlatSchemaTreeCache", classOf[AcumeFlatSchemaTreeCache])
+  val cacheTypeValues = List(acumeStarSchemaTreeCache, acumeFlatSchemaTreeCache)
   
   def getAcumeCacheType(name: String): AcumeCacheType = { 
-    for(actualName <- AcumeCacheType.values){
+    for(actualName <- cacheTypeValues){
       if(name equalsIgnoreCase actualName.name)
         return actualName
     }
@@ -74,7 +75,7 @@ object AcumeCacheType extends Enumeration {
     conf123.set(ConfConstants.backendDbName, "default")
     conf123.set(ConfConstants.cubedefinitionxml,"src/test/resources/muralinstacubedefinition.xml")
     conf123.set(ConfConstants.acumecorebinsource, "__DEFAULT_BINSRC__")
-    conf123.set("acume.cache.default.cache.type", "AcumeStarSchemaTreeCache")
+    conf123.set(ConfConstants.acumeCacheDefaultType, "AcumeStarSchemaTreeCache")
     Utility.init(conf123)
     val cntxt = new com.guavus.acume.cache.workflow.AcumeCacheContext(sqlContext, conf123)
 //    cntxt.acql("select egressruleid from searchEgressPeerCube where ts >=1384750800 and ts <1384758000")
