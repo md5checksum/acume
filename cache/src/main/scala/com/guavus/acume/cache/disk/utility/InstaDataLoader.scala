@@ -129,7 +129,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
       })
 
       val measureFilters = (dimSet.dimensions ++ dimSet.measures).map(x => {
-        if (baseFields.contains(x))
+        if (baseFields.contains(x._1))
           1
         else
           0
