@@ -39,7 +39,7 @@ object PropertyValidator {
   def isBoolean(value : Option[String], key : String = "Key") : Boolean = {
     if(value == None) {
       logger.error(key + " is not configured in acume conf")
-      true
+      return false
     }
     if(!value.get.toLowerCase().matches("true|false")) {
       logger.error(key + " is not a boolean")
@@ -51,7 +51,7 @@ object PropertyValidator {
   def isNumber(value : Option[String], key: String = "Key") : Boolean = {
     if(value == None) {
       logger.error(key + " is not configured in acume conf")
-      true
+      return false
     }
     if(!value.get.matches("\\d*")) {
       logger.error(key + " is not a number")
@@ -63,7 +63,7 @@ object PropertyValidator {
   def validateRetentionMap(value : Option[String], key : String = "Key") : Boolean = {
     if(value == None) {
       logger.error(key + " is not configured in acume conf")
-      true
+      return false
     }
     val entries = value.get.split(";")
     if(entries.length == 0) {
