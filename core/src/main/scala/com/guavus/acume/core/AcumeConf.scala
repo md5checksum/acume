@@ -114,17 +114,6 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
   /**
    * Sets the resolver to be used to start app.
    */
-  def setDefaultAggrInterval(defaultAggrInterval : String): AcumeConf = {
-    set(ConfConstants.defaultAggInterval, defaultAggrInterval)
-  }
-  
-  def getDefaultAggrInterval() : Int = {
-    getInt(ConfConstants.defaultAggInterval, -1)
-  }
-  
-  /**
-   * Sets the resolver to be used to start app.
-   */
   def setResolver(resolver : String): AcumeConf = {
     set(ConfConstants.springResolver, resolver)
   }

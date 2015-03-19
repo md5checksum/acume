@@ -591,13 +591,6 @@
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.acumeSuperUser</Property_OriginalName>
         </Property>
 	<Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.instaDefaultAggrInterval</Property_Name>
-            <Property_Value>-1</Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.instaDefaultAggrInterval</Property_OriginalName>
-        </Property>
-	<Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.acumeSpringResolver</Property_Name>
             <Property_Value>com.guavus.acume.core.spring.AcumeResolver</Property_Value>
             <Property_Type>read-write</Property_Type>
