@@ -666,7 +666,49 @@
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.schedulerpolicyclass</Property_OriginalName>
-        </Property>	
+        </Property>
+	<Property>
+            <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.mailHost</Property_Name>
+            <Property_Value>mx1.guavus.com</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.mailHost</Property_OriginalName>
+        </Property>
+    	<Property>
+            <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.mailPort</Property_Name>
+            <Property_Value>25</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>integer</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.mailPort</Property_OriginalName>
+    	</Property>
+    	<Property>
+            <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.mailSender</Property_Name>
+            <Property_Value>acume-admin@guavus.com</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.mailSender</Property_OriginalName>
+    	</Property>
+    	<Property>
+            <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.mailErrCheckInterval</Property_Name>
+            <Property_Value>3600</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>integer</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.mailErrCheckInterval</Property_OriginalName>
+    	</Property>
+	<Property>
+            <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.obfuscateUsername</Property_Name>
+            <Property_Value>true</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.obfuscateUsername</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.maxUsersCount</Property_Name>
+            <Property_Value>2147483647</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.maxUsersCount</Property_OriginalName>
+        </Property>
 	<Property>
             <Property_Name>Acume Instance: &gt;</Property_Name>
         </Property>
