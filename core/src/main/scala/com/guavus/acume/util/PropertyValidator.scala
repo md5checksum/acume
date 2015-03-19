@@ -14,8 +14,7 @@ object PropertyValidator {
   private var logger: Logger = LoggerFactory.getLogger(classOf[PropertyValidator])
   
   def validate(settings : HashMap[String, String]) = {
-    if (validateRetentionMap(settings.get(ConfConstants.variableretentionmap), ConfConstants.variableretentionmap) 
-        && validateRetentionMap(settings.get(ConfConstants.schedulerVariableRetentionMap), ConfConstants.schedulerVariableRetentionMap)
+    if (validateRetentionMap(settings.get(ConfConstants.schedulerVariableRetentionMap), ConfConstants.schedulerVariableRetentionMap)
         && isNumber(settings.get(ConfConstants.rrcacheconcurrenylevel), ConfConstants.rrcacheconcurrenylevel)
 	    && isNumber(settings.get(ConfConstants.rrsize._1), ConfConstants.rrsize._1)
 	    && isNumber(settings.get(ConfConstants.prefetchTaskRetryIntervalInMillis), ConfConstants.prefetchTaskRetryIntervalInMillis)
