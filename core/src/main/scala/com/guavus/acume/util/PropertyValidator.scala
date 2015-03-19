@@ -20,7 +20,6 @@ object PropertyValidator {
 	    && isNumber(settings.get(ConfConstants.rrsize._1), ConfConstants.rrsize._1)
 	    && isNumber(settings.get(ConfConstants.prefetchTaskRetryIntervalInMillis), ConfConstants.prefetchTaskRetryIntervalInMillis)
 	    && isNumber(settings.get(ConfConstants.threadPoolSize), ConfConstants.threadPoolSize)
-	    && isNumber(settings.get(ConfConstants.defaultAggInterval), ConfConstants.defaultAggInterval)
 	    && isNumber(settings.get(ConfConstants.instaComboPoints), ConfConstants.instaComboPoints)
 	    && isNumber(settings.get(ConfConstants.variableRetentionCombinePoints), ConfConstants.variableRetentionCombinePoints)
 	    && isNumber(settings.get(ConfConstants.queryPrefetchTaskNoOfRetries), ConfConstants.queryPrefetchTaskNoOfRetries)

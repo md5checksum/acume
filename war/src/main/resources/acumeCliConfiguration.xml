@@ -986,19 +986,6 @@ Please don't use the following reserved property names:
         </property>
         
         <property>
-            <name>instaDefaultAggrInterval</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[-1]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-        
-        <property>
             <name>acumeSpringResolver</name>
             <type>basic</type>
             <help><![CDATA[]]></help>

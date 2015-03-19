@@ -51,7 +51,6 @@ private [acume] object ConfConstants {
   val sqlQueryEngine = "acume.core.sql.query.engine"
   val udfConfigXml = "acume.core.udf.configurationxml"
   val superUser = "acume.super.user"
-  val defaultAggInterval = "acume.insta.defaultAggrInterval"
   val springResolver = "acume.resolver"
   val instaComboPoints = "acume.insta.comboPoints"
   val maxQueryLogRecords = "acume.max.query.log.record"
