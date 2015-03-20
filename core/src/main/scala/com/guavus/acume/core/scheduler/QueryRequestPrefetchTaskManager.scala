@@ -112,7 +112,7 @@ class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService
       consumerThreadPool.asInstanceOf[GracefullShutdownExecutor].graceFullShutdown()
       initConsumerThreadPool()
       queryPrefetchTaskProducer.version.incrementAndGet()
-      ConfigFactory.getInstance.getBean(classOf[ISchedulerPolicy]).clearState()
+      schedulerPolicy.clearState()
       binSourceToCacheAvailability = HashMap[String, HashMap[Long, Interval]]()
       startPrefetchScheduler()
     }
