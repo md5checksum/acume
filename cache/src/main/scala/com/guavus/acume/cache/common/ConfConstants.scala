@@ -30,6 +30,7 @@ private [acume] object ConfConstants {
   val basegranularity = "basegranularity"
   val timeserieslevelpolicymap = "timeserieslevelpolicymap"
   val evictionpolicyforcube = "evictionpolicyclass"
+  val indexDimension = "indexdimension"
 
   /* Common Properties */
   val superUser = "acume.super.user"
