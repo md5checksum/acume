@@ -154,7 +154,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     val level =
       queryOptionalParam match {
         case Some(param) =>
-          if (param.getTimeSeriesGranularity() != null) {
+          if (param.getTimeSeriesGranularity() != 0) {
             var level = Math.max(baseLevel, param.getTimeSeriesGranularity());
             val variableRetentionMap = getVariableRetentionMap
             if (!variableRetentionMap.contains(level)) {
@@ -166,7 +166,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
             }
             level
           } else
-            0
+            Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, acumeCacheContext.getLastBinPersistedTime(acumeCacheContext.cacheConf.get(ConfConstants.acumecorebinsource))))
         case None =>
           Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, acumeCacheContext.getLastBinPersistedTime(acumeCacheContext.cacheConf.get(ConfConstants.acumecorebinsource))))
       }
@@ -174,12 +174,11 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     val startTimeCeiling = cacheLevelPolicy.getCeilingToLevel(startTime, level)
     val endTimeFloor = cacheLevelPolicy.getFloorToLevel(endTime, level)
     val list = Utility.getAllIntervals(startTimeCeiling, endTimeFloor, level)
+    
     if (!list.isEmpty) {
-
       val intervals: MutableMap[Long, MutableList[Long]] = MutableMap(level -> list)
       buildTableForIntervals(intervals, tableName, isMetaData)
     } else {
-
       acumeCacheContext.cacheSqlContext.registerRDDAsTable(Utility.getEmptySchemaRDD(acumeCacheContext.sqlContext, cube), tableName)
       MetaData(-1, Nil)
     }
