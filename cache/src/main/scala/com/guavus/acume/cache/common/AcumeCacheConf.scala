@@ -99,7 +99,7 @@ class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: InputStream) 
   }
 
   /** Get a parameter, falling back to a default if not set */
-  def get(key: String, defaultValue: String): String = {
+  def get(key: String, defaultValue: => String): String = {
     settings.getOrElse(key, defaultValue)
   }
 
@@ -112,7 +112,7 @@ class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: InputStream) 
   def getAll: Array[(String, String)] = settings.clone().toArray
 
   /** Get a parameter as an integer, falling back to a default if not set */
-  def getInt(key: String, defaultValue: Int): Int = {
+  def getInt(key: String, defaultValue: => Int): Int = {
     getOption(key).map(_.trim.toInt).getOrElse(defaultValue)
   }
   
@@ -121,12 +121,12 @@ class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: InputStream) 
   }
   
   /** Get a parameter as String, falling back to a default if not set */
-  def getString(key: String, defaultValue: String): String = {
+  def getString(key: String, defaultValue: => String): String = {
     get(key, defaultValue)
   }
   
   /** Get a parameter as a long, falling back to a default if not set */
-  def getLong(key: String, defaultValue: Long): Long = {
+  def getLong(key: String, defaultValue: => Long): Long = {
     getOption(key).map(_.trim.toLong).getOrElse(defaultValue)
   }
    
@@ -136,12 +136,12 @@ class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: InputStream) 
   }
 
   /** Get a parameter as a double, falling back to a default if not set */
-  def getDouble(key: String, defaultValue: Double): Double = {
+  def getDouble(key: String, defaultValue: => Double): Double = {
     getOption(key).map(_.toDouble).getOrElse(defaultValue)
   }
 
   /** Get a parameter as a boolean, falling back to a default if not set */
-  def getBoolean(key: String, defaultValue: Boolean): Boolean = {
+  def getBoolean(key: String, defaultValue: => Boolean): Boolean = {
     getOption(key).map(_.toBoolean).getOrElse(defaultValue)
   }
 

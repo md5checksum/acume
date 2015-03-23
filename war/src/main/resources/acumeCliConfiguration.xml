@@ -1290,6 +1290,19 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
+            <name>mailRecipients</name>
+            <type>advance_sensitive</type>
+            <help><![CDATA[ - Recipients of the email]]></help>
+            <default><![CDATA[deploy@guavus.com]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[notification.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>  
+
+        <property>
             <name>mailErrCheckInterval</name>
             <help><![CDATA[ - Time interval error queue is checked and re-sent]]></help>
             <default><![CDATA[3600]]></default>
