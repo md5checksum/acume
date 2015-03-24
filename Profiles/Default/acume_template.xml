@@ -32,6 +32,13 @@
             <Property_OriginalName>application.${acumeApp}.applicationPath</Property_OriginalName>
         </Property>
         <Property>
+            <Property_Name>application.${acumeApp}.infinispanJgroupConfigFile</Property_Name>
+            <Property_Value>um-jgroups.xml</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.infinispanJgroupConfigFile</Property_OriginalName>
+        </Property>
+        <Property>
             <Property_Name>application.${acumeApp}.apacheTomcatRoot</Property_Name>
             <Property_Value>/opt/tms/acume/tomcat/*</Property_Value>
             <Property_Type>read-write</Property_Type>
@@ -227,11 +234,11 @@
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheBaselayerBusinessCubeXml</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cacheCoreVariableRetentionMap</Property_Name>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.levelpolicymap</Property_Name>
             <Property_Value>1h:720</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheCoreVariableRetentionMap</Property_OriginalName>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.levelpolicymap</Property_OriginalName>
         </Property>
         <Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cacheBaselayerStorageType</Property_Name>
@@ -260,13 +267,6 @@
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheExecuteQLtype</Property_OriginalName>
-        </Property>
-        <Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.RequestResponseCache</Property_Name>
-            <Property_Value>com.guavus.acume.cache.workflow.RequestResponseCache</Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.RequestResponseCache</Property_OriginalName>
         </Property>
         <Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cacheCoreRRCacheConcurrenyLevel</Property_Name>
@@ -456,13 +456,6 @@
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.nodeUniqueIdentifier</Property_OriginalName>
-        </Property>
-	<Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.umDBVersion</Property_Name>
-            <Property_Value>3.5.1</Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.umDBVersion</Property_OriginalName>
         </Property>
 	<Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.protectedFileExtension</Property_Name>
@@ -688,6 +681,13 @@
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.mailSender</Property_OriginalName>
     	</Property>
+        <Property>
+            <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.mailRecipients</Property_Name>
+            <Property_Value>deploy@guavus.com</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.mailRecipients</Property_OriginalName>
+        </Property>
     	<Property>
             <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.mailErrCheckInterval</Property_Name>
             <Property_Value>3600</Property_Value>
@@ -708,6 +708,76 @@
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.maxUsersCount</Property_OriginalName>
+        </Property>
+    <Property>
+            <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.timezonedbpath</Property_Name>
+            <Property_Value>/opt/tms/rubix/zoneinfo</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.timezonedbpath</Property_OriginalName>
+        </Property>
+    <Property>
+            <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.sqlcorrector</Property_Name>
+            <Property_Value>com.guavus.acume.cache.sql.AcumeCacheSQLCorrector</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.sqlcorrector</Property_OriginalName>
+        </Property>
+    <Property>
+            <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.sqlparser</Property_Name>
+            <Property_Value>com.guavus.acume.cache.sql.AcumeCacheSQLParser</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.sqlparser</Property_OriginalName>
+        </Property>
+    <Property>
+            <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.singleentitycachesize</Property_Name>
+            <Property_Value>50</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.singleentitycachesize</Property_OriginalName>
+        </Property>
+    <Property>
+            <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.cachetypeconfigclass</Property_Name>
+            <Property_Value>com.guavus.acume.cache.core.AcumeCacheType</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cachetypeconfigclass</Property_OriginalName>
+        </Property>
+    <Property>
+            <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.timeserieslevelpolicymap</Property_Name>
+            <Property_Value>1h:24</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.timeserieslevelpolicymap</Property_OriginalName>
+        </Property>
+    <Property>
+            <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.basegranularity</Property_Name>
+            <Property_Value>1h</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.basegranularity</Property_OriginalName>
+        </Property>
+     <Property>
+            <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.evictionpolicyclass</Property_Name>
+            <Property_Value>com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.evictionpolicyclass</Property_OriginalName>
+        </Property>
+     <Property>
+            <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.disabletotalquery</Property_Name>
+            <Property_Value>true</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.disabletotalquery</Property_OriginalName>
+        </Property>
+    <Property>
+            <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.tomcatClusterInfo</Property_Name>
+            <Property_Value></Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.tomcatClusterInfo</Property_OriginalName>
         </Property>
 	<Property>
             <Property_Name>Acume Instance: &gt;</Property_Name>
