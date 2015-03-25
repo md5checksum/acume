@@ -38,7 +38,7 @@ object AcumeCacheFactory {
         //todo check which cache to use based on the cube configuration and use reflection to create cache object.
         //todo fill below cahcetimelevelmap from cube.
         //todo check if there is a better way for `SortedMap` creation belw.
-        val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]()(implicitly[Ordering[Long]].reverse) ++ cube.cacheTimeseriesLevelPolicyMap)
+        val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]() ++ cube.cacheTimeseriesLevelPolicyMap)
 
         val _$instance: AcumeCache[k, v] = if (cube.singleEntityKeys != null && cube.singleEntityKeys.size != 0) {
           new SingleEntityAcumeTreeCache(acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy).asInstanceOf[AcumeCache[k, v]]

@@ -50,22 +50,16 @@ class CacheTimeSeriesLevelPolicy(levelMap: SortedMap[Long, Int]) extends CacheTi
       val points = value
       val rangeEndTime = Utility.floorFromGranularity(lastBinTime, level)
       
-      if (level == TimeGranularity.MONTH.getGranularity) {
-        val cal = Utility.newCalendar
-        cal.setTimeInMillis(rangeEndTime * 1000)
-        cal.add(Calendar.MONTH, -1 * points)
-        cal.getTimeInMillis / 1000
-      } else {
-         var pointsIter = 1
-	     while(pointsIter <= points && (rangeEndTime - pointsIter * level) >= startTime) {
-	       if((rangeEndTime - pointsIter * level) == startTime) {
-	         val expr = (endTime - startTime)/level
-	         if(expr * level == (endTime - startTime)) 
-	           return level
-	       }
-	       pointsIter = pointsIter + 1
-	     }
-      }
+      val rangeStartTime = 
+        if (level == TimeGranularity.MONTH.getGranularity) {
+          val cal = Utility.newCalendar
+          cal.setTimeInMillis(rangeEndTime * 1000)
+          cal.add(Calendar.MONTH, -1 * points)
+          cal.getTimeInMillis / 1000
+        } else {
+          rangeEndTime - points * level
+        }
+      if (startTime >= rangeStartTime) return level
     }
     levelMap.lastKey
   }
