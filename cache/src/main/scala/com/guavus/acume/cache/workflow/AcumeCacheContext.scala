@@ -104,6 +104,8 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       val startTime = l.getStartTime
       val endTime = l.getEndTime
     
+      validateQuery(startTime, endTime, cacheConf.get(ConfConstants.acumecorebinsource))
+      
       val key_binsource = 
         if(binsource != null)
           binsource
@@ -126,10 +128,17 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       }
     }
     val klist = list.flatMap(_.timestamps).toList
+
     val kfg = execute(qltype, updatedsql)
-//    kfg.collect.map(println)
+
     AcumeCacheResponse(kfg, kfg, MetaData(-1, klist))
-}
+  }
+  
+  private [acume] def validateQuery(startTime : Long, endTime : Long, binSource : String) {
+    if(startTime < getFirstBinPersistedTime(binSource) || endTime > getLastBinPersistedTime(binSource)){
+      throw new RuntimeException("Cannot serve query. StartTime and endTime doesn't fall in the availability range.")
+    }
+  }
   
   private [acume] def execute(qltype: QLType, updatedsql: String) = {
     AcumeCacheContext.ACQL(qltype, sqlContext)(updatedsql)
