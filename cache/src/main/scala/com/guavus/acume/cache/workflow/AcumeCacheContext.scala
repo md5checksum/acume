@@ -104,7 +104,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
       val startTime = l.getStartTime
       val endTime = l.getEndTime
     
-      validateQuery(startTime, endTime, cacheConf.get(ConfConstants.acumecorebinsource))
+      validateQuery(startTime, endTime, binsource)
       
       val key_binsource = 
         if(binsource != null)
