@@ -76,7 +76,7 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextT
   private def getPriority(timeStamp: Long, level: Long, variableRetentionMap: Map[Long, Int]): Int = {
     if (!variableRetentionMap.contains(level)) return 0
     val numPoints = variableRetentionMap.get(level).getOrElse(throw new RuntimeException("Level not in VariableRetentionMap."))
-    val lastBinTime = cacheContext.getLastBinPersistedTime(cacheContext.cacheConf.get(ConfConstants.acumecorebinsource)) //Controller.getInstance.getLastBinPersistedTime(ConfigFactory.getInstance.getBean(classOf[TimeGranularity])
+    val lastBinTime = cacheContext.getLastBinPersistedTime(cube.binsource) //Controller.getInstance.getLastBinPersistedTime(ConfigFactory.getInstance.getBean(classOf[TimeGranularity])
         //.getName, BinSource.getDefault.name(), Controller.RETRY_COUNT)
       if (timeStamp >= AcumeTreeCacheEvictionPolicy.getRangeStartTime(lastBinTime, level, numPoints)) 1 else 0
   }
@@ -86,7 +86,7 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextT
   }
 
   private def intializeMetaData(variableRetentionMap: Map[Long, Int]): HashMap[Long, Long] = {
-    val lastBinTime = cacheContext.getLastBinPersistedTime(cacheContext.cacheConf.get(ConfConstants.acumecorebinsource)) //Controller.getInstance.getLastBinPersistedTime(ConfigFactory.getInstance.getBean(classOf[TimeGranularity])
+    val lastBinTime = cacheContext.getLastBinPersistedTime(cube.binsource) //Controller.getInstance.getLastBinPersistedTime(ConfigFactory.getInstance.getBean(classOf[TimeGranularity])
       //.getName, BinSource.getDefault.name(), Controller.RETRY_COUNT)
     val map = HashMap[Long, Long]()
     for ((key, value) <- variableRetentionMap) {
