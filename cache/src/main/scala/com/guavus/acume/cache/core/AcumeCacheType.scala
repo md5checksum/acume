@@ -65,7 +65,7 @@ object AcumeCacheType extends Enumeration {
     conf123.set("acume.cache.execute.qltype", "hql")
     conf123.set("acume.cache.rrcache.loader", "com.guavus.acume.cache.workflow.RequestResponseCache")
     conf123.set("acume.cache.core.rrcacheconcurrenylevel", "3")
-    conf123.set("acume.cache.core.rrcahcesize", "502")
+    conf123.set("acume.cache.core.rrcachesize", "502")
 //    conf123.set(ConfConstants.lastbinpersistedtime, "28800")
 //    conf123.set(ConfConstants.firstbinpersistedtime, "3600")
     conf123.set("acume.core.enableJDBCServer", "true")

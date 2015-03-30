@@ -276,11 +276,11 @@
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheCoreRRCacheConcurrenyLevel</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cacheCoreRRCahceSize</Property_Name>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cacheCoreRRCacheSize</Property_Name>
             <Property_Value>1000</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheCoreRRCahceSize</Property_OriginalName>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.cacheCoreRRCacheSize</Property_OriginalName>
         </Property>
          <Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cacheschedulerpolicy</Property_Name>

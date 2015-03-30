@@ -857,7 +857,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>cacheCoreRRCahceSize</name>
+            <name>cacheCoreRRCacheSize</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[1000]]></default>

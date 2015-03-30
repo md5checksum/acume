@@ -16,7 +16,7 @@ private [acume] object ConfConstants {
   val storagetype = "acume.cache.baselayer.storagetype"
   val timezonedbPath = "acume.cache.core.timezonedbPath"
   val rrcacheconcurrenylevel = "acume.cache.core.rrcacheconcurrenylevel"
-  val rrsize = ("acume.cache.core.rrcahcesize", 3)
+  val rrsize = ("acume.cache.core.rrcachesize", 3)
   val cubedefinitionxml = "acume.cache.baselayer.cubedefinitionxml"
   val qltype = "acume.cache.execute.qltype"
   val rrloader = "acume.cache.rrcache.loader"
