@@ -146,7 +146,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
           for (field <- fields) {
             if (field.equalsIgnoreCase("ts")) {
               timestamp = java.lang.Long.valueOf(row(i).toString)
-            } else if (acumeSchema.isDimension(field)) {
+            } else if (queryBuilderService.get(0).isFieldDimension(field)) {
               if (row(i) != null)
                 dims += row(i)
               else
