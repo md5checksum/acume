@@ -14,4 +14,6 @@ class DummyQueryBuilderService extends AbstractQueryBuilderService {
 	}
 	
 	def getQueryBuilderSchema(): QueryBuilderSchema = null
+	
+	def isFieldDimension(fieldName: String): Boolean = false
 }
