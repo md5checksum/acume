@@ -767,7 +767,7 @@
         </Property>
      <Property>
             <Property_Name>application.${acumeApp}.instanceId.${acumeInstance}.disabletotalquery</Property_Name>
-            <Property_Value>true</Property_Value>
+            <Property_Value>false</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.disabletotalquery</Property_OriginalName>

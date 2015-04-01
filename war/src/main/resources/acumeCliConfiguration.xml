@@ -1122,7 +1122,7 @@ Please don't use the following reserved property names:
             <name>disabletotalquery</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
-            <default><![CDATA[true]]></default>
+            <default><![CDATA[false]]></default>
             <targets>
                 <target>
                     <file><![CDATA[acume.conf]]></file>
