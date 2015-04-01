@@ -160,9 +160,8 @@ fi
 ############
 echo "Setting SPARK_JAVA_OPTS..." >> "$CATALINA_OUT"
 CATALINA_BASE="$SCRIPT_DIR/.."
-export SPARK_JAVA_OPTS="-Dcatalina.base=$CATALINA_BASE $ACUME_JAVA_OPTS"
-echo "SPARK_JAVA_OPTS = $SPARK_JAVA_OPTS" >> "$CATALINA_OUT"
-
+export ACUME_JAVA_OPTS="-Dcatalina.base=$CATALINA_BASE $ACUME_JAVA_OPTS -Dlog4j.configuration=file:$DOCBASE/WEB-INF/classes/log4j.xml"
+echo "ACUME_JAVA_OPTS = $ACUME_JAVA_OPTS" >> "$CATALINA_OUT"
 ############
 # Set SPARK_JAR
 ############
@@ -245,7 +244,7 @@ ATTVALJARPATH=",/opt/tms/java/attvaludf.jar,/opt/tms/java/attval.jar"
 ############
 # Start the spark server
 ############
-cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_PROPERTIES_FILE --class com.guavus.acume.tomcat.core.AcumeMain --jars `ls -d -1 $DOCBASE/WEB-INF/lib/* | sed ':a;N;$!ba;s/\n/,/g'`$ATTVALJARPATH$udfJarPath  $DOCBASE/WEB-INF/lib/$core_jar"
+cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_PROPERTIES_FILE --class com.guavus.acume.tomcat.core.AcumeMain --jars `ls -d -1 $DOCBASE/WEB-INF/lib/* | sed ':a;N;$!ba;s/\n/,/g'`$ATTVALJARPATH$udfJarPath  $DOCBASE/WEB-INF/lib/$core_jar --driver-java-options '$ACUME_JAVA_OPTS'"
 echo "Starting Spark..." >> "$CATALINA_OUT"
 eval $cmd >> "$CATALINA_OUT" 2>&1 "&"
 echo "Spark started successfully..." >> "$CATALINA_OUT"
