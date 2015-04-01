@@ -218,7 +218,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
   }
 
   def getDisableTotalForAggregateQueries(): Boolean = {
-    getBoolean(ConfConstants.disableTotalForAggregate, true)
+    getBoolean(ConfConstants.disableTotalForAggregate, false)
   }
 
   def setEnableJDBCServer(enableJDBCFlag : String): AcumeConf = {
