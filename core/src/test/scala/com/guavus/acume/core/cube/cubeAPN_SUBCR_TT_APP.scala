@@ -30,4 +30,7 @@ class cube_APN_SUBCR_TT_APP extends ICube {
   }
   def getBinSourceValue() = "default123"
   def getTimeGranularityValue() = 86400
+   def getProperties() = {
+     null
+  }
 }
