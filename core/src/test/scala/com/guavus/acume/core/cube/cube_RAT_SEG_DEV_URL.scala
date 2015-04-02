@@ -31,5 +31,7 @@ class cube_RAT_SEG_DEV_URL extends ICube {
   
   def getBinSourceValue() = "default"
   def getTimeGranularityValue() = 86400
-  
+   def getProperties() = {
+     null
+  }
 }

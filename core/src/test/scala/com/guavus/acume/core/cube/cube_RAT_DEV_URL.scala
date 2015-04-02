@@ -35,4 +35,8 @@ class cube_RAT_DEV_URL extends ICube {
   
   def getTimeGranularityValue() = 3600
   
+  def getProperties() = {
+     null
+  }
+  
 }
