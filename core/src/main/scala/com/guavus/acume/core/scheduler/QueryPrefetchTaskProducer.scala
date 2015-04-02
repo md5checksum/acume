@@ -1,7 +1,15 @@
 package com.guavus.acume.core.scheduler
 
 import java.util.Calendar
+import java.util.{HashMap => JHashMap}
 import java.util.concurrent.atomic.AtomicInteger
+import scala.collection.JavaConversions._
+import scala.collection.JavaConversions._
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.{HashMap => SHashMap}
+import scala.collection.mutable.HashMap
+import scala.reflect.BeanProperty
+import scala.util.control.Breaks._
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import com.google.common.collect.Lists
@@ -18,15 +26,17 @@ import com.guavus.rubix.query.remote.flex.QueryRequest
 import com.guavus.acume.cache.core.Interval
 import scala.collection.immutable.IntMap.Bin
 import com.guavus.acume.cache.core.EvictionDetails
-import com.guavus.rubix.query.remote.flex.SortDirection
-import com.guavus.acume.cache.utility.Utility
-import com.guavus.rubix.query.remote.flex.SortDirection
-import com.guavus.rubix.query.remote.flex.SortDirection
-import com.guavus.acume.core.PSUserService
+import com.guavus.acume.cache.core.Interval
 import com.guavus.acume.cache.core.TimeGranularity
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.JavaConversions._
+import com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy
+import com.guavus.acume.cache.utility.Utility
+import com.guavus.acume.core.AcumeConf
+import com.guavus.acume.core.AcumeService
+import com.guavus.acume.core.DataService
+import com.guavus.acume.workflow.RequestDataType
 import com.guavus.qb.cube.schema.FieldType
+import com.guavus.qb.cube.schema.ICube
+import com.guavus.qb.cube.schema.QueryBuilderSchema
 import com.guavus.rubix.query.remote.flex.NameValue
 import java.util.{ HashMap => JHashMap }
 import scala.collection.mutable.{ HashMap => SHashMap }
@@ -35,6 +45,9 @@ import scala.collection.mutable.HashMap
 import scala.util.control.Breaks._
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy
+import com.guavus.rubix.query.remote.flex.QueryRequest
+import QueryPrefetchTaskProducer._
+import com.guavus.acume.cache.common.ConfConstants
 
 object QueryPrefetchTaskProducer {
 
@@ -221,7 +234,7 @@ class QueryPrefetchTaskProducer(acumeConf: AcumeConf, schemas: List[QueryBuilder
                 for (eachInterval <- prefetchIntervals) {
                   val cubeGranularity = prefetchCubeConfiguration.getTopCube.getTimeGranularityValue()
                   if (eachInterval.getGranularity >= cubeGranularity && eachInterval.getStartTime == Utility.floorFromGranularity(eachInterval.getStartTime, cubeGranularity) && eachInterval.getEndTime == Utility.floorFromGranularity(eachInterval.getEndTime, cubeGranularity)) {
-                    val taskRequests = createPrefetchTaskRequests(prefetchCubeConfiguration, eachInterval.getStartTime, eachInterval.getEndTime, key, key, eachInterval.getGranularity, null)
+                    val taskRequests = createPrefetchTaskRequests(prefetchCubeConfiguration, eachInterval.getStartTime, eachInterval.getEndTime, key, key, eachInterval.getGranularity, intervalMap)
                     for (taskRequest <- taskRequests) {
                       logger.debug("Queueing Task for :" + taskRequest)
                       if (!saveRequests) {
@@ -299,7 +312,7 @@ class QueryPrefetchTaskProducer(acumeConf: AcumeConf, schemas: List[QueryBuilder
   private def createPrefetchTaskRequests(prefetchCubeConfiguration: PrefetchCubeConfiguration, startTime: Long, endTime: Long, binSource: String, binClass: String, level: java.lang.Long, aggrGranToLastBinInterval: Map[Long, Interval]): List[PrefetchTaskRequest] = {
     val taskRequests = new ArrayBuffer[PrefetchTaskRequest]()
     val topCube = prefetchCubeConfiguration.getTopCube
-    if (isTimeRangeValid(binSource, level, topCube, aggrGranToLastBinInterval, endTime, startTime)) {
+    if (!isTimeRangeValid(binSource, level, topCube, aggrGranToLastBinInterval, endTime, startTime)) {
 
     } else {
       val topRequest = generateTopRequest(topCube, startTime, endTime, binSource, level)
@@ -324,7 +337,7 @@ class QueryPrefetchTaskProducer(acumeConf: AcumeConf, schemas: List[QueryBuilder
     } else {
       return false;
     }
-    false
+    true
   }
 
   private def makePrefetchTaskRequest(cube: ICube, request: QueryRequest): PrefetchTaskRequest = {
