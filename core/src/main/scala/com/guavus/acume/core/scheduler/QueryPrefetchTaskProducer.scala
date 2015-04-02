@@ -192,7 +192,6 @@ class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schemas : List[QueryBuild
 //            cubeConfigurationToCacheTime = new scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]()
 //            binSourceToCacheTime.put(key, cubeConfigurationToCacheTime)
 //          }
-          var startTime = intervalMap.get(-1).getOrElse({throw new IllegalStateException("StartTime for binsource " + key + " can not be null")}).getStartTime
         breakable {
           var startTime = intervalMap.get(-1).getOrElse({ logger.warn("StartTime for binsource {} can not be null", key); break }).getStartTime
           startTime = policy.getCeilOfTime(startTime)
