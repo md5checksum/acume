@@ -186,13 +186,13 @@ class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schemas : List[QueryBuild
         if (!isFirstRun) {
           binSourcesToIntervalsMap = controller.getInstaTimeInterval
         }
-        val intervalMap = binSourcesToIntervalsMap.get(key).getOrElse({throw new IllegalStateException("StartTime for binsource " + key + " can not be null")})
+        breakable {
+        val intervalMap = binSourcesToIntervalsMap.get(key).getOrElse({ logger.warn("StartTime for binsource {} can not be null", key); break })
 //          var cubeConfigurationToCacheTime = binSourceToCacheTime.get(key).getOrElse({null})
 //          if (cubeConfigurationToCacheTime == null) {
 //            cubeConfigurationToCacheTime = new scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]()
 //            binSourceToCacheTime.put(key, cubeConfigurationToCacheTime)
 //          }
-        breakable {
           var startTime = intervalMap.get(-1).getOrElse({ logger.warn("StartTime for binsource {} can not be null", key); break }).getStartTime
           startTime = policy.getCeilOfTime(startTime)
           val endTime = intervalMap.get(-1).getOrElse({ logger.warn("EndTime for binsource {} can not be null", key); break }).getEndTime
