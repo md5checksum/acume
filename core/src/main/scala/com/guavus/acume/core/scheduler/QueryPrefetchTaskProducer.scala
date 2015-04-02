@@ -190,15 +190,15 @@ class QueryPrefetchTaskProducer(acumeConf: AcumeConf, schemas: List[QueryBuilder
         }
 
         breakable {
-          val intervalMap = binSourcesToIntervalsMap.get(key).getOrElse({ logger.warn("StartTime for binsource {} can not be null", key); break })
-          //          var cubeConfigurationToCacheTime = binSourceToCacheTime.get(key).getOrElse({null})
-          //          if (cubeConfigurationToCacheTime == null) {
-          //            cubeConfigurationToCacheTime = new scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]()
-          //            binSourceToCacheTime.put(key, cubeConfigurationToCacheTime)
-          //          }
+        val intervalMap = binSourcesToIntervalsMap.get(key).getOrElse({ logger.warn("StartTime for binsource {} can not be null", key); break })
+//          var cubeConfigurationToCacheTime = binSourceToCacheTime.get(key).getOrElse({null})
+//          if (cubeConfigurationToCacheTime == null) {
+//            cubeConfigurationToCacheTime = new scala.collection.mutable.HashMap[PrefetchCubeConfiguration, Long]()
+//            binSourceToCacheTime.put(key, cubeConfigurationToCacheTime)
+//          }
           var startTime = intervalMap.get(-1).getOrElse({ logger.warn("StartTime for binsource {} can not be null", key); break }).getStartTime
           startTime = policy.getCeilOfTime(startTime)
-          val endTime = intervalMap.get(-1).getOrElse(throw new IllegalStateException("EndTime for binsource " + key + " can not be null")).getEndTime
+          val endTime = intervalMap.get(-1).getOrElse({ logger.warn("EndTime for binsource {} can not be null", key); break }).getEndTime
           val map = new java.util.TreeMap[Long, QueryPrefetchTaskCombiner]()
           var tempEndTime = getNextEndTime(startTime, endTime)
           while (startTime < endTime) {
@@ -275,7 +275,7 @@ class QueryPrefetchTaskProducer(acumeConf: AcumeConf, schemas: List[QueryBuilder
             startTime = tempEndTime
             tempEndTime = getNextEndTime(startTime, endTime)
           }
-      }
+        }
       }
       var iterator = combinerSet.iterator()
       while (iterator.hasNext) {
