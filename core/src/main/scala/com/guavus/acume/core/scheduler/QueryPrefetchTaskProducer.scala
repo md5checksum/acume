@@ -32,6 +32,7 @@ import java.util.{HashMap => JHashMap}
 import scala.collection.mutable.{HashMap => SHashMap}
 import com.guavus.acume.core.AcumeService
 import scala.collection.mutable.HashMap
+import scala.util.control.Breaks._
 
 object QueryPrefetchTaskProducer {
 
@@ -192,8 +193,10 @@ class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schemas : List[QueryBuild
 //            binSourceToCacheTime.put(key, cubeConfigurationToCacheTime)
 //          }
           var startTime = intervalMap.get(-1).getOrElse({throw new IllegalStateException("StartTime for binsource " + key + " can not be null")}).getStartTime
+        breakable {
+          var startTime = intervalMap.get(-1).getOrElse({ logger.warn("StartTime for binsource {} can not be null", key); break }).getStartTime
           startTime = policy.getCeilOfTime(startTime)
-          val endTime = intervalMap.get(-1).getOrElse(throw new IllegalStateException("EndTime for binsource " + key + " can not be null")).getEndTime
+          val endTime = intervalMap.get(-1).getOrElse({ logger.warn("EndTime for binsource {} can not be null", key); break }).getEndTime
           val map = new java.util.TreeMap[Long, QueryPrefetchTaskCombiner]()
           var tempEndTime = getNextEndTime(startTime, endTime)
           while (startTime < endTime) {
@@ -270,6 +273,7 @@ class QueryPrefetchTaskProducer(acumeConf : AcumeConf, schemas : List[QueryBuild
             startTime = tempEndTime
             tempEndTime = getNextEndTime(startTime, endTime)
           }
+        }
       }
       var iterator = combinerSet.iterator()
       while (iterator.hasNext) {
