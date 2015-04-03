@@ -3,12 +3,12 @@ package com.guavus.acume.cache.core
 
 import java.util.Arrays
 import java.util.Random
-
 import scala.Array.canBuildFrom
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable.{Map => MutableMap}
 import scala.collection.mutable.MutableList
-
+import scala.util.control.Breaks.break
+import scala.util.control.Breaks.breakable
 import org.apache.spark.AccumulatorParam
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.SchemaRDD
@@ -18,7 +18,6 @@ import org.apache.spark.sql.catalyst.types.LongType
 import org.apache.spark.sql.catalyst.types.StructType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import com.google.common.cache.RemovalListener
@@ -40,6 +39,7 @@ import com.guavus.acume.cache.workflow.MetaData
 import com.guavus.acume.cache.workflow.RequestType.Aggregate
 import com.guavus.acume.cache.workflow.RequestType.RequestType
 import com.guavus.acume.cache.workflow.RequestType.Timeseries
+import com.google.common.cache.Cache
 
 /**
  * @author archit.thakur
@@ -132,9 +132,12 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
               //aggregate over measures after union
               val selectMeasures = CubeUtil.getMeasureSet(cube).map(x=> x.getAggregationFunction + "(" + x.getName + ") as " + x.getName).mkString(",")
               val selectDimensions = CubeUtil.getDimensionSet(cube).map(_.getName).mkString(",")
-              val parentRdd = acumeCacheContext.sqlContext.sql("select tupleid, " + key.timestamp + " as ts, " + selectMeasures + " from " + tempTable + " group by tupleid)")
-
-              return new AcumeTreeCacheValue(acumeCacheContext.cacheSqlContext, dimensionTable.tblnm, _tableName, parentRdd)
+              val parentRdd = acumeCacheContext.sqlContext.sql("select tupleid, " + key.timestamp + " as ts, " + selectMeasures + " from " + _tableName + " group by tupleid)")
+              parentRdd.registerTempTable(_tableName)
+              
+              cacheTable(_tableName)
+              
+              return new AcumeTreeCacheValue(dimensionTable.tblnm, _tableName, value)
             }
 
   private def createTableForAggregate(startTime: Long, endTime: Long, tableName: String, isMetaData: Boolean): MetaData = {
@@ -193,7 +196,9 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
     val _$dataset = diskloaded._1
     val _$dimt = diskloaded._2
     val value = _$dataset
-    new AcumeTreeCacheValue(acumeCacheContext.cacheSqlContext, _$dimt, _tableName, value)
+    value.registerTempTable(_tableName)
+    cacheTable(_tableName)
+    AcumeTreeCacheValue(_$dimt, _tableName, value)
   }
 
   def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable): Tuple2[SchemaRDD, String] = {

@@ -1,18 +1,14 @@
 
 package com.guavus.acume.cache.core
 
-import java.util.Random
-
 import scala.Array.canBuildFrom
+import scala.util.control.Breaks._
 import scala.collection.immutable.SortedMap
-import scala.collection.mutable.{Map => MutableMap}
+import scala.collection.mutable.{ Map => MutableMap }
 import scala.collection.mutable.MutableList
-
-import org.apache.spark.sql.SchemaRDD
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.catalyst.expressions.Row
 import org.apache.spark.sql.catalyst.types.StructType
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import com.google.common.cache.RemovalListener
@@ -21,16 +17,34 @@ import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.CacheLevel
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.DimensionTable
 import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.disk.utility.CubeUtil
 import com.guavus.acume.cache.disk.utility.DataLoader
 import com.guavus.acume.cache.utility.QueryOptionalParam
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.workflow.AcumeCacheContext
 import com.guavus.acume.cache.workflow.MetaData
 import com.guavus.acume.cache.workflow.RequestType.Aggregate
-import com.guavus.acume.cache.workflow.RequestType.RequestType
 import com.guavus.acume.cache.workflow.RequestType.Timeseries
+import java.util.Observer
+import java.util.Random
+import com.guavus.acume.cache.workflow.RequestType.RequestType
+import org.apache.spark.sql.SchemaRDD
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
+import com.guavus.acume.cache.disk.utility.CubeUtil
+import org.apache.spark.sql.StructField
+import com.guavus.acume.cache.common.ConversionToSpark
+import org.apache.spark.sql.catalyst.types.LongType
+import org.apache.spark.AccumulatorParam
+import java.util.Arrays
+import com.guavus.acume.cache.common.LevelTimestamp
+import scala.collection.mutable.LinkedList
+import scala.collection.mutable.HashMap
+import org.apache.spark.sql.catalyst.expressions.Expression
+import org.apache.spark.sql.catalyst.expressions.Sum
+import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.common.CacheLevel
 
 /**
  * @author archit.thakur
@@ -108,7 +122,9 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     value.registerTempTable(tempTable)
     val timestamp = key.timestamp
     val parentRdd = acumeCacheContext.sqlContext.sql(s"select $timestamp as ts, $selectDimensions, $selectMeasures from $tempTable " + groupBy)
-    return new AcumeTreeCacheValue(acumeCacheContext.cacheSqlContext, null, _tableName, parentRdd)
+    parentRdd.registerTempTable(_tableName)
+    sqlContext.cacheTable(_tableName)
+    return new AcumeTreeCacheValue(null, _tableName, parentRdd)
   }
   
   def mergeChildPoints(emptyRdd: SchemaRDD, rdds : Seq[SchemaRDD]) : SchemaRDD = {
@@ -185,7 +201,9 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     val timestamp = levelTimestamp.timestamp
     val measureSet = (CubeUtil.getDimensionSet(cube) ++ CubeUtil.getMeasureSet(cube)).map(_.getName).mkString(",")
     val cachePoint = sqlContext.sql(s"select $timestamp as ts, $measureSet from " + _tableNameTemp)
-    new AcumeTreeCacheValue(acumeCacheContext.cacheSqlContext, null, _tableName, cachePoint)
+    cachePoint.registerTempTable(_tableName)
+    cacheTable(_tableName)
+    AcumeTreeCacheValue(null, _tableName, cachePoint)
   }
   
   def processBackendData(rdd: SchemaRDD) : SchemaRDD = {
