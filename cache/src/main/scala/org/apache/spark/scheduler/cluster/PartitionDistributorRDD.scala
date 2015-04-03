@@ -12,7 +12,7 @@ import org.apache.spark.TaskContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.hive.HiveContext
 
-class PartitonDistributorRDD[T: ClassTag](@transient sc: SparkContext, numPartitions : Int) extends RDD[T](sc.emptyRDD) {
+class PartitionDistributorRDD[T: ClassTag](@transient sc: SparkContext, numPartitions : Int) extends RDD[T](sc.emptyRDD) {
   
   var partitions1 : Array[Partition] = _
   var partitionToExecutorMapping : TreeMap[Int, Int] = new TreeMap[Int, Int]() 
@@ -114,9 +114,23 @@ class PartitonDistributorRDD[T: ClassTag](@transient sc: SparkContext, numPartit
   
 }
 
-object PartitonDistributorRDD {
+object PartitionDistributorRDD {
   
   //private var logger: Logger = LoggerFactory.getLogger(classOf[SampleRDD[]])
+  
+  private var instanceMap = new HashMap[Int, PartitionDistributorRDD[_]]()
+  
+  def getInstance(sparkContext : SparkContext, numPartitions : Int) : PartitionDistributorRDD[_] = {
+    
+    if(instanceMap.get(numPartitions) == None) {
+      synchronized {
+        if(instanceMap.get(numPartitions) == None) {
+          instanceMap.put(numPartitions, new PartitionDistributorRDD(sparkContext, numPartitions))
+        }
+      }
+    }
+    instanceMap.get(numPartitions).get
+  }
   
   def main(args: Array[String]) {
 	val conf = new SparkConf
@@ -131,12 +145,12 @@ object PartitonDistributorRDD {
 	
 	val hiveRdd = hiveContext.sql(args(1))
 	val numPartitions = hiveRdd.partitions.size
-	println("NumPartitons = " + numPartitions)
+	println("NumPartitions = " + numPartitions)
     
-	var partitonDistributorRDD = new PartitonDistributorRDD(sc, numPartitions)
-	partitonDistributorRDD = partitonDistributorRDD.cache
+	var partitionDistributorRDD = new PartitionDistributorRDD(sc, numPartitions)
+	partitionDistributorRDD = partitionDistributorRDD.cache
 
-	val zipped = partitonDistributorRDD.zipRdd(hiveRdd)
+	val zipped = partitionDistributorRDD.zipRdd(hiveRdd)
 	zipped.cache
 	
 	zipped.collect.foreach(println)
