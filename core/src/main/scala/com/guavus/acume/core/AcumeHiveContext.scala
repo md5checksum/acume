@@ -16,7 +16,7 @@ class AcumeHiveContext(val acumeConfiguration: AcumeConf) extends AcumeContextTr
 
   //Properties will be loaded from spark-defaults.conf
   val conf = new SparkConf()
-  conf.set("spark.app.name", "Acume")
+  //conf.set("spark.app.name", "Acume")
     
   val sparkContext = new SparkContext(conf)
   sparkContext.addSparkListener(new AcumeSparkListener )
