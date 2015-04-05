@@ -31,6 +31,7 @@ private [acume] object ConfConstants {
   val timeserieslevelpolicymap = "timeserieslevelpolicymap"
   val evictionpolicyforcube = "evictionpolicyclass"
   val indexDimension = "indexdimension"
+  val numberOfPartitions = "numberofpartitions"
 
   /* Common Properties */
   val superUser = "acume.super.user"
