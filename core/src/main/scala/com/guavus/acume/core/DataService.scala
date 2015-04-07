@@ -25,6 +25,7 @@ import com.guavus.qb.services.IQueryBuilderService
 import com.guavus.acume.cache.common.QLType
 import com.guavus.acume.cache.workflow.AcumeCacheResponse
 import scala.collection.mutable.HashMap
+import com.guavus.acume.cache.common.ConfConstants
 
 /**
  * This class interacts with query builder and Olap cache.
@@ -35,8 +36,9 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
    var classificationStats : ClassificationStats = new ClassificationStats()
    
    val policyclass = acumeContext.acumeConf.getSchedulerPolicyClass
-   val queryPoolPolicy : QueryPoolPolicy = Class.forName(policyclass).getConstructors()(0).newInstance().asInstanceOf[QueryPoolPolicy]
-   
+   val queryPoolUIPolicy : QueryPoolPolicy = Class.forName(policyclass).getConstructors()(0).newInstance().asInstanceOf[QueryPoolPolicy]
+   val queryPoolSchedulerPolicy : QueryPoolPolicy = Class.forName(ConfConstants.queryPoolSchedPolicyClass).getConstructors()(0).newInstance().asInstanceOf[QueryPoolPolicy]
+  
   /**
    * Takes QueryRequest i.e. Rubix query and return aggregate Response.
    */
@@ -93,6 +95,9 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
     try {
       def calculateJobLevelProperties() {
         this.synchronized {
+          
+          val isSchedulerQuery = queryBuilderService.get(0).isSchedulerQuery(sql)
+          val queryPoolPolicy = if(isSchedulerQuery) queryPoolSchedulerPolicy else queryPoolUIPolicy
           classificationname = queryPoolPolicy.getQueryClassification(sql, classificationStats);
           poolname = queryPoolPolicy.getPoolNameForClassification(classificationname, poolStats)
           if(acumeContext.ac.threadLocal.get() == null) {
