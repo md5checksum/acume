@@ -50,6 +50,7 @@ private [acume] object ConfConstants {
   val udfConfigXml = "acume.core.udf.configurationxml"
   val enableJDBCServer = "acume.core.enableJDBCServer"
   val queryPoolPolicyClass = "acume.core.querypoolpolicyclass"
+  val queryPoolSchedPolicyClass = "com.guavus.acume.core.QueryPoolPolicySchedulerImpl"
   val disableTotalForAggregate = "acume.core.disable.total.query"
   val cacheTypeConfigClassName = "acume.cache.type.config.classname"
   

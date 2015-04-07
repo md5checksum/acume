@@ -16,6 +16,14 @@ abstract class QueryPoolPolicy() {
 
 class QueryPoolPolicyImpl() extends QueryPoolPolicy()
 
+class QueryPoolPolicySchedulerImpl() extends QueryPoolPolicy() {
+  
+  override def getQueryClassification(query : String, classificationStats : ClassificationStats) : String = "scheduler"
+
+  override def getPoolNameForClassification(classification : String, poolStats : PoolStats) : String = "scheduler"
+
+}
+
 class PoolStats
 {
   @volatile var stats = new ConcurrentHashMap[String, StatAttributes]()

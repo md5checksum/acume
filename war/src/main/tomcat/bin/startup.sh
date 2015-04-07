@@ -7,10 +7,11 @@ ARG_MASTER_MODE=" --master yarn-client"
 ARG_PROPERTIES_FILE=""
 ARG_APP_NAME=" --name DEFAULT_NAME"
 QUEUE_NAME=" --queue default"
+ARG_POOLCONFIG=""
 
 master_mode=-1
 app_name=-1
-prop_loc=''
+prop_loc='$CLI_REPLACE_ACUMESPARKPROPERTYLOCATION$'
 queue_name=-1
 
 if [[ "$prop_loc" =~ ^\$CLI* ]]; then
@@ -81,10 +82,21 @@ while (($#)); do
   shift
 done
 
-if [[ "$prop_loc" != "" ]]; then
+SPARK_PROPERTYFILE=$DOCBASE/WEB-INF/classes/spark.properties
+if [ -z $prop_loc ];then
+        if [ -f "$SPARK_PROPERTYFILE" ]; then
+                prop_loc="$SPARK_PROPERTYFILE"
+        else
+                echo "$SPARK_PROPERTYFILE file does not exists"
+                exit 1
+        fi
+fi
+
+if [ -n "$prop_loc" ]; then
   ARG_PROPERTIES_FILE=" --properties-file $prop_loc"
   echo "ARG_PROPERTIES_FILE = $ARG_PROPERTIES_FILE"
 fi
+
 ############
 #Assigning app name
  #read the value of app name from property file
@@ -130,6 +142,29 @@ if [[ ( $master_mode -eq -1 || "$master_mode" =~ ^yarn* ) && ( $queue_name -eq -
        QUEUE_NAME=" --queue $queue_name"
     fi
 fi
+
+############
+# Getting the poolConfig file location and scheduler mode
+############
+echo "prop_loc ------"$prop_loc
+if [ ! -z "$prop_loc" ]; then
+    grep_poolfile=$(cat "$prop_loc" 2>>"$CATALINA_OUT" | grep "spark.scheduler.allocation.file" )
+
+    ARG_POOLCONFIG=" --conf "
+     if [[ $(echo "$grep_poolfile" | awk -F" " '{print $1}') != "#" ]]; then
+       poolconfig_file=$(echo "$grep_poolfile" | awk -F" " '{print $2}' | xargs)
+       if [[ "${poolconfig_file}" != "/"* ]];then
+        poolconfig_file=$DOCBASE/WEB-INF/classes/$poolconfig_file
+       fi
+
+       if [! -f $poolconfig_file ]; then
+           echo "$poolconfig_file file does not exists"
+           exit 1
+       fi
+       ARG_POOLCONFIG=$ARG_POOLCONFIG" spark.scheduler.allocation.file=$poolconfig_file"
+    fi
+fi
+
 ############
 #Finding crux jar
 ############
@@ -162,6 +197,7 @@ echo "Setting SPARK_JAVA_OPTS..." >> "$CATALINA_OUT"
 CATALINA_BASE="$SCRIPT_DIR/.."
 export ACUME_JAVA_OPTS="-Dcatalina.base=$CATALINA_BASE $ACUME_JAVA_OPTS -Dlog4j.configuration=file:$DOCBASE/WEB-INF/classes/log4j.xml -Djava.io.tmpdir=$CATALINA_BASE/temp"
 echo "SPARK_JAVA_OPTS = $SPARK_JAVA_OPTS" >> "$CATALINA_OUT"
+
 ############
 # Set SPARK_JAR
 ############
@@ -233,7 +269,7 @@ fi
 ############
 # Start the spark server
 ############
-cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_PROPERTIES_FILE --class com.guavus.acume.tomcat.core.AcumeMain --jars `ls -d -1 $DOCBASE/WEB-INF/lib/* | sed ':a;N;$!ba;s/\n/,/g'`$udfJarPath  $DOCBASE/WEB-INF/lib/$core_jar --driver-java-options '$ACUME_JAVA_OPTS'"
+cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_POOLCONFIG $ARG_PROPERTIES_FILE --class com.guavus.acume.tomcat.core.AcumeMain --jars `ls -d -1 $DOCBASE/WEB-INF/lib/* | sed ':a;N;$!ba;s/\n/,/g'`$udfJarPath  $DOCBASE/WEB-INF/lib/$core_jar --driver-java-options '$ACUME_JAVA_OPTS'"
 echo "Starting Spark..." >> "$CATALINA_OUT"
 eval $cmd >> "$CATALINA_OUT" 2>&1 "&"
 echo "Spark started successfully..." >> "$CATALINA_OUT"
