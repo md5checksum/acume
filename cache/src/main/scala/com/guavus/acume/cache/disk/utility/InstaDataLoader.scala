@@ -105,7 +105,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
     val instaDimRequest = InstaRequest(startTime, endTime,
         businessCube.binsource, dimSet.cubeName, List(rowFilters), measureFilters)
         print("Firing aggregate query on insta "  + instaDimRequest)
-        val dimensionTblTemp = "dimensionDataInstaTemp" + businessCube.cubeName+ endTime
+        val dimensionTblTemp = "dimensionDataInstaTemp" + businessCube.getAbsoluteCubeName + endTime
     val newTuplesRdd = insta.getNewTuples(instaDimRequest)
     sqlContext.registerRDDAsTable(newTuplesRdd, dimensionTblTemp)
     sqlContext.sql(s"select $renameToAcumeFields from $dimensionTblTemp")
@@ -146,7 +146,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
         businessCube.binsource, dimSet.cubeName, List(), measureFilters)
         print("Firing aggregate query on insta "  + instaMeasuresRequest)
       val aggregatedMeasureDataInsta = insta.getAggregatedData(instaMeasuresRequest)
-      val aggregatedTblTemp = "aggregatedMeasureDataInstaTemp" +businessCube.cubeName + levelTimestamp.level + "_" + levelTimestamp.timestamp
+      val aggregatedTblTemp = "aggregatedMeasureDataInstaTemp" +businessCube.getAbsoluteCubeName + levelTimestamp.level + "_" + levelTimestamp.timestamp
       sqlContext.registerRDDAsTable(aggregatedMeasureDataInsta, aggregatedTblTemp)
       //change schema for this schema rdd
       val renameToAcumeFields = (for(acumeField <- fields) yield {

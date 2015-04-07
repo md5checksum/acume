@@ -10,8 +10,15 @@ import com.guavus.acume.cache.core.AcumeCacheType
  * @author archit.thakur
  *
  */
-abstract class CubeTrait(val superCubeName: String, val superDimension: DimensionSet, val superMeasure: MeasureSet, schemaType : AcumeCacheType) extends Serializable
-case class BaseCube(cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, baseGran: TimeGranularity, schemaType : AcumeCacheType = null) extends CubeTrait(cubeName, dimension, measure, schemaType)
+abstract class CubeTrait(val superCubeName: String, val superDimension: DimensionSet, val superMeasure: MeasureSet, schemaType : AcumeCacheType) extends Serializable {
+  def getAbsoluteCubeName : String
+}
+case class BaseCube(cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, baseGran: TimeGranularity, schemaType : AcumeCacheType = null) extends CubeTrait(cubeName, dimension, measure, schemaType) {
+  def getAbsoluteCubeName = {
+    cubeName + "-"+ binsource
+  }
+}
+
 
 case class Function(functionClass: String, functionName: String) extends Serializable 
 case class DimensionSet(dimensionSet: List[Dimension]) extends Serializable 
@@ -33,6 +40,10 @@ case class Cube(cubeName: String, binsource: String, dimension: DimensionSet, me
     baseGran: TimeGranularity, isCacheable: Boolean, levelPolicyMap: Map[Long, Int], cacheTimeseriesLevelPolicyMap: Map[Long, Int], 
     evictionPolicyClass: Class[_ <: EvictionPolicy], schemaType : AcumeCacheType, propertyMap: Map[String,String]) 
     extends CubeTrait(cubeName, dimension, measure, schemaType) with Equals {
+  
+  def getAbsoluteCubeName = {
+    cubeName + "_"+ binsource
+  }
   
   def canEqual(other: Any) = {
     other.isInstanceOf[Cube]

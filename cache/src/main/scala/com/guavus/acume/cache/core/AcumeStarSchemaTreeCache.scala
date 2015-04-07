@@ -50,7 +50,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
 
   @transient val sqlContext = acumeCacheContext.cacheSqlContext
   private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeStarSchemaTreeCache])
-  val dimensionTable: DimensionTable = DimensionTable("AcumeCacheGlobalDimensionTable" + cube.cubeName, 0l)
+  val dimensionTable: DimensionTable = DimensionTable("AcumeCacheGlobalDimensionTable" + cube.getAbsoluteCubeName, 0l)
   val diskUtility = DataLoader.getDataLoader(acumeCacheContext, conf, AcumeStarSchemaTreeCache.this)
 
   val cubeDimensionSet = CubeUtil.getDimensionSet(cube)
@@ -119,7 +119,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
   def populateParentPointFromChildren(key : LevelTimestamp, rdds : Seq[SchemaRDD], schema : StructType) : AcumeTreeCacheValue = {
               val emptyRdd = Utility.getEmptySchemaRDD(sqlContext, schema).cache
 
-              val _tableName = cube.cubeName + key.level.toString + key.timestamp.toString
+              val _tableName = cube.getAbsoluteCubeName + key.level.toString + key.timestamp.toString
 
               val value = rdds.foldLeft(emptyRdd) { (result, current) =>
                 current.unionAll(result)
@@ -188,7 +188,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
   }
 
   override def getDataFromBackend(levelTimestamp: LevelTimestamp): AcumeTreeCacheValue = {
-    val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
+    val _tableName = cube.getAbsoluteCubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
     import acumeCacheContext.sqlContext._
     val cacheLevel = levelTimestamp.level
     val diskloaded = loadData(cube, levelTimestamp, dimensionTable)
@@ -202,7 +202,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
   }
 
   def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable): Tuple2[SchemaRDD, String] = {
-    val aggregatedTbl = "aggregatedMeasureDataInsta" + levelTimestamp.level + "_" + levelTimestamp.timestamp
+    val aggregatedTbl = "aggregatedMeasureDataInsta" + cube.getAbsoluteCubeName + levelTimestamp.level + "_" + levelTimestamp.timestamp
     diskUtility.loadData(keyMap, businessCube, levelTimestamp).registerTempTable(aggregatedTbl)
 
     this.synchronized {
@@ -228,7 +228,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
     val onField = CubeUtil.getDimensionSet(businessCube).map(x => aggregatedTbl + "." + x.getName + "=" + dtnm + "." + x.getName).mkString(" AND ")
     val ar = sqlContext.sql(s"select $selectField from $aggregatedTbl left outer join $dtnm on $onField")
     //      val fullRdd = AcumeStarSchemaTreeCache.generateId(ar, dTableName, sqlContext)
-    val joinedTbl = businessCube.cubeName + levelTimestamp.level + "_" + levelTimestamp.timestamp
+    val joinedTbl = businessCube.getAbsoluteCubeName + levelTimestamp.level + "_" + levelTimestamp.timestamp
     sqlContext.registerRDDAsTable(ar, joinedTbl)
 
     (correctMTable(businessCube, joinedTbl, levelTimestamp.timestamp),
@@ -267,7 +267,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
     if (!levelTime.isEmpty) {
       val schemarddlist = levelTime.flatten
       val dataloadedrdd = mergePathRdds(schemarddlist)
-      val baseMeasureSetTable = cube.cubeName + "MeasureSet" + getUniqueRandomeNo
+      val baseMeasureSetTable = cube.getAbsoluteCubeName + "MeasureSet" + getUniqueRandomeNo
       val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
       dataloadedrdd.registerTempTable(baseMeasureSetTable)
       AcumeCacheUtility.dMJoin(acumeCacheContext.sqlContext, dimensionTable.tblnm, baseMeasureSetTable, joinDimMeasureTableName)

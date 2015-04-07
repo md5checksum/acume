@@ -111,7 +111,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     logger.info("Populating parent point from children for key " + key)
     val emptyRdd = Utility.getEmptySchemaRDD(sqlContext, schema)
 
-    val _tableName = cube.cubeName + key.level.toString + key.timestamp.toString
+    val _tableName = cube.getAbsoluteCubeName + key.level.toString + key.timestamp.toString
 
     val value = mergeChildPoints(emptyRdd, rdds)
     
@@ -190,13 +190,13 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
   }
 
   override def getDataFromBackend(levelTimestamp: LevelTimestamp): AcumeTreeCacheValue = {
-    val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
+    val _tableName = cube.getAbsoluteCubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
     import acumeCacheContext.sqlContext._
     val cacheLevel = levelTimestamp.level
     val diskloaded = diskUtility.loadData(keyMap, cube, levelTimestamp)
     val processedDiskLoaded = processBackendData(diskloaded)
     
-    val _tableNameTemp = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString + "_temp"
+    val _tableNameTemp = cube.getAbsoluteCubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString + "_temp"
     processedDiskLoaded.registerTempTable(_tableNameTemp)
     val timestamp = levelTimestamp.timestamp
     val measureSet = (CubeUtil.getDimensionSet(cube) ++ CubeUtil.getMeasureSet(cube)).map(_.getName).mkString(",")
@@ -236,7 +236,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     if (!levelTime.isEmpty) {
       val schemarddlist = levelTime.flatten
       val dataloadedrdd = mergePathRdds(schemarddlist)
-      val baseMeasureSetTable = cube.cubeName + "MeasureSet" + getUniqueRandomeNo
+      val baseMeasureSetTable = cube.getAbsoluteCubeName + "MeasureSet" + getUniqueRandomeNo
       val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
       dataloadedrdd.registerTempTable(joinDimMeasureTableName)
       val _$acumecache = table(joinDimMeasureTableName)
