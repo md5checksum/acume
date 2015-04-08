@@ -1297,7 +1297,6 @@ Please don't use the following reserved property names:
 			</target>
 		</targets>
 	</property>
-	<property>
 
 	<property>
 		<name>jgroupsLoggingLevel</name>
