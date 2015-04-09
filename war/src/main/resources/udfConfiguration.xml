@@ -1,7 +1,15 @@
 <AcumeUdfs>
-<!--	<UserDefined>
-		<functionName></functionName>
-		<fullUdfclassName></fullUdfclassName>
-		<fulljarPath></fulljarPath>
-	</UserDefined>-->
+	<UserDefined>
+		<functionName>attvaludaf</functionName>
+		<fullUdfclassName>com.guavus.attval.attvaludaf.Attvaludaf</fullUdfclassName>
+	</UserDefined>
+	<UserDefined>
+		<functionName>pcsabinaryudaf</functionName>
+		<fullUdfclassName>com.guavus.pcsa.pcsaudaf.PCSABinaryudaf</fullUdfclassName>
+	</UserDefined>
+
+	<UserDefined>
+		<functionName>pcsacountudaf</functionName>
+		<fullUdfclassName>com.guavus.pcsa.pcsaudaf.PCSACountudaf</fullUdfclassName>
+	</UserDefined>
 </AcumeUdfs>
