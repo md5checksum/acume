@@ -112,7 +112,9 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     val jobGroupId = Thread.currentThread().getName() + "-" + Thread.currentThread().getId() + "-" + counter.getAndIncrement
     try {
       val isSchedulerQuery = queryBuilderService.get(0).isSchedulerQuery(sql)
-      acumeContext.sc.setJobGroup(jobGroupId, getJobDescription(isSchedulerQuery, Thread.currentThread().getName() + Thread.currentThread().getId()))
+      val jobDescription = getJobDescription(isSchedulerQuery, Thread.currentThread().getName() + Thread.currentThread().getId())
+      print(jobDescription)
+      
       def calculateJobLevelProperties() {
         this.synchronized {
 
@@ -140,10 +142,11 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         lazy val fut = future { f }
         Await.result(fut, DurationInt(acumeContext.acumeConf.getInt(ConfConstants.queryTimeOut, 30)) second)
       }
-      def run(rdd: RDD[Row]) = {
+      def run(rdd: RDD[Row], jobGroupId : String, jobDescription : String) = {
+        acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
         rdd.collect
       }
-      val rows = runWithTimeout(run(responseRdd))
+      val rows = runWithTimeout(run(responseRdd, jobGroupId, jobDescription))
       val acumeSchema: QueryBuilderSchema = queryBuilderService.get(0).getQueryBuilderSchema
       val dimsNames = new ArrayBuffer[String]()
       val measuresNames = new ArrayBuffer[String]()
