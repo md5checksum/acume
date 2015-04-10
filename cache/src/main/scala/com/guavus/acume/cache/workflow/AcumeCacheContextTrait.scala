@@ -2,7 +2,6 @@ package com.guavus.acume.cache.workflow
 
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
@@ -11,7 +10,7 @@ import com.guavus.acume.cache.common.Measure
 import com.guavus.acume.cache.common.QLType
 import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
-
+ 
 /**
  * @author archit.thakur
  * 
@@ -22,22 +21,23 @@ trait AcumeCacheContextTrait extends Serializable {
   private [cache] var rrCacheLoader : RRCache = Class.forName(cacheConf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, cacheConf).asInstanceOf[RRCache]
   private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
   private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
-  private [cache] val poolThreadLocal = new ThreadLocal[HashMap[String, Any]]()
+  private [cache] val poolThreadLocal = new InheritableThreadLocal[HashMap[String, Any]]()
   
   def acql(sql: String): AcumeCacheResponse = {
     acql(sql, null)
   }
-  def acql(sql: String, qltype: String): AcumeCacheResponse = { 
-     val ql : QLType.QLType = if(qltype == null)
-      QLType.getQLType(cacheConf.get(ConfConstants.qltype)) 
-    else
-      QLType.getQLType(qltype)
-    
-    validateQLType(ql)
-    rrCacheLoader.getRdd((sql, ql))
+  
+  def acql(sql: String, qltype: String): AcumeCacheResponse = {
+      val ql: QLType.QLType = if (qltype == null)
+        QLType.getQLType(cacheConf.get(ConfConstants.qltype))
+      else
+        QLType.getQLType(qltype)
+
+      validateQLType(ql)
+      rrCacheLoader.getRdd((sql, ql))
   }
   
-  def threadLocal: ThreadLocal[HashMap[String, Any]] = poolThreadLocal
+  def threadLocal: InheritableThreadLocal[HashMap[String, Any]] = poolThreadLocal
     
   private [cache] def validateQLType(qltype: QLType.QLType) = {
     if (!checkQLValidation(cacheSqlContext, qltype))
