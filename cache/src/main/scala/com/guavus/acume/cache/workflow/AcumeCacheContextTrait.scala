@@ -1,6 +1,7 @@
 package com.guavus.acume.cache.workflow
 
 import org.apache.spark.sql.SQLContext
+import AcumeCacheContextTrait._
 import org.apache.spark.sql.hive.HiveContext
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
@@ -26,15 +27,20 @@ trait AcumeCacheContextTrait extends Serializable {
   def acql(sql: String): AcumeCacheResponse = {
     acql(sql, null)
   }
-  
-  def acql(sql: String, qltype: String): AcumeCacheResponse = {
-      val ql: QLType.QLType = if (qltype == null)
-        QLType.getQLType(cacheConf.get(ConfConstants.qltype))
-      else
-        QLType.getQLType(qltype)
 
-      validateQLType(ql)
-      rrCacheLoader.getRdd((sql, ql))
+  def acql(sql : String, qltype: String): AcumeCacheResponse = { 
+    setQuery(sql)
+    try {
+     val ql : QLType.QLType = if(qltype == null)
+      QLType.getQLType(cacheConf.get(ConfConstants.qltype)) 
+    else
+      QLType.getQLType(qltype)
+    
+    validateQLType(ql)
+    rrCacheLoader.getRdd((sql, ql))
+    } finally {
+      unsetQuery()
+    }
   }
   
   def threadLocal: InheritableThreadLocal[HashMap[String, Any]] = poolThreadLocal
@@ -117,3 +123,29 @@ trait AcumeCacheContextTrait extends Serializable {
   }
 }
 
+
+
+object AcumeCacheContextTrait {
+  
+  val threadLocal = new InheritableThreadLocal[scala.collection.mutable.HashMap[String, String]]
+  
+  def init() {
+    if(threadLocal.get() == null)
+    	threadLocal.set(new scala.collection.mutable.HashMap[String, String]())
+  }
+  
+  def setQuery(query : String) {
+    init
+    threadLocal.get.put("query", query)
+  }
+  
+  def getQuery() = {
+    threadLocal.get.getOrElse("query", null)
+  }
+  
+  def unsetQuery() {
+    threadLocal.get.put("query", null)
+  }
+  
+  
+}
