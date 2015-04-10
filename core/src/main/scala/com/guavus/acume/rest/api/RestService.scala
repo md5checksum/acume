@@ -67,6 +67,7 @@ class RestService {
 	}
 	
 	@POST
+	@Produces(Array("application/json"))
 	@Path("sql")
 	def servSqlQuery(query : String,  @QueryParam(value = "super") userinfo : String,
 			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
