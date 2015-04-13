@@ -157,7 +157,7 @@ if [ ! -z "$prop_loc" ]; then
         poolconfig_file=$DOCBASE/WEB-INF/classes/$poolconfig_file
        fi
 
-       if [! -f $poolconfig_file ]; then
+       if [ ! -f $poolconfig_file ]; then
            echo "$poolconfig_file file does not exists"
            exit 1
        fi
@@ -212,7 +212,7 @@ echo "SPARK_JAR = $SPARK_JAR" >> "$CATALINA_OUT"
 echo "Setting SPARK_CLASSPATH..." >> "$CATALINA_OUT"
 export HADOOP_CONF_DIR="/opt/hadoop/conf"
 spark_jars=$(ls -d -1 /opt/spark/lib/* | grep -v examples | xargs | sed 's/ /:/g')
-export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:$spark_jars:$SCRIPT_DIR/../lib/*:$crux_jar:-Djava.io.tmpdir=$CATALINA_BASE"
+export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:$spark_jars:$SCRIPT_DIR/../lib/*:$crux_jar:-Djava.io.tmpdir=$CATALINA_BASE:/opt/tms/java/attvaludf.jar:/opt/tms/java/attval.jar"
 echo "SPARK_CLASSPATH = $SPARK_CLASSPATH" >> "$CATALINA_OUT"
 
 
@@ -274,7 +274,7 @@ ATTVALJARPATH=",/opt/tms/java/attvaludf.jar,/opt/tms/java/attval.jar"
 ############
 # Start the spark server
 ############
-cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_POOLCONFIG $ARG_PROPERTIES_FILE --class com.guavus.acume.tomcat.core.AcumeMain --jars `ls -d -1 $DOCBASE/WEB-INF/lib/* | sed ':a;N;$!ba;s/\n/,/g'`$ATTVALJARPATH $udfJarPath  $DOCBASE/WEB-INF/lib/$core_jar --driver-java-options '$ACUME_JAVA_OPTS'"
+cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_POOLCONFIG $ARG_PROPERTIES_FILE --class com.guavus.acume.tomcat.core.AcumeMain --jars `ls -d -1 $DOCBASE/WEB-INF/lib/* | sed ':a;N;$!ba;s/\n/,/g'`$ATTVALJARPATH$udfJarPath  $DOCBASE/WEB-INF/lib/$core_jar --driver-java-options '$ACUME_JAVA_OPTS'"
 echo "Starting Spark..." >> "$CATALINA_OUT"
 eval $cmd >> "$CATALINA_OUT" 2>&1 "&"
 echo "Spark started successfully..." >> "$CATALINA_OUT"
