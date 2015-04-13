@@ -32,6 +32,8 @@ import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import java.util.concurrent.TimeUnit
 import org.apache.spark.sql.hive.HiveContext
+import com.google.common.util.concurrent.ListenableFuture
+import com.google.common.util.concurrent.Futures
 
 class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @transient  conf: AcumeCacheConf, @transient acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends DataLoader(acumeCacheContext, conf, null) {
 
@@ -40,23 +42,32 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
   @transient var cubeList: List[InstaCubeMetaInfo] = null
   val binSourceToIntervalMap = CacheBuilder.newBuilder().refreshAfterWrite(5, TimeUnit.MINUTES)
     .build(
-      new CacheLoader[String, Map[String,Map[Long, (Long,Long)]]]() {
-        def load(key: String): Map[String,Map[Long, (Long,Long)]] = {
-    val persistTime = insta.getAllBinPersistedTimes
-    println(persistTime)
-    persistTime.map(binSourceToGranToAvailability => {
-      val minGran = binSourceToGranToAvailability._2.filter(_._1 != -1).keys.min
-      val granularityToAvailability = binSourceToGranToAvailability._2.map(granToAvailability => {
-        if (granToAvailability._1 == -1) {
-          (granToAvailability._1, (granToAvailability._2._1, Utility.getNextTimeFromGranularity(granToAvailability._2._2, minGran, Utility.newCalendar)))
-        } else {
-          (granToAvailability._1, (granToAvailability._2._1, Utility.getNextTimeFromGranularity(granToAvailability._2._2, granToAvailability._1, Utility.newCalendar)))
+      new CacheLoader[String, Map[String, Map[Long, (Long, Long)]]]() {
+        def load(key: String): Map[String, Map[Long, (Long, Long)]] = {
+          val persistTime = insta.getAllBinPersistedTimes
+          println(persistTime)
+          persistTime.map(binSourceToGranToAvailability => {
+            val minGran = binSourceToGranToAvailability._2.filter(_._1 != -1).keys.min
+            val granularityToAvailability = binSourceToGranToAvailability._2.map(granToAvailability => {
+              if (granToAvailability._1 == -1) {
+                (granToAvailability._1, (granToAvailability._2._1, Utility.getNextTimeFromGranularity(granToAvailability._2._2, minGran, Utility.newCalendar)))
+              } else {
+                (granToAvailability._1, (granToAvailability._2._1, Utility.getNextTimeFromGranularity(granToAvailability._2._2, granToAvailability._1, Utility.newCalendar)))
+              }
+            })
+            (binSourceToGranToAvailability._1, granularityToAvailability ++ Map(-1L -> granularityToAvailability.get(minGran).get))
+          })
         }
-      })
-      (binSourceToGranToAvailability._1,  granularityToAvailability ++ Map(-1L -> granularityToAvailability.get(minGran).get) 
-      )
-    })
-  }
+
+        override def reload(key: String, oldValue: Map[String, Map[Long, (Long, Long)]]): ListenableFuture[Map[String, Map[Long, (Long, Long)]]] = {
+          val future = Futures.immediateFuture(load(key));
+          if (future.isDone()) {
+            future
+          } else {
+            Futures.immediateFuture(oldValue);
+          }
+        }
+
       });
   init
   
