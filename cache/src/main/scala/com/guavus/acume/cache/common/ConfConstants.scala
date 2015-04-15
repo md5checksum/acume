@@ -66,7 +66,8 @@ private [acume] object ConfConstants {
   val threadPoolSize = "acume.scheduler.threadPoolSize"
   val queryTimeOut = "acume.core.query.timeout"
   val schedulerQueryTimeOut = "acume.scheduler.query.timeout"  
-  val maxAllowedQueriesPerClassification = "acume.core.classification.max.allowedQueries"  
+  val maxAllowedQueriesPerClassification = "acume.core.classification.max.allowedQueries" 
+  val instaAvailabilityPollInterval = "acume.insta.availability.poll.interval" 
   
   /* Insta Properties */
   val instaComboPoints = "acume.insta.comboPoints"
@@ -76,6 +77,7 @@ private [acume] object ConfConstants {
   defaultValueMap += acumeCacheDefaultType -> AcumeCacheType.acumeStarSchemaTreeCache.name
   defaultValueMap += cacheTypeConfigClassName -> "com.guavus.acume.cache.core.AcumeCacheType"
   defaultValueMap += queryTimeOut -> "30"
+  defaultValueMap += instaAvailabilityPollInterval -> "300"
   
 
 }

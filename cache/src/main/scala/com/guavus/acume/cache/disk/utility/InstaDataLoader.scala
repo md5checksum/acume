@@ -40,7 +40,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
   @transient var insta: Insta = null
   @transient val sqlContext = acumeCacheContext.cacheSqlContext
   @transient var cubeList: List[InstaCubeMetaInfo] = null
-  val binSourceToIntervalMap = CacheBuilder.newBuilder().refreshAfterWrite(5, TimeUnit.MINUTES)
+  val binSourceToIntervalMap = CacheBuilder.newBuilder().refreshAfterWrite(acumeCacheContext.cacheConf.getInt(ConfConstants.instaAvailabilityPollInterval), TimeUnit.SECONDS)
     .build(
       new CacheLoader[String, Map[String, Map[Long, (Long, Long)]]]() {
         var future: com.google.common.util.concurrent.ListenableFuture[Map[String,Map[Long,(Long, Long)]]] = null

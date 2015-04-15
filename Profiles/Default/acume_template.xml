@@ -626,6 +626,13 @@
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.instaComboPoints</Property_OriginalName>
         </Property>
 	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.instaAvailabilityPollInterval</Property_Name>
+            <Property_Value>300</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>integer</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.instaAvailabilityPollInterval</Property_OriginalName>
+        </Property>
+	<Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.schedulerVariableRetentionMap</Property_Name>
             <Property_Value>1h:24</Property_Value>
             <Property_Type>read-write</Property_Type>
