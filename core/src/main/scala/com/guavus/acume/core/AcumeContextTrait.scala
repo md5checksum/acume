@@ -20,6 +20,8 @@ import java.nio.file.Files
  * @author kashish.jain
  */
 abstract class AcumeContextTrait {
+  
+  val acumeConfiguration: AcumeConf
 
   val acumeContext: AcumeCacheContextTrait = null
 
@@ -27,7 +29,7 @@ abstract class AcumeContextTrait {
 
   def ac(): AcumeCacheContextTrait = null
 
-  def acumeConf(): AcumeConf = null
+  def acumeConf(): AcumeConf = AcumeConf.acumeConf
 
   def hqlContext(): HiveContext = null
 

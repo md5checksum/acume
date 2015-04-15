@@ -28,6 +28,7 @@ import com.guavus.rubix.query.remote.flex.NameValue
 import com.guavus.rubix.query.remote.flex.QueryRequest
 import QueryPrefetchTaskProducer._
 import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.core.AcumeContextTrait
 
 object QueryPrefetchTaskProducer {
 
@@ -41,7 +42,7 @@ object QueryPrefetchTaskProducer {
 
 }
 
-class QueryPrefetchTaskProducer(acumeConf: AcumeConf, schemas: List[QueryBuilderSchema], private var taskManager: QueryRequestPrefetchTaskManager, private var dataService: DataService, acumeService: AcumeService, saveRequests: Boolean, policy: ISchedulerPolicy, controller: Controller) extends Runnable {
+class QueryPrefetchTaskProducer(acumeContext: AcumeContextTrait, schemas: List[QueryBuilderSchema], private var taskManager: QueryRequestPrefetchTaskManager, private var dataService: DataService, acumeService: AcumeService, saveRequests: Boolean, policy: ISchedulerPolicy, controller: Controller) extends Runnable {
 
   private val lastCacheUpdateTimeMap: HashMap[String, HashMap[PrefetchCubeConfiguration, Long]] = new HashMap[String, HashMap[PrefetchCubeConfiguration, Long]]()
 
@@ -194,7 +195,7 @@ class QueryPrefetchTaskProducer(acumeConf: AcumeConf, schemas: List[QueryBuilder
           val map = new java.util.TreeMap[Long, QueryPrefetchTaskCombiner]()
           var tempEndTime = getNextEndTime(startTime, endTime)
           while (startTime < endTime) {
-            val combiner = new QueryPrefetchTaskCombiner(isFirstRun, taskManager, version, acumeConf, acumeService, controller)
+            val combiner = new QueryPrefetchTaskCombiner(isFirstRun, taskManager, version, acumeContext, acumeService, controller)
             for (prefetchCubeConfiguration <- value) {
               val lastCacheUpdatedTime = cubeConfigurationToCacheTime.get(prefetchCubeConfiguration).getOrElse({ null }).asInstanceOf[Long]
               if (lastCacheUpdatedTime != null && lastCacheUpdatedTime != 0 && tempEndTime < lastCacheUpdatedTime) {
@@ -221,9 +222,9 @@ class QueryPrefetchTaskProducer(acumeConf: AcumeConf, schemas: List[QueryBuilder
                           if (taskRequest.getQueryRequest.getStartTime >= startTime) {
                             val set = map.get(startTime)
                             if (set != null) {
-                              set.getQueryPrefetchTasks.add(new QueryPrefetchTask(dataService, taskRequest, version, taskManager, acumeConf))
+                              set.getQueryPrefetchTasks.add(new QueryPrefetchTask(dataService, taskRequest, version, taskManager, acumeContext))
                             } else {
-                              combiner.getQueryPrefetchTasks.add(new QueryPrefetchTask(dataService, taskRequest, version, taskManager, acumeConf))
+                              combiner.getQueryPrefetchTasks.add(new QueryPrefetchTask(dataService, taskRequest, version, taskManager, acumeContext))
                               map.put(startTime, combiner)
                             }
                           } else {
@@ -232,10 +233,10 @@ class QueryPrefetchTaskProducer(acumeConf: AcumeConf, schemas: List[QueryBuilder
                             if (otherCombiner.getGranToIntervalMap.get(eachInterval.getGranularity).get < eachInterval.getEndTime) {
                               otherCombiner.getGranToIntervalMap.put(eachInterval.getGranularity, eachInterval.getEndTime)
                             }
-                            otherCombiner.getQueryPrefetchTasks.add(new QueryPrefetchTask(dataService, taskRequest, version, taskManager, acumeConf))
+                            otherCombiner.getQueryPrefetchTasks.add(new QueryPrefetchTask(dataService, taskRequest, version, taskManager, acumeContext))
                           }
                         } else {
-                          combiner.getQueryPrefetchTasks.add(new QueryPrefetchTask(dataService, taskRequest, version, taskManager, acumeConf))
+                          combiner.getQueryPrefetchTasks.add(new QueryPrefetchTask(dataService, taskRequest, version, taskManager, acumeContext))
                         }
                       } else {
                         requestLists.add(taskRequest)
@@ -281,7 +282,7 @@ class QueryPrefetchTaskProducer(acumeConf: AcumeConf, schemas: List[QueryBuilder
 
   private def getNextEndTime(startTime: Long, endTime: Long): Long = {
     val instance = Utility.newCalendar()
-    val tempEndTime = Utility.getNextTimeFromGranularity(startTime, acumeConf.getSchedulerMaxSegmentDurationCombinePoints, instance)
+    val tempEndTime = Utility.getNextTimeFromGranularity(startTime, acumeContext.acumeConf.getSchedulerMaxSegmentDurationCombinePoints, instance)
     if (tempEndTime > endTime) {
       return endTime
     }

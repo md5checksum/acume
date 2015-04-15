@@ -142,11 +142,12 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         lazy val fut = future { f }
         Await.result(fut, DurationInt(acumeContext.acumeConf.getInt(ConfConstants.queryTimeOut, 30)) second)
       }
-      def run(rdd: RDD[Row], jobGroupId : String, jobDescription : String) = {
+      def run(rdd: RDD[Row], jobGroupId : String, jobDescription : String, conf : AcumeConf) = {
+        AcumeConf.setConf(conf)
         acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
         rdd.collect
       }
-      val rows = runWithTimeout(run(responseRdd, jobGroupId, jobDescription))
+      val rows = runWithTimeout(run(responseRdd, jobGroupId, jobDescription, acumeContext.acumeConf))
       val acumeSchema: QueryBuilderSchema = queryBuilderService.get(0).getQueryBuilderSchema
       val dimsNames = new ArrayBuffer[String]()
       val measuresNames = new ArrayBuffer[String]()

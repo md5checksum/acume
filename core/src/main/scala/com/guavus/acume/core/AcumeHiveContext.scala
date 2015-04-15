@@ -33,8 +33,6 @@ class AcumeHiveContext(val acumeConfiguration: AcumeConf) extends AcumeContextTr
   
   override def ac() = acumeContext
   
-  override def acumeConf() = acumeConfiguration
-  
   override def hqlContext() = hc
   
   override def sqlContext() = _sqlContext
