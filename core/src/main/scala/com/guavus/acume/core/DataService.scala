@@ -46,12 +46,12 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
   var classificationStats: ClassificationStats = new ClassificationStats()
 
   val policyclass = acumeContext.acumeConf.getSchedulerPolicyClass
-  val queryPoolUIPolicy: QueryPoolPolicy = Class.forName(policyclass).getConstructors()(0).newInstance().asInstanceOf[QueryPoolPolicy]
   val throttleMap = acumeContext.acumeConf.get(ConfConstants.maxAllowedQueriesPerClassification, "default:25").split(",")map(x => {
-          val i = x.indexOf(":")
-          (x.substring(0, i).trim, x.substring(i+1, x.length).trim.toInt)
-        })
-  val queryPoolSchedulerPolicy: QueryPoolPolicy = Class.forName(ConfConstants.queryPoolSchedPolicyClass).getConstructors()(0).newInstance(throttleMap.toMap).asInstanceOf[QueryPoolPolicy]
+	  val i = x.indexOf(":")
+			  (x.substring(0, i).trim, x.substring(i+1, x.length).trim.toInt)
+  })
+  val queryPoolUIPolicy: QueryPoolPolicy = Class.forName(policyclass).getConstructors()(0).newInstance(throttleMap.toMap).asInstanceOf[QueryPoolPolicy]
+  val queryPoolSchedulerPolicy: QueryPoolPolicy = Class.forName(ConfConstants.queryPoolSchedPolicyClass).getConstructors()(0).newInstance().asInstanceOf[QueryPoolPolicy]
 
   /**
    * Takes QueryRequest i.e. Rubix query and return aggregate Response.
