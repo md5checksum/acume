@@ -240,6 +240,20 @@
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.levelpolicymap</Property_OriginalName>
         </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.queryTimeOut</Property_Name>
+            <Property_Value>30</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.queryTimeOut</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.schedulerQueryTimeOut</Property_Name>
+            <Property_Value>300</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.instanceId.${acumeInstance}.schedulerQueryTimeOut</Property_OriginalName>
+        </Property>
         <Property>
             <Property_Name> application.${acumeApp}.instanceId.${acumeInstance}.cacheBaselayerStorageType</Property_Name>
             <Property_Value>insta</Property_Value>
