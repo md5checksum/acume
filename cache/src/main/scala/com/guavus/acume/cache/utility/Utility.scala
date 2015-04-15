@@ -388,7 +388,7 @@ object Utility extends Logging {
           val i = x.indexOf(":")
           (x.substring(0, i).trim, x.substring(i+1, x.length).trim)
         })	
-        val propertyMap = _$propertyMap.toMap
+        val propertyMap = scala.collection.mutable.HashMap(_$propertyMap.toSeq: _*)
         
         //getSingle entity keys from xml
         val singleEntityKeys = c.getSingleEntityKeys()
@@ -407,15 +407,15 @@ object Utility extends Logging {
         val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
         val _$eviction = Class.forName(getProperty(propertyMap, ConfConstants.evictionpolicyforcube, ConfConstants.acumeglobalevictionpolicycube, conf, cubeName)).asSubclass(classOf[EvictionPolicy])
         val schemaType = AcumeCacheType.getAcumeCacheType(getProperty(propertyMap, "cacheType", ConfConstants.acumeCacheDefaultType, conf, cubeName))
-        val cube = Cube(cubeName, cubebinsource, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), singleEntityKeysMap, granularity, true, levelpolicymap, timeserieslevelpolicymap, _$eviction, schemaType, propertyMap)
+        val cube = Cube(cubeName, cubebinsource, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), singleEntityKeysMap, granularity, true, levelpolicymap, timeserieslevelpolicymap, _$eviction, schemaType, propertyMap.toMap)
         cubeMap.put(CubeKey(cubeName, cubebinsource), cube)
         cube
       }
     cubeList.++=(list)
   }
   
-   private def getProperty(propertyMap: Map[String, String], name: String, globalname: String, conf: AcumeCacheConf, gnmCube: String) = {
-    propertyMap.getOrElse(name, conf.get(globalname, throw new RuntimeException(s"The configurtion $name should be done for cube $gnmCube")))
+   private def getProperty(propertyMap: scala.collection.mutable.HashMap[String, String], name: String, globalname: String, conf: AcumeCacheConf, gnmCube: String) = {
+    propertyMap.getOrElseUpdate(name, conf.get(globalname, throw new RuntimeException(s"The configurtion $name should be done for cube $gnmCube")))
   }
   
 //  def getLevelPointMap1(mapString: String): SortedMap[Long, Integer] = {
