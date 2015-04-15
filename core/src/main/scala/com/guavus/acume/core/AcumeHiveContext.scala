@@ -4,10 +4,10 @@ import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.workflow.AcumeHiveCacheContext
 import com.guavus.acume.core.listener.AcumeSparkListener
+import com.guavus.acume.cache.common.ConfConstants
 
 /**
  * @author kashish.jain
@@ -26,8 +26,18 @@ class AcumeHiveContext(confFilePath: String) extends AcumeContextTrait {
   sparkContext.addSparkListener(acumeEventListener)
  
   val hc = new HiveContext(sparkContext)
-
+  
   val _sqlContext = new SQLContext(sparkContext)
+  
+  def chooseHiveDatabase() {
+    try{
+    	hc.sql("use " + acumeConfiguration.get(ConfConstants.backendDbName))
+    } catch {
+      case ex : Exception => throw new RuntimeException("Cannot use the database " + acumeConfiguration.get(ConfConstants.backendDbName), ex)
+    }
+  }
+  
+  chooseHiveDatabase()
   
   override val acumeContext = {
     new AcumeHiveCacheContext(hc, new AcumeCacheConf)

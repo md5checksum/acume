@@ -20,6 +20,7 @@ private [acume] object ConfConstants {
   val timezone = "acume.cache.core.timezone"
   val timezonedb = "acume.cache.core.timezonedb"
   val timezonedbPath = "acume.cache.core.timezonedbPath"
+  val backendDbName = "acume.cache.backend.dbname"
   val whichcachetouse = "acume.cache.core.cachename"
   val rrcacheconcurrenylevel = "acume.cache.core.rrcacheconcurrenylevel"
   val rrsize = ("acume.cache.core.rrcahcesize", 3)
