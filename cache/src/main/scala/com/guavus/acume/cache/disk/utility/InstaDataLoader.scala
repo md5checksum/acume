@@ -43,6 +43,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
   val binSourceToIntervalMap = CacheBuilder.newBuilder().refreshAfterWrite(5, TimeUnit.MINUTES)
     .build(
       new CacheLoader[String, Map[String, Map[Long, (Long, Long)]]]() {
+        var future: com.google.common.util.concurrent.ListenableFuture[Map[String,Map[Long,(Long, Long)]]] = null
         def load(key: String): Map[String, Map[Long, (Long, Long)]] = {
           val persistTime = insta.getAllBinPersistedTimes
           println(persistTime)
@@ -60,9 +61,14 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
         }
 
         override def reload(key: String, oldValue: Map[String, Map[Long, (Long, Long)]]): ListenableFuture[Map[String, Map[Long, (Long, Long)]]] = {
-          val future = Futures.immediateFuture(load(key));
+          if(future == null) {
+        	  future = Futures.immediateFuture(load(key))
+        	  Futures.immediateFuture(oldValue);
+          }
           if (future.isDone()) {
-            future
+            val returnFuture = future
+            future = null
+            returnFuture
           } else {
             Futures.immediateFuture(oldValue);
           }
