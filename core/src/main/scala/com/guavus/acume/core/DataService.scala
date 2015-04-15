@@ -47,7 +47,11 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
 
   val policyclass = acumeContext.acumeConf.getSchedulerPolicyClass
   val queryPoolUIPolicy: QueryPoolPolicy = Class.forName(policyclass).getConstructors()(0).newInstance().asInstanceOf[QueryPoolPolicy]
-  val queryPoolSchedulerPolicy: QueryPoolPolicy = Class.forName(ConfConstants.queryPoolSchedPolicyClass).getConstructors()(0).newInstance().asInstanceOf[QueryPoolPolicy]
+  val throttleMap = acumeContext.acumeConf.get(ConfConstants.maxAllowedQueriesPerClassification, "default:25").split(",")map(x => {
+          val i = x.indexOf(":")
+          (x.substring(0, i).trim, x.substring(i+1, x.length).trim.toInt)
+        })
+  val queryPoolSchedulerPolicy: QueryPoolPolicy = Class.forName(ConfConstants.queryPoolSchedPolicyClass).getConstructors()(0).newInstance(throttleMap.toMap).asInstanceOf[QueryPoolPolicy]
 
   /**
    * Takes QueryRequest i.e. Rubix query and return aggregate Response.
@@ -121,6 +125,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
           val isSchedulerQuery = queryBuilderService.get(0).isSchedulerQuery(sql)
           val queryPoolPolicy = if (isSchedulerQuery) queryPoolSchedulerPolicy else queryPoolUIPolicy
           classificationname = queryPoolPolicy.getQueryClassification(sql, classificationStats);
+          queryPoolPolicy.checkForThrottle(classificationname, classificationStats)
           poolname = queryPoolPolicy.getPoolNameForClassification(classificationname, poolStats)
           if (acumeContext.ac.threadLocal.get() == null) {
             acumeContext.ac.threadLocal.set(new HashMap[String, Any]())

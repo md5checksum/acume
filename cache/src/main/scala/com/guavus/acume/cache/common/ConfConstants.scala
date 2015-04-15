@@ -65,7 +65,8 @@ private [acume] object ConfConstants {
   val schedulerCheckInterval = "acume.scheduler.checkInterval"   
   val threadPoolSize = "acume.scheduler.threadPoolSize"
   val queryTimeOut = "acume.core.query.timeout"
-  val schedulerQueryTimeOut = "acume.core.scheduler.query.timeout"  
+  val schedulerQueryTimeOut = "acume.scheduler.query.timeout"  
+  val maxAllowedQueriesPerClassification = "acume.core.classification.max.allowedQueries"  
   
   /* Insta Properties */
   val instaComboPoints = "acume.insta.comboPoints"

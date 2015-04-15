@@ -1269,6 +1269,18 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
+	<property>
+            <name>classificationMaxAllowedQueries</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[default:25]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
         
      <!-- Logging properties -->
 
