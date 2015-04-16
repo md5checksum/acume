@@ -1,52 +1,50 @@
 package com.guavus.acume.cache.utility
 
+import java.io.BufferedInputStream
+import java.io.DataInputStream
+import java.io.File
+import java.io.FileInputStream
 import java.text.SimpleDateFormat
-import scala.util.control.Breaks._
 import java.util.Calendar
 import java.util.Date
 import java.util.StringTokenizer
 import java.util.TimeZone
-import scala.collection.JavaConversions.mutableSeqAsJavaList
+
+import scala.collection.JavaConversions._
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.HashMap
 import scala.collection.mutable.{Map => MutableMap}
 import scala.collection.mutable.MutableList
+import scala.util.control.Breaks.break
+import scala.util.control.Breaks.breakable
+
 import org.apache.commons.configuration.PropertiesConfiguration
 import org.apache.commons.lang.StringUtils
 import org.apache.spark.Logging
+import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.catalyst.types.StructType
 import org.apache.spark.sql.SchemaRDD
 import org.apache.spark.sql.catalyst.expressions.Row
-import org.apache.spark.sql.catalyst.types.LongType
-import org.apache.spark.sql.catalyst.types.StructField
+import org.apache.spark.sql.catalyst.types._
+
 import com.guavus.acume.cache.common.AcumeConstants
+import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.ConversionToSpark
 import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.DataType
+import com.guavus.acume.cache.common.Dimension
+import com.guavus.acume.cache.common.DimensionSet
+import com.guavus.acume.cache.common.FieldType
+import com.guavus.acume.cache.common.Measure
+import com.guavus.acume.cache.common.MeasureSet
 import com.guavus.acume.cache.core.EvictionDetails
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.core.TimeGranularity._
-import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
 import com.guavus.acume.cache.disk.utility.CubeUtil
-import scala.collection.SortedMap
-import scala.collection.immutable.TreeMap
-import java.io.DataInputStream
-import java.io.File
-import com.guavus.acume.cache.common.AcumeCacheConf
-import java.io.BufferedInputStream
-import com.guavus.acume.cache.common.AcumeCacheConf
-import java.io.FileInputStream
-import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.common.AcumeCacheConf
-import scala.collection.JavaConverters._
-import scala.collection.JavaConversions._
-import com.guavus.acume.cache.common.AcumeCacheConf
-import scala.collection.mutable.ArrayBuffer
-import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.workflow.AcumeCacheContext
-import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.eviction.EvictionPolicy
+import com.guavus.acume.cache.gen.Acume
+
+import javax.xml.bind.JAXBContext
 
 
 /**
@@ -79,6 +77,108 @@ object Utility extends Logging {
     
     import sqlContext._
     sqlContext.applySchema(sqlContext.table(tbl).union(newrdd), schema).registerTempTable(newtbl)
+  }
+  
+  def unmarshalXML(xml: String, dimensionMap : InsensitiveStringKeyHashMap[Dimension], measureMap : InsensitiveStringKeyHashMap[Measure]) = {
+  
+    val jc = JAXBContext.newInstance("com.guavus.acume.cache.gen")
+    val unmarsh = jc.createUnmarshaller()
+    val acumeCube = unmarsh.unmarshal(new FileInputStream(xml)).asInstanceOf[Acume]
+    for(lx <- acumeCube.getFields().getField().toList) { 
+
+      val info = lx.getInfo.split(",")
+      if(info.length != 5)
+        throw new RuntimeException("Incorrect fieldInfo in cubedefiniton.xml")
+      
+      val name = info(0).trim
+      val datatype = DataType.getDataType(info(1).trim)
+      val fitype = FieldType.getFieldType(info(2).trim)
+      val functionName = info(3).trim
+      info(4) = info(4).trim
+      
+      var defaultVal = datatype.typeString match {
+        case "int" => info(4).toInt
+        case "long" => info(4).toLong
+               case "string" => info(4).toString
+               case "float" => info(4).toFloat
+               case "double" => info(4).toDouble
+               case "boolean" => info(4).toBoolean
+               case "short" => info(4).toShort
+               case "byte" => info(4).toByte
+               //case "bytebuffer" => info(4).toArray[B]
+               //case "pcsa" => info(4)
+               //case "null" => info(4)
+               //case "binary" => info(4)
+               //case "timestamp" => info(4)
+               case _ => 0
+      }
+      
+      fitype match{
+        case FieldType.Dimension => 
+          dimensionMap.put(name.trim, new Dimension(name, datatype, defaultVal))
+        case FieldType.Measure => 
+          measureMap.put(name.trim, new Measure(name, datatype, functionName, defaultVal))
+      }
+    }
+    acumeCube
+  }
+  
+  
+  def loadXML(xml: String, dimensionMap : InsensitiveStringKeyHashMap[Dimension], measureMap : InsensitiveStringKeyHashMap[Measure],
+    cubeMap : InsensitiveStringKeyHashMap[Cube], defaultPropertyMap : HashMap[String, String], cubeList : MutableList[Cube]) = { 
+    
+    val acumeCube = unmarshalXML(xml, dimensionMap, measureMap)
+    val defaultPropertyTuple = acumeCube.getDefault.split(",").map(_.trim).map(kX => {
+      val xtoken = kX.split(":")
+      (xtoken(0).trim, xtoken(1).trim)
+    })
+        
+    val defaultPropertyMap = defaultPropertyTuple.toMap
+    
+    val list = 
+      for(c <- acumeCube.getCubes().getCube().toList) yield {
+        val cubeName = c.getName().trim
+        val fields = c.getFields().split(",").map(_.trim)
+        val dimensionSet = scala.collection.mutable.MutableList[Dimension]()
+        val measureSet = scala.collection.mutable.MutableList[Measure]()
+        for(ex <- fields){
+          val fieldName = ex.trim
+
+          //only basic functions are supported as of now. 
+          //Extend this to support custom udf of hive as well.
+          
+          dimensionMap.get(fieldName) match{
+          case Some(dimension) => 
+            dimensionSet.+=(dimension)
+          case None =>
+            measureMap.get(fieldName) match{
+            case None => throw new Exception("Field not registered.")
+            case Some(measure) => measureSet.+=(measure)
+            }
+          }
+        }
+        
+        val _$cubeProperties = c.getProperties()
+        val _$propertyMap = _$cubeProperties.split(",").map(x => {
+          val i = x.indexOf(":")
+          (x.substring(0, i).trim, x.substring(i+1, x.length).trim)
+        })
+        val propertyMap = _$propertyMap.toMap
+        
+        val levelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, defaultPropertyMap, ConfConstants.levelpolicymap, cubeName))
+        val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, defaultPropertyMap, ConfConstants.timeserieslevelpolicymap, cubeName))
+        val Gnx = getProperty(propertyMap, defaultPropertyMap, ConfConstants.basegranularity, cubeName)
+        val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
+        val _$eviction = Class.forName(getProperty(propertyMap, defaultPropertyMap, ConfConstants.evictionpolicyforcube, cubeName)).asSubclass(classOf[EvictionPolicy])
+        val cube = Cube(cubeName, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), granularity, true, levelpolicymap, timeserieslevelpolicymap, _$eviction)
+        cubeMap.put(cubeName, cube)
+        cube
+      }
+    cubeList.++=(list)
+  }
+  
+  private def getProperty(propertyMap: Map[String, String], defaultPropertyMap: Map[String, String], name: String, nmCube: String) = {
+    propertyMap.getOrElse(name, defaultPropertyMap.getOrElse(name, throw new RuntimeException(s"The configurtion $name should be done for cube $nmCube")))
   }
   
   def createEvictionDetailsMapFromFile(): MutableMap[String, EvictionDetails] = {
