@@ -18,7 +18,6 @@ class AcumeContext(override val acumeConfiguration: AcumeConf) extends AcumeCont
 
   //Properties will be loaded from spark-defaults.conf
   val conf = new SparkConf()
-  conf.set("spark.app.name", "Acume")
     
   val sparkContext = new SparkContext(conf)
   sparkContext.addSparkListener(new AcumeSparkListener)

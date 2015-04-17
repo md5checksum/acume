@@ -63,7 +63,6 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
   override def acumeContext() : AcumeContextTrait = {
     AcumeContextTrait.init(System.getProperty("queryEngine"))
     AcumeContextTrait.acumeContext.get
-    
   }
   
   @Bean

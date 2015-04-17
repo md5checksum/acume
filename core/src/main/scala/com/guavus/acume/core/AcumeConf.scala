@@ -265,6 +265,10 @@ private [core] class AcumeConf(loadDefaults: Boolean, fileName : InputStream) ex
     get(ConfConstants.queryPoolPolicyClass, "com.guavus.acume.core.QueryPoolPolicyImpl")
   }
   
+  def getCacheBaseDirectory() {
+    get(ConfConstants.cacheBaseDirectory, "/data/acume")
+  }
+  
   /** Set multiple parameters together */
   def setAll(settings: Traversable[(String, String)]) = {
     this.settings ++= settings

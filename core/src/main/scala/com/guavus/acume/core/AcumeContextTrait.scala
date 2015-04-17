@@ -1,20 +1,25 @@
 package com.guavus.acume.core
 
+import java.io.File
+import java.io.FileInputStream
+import java.io.InputStream
+
+import scala.collection.JavaConversions._
 import scala.collection.mutable.LinkedHashMap
+
+import org.apache.hadoop.fs.Path
 import org.apache.spark.Accumulator
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+
+import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
-import javax.xml.bind.JAXBContext
-import java.io.FileInputStream
 import com.guavus.acume.core.gen.AcumeUdfs
-import scala.collection.JavaConversions._
-import java.io.File
-import java.io.InputStream
-import java.nio.file.Files
+
+import javax.xml.bind.JAXBContext
 
 /*
  * @author kashish.jain
@@ -22,12 +27,32 @@ import java.nio.file.Files
 abstract class AcumeContextTrait {
   
   val acumeConfiguration: AcumeConf
+  
+  val sparkContext : SparkContext
 
   val acumeContext: AcumeCacheContextTrait = null
 
-  def sc(): SparkContext = null
-
+  
+  def sc(): SparkContext = sparkContext
+  
   def ac(): AcumeCacheContextTrait = null
+  
+  private var cacheBaseDirectory : Option[String] = None
+  
+  def getCacheDirectory() = {
+    if(cacheBaseDirectory == None) {
+	  val cacheDirectory = acumeConf.get(ConfConstants.cacheBaseDirectory) + File.separator + sparkContext.getConf.get("spark.app.name") + "-" + acumeConf.get(ConfConstants.cacheDirectory)
+			  
+	  val checkpointDirectory = cacheDirectory + File.separator + "checkpoint"
+	  val path = new Path(checkpointDirectory)
+	  val fs = path.getFileSystem(sparkContext.hadoopConfiguration)
+	  //Do previous run cleanup
+	  fs.delete(path)
+	  sparkContext.setCheckpointDir(checkpointDirectory)
+	  cacheBaseDirectory = Some(cacheDirectory)
+    }
+    cacheBaseDirectory.get
+  } 
 
   def acumeConf(): AcumeConf = AcumeConf.acumeConf
 
@@ -71,6 +96,7 @@ object AcumeContextTrait {
     	Some(new AcumeContext(acumeConf))
     else
     	Some(new AcumeHiveContext(acumeConf))
+    acumeContext.get.getCacheDirectory
     acumeContext.get
   })
 
