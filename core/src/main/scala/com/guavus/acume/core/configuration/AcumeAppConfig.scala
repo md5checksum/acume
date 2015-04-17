@@ -62,6 +62,7 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
   @Autowired
   override def acumeContext() : AcumeContextTrait = {
     AcumeContextTrait.init(System.getProperty("queryEngine"))
+    AcumeContextTrait.acumeContext.get.init
     AcumeContextTrait.acumeContext.get
   }
   

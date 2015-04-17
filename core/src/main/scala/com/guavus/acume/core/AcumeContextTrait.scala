@@ -37,7 +37,13 @@ abstract class AcumeContextTrait {
   
   def ac(): AcumeCacheContextTrait = null
   
-  private lazy val cacheBaseDirectory : String = getCacheDirectory
+  lazy val cacheBaseDirectory : String = getCacheDirectory
+  
+  def init() {
+    //initialize anything
+    // This must be called after creating acumeContext
+    cacheBaseDirectory
+  }
   
   def getCacheDirectory() = {
 	  val cacheDirectory = acumeConf.getCacheBaseDirectory() + File.separator + sparkContext.getConf.get("spark.app.name") + "-" + acumeConf.get(ConfConstants.cacheDirectory)
@@ -93,7 +99,6 @@ object AcumeContextTrait {
     	Some(new AcumeContext(acumeConf))
     else
     	Some(new AcumeHiveContext(acumeConf))
-    acumeContext.get.getCacheDirectory
     acumeContext.get
   })
 
