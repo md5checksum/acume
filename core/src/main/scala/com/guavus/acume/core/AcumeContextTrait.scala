@@ -54,6 +54,7 @@ abstract class AcumeContextTrait {
 	  //Do previous run cleanup
 	  fs.delete(path)
 	  sparkContext.setCheckpointDir(checkpointDirectory)
+	  println(s"setting checkpoint directory as $checkpointDirectory")
 	  cacheDirectory
   } 
 
