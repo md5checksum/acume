@@ -267,7 +267,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
     get(ConfConstants.queryPoolPolicyClass, "com.guavus.acume.core.QueryPoolPolicyImpl")
   }
   
-  def getCacheBaseDirectory() {
+  def getCacheBaseDirectory() = {
     get(ConfConstants.cacheBaseDirectory, "/data/acume")
   }
   
