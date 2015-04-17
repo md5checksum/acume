@@ -199,7 +199,7 @@ fi
 ############
 echo "Setting ACUME_JAVA_OPTS..." >> "$CATALINA_OUT"
 CATALINA_BASE="$SCRIPT_DIR/.."
-export ACUME_JAVA_OPTS="-Dcatalina.base=$CATALINA_BASE $ACUME_JAVA_OPTS -Djava.io.tmpdir=$CATALINA_BASE/temp"
+export ACUME_JAVA_OPTS="-Dcatalina.base=$CATALINA_BASE $ACUME_JAVA_OPTS -Djava.io.tmpdir=$CATALINA_BASE/temp -Dacume.core.cache.directory=$ACUME_CACHE_DIR"
 echo "ACUME_JAVA_OPTS = $ACUME_JAVA_OPTS" >> "$CATALINA_OUT"
 
 ############
