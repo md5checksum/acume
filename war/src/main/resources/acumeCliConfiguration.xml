@@ -1366,7 +1366,43 @@ Please don't use the following reserved property names:
 			</target>
 		</targets>
 	</property>
-
+	
+	<property>
+		<name>executorLoggingLevel</name>
+		<help><![CDATA[ - Logging level for Executor logs]]></help>
+		<default><![CDATA[INFO]]></default>
+		<targets>
+			<target>
+				<file><![CDATA[log4j-executor.properties]]></file>
+				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+			</target>
+		</targets>
+	</property>
+	
+	<property>
+		<name>executorLogFileSize</name>
+		<help><![CDATA[ - Executor Log file size(in bytes)]]></help>
+		<default><![CDATA[1000000000]]></default>
+		<targets>
+			<target>
+				<file><![CDATA[log4j-executor.properties]]></file>
+				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+			</target>
+		</targets>
+	</property>
+	
+	<property>
+		<name>executorLogBackups</name>
+		<help><![CDATA[ - Executor Log Backups]]></help>
+		<default><![CDATA[10]]></default>
+		<targets>
+			<target>
+				<file><![CDATA[log4j-executor.properties]]></file>
+				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+			</target>
+		</targets>
+	</property>
+	
         <!-- Mailing properties -->
 
         <property>

@@ -199,7 +199,7 @@ fi
 ############
 echo "Setting ACUME_JAVA_OPTS..." >> "$CATALINA_OUT"
 CATALINA_BASE="$SCRIPT_DIR/.."
-export ACUME_JAVA_OPTS="-Dcatalina.base=$CATALINA_BASE $ACUME_JAVA_OPTS -Dlog4j.configuration=file:$DOCBASE/WEB-INF/classes/log4j.xml -Djava.io.tmpdir=$CATALINA_BASE/temp -Dacume.core.cache.directory=$ACUME_CACHE_DIR"
+export ACUME_JAVA_OPTS="-Dcatalina.base=$CATALINA_BASE $ACUME_JAVA_OPTS -Djava.io.tmpdir=$CATALINA_BASE/temp"
 echo "ACUME_JAVA_OPTS = $ACUME_JAVA_OPTS" >> "$CATALINA_OUT"
 
 ############
@@ -276,9 +276,14 @@ fi
 ATTVALJARPATH=",/opt/tms/java/attvaludf.jar,/opt/tms/java/attval.jar"
 
 ############
+# Add log4j property file for executors
+############
+ARG_EXECUTOR_LOGFILE="--files $DOCBASE/WEB-INF/classes/log4j-executor.properties"
+
+############
 # Start the spark server
 ############
-cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_POOLCONFIG $ARG_PROPERTIES_FILE --class com.guavus.acume.tomcat.core.AcumeMain --jars `ls -d -1 $DOCBASE/WEB-INF/lib/* | sed ':a;N;$!ba;s/\n/,/g'`$ATTVALJARPATH$udfJarPath  $DOCBASE/WEB-INF/lib/$core_jar --driver-java-options '$ACUME_JAVA_OPTS'"
+cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_POOLCONFIG $ARG_PROPERTIES_FILE $ARG_EXECUTOR_LOGFILE --class com.guavus.acume.tomcat.core.AcumeMain --jars `ls -d -1 $DOCBASE/WEB-INF/lib/* | sed ':a;N;$!ba;s/\n/,/g'`$ATTVALJARPATH$udfJarPath  $DOCBASE/WEB-INF/lib/$core_jar --driver-java-options '$ACUME_JAVA_OPTS'"
 echo "Starting Spark..." >> "$CATALINA_OUT"
 eval $cmd >> "$CATALINA_OUT" 2>&1 "&"
 echo "Spark started successfully..." >> "$CATALINA_OUT"
