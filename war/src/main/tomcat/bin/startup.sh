@@ -5,7 +5,6 @@
 ############
 ARG_MASTER_MODE=" --master yarn-client"
 ARG_PROPERTIES_FILE=""
-ARG_APP_NAME=" --name DEFAULT_NAME"
 QUEUE_NAME=" --queue default"
 ARG_POOLCONFIG=""
 
@@ -30,6 +29,11 @@ done
 SCRIPT_DIR="$( cd -P "$( dirname "$SOURCE" )" && pwd )"
 echo "SCRIPT_DIR = $SCRIPT_DIR"
 
+#-------------------------------------
+# Set up unique App name and cache dir
+#-------------------------------------
+ACUME_CACHE_DIR=$(echo "$SCRIPT_DIR" | md5sum | awk '{print $1}')
+ARG_APP_NAME=" --name Acume-${ACUME_CACHE_DIR}"
 
 ############
 # Parse docbase from server.xml
@@ -191,12 +195,12 @@ fi
 
 
 ############
-# Set SPARK_JAVA_OPTS
+# Set ACUME_JAVA_OPTS
 ############
-echo "Setting SPARK_JAVA_OPTS..." >> "$CATALINA_OUT"
+echo "Setting ACUME_JAVA_OPTS..." >> "$CATALINA_OUT"
 CATALINA_BASE="$SCRIPT_DIR/.."
-export ACUME_JAVA_OPTS="-Dcatalina.base=$CATALINA_BASE $ACUME_JAVA_OPTS -Dlog4j.configuration=file:$DOCBASE/WEB-INF/classes/log4j.xml -Djava.io.tmpdir=$CATALINA_BASE/temp"
-echo "SPARK_JAVA_OPTS = $SPARK_JAVA_OPTS" >> "$CATALINA_OUT"
+export ACUME_JAVA_OPTS="-Dcatalina.base=$CATALINA_BASE $ACUME_JAVA_OPTS -Dlog4j.configuration=file:$DOCBASE/WEB-INF/classes/log4j.xml -Djava.io.tmpdir=$CATALINA_BASE/temp -Dacume.core.cache.directory=$ACUME_CACHE_DIR"
+echo "ACUME_JAVA_OPTS = $ACUME_JAVA_OPTS" >> "$CATALINA_OUT"
 
 ############
 # Set SPARK_JAR
