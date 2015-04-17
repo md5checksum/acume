@@ -195,12 +195,12 @@ fi
 
 
 ############
-# Set SPARK_JAVA_OPTS
+# Set ACUME_JAVA_OPTS
 ############
-echo "Setting SPARK_JAVA_OPTS..." >> "$CATALINA_OUT"
+echo "Setting ACUME_JAVA_OPTS..." >> "$CATALINA_OUT"
 CATALINA_BASE="$SCRIPT_DIR/.."
 export ACUME_JAVA_OPTS="-Dcatalina.base=$CATALINA_BASE $ACUME_JAVA_OPTS -Dlog4j.configuration=file:$DOCBASE/WEB-INF/classes/log4j.xml -Djava.io.tmpdir=$CATALINA_BASE/temp -Dacume.core.cache.directory=$ACUME_CACHE_DIR"
-echo "SPARK_JAVA_OPTS = $SPARK_JAVA_OPTS" >> "$CATALINA_OUT"
+echo "ACUME_JAVA_OPTS = $ACUME_JAVA_OPTS" >> "$CATALINA_OUT"
 
 ############
 # Set SPARK_JAR
