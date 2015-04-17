@@ -30,7 +30,7 @@ import com.guavus.acume.util.PropertyValidator
  *
  * @param loadDefaults whether to also load values from Java system properties
  */
-private [core] class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable with Serializable {
+class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable with Serializable {
   
   val logger = LoggerFactory.getLogger(this.getClass())
 
@@ -54,8 +54,10 @@ private [core] class AcumeConf(loadDefaults: Boolean, fileName : InputStream) ex
 	val properties = new Properties()
 	properties.load(fileName)
 	for ((k, v) <- properties.asScala) {
+	  if(!v.trim.equals("")) {
 		settings(k.trim) = v.trim
 		System.setProperty(k.trim, v.trim)
+	  }
 	}
 	PropertyValidator.validate(settings)
 

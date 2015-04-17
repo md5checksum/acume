@@ -1458,7 +1458,30 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
-    
+	<property>
+            <name>cacheBaseDirectory</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[/data/acume]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+	<property>
+            <name>cacheDirectory</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
      </PropertiesPerApplication>
 
     <PropertiesPerInstance>    

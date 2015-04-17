@@ -691,9 +691,9 @@ object Utility extends Logging {
       ds.readFully(str)
       tzname = Array.ofDim[String](typecnt)
       for (i <- 0 until typecnt) {
-        val pos = idx(i)
-        var end = pos
-        while (str(end) != 0) end
+        val pos:Int = idx(i)
+        var end:Int = pos
+        while (str(end) != 0) end += 1
         tzname(i) = new String(str, pos, end - pos)
       }
       var i = transTimes.length - 1

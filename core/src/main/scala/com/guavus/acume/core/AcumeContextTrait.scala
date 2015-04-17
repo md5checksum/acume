@@ -37,11 +37,10 @@ abstract class AcumeContextTrait {
   
   def ac(): AcumeCacheContextTrait = null
   
-  private var cacheBaseDirectory : Option[String] = None
+  private lazy val cacheBaseDirectory : String = getCacheDirectory
   
   def getCacheDirectory() = {
-    if(cacheBaseDirectory == None) {
-	  val cacheDirectory = acumeConf.get(ConfConstants.cacheBaseDirectory) + File.separator + sparkContext.getConf.get("spark.app.name") + "-" + acumeConf.get(ConfConstants.cacheDirectory)
+	  val cacheDirectory = acumeConf.getCacheBaseDirectory() + File.separator + sparkContext.getConf.get("spark.app.name") + "-" + acumeConf.get(ConfConstants.cacheDirectory)
 			  
 	  val checkpointDirectory = cacheDirectory + File.separator + "checkpoint"
 	  val path = new Path(checkpointDirectory)
@@ -49,9 +48,7 @@ abstract class AcumeContextTrait {
 	  //Do previous run cleanup
 	  fs.delete(path)
 	  sparkContext.setCheckpointDir(checkpointDirectory)
-	  cacheBaseDirectory = Some(cacheDirectory)
-    }
-    cacheBaseDirectory.get
+	  cacheDirectory
   } 
 
   def acumeConf(): AcumeConf = AcumeConf.acumeConf
