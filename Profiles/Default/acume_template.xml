@@ -843,6 +843,20 @@
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.rootLoggingLevel</Property_OriginalName>
         </Property>
+	<Property>
+            <Property_Name>application.${acumeApp}.cachebasedirectory</Property_Name>
+            <Property_Value>/data/acume</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.cachebasedirectory</Property_OriginalName>
+        </Property>
+	<Property>
+            <Property_Name>application.${acumeApp}.cachedirectory</Property_Name>
+            <Property_Value></Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.cachedirectory</Property_OriginalName>
+        </Property>
         <Property>
             <Property_Name>Acume Instance: &lt;</Property_Name>
             <Property_Value>Acume-Instance</Property_Value>
