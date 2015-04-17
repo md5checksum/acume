@@ -236,14 +236,14 @@
         </Property>
     	<Property>
             <Property_Name> application.${acumeApp}.queryTimeOut</Property_Name>
-            <Property_Value>30</Property_Value>
+            <Property_Value>7200</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>integer</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.queryTimeOut</Property_OriginalName>
 	</Property>
 	<Property>
             <Property_Name> application.${acumeApp}.schedulerQueryTimeOut</Property_Name>
-            <Property_Value>300</Property_Value>
+            <Property_Value>7200</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>integer</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.schedulerQueryTimeOut</Property_OriginalName>
