@@ -29,6 +29,7 @@ class RequestResponseCache(acumeCacheContextTrait: AcumeCacheContextTrait, conf:
         def load(input: RRCacheKey) = {
           val response = acumeCacheContextTrait.executeQuery(input.qlstring, input.qltype)
           val cachedRDD = response.rowRDD.cache
+          cachedRDD.checkpoint
           response
         }
       });

@@ -3,11 +3,9 @@ package com.guavus.acume.cache.workflow
 import java.io.StringReader
 import java.util.Random
 import java.util.concurrent.ConcurrentHashMap
-
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
-
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
 import scala.collection.JavaConversions._
@@ -29,7 +27,6 @@ import com.guavus.acume.cache.utility.SQLParserFactory
 import com.guavus.acume.cache.utility.SQLUtility
 import com.guavus.acume.cache.utility.Tuple
 import com.guavus.acume.cache.utility.Utility
-
 import net.sf.jsqlparser.expression.Expression
 import net.sf.jsqlparser.expression.Parenthesis
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression
@@ -38,6 +35,7 @@ import net.sf.jsqlparser.expression.operators.relational.EqualsTo
 import net.sf.jsqlparser.schema.Column
 import net.sf.jsqlparser.statement.select.PlainSelect
 import net.sf.jsqlparser.statement.select.Select
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * @author archit.thakur
@@ -98,7 +96,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     val rt = updatedparsedsql._2
       
     var i = ""
-    var lastCube: Cube = null
+    var cubes = new ArrayBuffer[Cube]
     val list = for(l <- updatedparsedsql._1) yield {
       val cube = l.getCubeName
       val binsource = l.getBinsource
@@ -115,7 +113,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
 
       i = AcumeCacheContext.getTable(cube)
       val id = getCube(CubeKey(cube, key_binsource))
-      lastCube = id
+      cubes.+=(id)
       updatedsql = updatedsql.replaceAll(s"$cube", s"$i")
       val idd = new CacheIdentifier()
       idd.put("cube", id.hashCode)
@@ -131,7 +129,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     }
     
     val klist = list.flatMap(_.timestamps).toList
-    val kfg = execute(qltype, lastCube, updatedsql)
+    val kfg = execute(qltype, cubes.toList, updatedsql)
     AcumeCacheResponse(kfg, kfg, MetaData(-1, klist))
   }
   
@@ -141,7 +139,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     }
   }
   
-  private [acume] def execute(qltype: QLType, cube :Cube, updatedsql: String) = {
+  private [acume] def execute(qltype: QLType, cubes :List[Cube], updatedsql: String) = {
     AcumeCacheContext.ACQL(qltype, sqlContext)(updatedsql)
   }
   

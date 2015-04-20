@@ -54,8 +54,10 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
 	val properties = new Properties()
 	properties.load(fileName)
 	for ((k, v) <- properties.asScala) {
+	  if(!v.trim.equals("")) {
 		settings(k.trim) = v.trim
 		System.setProperty(k.trim, v.trim)
+	  }
 	}
 	PropertyValidator.validate(settings)
 
@@ -75,6 +77,18 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
     }
     settings(key) = value
     System.setProperty(key, value)
+    this
+  }
+  
+  /** Set a configuration variable. */
+  def setLocalProperty(key: String, value: String): AcumeConf = {
+    if (key == null) {
+      throw new NullPointerException("null key")
+    }
+    if (value == null) {
+      throw new NullPointerException("null value")
+    }
+    settings(key) = value
     this
   }
   
@@ -253,6 +267,10 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
     get(ConfConstants.queryPoolPolicyClass, "com.guavus.acume.core.QueryPoolPolicyImpl")
   }
   
+  def getCacheBaseDirectory() = {
+    get(ConfConstants.cacheBaseDirectory, "/data/acume")
+  }
+  
   /** Set multiple parameters together */
   def setAll(settings: Traversable[(String, String)]) = {
     this.settings ++= settings
@@ -330,5 +348,20 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
    */
   def toDebugString: String = {
     settings.toArray.sorted.map{case (k, v) => k + "=" + v}.mkString("\n")
+  }
+}
+
+object AcumeConf {
+   val threadLocal = new ThreadLocal[AcumeConf]
+   
+   def setConf(conf : AcumeConf) {
+     threadLocal.set(conf)
+   }
+   
+   def acumeConf() = {
+    if(threadLocal.get() == null) {
+    	threadLocal.set(new AcumeConf())
+    }
+    threadLocal.get()
   }
 }

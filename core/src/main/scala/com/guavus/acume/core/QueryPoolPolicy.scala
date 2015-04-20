@@ -6,15 +6,35 @@ import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions._
 import java.util.function.Function
 
-abstract class QueryPoolPolicy() {
+abstract class QueryPoolPolicy(throttleMap : Map[String, Int]) {
   
   def getQueryClassification(query : String, classificationStats : ClassificationStats) : String = null
+  
+  def checkForThrottle(classification : String, classificationStats : ClassificationStats) = throttleMap.get(classification).map(throttleValue => { 
+    if(classificationStats.getStatsForClassification(classification).currentRunningQries.get() >= throttleValue)
+    	throw new RuntimeException("Application Throttled. Queue Full.")
+    else
+      null
+    }).getOrElse(null)
 
   def getPoolNameForClassification(classification : String, poolStats : PoolStats) : String = null
    
 }
 
-class QueryPoolPolicyImpl() extends QueryPoolPolicy()
+class QueryPoolPolicyImpl(throttleMap : Map[String, Int]) extends QueryPoolPolicy(throttleMap) {
+  
+  override def getQueryClassification(query : String, classificationStats : ClassificationStats) : String = "default"
+
+  override def getPoolNameForClassification(classification : String, poolStats : PoolStats) : String = "default"
+}
+
+class QueryPoolPolicySchedulerImpl() extends QueryPoolPolicy(Map.empty) {
+  
+  override def getQueryClassification(query : String, classificationStats : ClassificationStats) : String = "scheduler"
+
+  override def getPoolNameForClassification(classification : String, poolStats : PoolStats) : String = "scheduler"
+
+}
 
 class QueryPoolPolicySchedulerImpl() extends QueryPoolPolicy() {
   

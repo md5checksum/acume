@@ -18,13 +18,15 @@ import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
 import java.util.Collections
 import scala.util.control.Breaks._
+import com.guavus.acume.core.AcumeContext
+import com.guavus.acume.core.AcumeContextTrait
 
 object QueryPrefetchTaskCombiner {
 
   val logger = LoggerFactory.getLogger(classOf[QueryPrefetchTaskCombiner])
 }
 
-class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: QueryRequestPrefetchTaskManager, @BeanProperty var version: Int, acumeConf : AcumeConf, acumeService : AcumeService, controller : Controller) extends Runnable with Comparable[QueryPrefetchTaskCombiner] {
+class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: QueryRequestPrefetchTaskManager, @BeanProperty var version: Int, acumeContext : AcumeContextTrait, acumeService : AcumeService, controller : Controller) extends Runnable with Comparable[QueryPrefetchTaskCombiner] {
 
   @BeanProperty
   var startTime: Long = _
@@ -62,7 +64,7 @@ class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: Quer
     binSourceToIntervalMap.getOrElseUpdate(getBinSource, new scala.collection.mutable.HashMap[Long, Interval]())
     val map = new java.util.TreeMap[Long, Interval](Collections.reverseOrder[Long]())
     map.putAll(binSourceToIntervalMap.get(getBinSource).get)
-    val levelPointMap = Utility.getLevelPointMap(acumeConf.getSchedulerVariableRetentionMap)
+    val levelPointMap = Utility.getLevelPointMap(acumeContext.acumeConf.getSchedulerVariableRetentionMap)
     val instance = Utility.newCalendar()
     for ((key, value) <- getGranToIntervalMap) {
       breakable {

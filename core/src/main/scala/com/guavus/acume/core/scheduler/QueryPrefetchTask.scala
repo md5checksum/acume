@@ -16,6 +16,10 @@ import scala.util.control.Breaks._
 import QueryPrefetchTask._
 import com.guavus.acume.workflow.RequestDataType
 import com.guavus.rubix.user.management.utils.HttpUtils
+import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.core.AcumeContext
+import java.util.concurrent.TimeoutException
 
 object QueryPrefetchTask {
 
@@ -23,11 +27,11 @@ object QueryPrefetchTask {
 
 }
 
-class QueryPrefetchTask(private var dataService: DataService, @BeanProperty var request: PrefetchTaskRequest, version : Int, taskManager : QueryRequestPrefetchTaskManager, acumeConf : AcumeConf) extends Runnable with Comparable[QueryPrefetchTask] {
+class QueryPrefetchTask(private var dataService: DataService, @BeanProperty var request: PrefetchTaskRequest, version : Int, taskManager : QueryRequestPrefetchTaskManager, acumeContext : AcumeContextTrait) extends Runnable with Comparable[QueryPrefetchTask] {
 
-  private val RETRY_INTERVAL_IN_MILLIS = acumeConf.getQueryPrefetchTaskRetryIntervalInMillis
+  private val RETRY_INTERVAL_IN_MILLIS = acumeContext.acumeConf.getQueryPrefetchTaskRetryIntervalInMillis
 
-  private val MAX_NO_RETRIES = acumeConf.getQueryPrefetchTaskNoOfRetries
+  private val MAX_NO_RETRIES = acumeContext.acumeConf.getQueryPrefetchTaskNoOfRetries
 
   override def run() {
     logger.info("Consuming Task : {}", request)
@@ -38,6 +42,7 @@ class QueryPrefetchTask(private var dataService: DataService, @BeanProperty var 
     var flag = false
     breakable{
       while (true){
+    	acumeContext.acumeConf.setLocalProperty(ConfConstants.queryTimeOut, String.valueOf(acumeContext.acumeConf.get(ConfConstants.schedulerQueryTimeOut)* (reTryCount + 2)))
         flag = false
         if (version != taskManager.getVersion) {
           logger.info("Not executing older prefetching task as view has changed")
@@ -45,7 +50,7 @@ class QueryPrefetchTask(private var dataService: DataService, @BeanProperty var 
         }
         reTryCount += 1
         try {
-          HttpUtils.setLoginInfo(acumeConf.getSuperUser)
+          HttpUtils.setLoginInfo(acumeContext.acumeConf.getSuperUser)
           print(dataService.servRequest(request.toSql("ts")))
           success = true
         } catch {
@@ -87,7 +92,7 @@ class QueryPrefetchTask(private var dataService: DataService, @BeanProperty var 
       logger.error("scheduled task failed even after " + reTryCount + " retries, for " + request)
       Throwables.propagate(error)
     }
-    if (Utility.isCause(classOf[TTransportException], error) || Utility.isCause(classOf[TApplicationException], error)) {
+    if (Utility.isCause(classOf[TimeoutException], error)) {
       return true
     }
     false

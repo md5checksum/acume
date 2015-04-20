@@ -14,11 +14,10 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
  *
  * This will keep the sparkcontext and hive context.
  */
-class AcumeContext(val acumeConfiguration: AcumeConf) extends AcumeContextTrait {
+class AcumeContext(override val acumeConfiguration: AcumeConf) extends AcumeContextTrait {
 
   //Properties will be loaded from spark-defaults.conf
   val conf = new SparkConf()
-  //conf.set("spark.app.name", "Acume")
     
   val sparkContext = new SparkContext(conf)
   sparkContext.addSparkListener(new AcumeSparkListener)
@@ -34,8 +33,6 @@ class AcumeContext(val acumeConfiguration: AcumeConf) extends AcumeContextTrait 
   override def sc() = sparkContext
   
   override def ac() = acumeContext
-  
-  override def acumeConf() = acumeConfiguration
   
   override def hqlContext() = hc
   

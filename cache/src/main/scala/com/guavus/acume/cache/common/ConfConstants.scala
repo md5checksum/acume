@@ -30,6 +30,8 @@ private [acume] object ConfConstants {
   val basegranularity = "basegranularity"
   val timeserieslevelpolicymap = "timeserieslevelpolicymap"
   val evictionpolicyforcube = "evictionpolicyclass"
+  val indexDimension = "indexdimension"
+  val numberOfPartitions = "numberofpartitions"
 
   /* Common Properties */
   val superUser = "acume.super.user"
@@ -62,7 +64,12 @@ private [acume] object ConfConstants {
   val maxSegmentDuration = "acume.scheduler.maxSegmentDuration"
   val schedulerCheckInterval = "acume.scheduler.checkInterval"   
   val threadPoolSize = "acume.scheduler.threadPoolSize"
-  
+  val queryTimeOut = "acume.core.query.timeout"
+  val schedulerQueryTimeOut = "acume.scheduler.query.timeout"  
+  val maxAllowedQueriesPerClassification = "acume.core.classification.max.allowedQueries" 
+  val instaAvailabilityPollInterval = "acume.insta.availability.poll.interval" 
+  val cacheBaseDirectory = "acume.core.cache.base.directory"
+  val cacheDirectory = "acume.core.cache.directory"
   /* Insta Properties */
   val instaComboPoints = "acume.insta.comboPoints"
 
@@ -70,5 +77,8 @@ private [acume] object ConfConstants {
   defaultValueMap += businesscubexml -> "src/test/resources/cubedefinition1.xml"
   defaultValueMap += acumeCacheDefaultType -> AcumeCacheType.acumeStarSchemaTreeCache.name
   defaultValueMap += cacheTypeConfigClassName -> "com.guavus.acume.cache.core.AcumeCacheType"
+  defaultValueMap += queryTimeOut -> "30"
+  defaultValueMap += instaAvailabilityPollInterval -> "300"
+  
 
 }
