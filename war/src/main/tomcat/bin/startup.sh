@@ -211,12 +211,41 @@ export SPARK_JAR="local:///opt/spark/lib/$spark_jar"
 echo "SPARK_JAR = $SPARK_JAR" >> "$CATALINA_OUT"
 
 ############
+# Add Udf jars to classpath
+############
+dirpath="$DOCBASE/WEB-INF/classes/"
+FILE_NAME=$dirpath"acume.conf"
+prop_key="acume.core.udf.configurationxml"
+prop_value=`cat ${FILE_NAME} | grep ${prop_key} | cut -d ' ' -f2`
+if [ -z $prop_value ]
+then
+  FILE_NAME=$dirpath"udfConfiguration.xml"
+ if [ -f "$FILE_NAME" ]; then
+  . $SCRIPT_DIR/getUdfJarPaths.sh --udfConfXmlPath $FILE_NAME
+ else
+   echo "udfConfiguration.xml file does not exists"
+   exit 1
+ fi
+else
+  . $SCRIPT_DIR/getUdfJarPaths.sh --udfConfXmlPath $prop_value
+fi
+udfJarPath=$ACUME_UDFJARPATHS
+if [ ! -z $ACUME_UDFJARPATHS ]
+then  udfJarPath=,$udfJarPath
+fi
+
+############
 # Set SPARK_JAVA_CLASSPATH
 ############
 echo "Setting SPARK_CLASSPATH..." >> "$CATALINA_OUT"
 export HADOOP_CONF_DIR="/opt/hadoop/conf"
 spark_jars=$(ls -d -1 /opt/spark/lib/* | grep -v examples | xargs | sed 's/ /:/g')
-export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:$spark_jars:$SCRIPT_DIR/../lib/*:$crux_jar:-Djava.io.tmpdir=$CATALINA_BASE:/opt/tms/java/attvaludf.jar:/opt/tms/java/attval.jar"
+
+colonSepUdfJarPath=$ACUMECOLONSEP_UDFPATHS
+if [ ! -z $ACUMECOLONSEP_UDFPATHS ]
+then  colonSepUdfJarPath=":"$colonSepUdfJarPath
+fi
+export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:$spark_jars:$SCRIPT_DIR/../lib/*:$crux_jar:-Djava.io.tmpdir=$CATALINA_BASE:/opt/tms/java/attvaludf.jar:/opt/tms/java/attval.jar:/opt/tms/java/pcsaudf.jar$colonSepUdfJarPath"
 echo "SPARK_CLASSPATH = $SPARK_CLASSPATH" >> "$CATALINA_OUT"
 
 
@@ -244,30 +273,6 @@ fi
 if [ "$num_core_jars" -eq "1" ]; then
   core_jar=$(ls "$assembly_folder" | grep "^core-*.*jar")
   echo "Found core jar $core_jar" >> "$CATALINA_OUT"
-fi
-
-############
-# Add Udf jars to classpath
-############
-dirpath="$DOCBASE/WEB-INF/classes/"
-FILE_NAME=$dirpath"acume.conf"
-prop_key="acume.core.udf.configurationxml"
-prop_value=`cat ${FILE_NAME} | grep ${prop_key} | cut -d ' ' -f2`
-if [ -z $prop_value ]
-then
-  FILE_NAME=$dirpath"udfConfiguration.xml"
- if [ -f "$FILE_NAME" ]; then
-  . $SCRIPT_DIR/getUdfJarPaths.sh --udfConfXmlPath $FILE_NAME
- else
-   echo "udfConfiguration.xml file does not exists"
-   exit 1
- fi
-else
-  . $SCRIPT_DIR/getUdfJarPaths.sh --udfConfXmlPath $prop_value
-fi
-udfJarPath=$ACUME_UDFJARPATHS
-if [ ! -z $ACUME_UDFJARPATHS ]
-then  udfJarPath=,$udfJarPath
 fi
 
 ############
