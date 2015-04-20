@@ -28,7 +28,7 @@ object AcumeMain {
   def startAcume(args: String) {
 	AcumeContextTrait.init(args, "acume")
 	AcumeContextTrait.acumeContext.get.acumeConf.setSqlQueryEngine("acume")
-	
+	AcumeContextTrait.acumeContext.get.registerUserDefinedFunctions
 	var enableJDBC = AcumeContextTrait.acumeContext.get.acumeConf.getEnableJDBCServer
 	 
 	if(Try(enableJDBC.toBoolean).getOrElse(false))
@@ -49,6 +49,7 @@ object AcumeMain {
   def startHive(args: String) {
 	AcumeContextTrait.init(args, "hive")
 	AcumeContextTrait.acumeContext.get.acumeConf.setSqlQueryEngine("hive")
+	AcumeContextTrait.acumeContext.get.registerUserDefinedFunctions
 	var enableJDBC = AcumeContextTrait.acumeContext.get.acumeConf.getEnableJDBCServer
 	 
 	if(Try(enableJDBC.toBoolean).getOrElse(false))

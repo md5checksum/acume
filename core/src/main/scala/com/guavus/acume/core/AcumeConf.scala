@@ -156,6 +156,10 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
     get("acume.cache.scheduler.policyclass", "com.guavus.acume.core.QueryPoolPolicyImpl")
   }
   
+  def getUdfConfigurationxml() :  String = {
+    get("acume.core.udf.configurationxml", "udfConfiguration.xml")
+  }
+  
   /** Set multiple parameters together */
   def setAll(settings: Traversable[(String, String)]) = {
     this.settings ++= settings
