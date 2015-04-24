@@ -88,17 +88,17 @@
 	       clientAuth="false" ciphers="SSL_RSA_WITH_RC4_128_MD5, SSL_RSA_WITH_RC4_128_SHA" sslEnabledProtocols = "TLSv1,TLSv1.1,TLSv1.2" />
 
 	<Connector
-			clientAuth="true" port="6081" minSpareThreads="5" maxSpareThreads="75"
+			clientAuth="true" port="$CLI_REPLACE_TWOWAYTLSREDIRECTPORT$" minSpareThreads="5" maxSpareThreads="75"
 			enableLookups="true" disableUploadTimeout="true"
 			acceptCount="100" maxThreads="200"
 			scheme="https" secure="true" SSLEnabled="true"
-			keystoreFile="/data/instances/acume/0/app/server.jks"
+			keystoreFile="server.jks"
 			keystoreType="JKS" keystorePass="password"
-			truststoreFile="/data/instances/acume/0/app/server.jks"
+			truststoreFile="server.jks"
 			truststoreType="JKS" truststorePass="password"
-			connectionTimeout="20000"
-			keepAliveTimeout="20000" maxKeepAliveRequests="50"
-			SSLVerifyClient="require" SSLEngine="on" SSLVerifyDepth="2" sslProtocol="TLS"/>
+			connectionTimeout="$CLI_REPLACE_TWOWAYTLSCONNECTIONTIMEOUT$"
+			keepAliveTimeout="$CLI_REPLACE_TWOWAYTLSKEEPALIVETIMEOUT$" maxKeepAliveRequests="$CLI_REPLACE_TWOWAYTLSMAXKEEPALIVEREQUESTS$"
+			SSLVerifyClient="require" SSLEngine="on" SSLVerifyDepth="2" sslEnabledProtocols = "TLSv1,TLSv1.1,TLSv1.2"/>
 
     <!-- Define an AJP 1.3 Connector on port 8009 -->
     <Connector port="$CLI_REPLACE_CONNECTORPORTAJP$" protocol="AJP/1.3" redirectPort="$CLI_REPLACE_REDIRECTPORT$" />

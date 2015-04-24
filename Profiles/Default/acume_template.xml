@@ -878,6 +878,34 @@
             <Property_DataType>integer</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.executorLogBackups</Property_OriginalName>
         </Property>
+        <Property>
+            <Property_Name>application.${acumeApp}.twoWayTLSRedirectPort</Property_Name>
+            <Property_Value>6081</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>integer</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.twoWayTLSRedirectPort</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${acumeApp}.twoWayTLSConnectionTimeout</Property_Name>
+            <Property_Value>20000</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>integer</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.twoWayTLSConnectionTimeout</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${acumeApp}.twoWayTLSKeepAliveTimeout</Property_Name>
+            <Property_Value>20000</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>integer</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.twoWayTLSKeepAliveTimeout</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${acumeApp}.twoWayTLSMaxKeepAliveRequests</Property_Name>
+            <Property_Value>50</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>integer</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.twoWayTLSMaxKeepAliveRequests</Property_OriginalName>
+        </Property>
 		<Property>
             <Property_Name>Acume Instance: &lt;</Property_Name>
             <Property_Value>Acume-Instance</Property_Value>
