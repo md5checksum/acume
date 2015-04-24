@@ -82,23 +82,13 @@
 	 connector should be using the OpenSSL style configuration
 	 described in the APR documentation -->
 
-	<Connector port="$CLI_REPLACE_REDIRECTPORT$" protocol="HTTP/1.1" SSLEnabled="true"
-	       maxThreads="150" scheme="https" secure="true"
-	       keystoreFile="keystore" keystorePass="rubix123"
-	       clientAuth="false" ciphers="SSL_RSA_WITH_RC4_128_MD5, SSL_RSA_WITH_RC4_128_SHA" sslEnabledProtocols = "TLSv1,TLSv1.1,TLSv1.2" />
-
 	<Connector
-			clientAuth="true" port="$CLI_REPLACE_TWOWAYTLSREDIRECTPORT$" minSpareThreads="5" maxSpareThreads="75"
-			enableLookups="true" disableUploadTimeout="true"
-			acceptCount="100" maxThreads="200"
-			scheme="https" secure="true" SSLEnabled="true"
-			keystoreFile="server.jks"
-			keystoreType="JKS" keystorePass="password"
-			truststoreFile="server.jks"
-			truststoreType="JKS" truststorePass="password"
-			connectionTimeout="$CLI_REPLACE_TWOWAYTLSCONNECTIONTIMEOUT$"
-			keepAliveTimeout="$CLI_REPLACE_TWOWAYTLSKEEPALIVETIMEOUT$" maxKeepAliveRequests="$CLI_REPLACE_TWOWAYTLSMAXKEEPALIVEREQUESTS$"
-			SSLVerifyClient="require" SSLEngine="on" SSLVerifyDepth="2" sslEnabledProtocols = "TLSv1,TLSv1.1,TLSv1.2"/>
+			clientAuth="$CLI_REPLACE_AUTHENTICATECLIENT$" port="$CLI_REPLACE_REDIRECTPORT$" disableUploadTimeout="true"
+			acceptCount="100" protocol="HTTP/1.1" maxThreads="150" scheme="https" secure="true" SSLEnabled="true"
+			keystoreFile="$CLI_REPLACE_KEYSTOREFILE$" keystoreType="$CLI_REPLACE_KEYSTORETYPE$" keystorePass="$CLI_REPLACE_KEYSTOREPASSWORD$"
+			truststoreFile="$CLI_REPLACE_TRUSTSTOREFILE$" truststoreType="$CLI_REPLACE_TRUSTSTORETYPE$" truststorePass="$CLI_REPLACE_TRUSTSTOREPASSWORD$"
+			connectionTimeout="$CLI_REPLACE_CONNECTIONTIMEOUT$" keepAliveTimeout="$CLI_REPLACE_KEEPALIVETIMEOUT$" maxKeepAliveRequests="$CLI_REPLACE_MAXKEEPALIVEREQUESTS$"
+			SSLVerifyClient="require" SSLEngine="on" SSLVerifyDepth="10" ciphers="SSL_RSA_WITH_RC4_128_MD5, SSL_RSA_WITH_RC4_128_SHA" sslEnabledProtocols = "TLSv1,TLSv1.1,TLSv1.2"/>
 
     <!-- Define an AJP 1.3 Connector on port 8009 -->
     <Connector port="$CLI_REPLACE_CONNECTORPORTAJP$" protocol="AJP/1.3" redirectPort="$CLI_REPLACE_REDIRECTPORT$" />
