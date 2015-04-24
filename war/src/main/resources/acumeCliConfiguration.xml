@@ -1519,19 +1519,7 @@ Please don't use the following reserved property names:
             </targets>
         </property>
         <property>
-            <name>twoWayTLSRedirectPort</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[6081]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[server.xml]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
-                </target>
-            </targets>
-        </property>
-        <property>
-            <name>twoWayTLSConnectionTimeout</name>
+            <name>connectionTimeout</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[20000]]></default>
@@ -1543,7 +1531,7 @@ Please don't use the following reserved property names:
             </targets>
         </property>
         <property>
-            <name>twoWayTLSKeepAliveTimeout</name>
+            <name>keepAliveTimeout</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[20000]]></default>
@@ -1555,10 +1543,94 @@ Please don't use the following reserved property names:
             </targets>
         </property>
         <property>
-            <name>twoWayTLSMaxKeepAliveRequests</name>
+            <name>maxKeepAliveRequests</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[50]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+        <property>
+            <name>authenticateClient</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[false]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+        <property>
+            <name>keystoreFile</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[keystore]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+        <property>
+            <name>keystoreType</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[JKS]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+        <property>
+            <name>keystorePassword</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[rubix123]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+        <property>
+            <name>truststoreFile</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[keystore]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+        <property>
+            <name>truststoreType</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[JKS]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+        <property>
+            <name>truststorePassword</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[rubix123]]></default>
             <targets>
                 <target>
                     <file><![CDATA[server.xml]]></file>

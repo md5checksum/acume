@@ -879,40 +879,82 @@
             <Property_OriginalName>application.${acumeApp}.executorLogBackups</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${acumeApp}.twoWayTLSRedirectPort</Property_Name>
-            <Property_Value>6081</Property_Value>
-            <Property_Type>read-write</Property_Type>
-            <Property_DataType>integer</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.twoWayTLSRedirectPort</Property_OriginalName>
-        </Property>
-        <Property>
-            <Property_Name>application.${acumeApp}.twoWayTLSConnectionTimeout</Property_Name>
+            <Property_Name>application.${acumeApp}.connectionTimeout</Property_Name>
             <Property_Value>20000</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>integer</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.twoWayTLSConnectionTimeout</Property_OriginalName>
+            <Property_OriginalName>application.${acumeApp}.connectionTimeout</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${acumeApp}.twoWayTLSKeepAliveTimeout</Property_Name>
+            <Property_Name>application.${acumeApp}.keepAliveTimeout</Property_Name>
             <Property_Value>20000</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>integer</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.twoWayTLSKeepAliveTimeout</Property_OriginalName>
+            <Property_OriginalName>application.${acumeApp}.keepAliveTimeout</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${acumeApp}.twoWayTLSMaxKeepAliveRequests</Property_Name>
+            <Property_Name>application.${acumeApp}.maxKeepAliveRequests</Property_Name>
             <Property_Value>50</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>integer</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.twoWayTLSMaxKeepAliveRequests</Property_OriginalName>
+            <Property_OriginalName>application.${acumeApp}.maxKeepAliveRequests</Property_OriginalName>
         </Property>
-		<Property>
+        <Property>
+            <Property_Name>application.${acumeApp}.authenticateClient</Property_Name>
+            <Property_Value>false</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>boolean</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.authenticateClient</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${acumeApp}.keystoreFile</Property_Name>
+            <Property_Value>keystore</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.keystoreFile</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${acumeApp}.keystoreType</Property_Name>
+            <Property_Value>JKS</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.keystoreType</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${acumeApp}.keystorePassword</Property_Name>
+            <Property_Value>rubix123</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.keystorePassword</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${acumeApp}.truststoreFile</Property_Name>
+            <Property_Value>keystore</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.truststoreFile</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${acumeApp}.truststoreType</Property_Name>
+            <Property_Value>JKS</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.truststoreType</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${acumeApp}.truststorePassword</Property_Name>
+            <Property_Value>rubix123</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.truststorePassword</Property_OriginalName>
+        </Property>
+	<Property>
             <Property_Name>Acume Instance: &lt;</Property_Name>
             <Property_Value>Acume-Instance</Property_Value>
             <Property_Type>read-only</Property_Type>
             <Property_DataType>string</Property_DataType>
         </Property>
-		<Property>
+	<Property>
             <Property_Name>Acume Instance: &gt;</Property_Name>
         </Property>
     </Properties>
