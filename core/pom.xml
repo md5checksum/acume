@@ -27,7 +27,7 @@
 		<hadoop.version>2.4.0</hadoop.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<tomcat.version>7.0.61</tomcat.version>
+		<tomcat.version>7.0.34</tomcat.version>
 		<jersey-version>1.8</jersey-version>
 		<org.springframework.version>4.1.4.RELEASE</org.springframework.version>
 	</properties>

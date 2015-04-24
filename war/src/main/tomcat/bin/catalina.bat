@@ -14,6 +14,7 @@ rem WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 rem See the License for the specific language governing permissions and
 rem limitations under the License.
 
+if "%OS%" == "Windows_NT" setlocal
 rem ---------------------------------------------------------------------------
 rem Start/Stop Script for the CATALINA Server
 rem
@@ -89,13 +90,15 @@ rem   TITLE           (Optional) Specify the title of Tomcat window. The default
 rem                   TITLE is Tomcat if it's not specified.
 rem                   Example (all one line)
 rem                   set TITLE=Tomcat.Cluster#1.Server#1 [%DATE% %TIME%]
+rem
+rem
+rem
+rem $Id: catalina.bat 1202062 2011-11-15 06:50:02Z mturk $
 rem ---------------------------------------------------------------------------
-
-setlocal
 
 rem Suppress Terminate batch job on CTRL+C
 if not ""%1"" == ""run"" goto mainEntry
-if "%TEMP%" == "" goto mainEntry
+if ""%TEMP%"" == """" goto mainEntry
 if exist "%TEMP%\%~nx0.run" goto mainEntry
 echo Y>"%TEMP%\%~nx0.run"
 if not exist "%TEMP%\%~nx0.run" goto mainEntry
@@ -176,12 +179,12 @@ set LOGGING_CONFIG=-Dnop
 if not exist "%CATALINA_BASE%\conf\logging.properties" goto noJuliConfig
 set LOGGING_CONFIG=-Djava.util.logging.config.file="%CATALINA_BASE%\conf\logging.properties"
 :noJuliConfig
-set "JAVA_OPTS=%JAVA_OPTS% %LOGGING_CONFIG%"
+set JAVA_OPTS=%JAVA_OPTS% %LOGGING_CONFIG%
 
 if not "%LOGGING_MANAGER%" == "" goto noJuliManager
 set LOGGING_MANAGER=-Djava.util.logging.manager=org.apache.juli.ClassLoaderLogManager
 :noJuliManager
-set "JAVA_OPTS=%JAVA_OPTS% %LOGGING_MANAGER%"
+set JAVA_OPTS=%JAVA_OPTS% %LOGGING_MANAGER%
 
 rem ----- Execute The Requested Command ---------------------------------------
 
@@ -261,8 +264,13 @@ goto execCmd
 
 :doStart
 shift
+if not "%OS%" == "Windows_NT" goto noTitle
 if "%TITLE%" == "" set TITLE=Tomcat
 set _EXECJAVA=start "%TITLE%" %_RUNJAVA%
+goto gotTitle
+:noTitle
+set _EXECJAVA=start %_RUNJAVA%
+:gotTitle
 if not ""%1"" == ""-security"" goto execCmd
 shift
 echo Using Security Manager
