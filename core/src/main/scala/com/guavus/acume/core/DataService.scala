@@ -163,7 +163,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         if (field.equalsIgnoreCase("ts")) {
           isTimeseries = true
           tsIndex = j
-        } else if (acumeSchema.isDimension(field)) {
+        } else if (queryBuilderService.get(0).isFieldDimension(field)) {
           dimsNames += field
         } else {
           measuresNames += field
@@ -233,7 +233,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
           var i = 0
           var dimIndex, measureIndex = 0
           for (field <- fields) {
-            if (acumeSchema.isDimension(field)) {
+            if (queryBuilderService.get(0).isFieldDimension(field)) {
               if (row(i) != null)
                 dims += row(i)
               else
