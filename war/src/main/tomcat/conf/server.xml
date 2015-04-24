@@ -86,7 +86,7 @@
 	<Connector port="$CLI_REPLACE_REDIRECTPORT$" protocol="HTTP/1.1" SSLEnabled="true"
 	       maxThreads="150" scheme="https" secure="true"
 	       keystoreFile="keystore" keystorePass="rubix123"
-	       clientAuth="false" ciphers="SSL_RSA_WITH_RC4_128_MD5, SSL_RSA_WITH_RC4_128_SHA" sslProtocol="TLS" />
+	       clientAuth="false" ciphers="SSL_RSA_WITH_RC4_128_MD5, SSL_RSA_WITH_RC4_128_SHA" sslEnabledProtocols = "TLSv1,TLSv1.1,TLSv1.2" />
 
 	<Connector
 			clientAuth="true" port="6081" minSpareThreads="5" maxSpareThreads="75"
@@ -112,7 +112,7 @@
          Documentation at /docs/config/engine.html -->
 
     <!-- You should set jvmRoute to support load-balancing via AJP ie :
-    <Engine name="Catalina" defaultHost="localhost" jvmRoute="jvm1">
+    <Engine name="Catalina" defaultHost="localhost" jvmRoute="$CLI_REPLACE_NODEUNIQUEIDENTIFIER$">
     -->
     <Engine name="Catalina" defaultHost="localhost">
 
