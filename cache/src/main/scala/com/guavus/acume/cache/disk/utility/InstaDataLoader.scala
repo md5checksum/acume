@@ -194,9 +194,11 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
       }
       if (isValidCubeGran && cube.binSource == businessCube.binsource && CubeUtil.getCubeBaseFields(businessCube).toSet.subsetOf((cube.dimensions.map(_._1) ++ cube.measures.map(_._1)).toSet)) {
         if (bestCube == null) {
-          bestCube = cube
+          return cube
         } else {
-          if (bestCube.dimensions.size > cube.dimensions.size) {
+          if (cube.cubeName.equalsIgnoreCase(businessCube.cubeName)) {
+            bestCube = cube
+          } else if (bestCube.dimensions.size > cube.dimensions.size) {
             bestCube = cube
           } else if (bestCube.dimensions.size == cube.dimensions.size) {
             if (bestCube.measures.size > cube.measures.size) {
