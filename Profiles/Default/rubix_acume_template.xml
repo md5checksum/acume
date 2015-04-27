@@ -73,6 +73,31 @@
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${rubixApp}.sslModeForDBConnection</Property_OriginalName>
         </Property>
+
+        <Property>
+              <Property_Name>application.${rubixApp}.ldapSearchGroupname</Property_Name>
+              <Property_Value>false</Property_Value>
+              <Property_Type>read-write</Property_Type>
+              <Property_DataType>string</Property_DataType>
+              <Property_OriginalName>application.${rubixApp}.ldapSearchGroupname</Property_OriginalName>
+       </Property>
+       
+       <Property>
+              <Property_Name>application.${rubixApp}.ldapUrl</Property_Name>
+              <Property_Value>false</Property_Value>
+              <Property_Type>read-write</Property_Type>
+              <Property_DataType>string</Property_DataType>
+              <Property_OriginalName>application.${rubixApp}.ldapUrl</Property_OriginalName>
+       </Property>
+       
+       <Property>
+              <Property_Name>application.${rubixApp}.ldapUserDnTemplate</Property_Name>
+              <Property_Value>false</Property_Value>
+              <Property_Type>read-write</Property_Type>
+              <Property_DataType>string</Property_DataType>
+              <Property_OriginalName>application.${rubixApp}.ldapUserDnTemplate</Property_OriginalName>
+       </Property>
+
         <Property>
             <Property_Name>application.${rubixApp}.rootCAPath</Property_Name>
             <Property_Value>root.crt</Property_Value>

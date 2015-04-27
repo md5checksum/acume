@@ -325,6 +325,42 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
+            <name>LDAPSEARCHGROUPNAME</name>
+            <help><![CDATA[ - TODO]]></help>
+            <default><![CDATA[TESTGROUP]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[shiro.ini]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>LDAPURL</name>
+            <help><![CDATA[ - TODO]]></help>
+            <default><![CDATA[localhost:636]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[shiro.ini]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>LDAPUSERDNTEMPLATE</name>
+            <help><![CDATA[ - TODO]]></help>
+            <default><![CDATA[$uid={0},DC=test,DC=verizon,DC=com]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[shiro.ini]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
             <name>solutionName</name>
             <type>basic</type>
             <help><![CDATA[ - Solution name for this solution, must be same across all nodes running this solution]]></help>
