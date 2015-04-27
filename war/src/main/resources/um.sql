@@ -64,3 +64,5 @@ alter table role add constraint role_rolename_applicationcode_key UNIQUE(rolenam
 create table user_application (userName varchar(255) not null, applicationcode varchar(255) not null, primary key (userName, applicationcode));
 alter table user_application add constraint user_application_username_fkey foreign key (userName) references UserInfo;
 alter table user_application add constraint user_application_applicationcode_fkey foreign key (applicationcode) REFERENCES application(code);
+#VER 5.1
+alter table UserInfo add column isldapuser boolean NOT NULL DEFAULT 'false';
