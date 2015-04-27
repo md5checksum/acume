@@ -409,6 +409,31 @@
             <Property_DataType>integer</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.passwordHistoryCount</Property_OriginalName>
         </Property>
+
+        <Property>
+              <Property_Name>application.${acumeApp}.ldapSearchGroupname</Property_Name>
+              <Property_Value>false</Property_Value>
+              <Property_Type>read-write</Property_Type>
+              <Property_DataType>string</Property_DataType>
+              <Property_OriginalName>application.${acumeApp}.ldapSearchGroupname</Property_OriginalName>
+        </Property>
+       
+        <Property>
+              <Property_Name>application.${acumeApp}.ldapUrl</Property_Name>
+              <Property_Value>false</Property_Value>
+              <Property_Type>read-write</Property_Type>
+              <Property_DataType>string</Property_DataType>
+              <Property_OriginalName>application.${acumeApp}.ldapUrl</Property_OriginalName>
+        </Property>
+       
+        <Property>
+              <Property_Name>application.${acumeApp}.ldapUserDnTemplate</Property_Name>
+              <Property_Value>false</Property_Value>
+              <Property_Type>read-write</Property_Type>
+              <Property_DataType>string</Property_DataType>
+              <Property_OriginalName>application.${acumeApp}.ldapUserDnTemplate</Property_OriginalName>
+        </Property>
+
     	<Property>
             <Property_Name> application.${acumeApp}.solutionName</Property_Name>
             <Property_Value>unknown_solution</Property_Value>
