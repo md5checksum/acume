@@ -411,27 +411,27 @@
         </Property>
 
         <Property>
-              <Property_Name>application.${acumeApp}.ldapSearchGroupname</Property_Name>
+              <Property_Name>application.${acumeApp}.LDAPSEARCHGROUPNAME</Property_Name>
               <Property_Value>false</Property_Value>
               <Property_Type>read-write</Property_Type>
               <Property_DataType>string</Property_DataType>
-              <Property_OriginalName>application.${acumeApp}.ldapSearchGroupname</Property_OriginalName>
+              <Property_OriginalName>application.${acumeApp}.LDAPSEARCHGROUPNAME</Property_OriginalName>
         </Property>
        
         <Property>
-              <Property_Name>application.${acumeApp}.ldapUrl</Property_Name>
+              <Property_Name>application.${acumeApp}.LDAPURL</Property_Name>
               <Property_Value>false</Property_Value>
               <Property_Type>read-write</Property_Type>
               <Property_DataType>string</Property_DataType>
-              <Property_OriginalName>application.${acumeApp}.ldapUrl</Property_OriginalName>
+              <Property_OriginalName>application.${acumeApp}.LDAPURL</Property_OriginalName>
         </Property>
        
         <Property>
-              <Property_Name>application.${acumeApp}.ldapUserDnTemplate</Property_Name>
+              <Property_Name>application.${acumeApp}.LDAPUSERDNTEMPLATE</Property_Name>
               <Property_Value>false</Property_Value>
               <Property_Type>read-write</Property_Type>
               <Property_DataType>string</Property_DataType>
-              <Property_OriginalName>application.${acumeApp}.ldapUserDnTemplate</Property_OriginalName>
+              <Property_OriginalName>application.${acumeApp}.LDAPUSERDNTEMPLATE</Property_OriginalName>
         </Property>
 
     	<Property>

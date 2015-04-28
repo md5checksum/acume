@@ -325,7 +325,7 @@ Please don't use the following reserved property names:
         <property>
             <name>LDAPURL</name>
             <help><![CDATA[ - TODO]]></help>
-            <default><![CDATA[localhost:636]]></default>
+            <default><![CDATA[ldaps://localhost:636]]></default>
             <targets>
                 <target>
                     <file><![CDATA[shiro.ini]]></file>
