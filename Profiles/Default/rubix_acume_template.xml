@@ -593,7 +593,7 @@
         </Property>
         <Property>
             <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.coreudfconfigurationxml</Property_Name>
-            <Property_Value>/opt/tms/xml_schema/udfConfiguration.xml</Property_Value>
+            <Property_Value>udfConfiguration.xml</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.coreudfconfigurationxml</Property_OriginalName>
