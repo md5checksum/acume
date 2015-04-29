@@ -6,6 +6,9 @@ while (($#)); do
   fi
   shift
 done
+if [[ "${udfConfXmlPath}" != "/"* ]];then
+        udfConfXmlPath=$DOCBASE/WEB-INF/classes/$udfConfXmlPath
+fi       
 x="fulljarPath"
 commaSeperatedJarPath=`sed -n "/$x/{s/.*<$x>\(.*\)<\/$x>.*/\1/;p}" ${udfConfXmlPath} | xargs | sed -e 's/ /,/g'`
 export ACUME_UDFJARPATHS=${commaSeperatedJarPath}
