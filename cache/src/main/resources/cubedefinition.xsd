@@ -5,20 +5,21 @@
         <xs:element name="Fields">
           <xs:complexType>
             <xs:sequence>
-				  <xs:element name="Field" maxOccurs="unbounded" minOccurs="0">
-                <xs:complexType mixed="true">
-                   <xs:sequence>
-						   <xs:element type="xs:string" name="Info" minOccurs="0"/>
-                     <xs:element name="Function" minOccurs="0">
+              <xs:element name="Field" maxOccurs="unbounded" minOccurs="0">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element type="xs:string" name="Info"/>
+                    <xs:element type="xs:string" name="baseFieldName" minOccurs="0" maxOccurs="1"/>
+                    <xs:element name="AnnotationFunction">
                       <xs:complexType>
-                         <xs:sequence>
-                           <xs:element type="xs:string" name="Class"/>
+                        <xs:sequence>
+                          <xs:element type="xs:string" name="Class"/>
                           <xs:element type="xs:string" name="DependentField"/>
-                          </xs:sequence>
-                        </xs:complexType>
+                        </xs:sequence>
+                      </xs:complexType>
                     </xs:element>
-                    </xs:sequence>
-                  </xs:complexType>
+                  </xs:sequence>
+                </xs:complexType>
               </xs:element>
             </xs:sequence>
           </xs:complexType>
@@ -29,8 +30,10 @@
               <xs:element name="Cube" maxOccurs="unbounded" minOccurs="0">
                 <xs:complexType>
                   <xs:sequence>
-                    <xs:element type="xs:string" name="Name"/>
+                    <xs:element type="xs:string" name="Info"/>
                     <xs:element type="xs:string" name="Fields"/>
+                    <xs:element type="xs:string" name="SingleEntityKeys" minOccurs="0" maxOccurs="1" /><!-- key1=value1,key2=value2 --> 
+                    <xs:element type="xs:string" name="Properties"/>
                   </xs:sequence>
                 </xs:complexType>
               </xs:element>

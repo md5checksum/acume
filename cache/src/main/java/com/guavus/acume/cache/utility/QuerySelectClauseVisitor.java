@@ -15,13 +15,15 @@ public class QuerySelectClauseVisitor implements SelectVisitor {
 
 	long startTime = 0l;
 	long endTime = 0L;
+	String binsource = null;
 	
 	private List<Tuple> list = null;
 	
-	public QuerySelectClauseVisitor(long startTime, long endTime, List<Tuple> list) {
+	public QuerySelectClauseVisitor(long startTime, long endTime, String binsource, List<Tuple> list) {
 		
 		this.startTime = startTime;
 		this.endTime = endTime;
+		this.binsource = binsource;
 		this.list = list;
 	}
 	
@@ -29,11 +31,16 @@ public class QuerySelectClauseVisitor implements SelectVisitor {
 	public void visit(PlainSelect plainSelect) {
 		Tuple t = new Tuple();
 		Expression expression = plainSelect.getWhere();
-		if(expression != null)
+		if(expression != null) { 
+			
 			expression.accept(new QueryWhereClauseVisitor(t));
+			expression.accept(new QueryBinSourceWhereClauseVisitor(t));
+		}
 		long xstartTime = t.getStartTime() == 0l?startTime: t.getStartTime();
 		long xendTime = t.getEndTime() == 0l?endTime:t.getEndTime();
-		plainSelect.getFromItem().accept(new QueryFromClauseVisitor(xstartTime, xendTime, list));
+		
+		String xbinsource = t.getBinsource() == null?binsource:t.getBinsource();
+		plainSelect.getFromItem().accept(new QueryFromClauseVisitor(xstartTime, xendTime, xbinsource, list));
 	}
 
 	@Override
@@ -41,14 +48,14 @@ public class QuerySelectClauseVisitor implements SelectVisitor {
 		
 		List<PlainSelect> linkedList = setOpList.getPlainSelects();
 		for(PlainSelect iteratorPlainSelect: linkedList){
-			iteratorPlainSelect.accept(new QuerySelectClauseVisitor(startTime, endTime, list));
+			iteratorPlainSelect.accept(new QuerySelectClauseVisitor(startTime, endTime, binsource, list));
 		}
 	}
 
 	@Override
 	public void visit(WithItem withItem) {
 
-		withItem.getSelectBody().accept(new QuerySelectClauseVisitor(startTime, endTime, list));
+		withItem.getSelectBody().accept(new QuerySelectClauseVisitor(startTime, endTime, binsource, list));
 	} 
 }
 

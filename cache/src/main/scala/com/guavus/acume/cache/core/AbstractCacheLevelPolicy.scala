@@ -136,7 +136,7 @@ abstract class AbstractCacheLevelPolicy(protected var baseLevel: Long) extends C
     val childrenLevel = getChildrenLevel(level)
     if (childrenLevel != -1){
       val endTime = Utility.getNextTimeFromGranularity(startTime, level, Utility.newCalendar())
-      children.addAll(Utility.getAllIntervals(startTime, endTime, childrenLevel))
+      children ++= (Utility.getAllIntervals(startTime, endTime, childrenLevel))
     }
     children 	
   }

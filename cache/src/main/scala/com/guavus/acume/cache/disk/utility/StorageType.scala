@@ -12,6 +12,8 @@ object StorageType extends Enumeration {
   
   val Orc = new StorageType("orc", "com.guavus.acume.cache.disk.utility.ORCDataLoader", "com.guavus.acume.cache.disk.utility.DummyMetaDataLoader")
   
+  val insta = new StorageType("insta", "com.guavus.acume.cache.disk.utility.InstaDataLoader", "com.guavus.acume.cache.disk.utility.DummyMetaDataLoader")
+  
   
   def getStorageType(name: String): StorageType = { 
     
@@ -19,7 +21,7 @@ object StorageType extends Enumeration {
       if(name equals actualName.strid)
         return actualName
     }
-    Orc
+    insta
   }
   
   class StorageType(val strid: String, val dataClass: String, val metaDataClass: String) extends Val

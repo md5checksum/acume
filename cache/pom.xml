@@ -33,6 +33,7 @@
 			<version>0.13.0</version> <exclusions> <exclusion> <groupId>javax.servlet</groupId> 
 			<artifactId>servlet-api</artifactId> </exclusion> <exclusion> <groupId>org.mortbay.jetty</groupId> 
 			<artifactId>servlet-api</artifactId> </exclusion> </exclusions> </dependency> -->
+		
 		<dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>crux2.0</artifactId>
@@ -59,6 +60,26 @@
 			<artifactId>jsqlparser</artifactId>
 			<version>0.9</version>
 		</dependency>
+		<dependency>
+			<groupId>org.postgresql</groupId>
+			<artifactId>postgresql</artifactId>
+			<version>9.2-1002-jdbc4</version>
+		</dependency>
+		<dependency>
+            <groupId>com.guavus</groupId>
+            <artifactId>search</artifactId>
+            <version>0.1-SNAPSHOT</version>
+            <exclusions>
+                 <exclusion>
+                      <groupId>org.apache.hive</groupId>
+                      <artifactId>hive-exec</artifactId>
+                 </exclusion>
+                 <exclusion>
+                      <groupId>com.guavus</groupId>
+                      <artifactId>crux</artifactId>
+                  </exclusion>
+            </exclusions>
+        </dependency>
 		<dependency> <!-- Spark dependency -->
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-core_2.10</artifactId>
@@ -75,6 +96,16 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<dependency>
+                        <groupId>ps</groupId>
+                        <artifactId>CubeXMLManager</artifactId>
+			<version>platform5.0</version>
+                </dependency>
+		<dependency>
+                        <groupId>com.guavus.insta</groupId>
+                        <artifactId>insta-api</artifactId>
+			<version>platform5.0</version>
+                </dependency>
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-sql_2.10</artifactId>
@@ -93,6 +124,12 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>servlet-api</artifactId>
+			<version>2.5</version>
+			<scope>provided</scope>
+		</dependency>
 		<!-- <dependency> <groupId>org.apache.hive</groupId> <artifactId>hive-serde</artifactId> 
 			<version>0.13.0</version> <exclusions> <exclusion> <groupId>javax.servlet</groupId> 
 			<artifactId>servlet-api</artifactId> </exclusion> </exclusions> </dependency> -->
@@ -101,17 +138,13 @@
 			<artifactId>scala-library</artifactId>
 			<version>2.10.4</version>
 		</dependency>
-
+		
 		<dependency>
 			<groupId>org.apache.hadoop</groupId>
 			<artifactId>hadoop-common</artifactId>
 			<version>${hadoop.version}</version>
 			<scope>provided</scope>
 			<exclusions>
-				<exclusion>
-					<groupId>javax.servlet</groupId>
-					<artifactId>servlet-api</artifactId>
-				</exclusion>
 				<exclusion>
 					<groupId>com.sun.jersey</groupId>
 					<artifactId>*</artifactId>
@@ -128,10 +161,6 @@
 					<groupId>com.sun.jersey</groupId>
 					<artifactId>*</artifactId>
 				</exclusion>
-				<exclusion>
-					<groupId>javax.servlet</groupId>
-					<artifactId>servlet-api</artifactId>
-				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -143,10 +172,6 @@
 				<exclusion>
 					<groupId>com.sun.jersey</groupId>
 					<artifactId>*</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>javax.servlet</groupId>
-					<artifactId>servlet-api</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
