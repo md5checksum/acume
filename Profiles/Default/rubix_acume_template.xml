@@ -75,27 +75,27 @@
         </Property>
 
         <Property>
-              <Property_Name>application.${rubixApp}.ldapSearchGroupname</Property_Name>
+              <Property_Name>application.${rubixApp}.LDAPSEARCHGROUPNAME</Property_Name>
               <Property_Value>false</Property_Value>
               <Property_Type>read-write</Property_Type>
               <Property_DataType>string</Property_DataType>
-              <Property_OriginalName>application.${rubixApp}.ldapSearchGroupname</Property_OriginalName>
+              <Property_OriginalName>application.${rubixApp}.LDAPSEARCHGROUPNAME</Property_OriginalName>
        </Property>
        
        <Property>
-              <Property_Name>application.${rubixApp}.ldapUrl</Property_Name>
+              <Property_Name>application.${rubixApp}.LDAPURL</Property_Name>
               <Property_Value>false</Property_Value>
               <Property_Type>read-write</Property_Type>
               <Property_DataType>string</Property_DataType>
-              <Property_OriginalName>application.${rubixApp}.ldapUrl</Property_OriginalName>
+              <Property_OriginalName>application.${rubixApp}.LDAPURL</Property_OriginalName>
        </Property>
        
        <Property>
-              <Property_Name>application.${rubixApp}.ldapUserDnTemplate</Property_Name>
+              <Property_Name>application.${rubixApp}.LDAPUSERDNTEMPLATE</Property_Name>
               <Property_Value>false</Property_Value>
               <Property_Type>read-write</Property_Type>
               <Property_DataType>string</Property_DataType>
-              <Property_OriginalName>application.${rubixApp}.ldapUserDnTemplate</Property_OriginalName>
+              <Property_OriginalName>application.${rubixApp}.LDAPUSERDNTEMPLATE</Property_OriginalName>
        </Property>
 
         <Property>
