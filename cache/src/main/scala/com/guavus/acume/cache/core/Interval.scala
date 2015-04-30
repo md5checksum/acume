@@ -225,8 +225,9 @@ class Interval extends Comparable[Interval] with Serializable {
   }
 
   override def equals(obj: Any): Boolean = {
-    if (this == obj) return true
     if (obj == null) return false
+//    if (this eq obj.asInstanceOf[AnyRef]) return true
+//    if (obj == null) return false
     if (getClass != obj.getClass) return false
     val other = obj.asInstanceOf[Interval]
     if (endTime != other.endTime) return false

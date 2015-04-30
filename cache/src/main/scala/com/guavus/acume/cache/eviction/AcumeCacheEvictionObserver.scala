@@ -16,7 +16,7 @@ import com.guavus.acume.cache.common.AcumeCacheConf
  *
  */
 
-class AcumeCacheEvictionObserver(_$acumeCache: AcumeCache) extends AcumeCacheObserver {
+class AcumeCacheEvictionObserver(_$acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends AcumeCacheObserver {
   
   _$acumeCache.newObserverAddition(this)
   
@@ -26,7 +26,7 @@ class AcumeCacheEvictionObserver(_$acumeCache: AcumeCache) extends AcumeCacheObs
 	val conf = arg.asInstanceOf[AcumeCacheConf]
     val loading = acumeCache.getCacheCollection.asInstanceOf[LoadingCache[LevelTimestamp , String]]
     val _$key = loading.asMap().keySet()
-    val _$eviction = EvictionPolicy.getEvictionPolicy(acumeCache.cube, conf)
+    val _$eviction = EvictionPolicy.getEvictionPolicy(acumeCache.cube, _$acumeCache.acumeCacheContext)
     val _$x = _$eviction.getEvictableCandidate(_$key.toList)
     _$x match{
 	  case None => 
@@ -34,4 +34,3 @@ class AcumeCacheEvictionObserver(_$acumeCache: AcumeCache) extends AcumeCacheObs
 	}
   }
 }
-

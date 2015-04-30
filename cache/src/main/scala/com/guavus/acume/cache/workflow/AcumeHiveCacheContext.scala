@@ -1,19 +1,24 @@
 package com.guavus.acume.cache.workflow
 
-import scala.Array.canBuildFrom
-import scala.collection.JavaConversions.asScalaBuffer
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.QLType
-import com.guavus.acume.cache.common.QLType.QLType
-import org.apache.spark.sql.SchemaRDD
-import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
-import com.guavus.acume.cache.common.Measure
-import com.guavus.acume.cache.common.Dimension
 import com.guavus.acume.cache.utility.Utility
+import com.guavus.acume.cache.sql.ISqlCorrector
+import scala.collection.mutable.ArrayBuffer
+import com.guavus.acume.cache.common.Cube
+import scala.collection.JavaConversions._
+import com.guavus.acume.cache.disk.utility.DataLoader
+import java.util.concurrent.ConcurrentHashMap
+import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.disk.utility.InstaDataLoaderThinAcume
+import com.guavus.acume.cache.common.BaseCube
+import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.common.CacheLevel
+import com.guavus.acume.cache.core.FixedLevelPolicy
 
 /**
  * @author kashish.jain
@@ -21,71 +26,85 @@ import com.guavus.acume.cache.utility.Utility
  */
 class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends AcumeCacheContextTrait { 
  
-  sqlContext match{
-  case hiveContext: HiveContext =>
-  case sqlContext: SQLContext => 
-  case rest => throw new RuntimeException("This type of SQLContext is not supported.")
+  sqlContext match {
+    case hiveContext: HiveContext =>
+    case sqlContext: SQLContext => 
+    case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
+  Utility.init(conf)
   
-  private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
-  private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
-
+  val dataLoader: DataLoader = new InstaDataLoaderThinAcume(this, conf, null)
+  override private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
+  
   Utility.unmarshalXML(conf.get(ConfConstants.businesscubexml), dimensionMap, measureMap)
   
-  def cacheConf = conf
- 
-  private [acume] def getCubeList = throw new RuntimeException("Method not supported")
+  private [acume] def cacheSqlContext() : SQLContext = sqlContext
   
-  def isDimension(name: String) : Boolean =  {
-    if(dimensionMap.contains(name)) {
-      true 
-    } else if(measureMap.contains(name)) {
-      false
+  private [acume] def cacheConf = conf
+  
+  private [acume] def getCubeMap = throw new RuntimeException("Operation not supported")
+  
+  private [acume] def executeQuery(sql: String, qltype: QLType.QLType) = {
+    if(!cacheConf.getBoolean(ConfConstants.useInsta, false)) {
+      val resultSchemaRdd = sqlContext.sql(sql)
+      new AcumeCacheResponse(resultSchemaRdd, resultSchemaRdd, new MetaData(-1, Nil))
     } else {
-        throw new RuntimeException("Field " + name + " nither in Dimension Map nor in Measure Map.")
+    val originalparsedsql = AcumeCacheContext.parseSql(sql)
+    
+    println("AcumeRequest obtained " + sql)
+    var correctsql = ISqlCorrector.getSQLCorrector(conf).correctSQL(this, sql, (originalparsedsql._1.toList, originalparsedsql._2))
+    var updatedsql = correctsql._1._1
+    val queryOptionalParams = correctsql._1._2
+    var updatedparsedsql = correctsql._2
+    
+    val rt = updatedparsedsql._2
+      
+    var i = ""
+      var timestamps = scala.collection.mutable.MutableList[Long]() 
+    val list = for(l <- updatedparsedsql._1) yield {
+      val cube = l.getCubeName
+      val binsource = l.getBinsource
+      val startTime = l.getStartTime
+      val endTime = l.getEndTime
+    
+      val key_binsource = 
+        if(binsource != null)
+          binsource
+      else
+        conf.get(ConfConstants.acumecorebinsource)
+
+      i = AcumeCacheContext.getTable(cube)
+      updatedsql = updatedsql.replaceAll(s"$cube", s"$i")
+      val finalRdd = if(rt == RequestType.Timeseries) {
+        val level = queryOptionalParams.getTimeSeriesGranularity
+    	  val startTimeCeiling = Utility.floorFromGranularity(startTime, level)
+    	  val endTimeFloor = Utility.floorFromGranularity(endTime, level)
+           timestamps = Utility.getAllIntervals(startTimeCeiling, endTimeFloor, level)
+          val tables = for(timestamp <- timestamps) yield {
+        	  val rdd = dataLoader.loadData(Map[String, Any](), new BaseCube(cube, binsource, null, null, null), timestamp, Utility.getNextTimeFromGranularity(timestamp, level, Utility.newCalendar))
+        	  val tempTable = AcumeCacheContext.getTable(cube)
+        	  rdd.registerTempTable(tempTable)
+        	  val tempTable1 = AcumeCacheContext.getTable(cube)
+        	  sqlContext.sql(s"select *, $timestamp as ts from $tempTable").registerTempTable(tempTable1)
+        	  tempTable1
+          }
+        val finalQuery = tables.map(x => s" select * from $x ").mkString(" union all ")
+          sqlContext.sql(finalQuery)
+      } else {
+    	  val rdd = dataLoader.loadData(Map[String, Any](), new BaseCube(cube, binsource, null, null, null), startTime, endTime)
+    	  val tempTable = AcumeCacheContext.getTable(cube)
+        	  rdd.registerTempTable(tempTable)
+        	  sqlContext.sql(s"select *, $startTime as ts from $tempTable")
+      }
+      print("Registering Temp Table " + i)
+      finalRdd.registerTempTable(i)
     }
+    print("Thin Query " + updatedsql)
+    val resultSchemaRDD = sqlContext.sql(updatedsql)
+    new AcumeCacheResponse(resultSchemaRDD, resultSchemaRDD, MetaData(-1, timestamps.toList))
+  }
   }
   
-  private [acume] def getFieldsForCube(name: String) = {
-    throw new RuntimeException("Method not supported")
-  }
-  
-  def getDefaultValue(fieldName: String) = {
-    if(isDimension(fieldName))
-      dimensionMap.get(fieldName).get.getDefaultValue
-    else
-      measureMap.get(fieldName).get.getDefaultValue
-  }
-  
-  private [acume] def getCubeListContainingFields(lstfieldNames: List[String]) = {
-    throw new RuntimeException("Method not supported")
-  }
-  
-  private [acume] def getAggregationFunction(stringname : String) : String = {
-    throw new RuntimeException("Method not supported")
-  }
-  
-  def acql(sql: String, qltype: String): AcumeCacheResponse = { 
-    
-    val ql = QLType.getQLType(qltype)
-    if (!AcumeHiveCacheContext.checkQLValidation(sqlContext, ql))
-      throw new RuntimeException(s"ql not supported with ${sqlContext}");
-    executeQl(sql, ql)
-  }
-  
-  def acql(sql: String): AcumeCacheResponse = { 
-    
-    val ql = AcumeHiveCacheContext.getQLType(conf)
-    if (!AcumeHiveCacheContext.checkQLValidation(sqlContext, ql))
-      throw new RuntimeException(s"ql not supported with ${sqlContext}");
-    executeQl(sql, ql)
-  }
-  
-  def executeQl(sql : String, ql : QLType.QLType) = {
-    val resultSchemaRDD = sqlContext.sql(sql)
-    new AcumeCacheResponse(resultSchemaRDD, new MetaData(List()))
-  }
- 
 }
 
 object AcumeHiveCacheContext{
@@ -110,22 +129,6 @@ object AcumeHiveCacheContext{
     cntxt.acql("select * from searchEgressPeerCube_12345")
   }
 
-  private [cache] def checkQLValidation(sqlContext: SQLContext, qltype: QLType) = { 
-    
-    sqlContext match{
-      case hiveContext: HiveContext =>
-        qltype match{
-          case QLType.hql | QLType.sql => true
-          case rest => false
-        }
-      case sqlContext: SQLContext => 
-        qltype match{
-          case QLType.sql => true
-          case rest => false
-        }
-    }
-  }
   
-  private def getQLType(conf: AcumeCacheConf) = QLType.getQLType(conf.get(ConfConstants.qltype)) 	
 
 }

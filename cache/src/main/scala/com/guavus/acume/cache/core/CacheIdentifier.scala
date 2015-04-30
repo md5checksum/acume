@@ -12,7 +12,7 @@ import scala.collection.JavaConversions._
  */
 class CacheIdentifier extends Serializable {
 
-  private val id = new LinkedHashMap[String, Int]()
+  private val id = new LinkedHashMap[String, Any]()
 
 //  def this(cid: CacheIdentifier) {
 //    this()
@@ -31,12 +31,12 @@ class CacheIdentifier extends Serializable {
 //    }
 //  }
 
-  def put(key: String, value: Int): CacheIdentifier = {
+  def put(key: String, value: Any): CacheIdentifier = {
     id.put(key, value)
     this
   }
 
-  def get(key: String): Int = id.get(key).getOrElse(null.asInstanceOf[Int])
+  def get(key: String): Any = id.get(key).getOrElse(null)
 
 //  def getKeyOfFirstEntry(): String = id.keySet.iterator().next()
 

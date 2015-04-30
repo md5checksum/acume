@@ -17,7 +17,6 @@ object AcumeCacheUtility {
     import sqlContext._
     val join = s"Select * from ${globalDTableName} INNER JOIN $baseMeasureSetTable ON id = tupleid"
     val globalDTable = table(globalDTableName)
-    sqlContext.applySchema(globalDTable, globalDTable.schema).registerTempTable(globalDTableName)
     val joinedRDD = sqlContext.sql(join)
     joinedRDD.registerTempTable(finalName)
   }

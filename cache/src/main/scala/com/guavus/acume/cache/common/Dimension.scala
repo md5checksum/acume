@@ -7,7 +7,7 @@ import com.guavus.acume.cache.common.DataType.DataType
  * @author archit.thakur
  *
  */
-class Dimension(name: String, datatype: DataType, defaultValue: Any) extends Field { 
+class Dimension(name: String, baseFieldName : String, datatype: DataType, defaultValue: Any) extends Field(baseFieldName) { 
   
   def getName: String = name
   def getFieldType: FieldType = FieldType.Dimension 
