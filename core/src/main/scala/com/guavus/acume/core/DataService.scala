@@ -91,6 +91,13 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       acumeContext.ac.cacheSqlContext.sparkContext.setLocalProperty(key, propValue)
     }
   }
+  
+  private def getSparkJobLocalProperties() = {
+    if(acumeContext.ac.threadLocal.get() == null) {
+      acumeContext.ac.threadLocal.set(HashMap[String, Any]())
+    }
+    acumeContext.ac.threadLocal.get()
+  }
 
   private def unsetSparkJobLocalProperties() {
     for ((key, value) <- acumeContext.ac.threadLocal.get()) {
@@ -139,7 +146,6 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         }
       }
       calculateJobLevelProperties()
-      setSparkJobLocalProperties
       val cacheResponse = execute(sql)
       val responseRdd = cacheResponse.rowRDD
       val fields = queryBuilderService.get(0).getQuerySchema(sql, cacheResponse.schemaRDD.schema.fieldNames) //schemaRdd.schemaschema.fieldNames
@@ -147,12 +153,20 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         lazy val fut = future { f }
         Await.result(fut, DurationInt(acumeContext.acumeConf.getInt(ConfConstants.queryTimeOut, 30)) second)
       }
-      def run(rdd: RDD[Row], jobGroupId : String, jobDescription : String, conf : AcumeConf) = {
-        AcumeConf.setConf(conf)
-        acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
-        rdd.collect
+      def run(rdd: RDD[Row], jobGroupId : String, jobDescription : String, conf : AcumeConf, localProperties : HashMap[String, Any]) = {
+        getSparkJobLocalProperties ++= localProperties
+        setSparkJobLocalProperties
+        try {
+       AcumeConf.setConf(conf)
+       acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
+       rdd.collect
+        } finally {
+          unsetSparkJobLocalProperties
+        }
       }
-      val rows = runWithTimeout(run(responseRdd, jobGroupId, jobDescription, acumeContext.acumeConf))
+      
+      val localProperties = getSparkJobLocalProperties
+      val rows = runWithTimeout(run(responseRdd, jobGroupId, jobDescription, acumeContext.acumeConf, localProperties))
       val acumeSchema: QueryBuilderSchema = queryBuilderService.get(0).getQueryBuilderSchema
       val dimsNames = new ArrayBuffer[String]()
       val measuresNames = new ArrayBuffer[String]()
