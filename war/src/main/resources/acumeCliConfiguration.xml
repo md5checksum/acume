@@ -1554,6 +1554,54 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
+        <property>
+            <name>twoWayTLSRedirectPort</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[6081]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+        <property>
+            <name>twoWayTLSConnectionTimeout</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[20000]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+        <property>
+            <name>twoWayTLSKeepAliveTimeout</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[20000]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
+        <property>
+            <name>twoWayTLSMaxKeepAliveRequests</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[50]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[server.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
+                </target>
+            </targets>
+        </property>
      </PropertiesPerApplication>
 
     <PropertiesPerInstance>    
