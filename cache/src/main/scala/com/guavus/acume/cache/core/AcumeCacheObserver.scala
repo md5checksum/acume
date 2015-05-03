@@ -7,7 +7,7 @@ import java.util.Observable
 
 abstract class AcumeCacheObserver extends Observer {
 
-  protected val acumeCache: AcumeCache[_ <: Any, _ <: Any]
+  protected val acumeCache: AcumeCache
 }
 
 

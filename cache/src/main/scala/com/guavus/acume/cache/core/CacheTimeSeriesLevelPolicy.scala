@@ -1,11 +1,9 @@
 package com.guavus.acume.cache.core
 
 import java.util.Calendar
-
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
-
 import com.guavus.acume.cache.utility.Utility
 
 /**

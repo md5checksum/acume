@@ -1,35 +1,33 @@
 package com.guavus.acume.cache.workflow
 
-import java.io.StringReader
-
+import org.apache.spark.sql.SchemaRDD
 import com.google.common.cache.CacheBuilder
-import com.google.common.cache.CacheLoader
 import com.google.common.cache.RemovalListener
-import com.google.common.cache.RemovalNotification
 import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.QLType
-import com.guavus.acume.cache.utility.SQLParserFactory
-
 import net.sf.jsqlparser.statement.select.Select
+import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.cache.utility.SQLParserFactory
+import com.google.common.cache.RemovalNotification
+import java.io.StringReader
+import com.google.common.cache.CacheLoader
 
 /**
  * @author archit.thakur
  *
  */
-class RequestResponseCache(acumeCacheContextTrait: AcumeCacheContextTrait, conf: AcumeCacheConf) extends RRCache {
+class RequestResponseCache(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf) extends RRCache {
 
   val cache = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
     .maximumSize(conf.getInt(ConfConstants.rrsize._1, ConfConstants.rrsize._2)).removalListener(new RemovalListener[RRCacheKey, AcumeCacheResponse] {
 	  def onRemoval(notification : RemovalNotification[RRCacheKey, AcumeCacheResponse]) {
-	    notification.getValue().rowRDD.unpersist(true)
+	    notification.getValue().schemaRDD.unpersist(true)
 	  }
   }).build(
       new CacheLoader[RRCacheKey, AcumeCacheResponse]() {
         def load(input: RRCacheKey) = {
-          val response = acumeCacheContextTrait.executeQuery(input.qlstring, input.qltype)
-          val cachedRDD = response.rowRDD.cache
-//          cachedRDD.checkpoint
+          val response = acumeCacheContext.utilQL(input.qlstring, input.qltype)
+          response.schemaRDD.cache
           response
         }
       });

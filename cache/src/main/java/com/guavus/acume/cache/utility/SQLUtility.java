@@ -22,7 +22,7 @@ public class SQLUtility {
 		try{
 			CCJSqlParserManager sql = SQLParserFactory.getParserManager();
 			Statement statement = sql.parse(new StringReader(qx));
-			((Select)statement).getSelectBody().accept(new QuerySelectClauseVisitor(0l, 0l, null, list));
+			((Select)statement).getSelectBody().accept(new QuerySelectClauseVisitor(0l, 0l, list));
 			return list;
 		} catch (JSQLParserException e) {
 			e.printStackTrace();
@@ -48,13 +48,12 @@ public class SQLUtility {
 	public static void main(String args[]) {
 			
 		SQLUtility util = new SQLUtility();
-		List<Tuple> list = util.getList("select * from ((select * from (select * from (t full outer join b) where ts < 105 and ts >=10 and binsource = mybinsource)) full outer join xt) as T where ts<10 and ts >=104 and binsource = ifjkdh");
+		List<Tuple> list = util.getList("select * from ((select * from (select * from (t full outer join b) where ts < 105 and ts >=10)) full outer join xt) as T where ts<10 and ts >=104");
 		System.out.println(util.getRequestType("select ts,x from ((select * from (select * from (t full outer join b) where ts < 105 and ts >=10)) full outer join xt) as T where ts<10 and ts >=104"));
 		for (Tuple tx: list) {
 			System.out.println(tx.getStartTime());
 			System.out.println(tx.getEndTime());
-			System.out.println(tx.getBinsource());
-			System.out.println(tx.getCubeName());
+			System.out.println(tx.getTableName());
 		}
 	}
 }

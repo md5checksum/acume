@@ -7,7 +7,7 @@ import com.guavus.acume.cache.common.FieldType.FieldType
  * @author archit.thakur
  *
  */
-class Measure(name: String, baseFieldName : String, datatype: DataType, aggregationFunction: String, defaultValue: Any) extends Field(baseFieldName) { 
+class Measure(name: String, datatype: DataType, aggregationFunction: String, defaultValue: Any) extends Field { 
   
   def getName: String = name
   def getFieldType: FieldType = FieldType.Measure

@@ -48,7 +48,7 @@ class AcumeDataSourceSchema(acumeContext : AcumeContextTrait) extends QueryBuild
    * 
    */
   override def getFieldsForCube(cubeName : String) : java.util.List[String] = {
-    acumeContext.ac.getFieldsForCube(cubeName, null).toList
+    acumeContext.ac.getFieldsForCube(cubeName).toList
   }
   
   override def getDefaultAggregateFunction(field : String) : String  = {
