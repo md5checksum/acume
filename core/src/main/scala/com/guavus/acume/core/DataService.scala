@@ -133,7 +133,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
       }
       if (isTimeseries) {
         val sortedRows = rows.sortBy(row => row(tsIndex).toString)
-        val timestamps = cacheResponse.metadata.timestamps
+        val timestamps = rows.map(row => row(tsIndex).asInstanceOf[Long])
         val timestampsToIndexMap = new scala.collection.mutable.HashMap[Long, Int]()
         var index = -1
         timestamps.foreach(x => { index += 1; timestampsToIndexMap += (x -> index) })
@@ -184,7 +184,12 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
         for (rowToMap <- rowToMeasureMap) {
           tsResults += new TimeseriesResultSet(rowToMap._1, rowToMap._2.map(_.asJava))
         }
-        new TimeseriesResponse(tsResults, dimsNames, measuresNames, timestamps)
+        
+        import scala.collection.JavaConversions._
+        import scala.collection.mutable.ListBuffer
+        val timestampsJavaList: java.util.List[Long] = ListBuffer(timestamps: _*)
+        
+        new TimeseriesResponse(tsResults, dimsNames, measuresNames, timestampsJavaList)
       } else {
         val list = new ArrayBuffer[AggregateResultSet](rows.size)
         for (row <- rows) {
