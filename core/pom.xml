@@ -43,6 +43,11 @@
 			<artifactId>cache</artifactId>
 			<version>0.1-SNAPSHOT</version>
 		</dependency>
+    <dependency>
+      <groupId>libCache</groupId>
+      <artifactId>javalib</artifactId>
+      <version>ca4.0</version>
+    </dependency>
 		<dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>search</artifactId>
@@ -120,6 +125,11 @@
 			<version>${tomcat.version}</version>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.shiro</groupId>
+			<artifactId>shiro-core</artifactId>
+			<version>1.2.0</version>
+		</dependency>
+		<dependency>
 			<groupId>com.guavus.rubix.user.management</groupId>
 			<artifactId>user-management</artifactId>
 			<version>4.9</version>
@@ -137,20 +147,20 @@
 					<artifactId>asm</artifactId>
 				</exclusion>
 				<exclusion>
-                			<groupId>com.sun.jersey</groupId>
-                		</exclusion>
+					<groupId>com.sun.jersey</groupId>
+				</exclusion>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
 					<artifactId>log4j-over-slf4j</artifactId>
 				</exclusion>
 				<exclusion>
 					<groupId>org.apache.logging.log4j</groupId>
-                        		<artifactId>log4j-core</artifactId>
-                		</exclusion>
+					<artifactId>log4j-core</artifactId>
+				</exclusion>
 				<exclusion>
-                        		<groupId>log4j</groupId>
-                        		<artifactId>log4j</artifactId>
-                		</exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -226,25 +236,28 @@
 			<version>1.2.0</version>
 			<scope>provided</scope>
 		</dependency>
+    <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-service</artifactId>
+      <version>0.13.1a</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <version>4.1.10.Final</version>
+    </dependency>
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-hive_2.10</artifactId>
 			<version>1.2.0</version>
 			<scope>provided</scope>
 		</dependency>
-
+  
 		<!-- Spark dependencies end -->
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-hive-thriftserver_2.10</artifactId>
 			<version>1.2.0</version>
-			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>javax.servlet</groupId>
-					<artifactId>servlet-api</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.guavus</groupId>

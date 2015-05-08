@@ -77,9 +77,11 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
   }
 
   private def unsetSparkJobLocalProperties() {
+    println("test: in unsetSparkJobLocalProperties")
     for ((key, value) <- acumeContext.ac.threadLocal.get()) {
       acumeContext.sqlContext.sparkContext.setLocalProperty(key, null)
     }
+    println("test: out unsetSparkJobLocalProperties")
   }
   
   def servRequest(sql: String): Any = {
@@ -107,9 +109,12 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
           }
         }
       }
+      
       calculateJobLevelProperties()
       setSparkJobLocalProperties
+      println("test: executing sql")
       val cacheResponse = execute(sql)
+      println("test: executed sql")
       val schemaRdd = cacheResponse.schemaRDD
       val schema = schemaRdd.schema
       val fields = schema.fieldNames
@@ -132,59 +137,112 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
         j += 1
       }
       if (isTimeseries) {
+        println("err:1")
         val sortedRows = rows.sortBy(row => row(tsIndex).toString)
-        val timestamps = cacheResponse.metadata.timestamps
+        println("err:2")
+        val timestamps = rows.map(row => row(tsIndex).asInstanceOf[Long])
+        println(cacheResponse.metadata)
+        println("err:3")
         val timestampsToIndexMap = new scala.collection.mutable.HashMap[Long, Int]()
+        println("err:4")
         var index = -1
+        println("err:5")
+        println(timestamps)
         timestamps.foreach(x => { index += 1; timestampsToIndexMap += (x -> index) })
+        println(timestampsToIndexMap)
+        println("err:6")
         val rowToMeasureMap = new scala.collection.mutable.HashMap[ArrayBuffer[Any], ArrayBuffer[ArrayBuffer[Any]]]
+        println("err:7")
+        
         for (row <- rows) {
+          println("err:8")
+          println(row)
           val dims = new ArrayBuffer[Any]()
+          println("err:9")
           val measures = new ArrayBuffer[Any]()
+          println("err:10")
           var i = 0
           var dimIndex, measureIndex = 0
           var timestamp = 0L
+          println("err:11")
           for (field <- fields) {
+            println("err:12")
             if (field.equalsIgnoreCase("ts")) {
+              println("err:13")
               timestamp = java.lang.Long.valueOf(row(i).toString)
             } else if (acumeSchema.isDimension(field)) {
-              if (row(i) != null)
+              println("err:14")
+              if (row(i) != null) {
+                println("err:15")
                 dims += row(i)
+              }
               else
                 dims += queryBuilderService.get(0).getDefaultValueForField(dimsNames(dimIndex))
+              println("err:17")
               dimIndex += 1
             } else {
+              println("err:18")
               if (row(i) != null)
                 measures += row(i)
               else
                 measures += queryBuilderService.get(0).getDefaultValueForField(measuresNames(measureIndex))
+              println("err:19")
               measureIndex += 1
             }
+            println("err:20")
             i += 1
           }
-
+          
+          println("err:21")
           def initializeArray(): ArrayBuffer[ArrayBuffer[Any]] = {
+            println("err:22")
             val measureArray = new Array[ArrayBuffer[Any]](measuresNames.size)
+            println("err:23")
             i = 0
             while (i < measuresNames.size) {
+              println("err:24")
               measureArray(i) = { val array = new Array[Object](timestamps.size); Arrays.fill(array, queryBuilderService.get(0).getDefaultValueForField(measuresNames(i)).asInstanceOf[Any]); new ArrayBuffer[Any]() ++= (array) }
+              println("err:25")
               i += 1
             }
+            println("err:26")
             new ArrayBuffer ++= measureArray
           }
           val measureArray = rowToMeasureMap.getOrElse(dims, initializeArray)
+          println("err:27")
           var measureValueIndex = 0
           for (measure <- measures) {
+            println("err:28")
+            println(measureValueIndex)
+            println(measureArray)
+            println(timestamp)
+            println(timestampsToIndexMap)
+            println(measures)
             measureArray(measureValueIndex)(timestampsToIndexMap.get(timestamp).get) = measures(measureValueIndex)
+            println("err:29")
             measureValueIndex += 1
+            println("err:30")
           }
+          println("err:31")
           rowToMeasureMap += (dims -> measureArray)
+          println("err:32")
         }
+        
+        println("test: " + rowToMeasureMap)
         val tsResults = new ArrayBuffer[TimeseriesResultSet]()
         for (rowToMap <- rowToMeasureMap) {
           tsResults += new TimeseriesResultSet(rowToMap._1, rowToMap._2.map(_.asJava))
         }
-        new TimeseriesResponse(tsResults, dimsNames, measuresNames, timestamps)
+        
+        println("test: " + tsResults)
+        println("test: " + dimsNames)
+        println("test: " + measuresNames)
+        println("test: " + timestamps)
+        
+        import scala.collection.JavaConversions._
+        import scala.collection.mutable.ListBuffer
+        val timestampsJavaList: java.util.List[Long] = ListBuffer(timestamps: _*)
+        new TimeseriesResponse(tsResults, dimsNames, measuresNames, timestampsJavaList)
       } else {
         val list = new ArrayBuffer[AggregateResultSet](rows.size)
         for (row <- rows) {
@@ -213,11 +271,21 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
       }
       new AggregateResponse(list, dimsNames, measuresNames, rows.size)
      }
+    } catch {
+      case e: Exception => {println(e); println(e.getMessage());
+      val stacks = e.getStackTrace()
+      for (stack <- stacks) {
+        println(stack)
+      }
+      e.printStackTrace()
+      }
     } finally {
       unsetSparkJobLocalProperties
       
+      println("hey1")
       if(classificationname != null && poolname != null)
           updateFinalStats(poolname, classificationname, poolStatAttribute, classificationStatAttribute, starttime, System.currentTimeMillis())
+      
     }
   }
 
