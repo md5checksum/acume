@@ -133,7 +133,11 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
       }
       if (isTimeseries) {
         val sortedRows = rows.sortBy(row => row(tsIndex).toString)
-        val timestamps = cacheResponse.metadata.timestamps
+        var timestamps = cacheResponse.metadata.timestamps
+        if(timestamps == Nil) {
+          timestamps = sortedRows.toList.map(row => row(tsIndex).asInstanceOf[Long]).distinct
+        }
+        
         val timestampsToIndexMap = new scala.collection.mutable.HashMap[Long, Int]()
         var index = -1
         timestamps.foreach(x => { index += 1; timestampsToIndexMap += (x -> index) })
