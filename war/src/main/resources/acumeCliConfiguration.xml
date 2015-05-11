@@ -466,6 +466,17 @@ Please don't use the following reserved property names:
                                 </target>
                         </targets>
                   </property>
+		  <property>
+                        <name><acumeCoreCacheUseInsta/name>
+                        <help><![CDATA[ - If Insta is to be used for Hive Queries]]></help>
+                        <default><![CDATA[false]]></default>
+                        <targets>
+                                <target>
+                                        <file><![CDATA[acume.conf]]></file>
+                                        <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                                </target>
+                        </targets>
+                  </property>
     </PropertiesPerApplication>
 
     <PropertiesPerInstance>
@@ -774,20 +785,6 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
-
-        <property>
-            <name>redirectPort</name>
-            <type>basic</type>
-            <help><![CDATA[ - Port used by UI for https connection to tomcat]]></help>
-            <default><![CDATA[6443]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[server.xml]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/conf/]]></path>
-                </target>
-            </targets>
-        </property>
-
         <property>
             <name>JMXAUTHENTICATE</name>
             <type>basic</type>

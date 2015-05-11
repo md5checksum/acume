@@ -140,6 +140,13 @@
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${rubixApp}.directMemorySize</Property_OriginalName>
         </Property>
+	<Property>
+            <Property_Name>application.${rubixApp}.acumeCoreCacheUseInsta</Property_Name>
+            <Property_Value>false</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${rubixApp}.acumeCoreCacheUseInsta</Property_OriginalName>
+        </Property>
         <Property>
             <Property_Name>Acume Instance: &lt;</Property_Name>
             <Property_Value>Acume-Instance</Property_Value>
