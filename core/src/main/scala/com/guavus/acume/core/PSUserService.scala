@@ -8,9 +8,9 @@ import org.slf4j.LoggerFactory
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
-import com.guavus.acume.cache.utility.TimeZoneInfo
+import com.guavus.rubix.query.remote.flex.TimeZoneInfo
 import com.guavus.acume.cache.utility.Utility
-import com.guavus.acume.cache.utility.ZoneInfoParams
+import com.guavus.rubix.query.remote.flex.ZoneInfoParams
 import com.guavus.acume.core.configuration.ConfigFactory
 import com.guavus.acume.core.scheduler.Controller
 
