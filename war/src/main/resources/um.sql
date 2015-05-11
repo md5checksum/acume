@@ -55,7 +55,7 @@ create table LaunchBoard (id bigserial, userName varchar(255) references UserInf
 alter table UserFlow alter column data type text;
 alter table LaunchBoard alter column data type text;
 #VER 5.0
-create table application (code varchar(255) NOT NULL, name varchar(255) NOT NULL,url character varying(255) NOT NULL, primary key (code));
+create table application (code varchar(255) NOT NULL, primary key (code));
 alter table role add column additionalinfo text;
 alter table role add column applicationcode character varying(255);
 alter table role ADD CONSTRAINT role_applicationcode_fkey FOREIGN KEY (applicationcode) REFERENCES application(code);
@@ -64,5 +64,9 @@ alter table role add constraint role_rolename_applicationcode_key UNIQUE(rolenam
 create table user_application (userName varchar(255) not null, applicationcode varchar(255) not null, primary key (userName, applicationcode));
 alter table user_application add constraint user_application_username_fkey foreign key (userName) references UserInfo;
 alter table user_application add constraint user_application_applicationcode_fkey foreign key (applicationcode) REFERENCES application(code);
+alter table LaunchBoard add column applicationcode character varying(255);
+alter table LaunchBoard ADD CONSTRAINT launchboard_applicationcode_fkey FOREIGN KEY (applicationcode) REFERENCES application(code);
+alter table UserFlow add column applicationcode character varying(255);
+alter table UserFlow ADD CONSTRAINT userflow_applicationcode_fkey FOREIGN KEY (applicationcode) REFERENCES application(code);
 #VER 5.1
 alter table UserInfo add column isldapuser boolean NOT NULL DEFAULT 'false';
