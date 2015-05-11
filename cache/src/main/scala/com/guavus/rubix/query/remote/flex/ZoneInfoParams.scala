@@ -1,4 +1,4 @@
-package com.guavus.acume.cache.utility
+package com.guavus.rubix.query.remote.flex
 
 import scala.reflect.BeanProperty
 
