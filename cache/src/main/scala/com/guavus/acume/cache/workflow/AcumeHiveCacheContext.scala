@@ -19,6 +19,8 @@ import com.guavus.acume.cache.common.BaseCube
 import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.CacheLevel
 import com.guavus.acume.cache.core.FixedLevelPolicy
+import com.guavus.acume.cache.core.CacheTimeSeriesLevelPolicy
+import scala.collection.immutable.SortedMap
 
 /**
  * @author kashish.jain
@@ -43,6 +45,8 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
   private [acume] def cacheConf = conf
   
   private [acume] def getCubeMap = throw new RuntimeException("Operation not supported")
+  
+   val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]()(implicitly[Ordering[Long]].reverse) ++ Utility.getLevelPointMap(conf.get(ConfConstants.acumecoretimeserieslevelmap)))
   
   private [acume] def executeQuery(sql: String, qltype: QLType.QLType) = {
     if(!cacheConf.getBoolean(ConfConstants.useInsta, false)) {
@@ -76,7 +80,12 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
       i = AcumeCacheContext.getTable(cube)
       updatedsql = updatedsql.replaceAll(s"$cube", s"$i")
       val finalRdd = if(rt == RequestType.Timeseries) {
-        val level = queryOptionalParams.getTimeSeriesGranularity
+        val level = 
+          if (queryOptionalParams.getTimeSeriesGranularity() != 0) {
+            queryOptionalParams.getTimeSeriesGranularity()
+          } else
+            cacheTimeseriesLevelPolicy.getLevelToUse(startTime, endTime, getLastBinPersistedTime(key_binsource))
+            
     	  val startTimeCeiling = Utility.floorFromGranularity(startTime, level)
     	  val endTimeFloor = Utility.floorFromGranularity(endTime, level)
            timestamps = Utility.getAllIntervals(startTimeCeiling, endTimeFloor, level)
