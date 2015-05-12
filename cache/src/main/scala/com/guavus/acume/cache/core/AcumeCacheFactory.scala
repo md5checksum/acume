@@ -29,7 +29,9 @@ object AcumeCacheFactory {
     /**
      * Logic to compute Cache goes here
      */
-    class abc extends java.util.function.Function[CacheIdentifier, AcumeCache[k, v]]() {
+    
+    /*
+     * class abc extends java.util.function.Function[CacheIdentifier, AcumeCache[k, v]]() {
       def apply(t: CacheIdentifier) = {
         val levelSet = cube.levelPolicyMap.keySet.+(cube.baseGran.getGranularity)
         val levels = levelSet.toArray
@@ -55,5 +57,7 @@ object AcumeCacheFactory {
     }
     val _$instance = caches.computeIfAbsent(cacheIdentifier, new abc())
     _$instance.asInstanceOf[AcumeCache[k,v]]
+    * */
+    null
   }
 }
