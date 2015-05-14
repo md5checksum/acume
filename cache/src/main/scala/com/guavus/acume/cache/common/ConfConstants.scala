@@ -49,7 +49,6 @@ private [acume] object ConfConstants {
   val sqlQueryEngine = "acume.core.sql.query.engine"
   val udfConfigXml = "acume.core.udf.configurationxml"
   val enableJDBCServer = "acume.core.enableJDBCServer"
-  val queryPoolPolicyClass = "acume.core.querypoolpolicyclass"
   val queryPoolSchedPolicyClass = "com.guavus.acume.core.QueryPoolPolicySchedulerImpl"
   val disableTotalForAggregate = "acume.core.disable.total.query"
   val cacheTypeConfigClassName = "acume.cache.type.config.classname"
@@ -70,9 +69,7 @@ private [acume] object ConfConstants {
   val instaAvailabilityPollInterval = "acume.insta.availability.poll.interval" 
   val cacheBaseDirectory = "acume.core.cache.base.directory"
   val cacheDirectory = "acume.core.cache.directory"
-    val useInsta = "acume.core.cache.use.insta"
-  /* Insta Properties */
-  val instaComboPoints = "acume.insta.comboPoints"
+  val useInsta = "acume.core.cache.use.insta"
 
   val defaultValueMap = Map[String, String]()
   defaultValueMap += businesscubexml -> "src/test/resources/cubedefinition1.xml"
