@@ -483,6 +483,72 @@ Please don't use the following reserved property names:
                                 </target>
                         </targets>
                   </property>
+
+        <property>
+            <name>mailHost</name>
+            <type>advance_sensitive</type>
+            <help><![CDATA[ - Mail server host name]]></help>
+            <default><![CDATA[mx1.guavus.com]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[notification.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>mailPort</name>
+            <type>advance_sensitive</type>
+            <help><![CDATA[ - Mail server port number]]></help>
+            <default><![CDATA[25]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[notification.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>mailSender</name>
+            <type>advance_sensitive</type>
+            <help><![CDATA[ - User-name on which be-half mail would be sent]]></help>
+            <default><![CDATA[acume-admin@guavus.com]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[notification.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>mailRecipients</name>
+            <type>advance_sensitive</type>
+            <help><![CDATA[ - Recipients of the email]]></help>
+            <default><![CDATA[deploy@guavus.com]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[notification.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>  
+
+        <property>
+            <name>mailErrCheckInterval</name>
+            <help><![CDATA[ - Time interval error queue is checked and re-sent]]></help>
+            <default><![CDATA[3600]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[notification.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+
     </PropertiesPerApplication>
 
     <PropertiesPerInstance>
@@ -835,7 +901,7 @@ Please don't use the following reserved property names:
             <name>cacheBaselayerCubedefinitionXml</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
-            <default><![CDATA[cubexml]]></default>
+	    <default><![CDATA[/opt/tms/xml_schema/CubeDefinition.xml]]></default>
             <targets>
                 <target>
                     <file><![CDATA[acume.conf]]></file>
@@ -884,7 +950,7 @@ Please don't use the following reserved property names:
         </property>
         
         <property>
-            <name>cacheCoreRRCahceSize</name>
+            <name>cacheCoreRRCacheSize</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[502]]></default>

@@ -151,6 +151,41 @@
             <Property_OriginalName>application.${rubixApp}.passwordHistoryCount</Property_OriginalName>
         </Property>
         <Property>
+            <Property_Name>application.${rubixApp}.mailHost</Property_Name>
+            <Property_Value>mx1.guavus.com</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${rubixApp}.mailHost</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${rubixApp}.mailPort</Property_Name>
+            <Property_Value>25</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>integer</Property_DataType>
+            <Property_OriginalName>application.${rubixApp}.mailPort</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${rubixApp}.mailSender</Property_Name>
+            <Property_Value>acume-admin@guavus.com</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${rubixApp}.mailSender</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${rubixApp}.mailRecipients</Property_Name>
+            <Property_Value>deploy@guavus.com</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${rubixApp}.mailRecipients</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${rubixApp}.mailErrCheckInterval</Property_Name>
+            <Property_Value>3600</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>integer</Property_DataType>
+            <Property_OriginalName>application.${rubixApp}.mailErrCheckInterval</Property_OriginalName>
+        </Property>
+        <Property>
             <Property_Name>application.${rubixApp}.LDAPSEARCHGROUPNAME</Property_Name>
             <Property_Value>false</Property_Value>
             <Property_Type>read-write</Property_Type>
