@@ -55,9 +55,17 @@ object AcumeTreeCacheEvictionPolicy {
 
 class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextTrait) extends EvictionPolicy(cube, cacheContext) {
 
-  def getEvictableCandidate(list: List[LevelTimestamp]): Option[LevelTimestamp] = {
+  def getMemoryEvictableCandidate(list: List[LevelTimestamp]): Option[LevelTimestamp] = {
+    getEvictableCandidate(list, cube.levelPolicyMap)
+  }
+  
+  def getDiskEvictableCandidate(list: List[LevelTimestamp]): Option[LevelTimestamp] = {
+    getEvictableCandidate(list, cube.diskLevelPolicyMap)
+  }
+  
+  def getEvictableCandidate(list: List[LevelTimestamp], variableretentionmap : Map[Long, Int]): Option[LevelTimestamp] = {
     
-    val variableretentionmap = cube.levelPolicyMap
+    
     var count = 0
     var _$evictableCandidate: Option[LevelTimestamp] = None
     for(leveltimestamp <- list) yield {

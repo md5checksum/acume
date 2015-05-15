@@ -16,7 +16,11 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
  */
 abstract class EvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextTrait) {
 
-  def getEvictableCandidate(cache: List[LevelTimestamp]): Option[LevelTimestamp]
+//  def getEvictableCandidate(cache: List[LevelTimestamp]): Option[LevelTimestamp]
+  
+  def getMemoryEvictableCandidate(list: List[LevelTimestamp]): Option[LevelTimestamp]
+  
+  def getDiskEvictableCandidate(list: List[LevelTimestamp]): Option[LevelTimestamp]
 }
 
 object EvictionPolicy{

@@ -30,9 +30,13 @@ case class DimensionTable(var tblnm: String, var maxid: Long) extends Serializab
 }
 
 case class Cube(cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, singleEntityKeys : Map[String, String], 
-    baseGran: TimeGranularity, isCacheable: Boolean, levelPolicyMap: Map[Long, Int], cacheTimeseriesLevelPolicyMap: Map[Long, Int], 
+    baseGran: TimeGranularity, isCacheable: Boolean, levelPolicyMap: Map[Long, Int], diskLevelPolicyMap : Map[Long, Int], cacheTimeseriesLevelPolicyMap: Map[Long, Int], 
     evictionPolicyClass: Class[_ <: EvictionPolicy], schemaType : AcumeCacheType, propertyMap: Map[String,String]) 
     extends CubeTrait(cubeName, dimension, measure, schemaType) with Equals {
+  
+  def getAbsoluteCubeName = {
+     cubeName + "_"+ binsource
+  }
   
   def canEqual(other: Any) = {
     other.isInstanceOf[Cube]
