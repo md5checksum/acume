@@ -67,9 +67,10 @@
 	 APR (HTTP/AJP) Connector: /docs/apr.html
 	 Define a non-SSL HTTP/1.1 Connector on port 8080
     -->
-    <Connector port="$CLI_REPLACE_CONNECTORPORT$" protocol="HTTP/1.1"
+    <!--Connector port="$CLI_REPLACE_CONNECTORPORT$" protocol="HTTP/1.1"
 	       connectionTimeout="20000"
 	       redirectPort="$CLI_REPLACE_REDIRECTPORT$" />
+			 -->
     <!-- A "Connector" using the shared thread pool-->
     <!--
     <Connector executor="tomcatThreadPool"
@@ -83,12 +84,13 @@
 	 described in the APR documentation -->
 
 	<Connector
-			clientAuth="$CLI_REPLACE_AUTHENTICATECLIENT$" port="$CLI_REPLACE_REDIRECTPORT$" disableUploadTimeout="true"
+			clientAuth="$CLI_REPLACE_AUTHENTICATECLIENT$" port="$CLI_REPLACE_CONNECTORPORT$" disableUploadTimeout="true"
 			acceptCount="100" protocol="HTTP/1.1" maxThreads="150" scheme="https" secure="true" SSLEnabled="true"
 			keystoreFile="$CLI_REPLACE_KEYSTOREFILE$" keystoreType="$CLI_REPLACE_KEYSTORETYPE$" keystorePass="$CLI_REPLACE_KEYSTOREPASSWORD$"
 			truststoreFile="$CLI_REPLACE_TRUSTSTOREFILE$" truststoreType="$CLI_REPLACE_TRUSTSTORETYPE$" truststorePass="$CLI_REPLACE_TRUSTSTOREPASSWORD$"
 			connectionTimeout="$CLI_REPLACE_CONNECTIONTIMEOUT$" keepAliveTimeout="$CLI_REPLACE_KEEPALIVETIMEOUT$" maxKeepAliveRequests="$CLI_REPLACE_MAXKEEPALIVEREQUESTS$"
-			SSLVerifyClient="require" SSLEngine="on" SSLVerifyDepth="10" ciphers="SSL_RSA_WITH_RC4_128_MD5, SSL_RSA_WITH_RC4_128_SHA" sslEnabledProtocols = "TLSv1,TLSv1.1,TLSv1.2"/>
+			SSLVerifyClient="require" SSLEngine="on" SSLVerifyDepth="10" ciphers="SSL_RSA_WITH_RC4_128_MD5, SSL_RSA_WITH_RC4_128_SHA" 
+			sslEnabledProtocols = "TLSv1,TLSv1.1,TLSv1.2" redirectPort="$CLI_REPLACE_REDIRECTPORT$" />
 
     <!-- Define an AJP 1.3 Connector on port 8009 -->
     <Connector port="$CLI_REPLACE_CONNECTORPORTAJP$" protocol="AJP/1.3" redirectPort="$CLI_REPLACE_REDIRECTPORT$" />
