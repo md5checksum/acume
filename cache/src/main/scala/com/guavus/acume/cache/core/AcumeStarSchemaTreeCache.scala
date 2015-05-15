@@ -73,7 +73,8 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
   cachePointToTable  = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
     .maximumSize(acumetreecachesize).removalListener(new RemovalListener[LevelTimestamp, AcumeTreeCacheValue] {
       def onRemoval(notification: RemovalNotification[LevelTimestamp, AcumeTreeCacheValue]) {
-        acumeCacheContext.sqlContext.uncacheTable(notification.getValue().measuretableName)
+//        acumeCacheContext.sqlContext.uncacheTable(notification.getValue().measuretableName)
+        //TODO check if data can be moved to disk
       }
     })
     .build(
@@ -81,7 +82,8 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
         def load(key: LevelTimestamp): AcumeTreeCacheValue = {
           val output = checkIfTableAlreadyExist(key)
           if (output != null) {
-        	  return new AcumeTreeCacheValue(dimensionTable.tblnm, output.measuretableName, output.measureschemardd)
+//        	  return new AcumeStarTreeCacheValue(new AcumeInMemoryValue(key, cube, ), output.measuretableName, output.measureschemardd)
+            output
           } else {
             println(s"Getting data from Insta for $key as it was never calculated")
           }
@@ -137,7 +139,8 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
               
               cacheTable(_tableName)
               
-              return new AcumeTreeCacheValue(dimensionTable.tblnm, _tableName, value)
+//              nullreturn new AcumeTreeCacheValue(dimensionTable.tblnm, _tableName, value)
+              null//TODO correct it
             }
 
   private def createTableForAggregate(startTime: Long, endTime: Long, tableName: String, isMetaData: Boolean): MetaData = {
@@ -198,7 +201,8 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
     val value = _$dataset
     value.registerTempTable(_tableName)
     cacheTable(_tableName)
-    AcumeTreeCacheValue(_$dimt, _tableName, value)
+//    AcumeTreeCacheValue(_$dimt, _tableName, value)
+    null //TODO Correct it
   }
 
   def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable): Tuple2[SchemaRDD, String] = {
@@ -257,7 +261,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
         val acumeTreeCacheValue = cachePointToTable.get(levelTimestamp)
         notifyObserverList
         populateParent(levelTimestamp.level.localId, levelTimestamp.timestamp)
-        val diskread = acumeTreeCacheValue.measureschemardd
+        val diskread = acumeTreeCacheValue.getAcumeValue.measureSchemaRdd
         finalSchema = diskread.schema
         val _$diskread = diskread
         _$diskread
