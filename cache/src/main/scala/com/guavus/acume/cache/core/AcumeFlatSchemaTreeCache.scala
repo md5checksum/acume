@@ -108,7 +108,9 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     value.registerTempTable(tempTable)
     val timestamp = key.timestamp
     val parentRdd = acumeCacheContext.sqlContext.sql(s"select $timestamp as ts, $selectDimensions, $selectMeasures from $tempTable " + groupBy)
-    return new AcumeTreeCacheValue(acumeCacheContext.cacheSqlContext, null, _tableName, parentRdd)
+    parentRdd.registerTempTable(_tableName)
+    sqlContext.cacheTable(_tableName)
+    return new AcumeTreeCacheValue(null, _tableName, parentRdd)
   }
   
   def mergeChildPoints(emptyRdd: SchemaRDD, rdds : Seq[SchemaRDD]) : SchemaRDD = {
@@ -185,7 +187,9 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     val timestamp = levelTimestamp.timestamp
     val measureSet = (CubeUtil.getDimensionSet(cube) ++ CubeUtil.getMeasureSet(cube)).map(_.getName).mkString(",")
     val cachePoint = sqlContext.sql(s"select $timestamp as ts, $measureSet from " + _tableNameTemp)
-    new AcumeTreeCacheValue(acumeCacheContext.cacheSqlContext, null, _tableName, cachePoint)
+    cachePoint.registerTempTable(_tableName)
+    cacheTable(_tableName)
+    AcumeTreeCacheValue(null, _tableName, cachePoint)
   }
   
   def processBackendData(rdd: SchemaRDD) : SchemaRDD = {
