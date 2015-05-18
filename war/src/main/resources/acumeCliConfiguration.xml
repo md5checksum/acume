@@ -773,6 +773,30 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
+                <name>obfuscateUsername</name>
+                <help><![CDATA[- obfuscate username in logs]]></help>
+                <default><![CDATA[true]]></default>
+                <targets>
+                    <target>
+                        <file><![CDATA[usermanagement.properties]]></file>
+                        <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                    </target>
+                </targets>
+        </property>
+
+        <property>
+            <name>maxUsersCount</name>
+            <help><![CDATA[ - UserManagement max users allowed]]></help>
+            <default><![CDATA[2147483647]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[usermanagement.properties]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
             <name>customNamingStrategyEnabledHibernate</name>
             <help><![CDATA[ - TODO]]></help>
             <default><![CDATA[false]]></default>

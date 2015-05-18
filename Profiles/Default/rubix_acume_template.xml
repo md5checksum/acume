@@ -424,6 +424,20 @@
             <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.umDBVersion</Property_OriginalName>
         </Property>
         <Property>
+              <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.obfuscateUsername</Property_Name>
+              <Property_Value>true</Property_Value>
+              <Property_Type>read-write</Property_Type>
+              <Property_DataType>boolean</Property_DataType>
+              <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.obfuscateUsername</Property_OriginalName>
+        </Property>
+        <Property>
+              <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.maxUsersCount</Property_Name>
+              <Property_Value>2147483647</Property_Value>
+              <Property_Type>read-write</Property_Type>
+              <Property_DataType>integer</Property_DataType>
+              <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.maxUsersCount</Property_OriginalName>
+       </Property>
+        <Property>
             <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.solutionDBVersion</Property_Name>
             <Property_Value>2.0.2.1</Property_Value>
             <Property_Type>read-write</Property_Type>
