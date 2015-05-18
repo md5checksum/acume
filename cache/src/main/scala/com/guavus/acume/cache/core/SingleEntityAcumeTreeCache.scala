@@ -42,10 +42,6 @@ extends AcumeCache[CacheIdentifier, AcumeCache[LevelTimestamp, AcumeTreeCacheVal
   override def getDataFromBackend(cacheIdentifier : CacheIdentifier) : AcumeCache[LevelTimestamp, AcumeTreeCacheValue] = {
 	AcumeCacheFactory.getInstance(acumeCacheContext, conf, cacheIdentifier, cube)
   }
-  
-  override def evict(key : CacheIdentifier) {
-    //TODO Remove all points related to the cache which was removed
-  }
 
   def createTempTable(keyMap : List[Map[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) = {
 	  val tempTables = for(keyValueMap <- keyMap) yield {

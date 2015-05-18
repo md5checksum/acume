@@ -2,7 +2,7 @@ package com.guavus.acume.cache.core
 
 import com.guavus.acume.cache.core.TimeGranularity._
 import com.guavus.acume.cache.common.Cube
-import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import com.guavus.acume.cache.workflow.AcumeCacheContext
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.workflow.RequestType
 import com.guavus.acume.cache.workflow.RequestType._
@@ -15,15 +15,13 @@ import scala.collection.mutable.MutableList
 import com.guavus.acume.cache.common.LevelTimestamp
 import java.util.LinkedList
 import scala.collection.mutable.HashMap
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.common.LevelTimestamp
 
 
 /**
  * @author archit.thakur
  *
  */
-abstract class AcumeCache[k, v](val acumeCacheContext: AcumeCacheContextTrait, val conf: AcumeCacheConf, val cube: Cube) extends Observable {
+abstract class AcumeCache[k, v](val acumeCacheContext: AcumeCacheContext, val conf: AcumeCacheConf, val cube: Cube) extends Observable {
 
   protected val list = new MutableList[AcumeCacheObserver]
   
@@ -49,7 +47,5 @@ abstract class AcumeCache[k, v](val acumeCacheContext: AcumeCacheContextTrait, v
   def notifyObserverList = {
     list.foreach(_.update(this, conf))
   }
-  
-  def evict(key : k)
 
 }

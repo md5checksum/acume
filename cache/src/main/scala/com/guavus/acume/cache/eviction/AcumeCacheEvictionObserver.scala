@@ -27,12 +27,10 @@ class AcumeCacheEvictionObserver(_$acumeCache: AcumeCache[_ <: Any, _ <: Any]) e
     val loading = acumeCache.getCacheCollection.asInstanceOf[LoadingCache[LevelTimestamp , String]]
     val _$key = loading.asMap().keySet()
     val _$eviction = EvictionPolicy.getEvictionPolicy(acumeCache.cube, _$acumeCache.acumeCacheContext)
-    val memoryEvictable = _$eviction.getMemoryEvictableCandidate(_$key.toList)
-    val diskEvictable = _$eviction.getDiskEvictableCandidate(_$key.toList)
-    if(memoryEvictable != diskEvictable) {
-      //evict memory candidate 
-    } else {
-    	loading.invalidate(memoryEvictable)
-    }
+    val _$x = _$eviction.getEvictableCandidate(_$key.toList)
+    _$x match{
+	  case None => 
+	  case Some(_$y) => loading.invalidate(_$y) 	
+	}
   }
 }
