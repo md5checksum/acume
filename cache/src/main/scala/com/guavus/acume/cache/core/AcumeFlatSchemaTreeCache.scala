@@ -48,6 +48,7 @@ import com.guavus.acume.cache.common.CacheLevel
 import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 
 /**
  * @author archit.thakur

@@ -14,6 +14,7 @@ import com.guavus.acume.cache.common.LevelTimestamp
 import java.util.concurrent.Executors
 import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.LevelTimestamp
+import org.apache.hadoop.fs.Path
 
 abstract case class AcumeTreeCacheValue(dimensionTableName: String = null, acumeContext: AcumeCacheContextTrait) {
   protected var acumeValue: AcumeValue
@@ -27,31 +28,39 @@ class AcumeStarTreeCacheValue(dimensionTableName: String, protected var acumeVal
 }
 
 class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeContext: AcumeCacheContextTrait) extends AcumeTreeCacheValue(null, acumeContext) {
-  @volatile 
+  @volatile
   var shouldCache = true
   import scala.concurrent._
   import scala.util.{ Success, Failure }
 
   def evictFromMemory() {
-    if(acumeValue.isInstanceOf[AcumeInMemoryValue])
-    	shouldCache = false
-	 acumeValue.evictFromMemory
+    if (acumeValue.isInstanceOf[AcumeInMemoryValue])
+      shouldCache = false
+    acumeValue.evictFromMemory
   }
-  
-  val context = AcumeTreeCacheValue.context
-  val f: Future[AcumeDiskValue] = Future({
-    val diskDirectory = AcumeTreeCacheValue.getDiskDirectoryForPoint(acumeContext, acumeValue.cube, acumeValue.levelTimestamp)
-    acumeValue.measureSchemaRdd.saveAsParquetFile(diskDirectory)
-    val rdd = acumeContext.cacheSqlContext.parquetFile(diskDirectory)
-    new AcumeDiskValue(acumeValue.levelTimestamp, acumeValue.cube, rdd)
-  })(context)
 
-  f.onComplete {
-    case Success(diskValue) => this.acumeValue = diskValue
-    if(!shouldCache) 
-      acumeValue.evictFromMemory
-    case Failure(t) => //TODO Retry or what since we have lost track of the rdd
-  }(context)
+  val context = AcumeTreeCacheValue.context
+  var isSuccessWritingToDisk = false
+  while (!isSuccessWritingToDisk) {
+    val f: Future[AcumeDiskValue] = Future({
+      val diskDirectory = AcumeTreeCacheValue.getDiskDirectoryForPoint(acumeContext, acumeValue.cube, acumeValue.levelTimestamp)
+      val path = new Path(diskDirectory)
+      val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
+      fs.delete(path, true)
+      acumeValue.measureSchemaRdd.saveAsParquetFile(diskDirectory)
+      val rdd = acumeContext.cacheSqlContext.parquetFile(diskDirectory)
+      new AcumeDiskValue(acumeValue.levelTimestamp, acumeValue.cube, rdd)
+    })(context)
+
+    f.onComplete {
+      case Success(diskValue) =>
+        this.acumeValue = diskValue
+        if (!shouldCache)
+          acumeValue.evictFromMemory
+        isSuccessWritingToDisk = true
+      case Failure(t) => isSuccessWritingToDisk = false
+    }(context)
+  }
 }
 
 trait AcumeValue {
