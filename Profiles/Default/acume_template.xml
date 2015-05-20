@@ -102,11 +102,11 @@
             <Property_OriginalName>application.${acumeApp}.distributedDialect</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${acumeApp}.acumeInstance</Property_Name>
+            <Property_Name>application.${acumeApp}.instanceId</Property_Name>
             <Property_Value />
             <Property_Type>read-write</Property_Type>
             <Property_DataType>integer</Property_DataType>
-            <Property_OriginalName>application.${acumeApp}.acumeInstance</Property_OriginalName>
+            <Property_OriginalName>application.${acumeApp}.instanceId</Property_OriginalName>
         </Property>
         <Property>
             <Property_Name> application.${acumeApp}.redirectPort</Property_Name>
