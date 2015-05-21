@@ -10,6 +10,22 @@ import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import javax.xml.bind.annotation.XmlRootElement
 import com.google.common.collect.Lists
+import com.guavus.acume.core.query.DataExportRequest
+import com.guavus.acume.core.query.DataExportResponse
+import com.guavus.acume.core.query.CSVDataExporter
+import com.guavus.acume.core.query.DataExportResponse
+import com.guavus.acume.core.query.DataExporterUtil
+import com.guavus.rubix.user.management.exceptions.RubixExceptionConstants
+import com.guavus.acume.core.query.IDataExporter
+import com.guavus.acume.core.query.DataExportResponse
+import com.guavus.acume.core.query.FILE_TYPE
+import com.guavus.acume.cache.common.AcumeConstants
+import org.apache.commons.lang.exception.ExceptionUtils
+import com.guavus.acume.core.webservice.BadRequestException
+import com.guavus.acume.core.webservice.HttpError
+import javax.ws.rs.core.Response
+import javax.ws.rs.core.Response.ResponseBuilder
+import com.guavus.acume.core.exceptions.AcumeExceptionConstants
 
 /**
  * Main service of acume which serves the request from UI and rest services. It checks if the response is present in RR cache otherwise fire the query on OLAP cache.
@@ -60,6 +76,34 @@ class AcumeService(dataService: DataService) {
   def searchRequest(searchRequest : SearchRequest) : SearchResponse = {
     dataService.servSearchRequest(searchRequest)
   }
+  
+  def servExportCSV(dataExportRequest: DataExportRequest) : Response = {
+    try {
+        val dataExporter : IDataExporter = DataExporterUtil.getExporterInstance(dataExportRequest.getFileType());
+        val dataExporterResponse : DataExportResponse = dataExporter.exportToFile(dataExportRequest);
+        val rBuild : ResponseBuilder = Response.ok();
+            
+        var fileName : String = null
+        
+        if(dataExporterResponse.getFileType().equals(AcumeConstants.ZIP)) {
+          rBuild.`type`("application/zip")
+          fileName = CSVDataExporter.getFileName(dataExportRequest.getFileName(), FILE_TYPE.ZIP);
+        } else {
+          rBuild.`type`("text/csv");
+          fileName = CSVDataExporter.getFileName(dataExportRequest.getFileName(), FILE_TYPE.RESULTS);
+        }
+        
+        rBuild.header("Content-Disposition", "attachment;filename=\"" + fileName + "\"");
+        rBuild.entity(dataExporterResponse.getInputStream())
+        rBuild.build();
+    } catch {
+      case e: Exception => {
+        throw new BadRequestException(HttpError.NOT_ACCEPTABLE, AcumeExceptionConstants.UNABLE_TO_SERVE.toString, 
+          e.getMessage, ExceptionUtils.getStackTrace(e))
+      }
+    }
+  }
+  
 }
 
 

@@ -13,13 +13,55 @@ import javax.ws.rs.POST
 import com.guavus.rubix.query.remote.flex.SearchRequest
 import com.guavus.acume.cache.workflow.AcumeCacheResponse
 import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.cache.common.AcumeConstants
+import com.guavus.acume.core.query.DataExportRequest
+import com.guavus.acume.cache.workflow.RequestType
 
 @Path("/" + "queryresponse")
 /**
  * Expose Acume all rest apis.
  */
 class RestService {
-	
+  
+  @POST
+    @Consumes(Array("application/json"))
+    @Produces(Array("application/json"))
+    @Path("exportaggregate")
+  def exportAggregateData(dataExportRequest: DataExportRequest, @QueryParam(value = "super") userinfo: String,
+      @QueryParam("user") user: String, @QueryParam("password") password: String): Serializable = {
+    
+    Authentication.authenticate(userinfo, user, password)
+    dataExportRequest.setRequestDataType(RequestType.Aggregate)
+    dataExportRequest.setRubixService(AcumeService.acumeService)
+    AcumeService.acumeService.servExportCSV(dataExportRequest).asInstanceOf[Serializable]
+  }
+  
+  @POST
+    @Consumes(Array("application/json"))
+    @Produces(Array("application/json"))
+    @Path("exporttimeseries")
+  def exportTimeseriesData(dataExportRequest: DataExportRequest, @QueryParam(value = "super") userinfo: String,
+      @QueryParam("user") user: String, @QueryParam("password") password: String): Serializable = {
+    
+    Authentication.authenticate(userinfo, user, password)
+    dataExportRequest.setRequestDataType(RequestType.Timeseries)
+    dataExportRequest.setRubixService(AcumeService.acumeService)
+    AcumeService.acumeService.servExportCSV(dataExportRequest).asInstanceOf[Serializable]
+  }
+  
+  @POST
+    @Consumes(Array("application/json"))
+    @Produces(Array("application/json"))
+    @Path("exportsqlaggregate")
+  def exportSqlAggregateData(dataExportRequest: DataExportRequest, @QueryParam(value = "super") userinfo: String,
+      @QueryParam("user") user: String, @QueryParam("password") password: String): Serializable = {
+    
+    Authentication.authenticate(userinfo, user, password)
+    dataExportRequest.setRequestDataType(RequestType.Aggregate)
+    dataExportRequest.setRubixService(AcumeService.acumeService)
+    AcumeService.acumeService.servExportCSV(dataExportRequest).asInstanceOf[Serializable]
+  }
+  
 
 	@POST
     @Consumes(Array("application/json"))
