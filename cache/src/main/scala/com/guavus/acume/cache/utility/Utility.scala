@@ -53,6 +53,10 @@ import com.guavus.acume.cache.core.AcumeCacheType
 import com.guavus.rubix.query.remote.flex.TimeZoneInfo
 import org.apache.spark.SparkContext
 //import com.guavus.acume.cache.core.Level
+import java.io.OutputStream
+import java.io.InputStream
+import java.util.Collection
+import java.io.Closeable
 
 /**
  * @author archit.thakur
@@ -69,9 +73,8 @@ object Utility extends Logging {
   }
   
   def newCalendar() = calendar.clone().asInstanceOf[Calendar]
-  
+
   def getEmptySchemaRDD(sqlContext: SQLContext, schema: StructType)= {
-    
     val rdd = sqlContext.sparkContext.emptyRDD[Row]
     sqlContext.applySchema(rdd, schema)
   }
@@ -830,5 +833,57 @@ object Utility extends Logging {
 			 exc : Throwable) : Boolean = {
 		 expected.isInstance(exc) || (exc != null && isCause(expected, exc.getCause()));
 	}
+  
+    
+   /**
+   * Copies passed inputstream to passed outputstream.
+   * @param input
+   * @param output
+   * @throws IOException
+   */
+  def copyStream(input: InputStream, output: OutputStream) {
+    val buffer = Array.ofDim[Byte](1024)
+    var bytesRead: Int = input.read(buffer)
+    while (bytesRead != -1) {
+      output.write(buffer, 0, bytesRead)
+      bytesRead = input.read(buffer)
+    }
+  }
+  
+  def closeStream(s: Closeable) {
+    if (s != null) s.close()
+  }
+  
+  def getTimeInHumanReadableForm(time: Long, timeZone: String): String = {
+    val calendar = Calendar.getInstance(Utility.getTimeZone(timeZone))
+    calendar.setTimeInMillis(time * 1000)
+    val formatter = new SimpleDateFormat("MMM dd EEE yyyy HH:mm z")
+    formatter.setTimeZone(TimeZone.getTimeZone(timeZone))
+    formatter.format(calendar.getTime)
+  }
 
+  def getTimeInHumanReadableForm(time: Long, timeZone: String, calendar: Calendar): String = {
+    calendar.setTimeInMillis(time * 1000)
+    val formatter = new SimpleDateFormat("MMM dd EEE yyyy HH:mm z")
+    formatter.setTimeZone(TimeZone.getTimeZone(timeZone))
+    formatter.format(calendar.getTime)
+  }
+  
+  def getCurrentDateInHumanReadableForm(): String = {
+    val calendar = Calendar.getInstance
+    val formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss")
+    formatter.format(calendar.getTime)
+  }
+
+  def getCalendar(timeZone: String): Calendar = {
+    val calendar = Calendar.getInstance(Utility.getTimeZone(timeZone))
+    calendar
+  }
+  
+  def isNullOrEmpty[T <: Collection[_]](t: T): Boolean = t == null || t.isEmpty
+
+  def isNullOrEmpty[K, V](map: Map[K, V]): Boolean = map == null || map.isEmpty
+
+  def isNullOrEmpty(array: Array[Long]): Boolean = array == null || (array.length == 0)
+  
 }
