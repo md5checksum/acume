@@ -24,7 +24,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
 	  //Do previous run cleanup
 	  if(fs.exists(path)) {
 	    val rdd = acumeCacheContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
-	    return new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(levelTimestamp, cube, rdd), acumeCacheContext)
+	    return new AcumeFlatSchemaCacheValue(new AcumeDiskValue(levelTimestamp, cube, rdd), acumeCacheContext)
 	  }
     } catch {
       case _: Exception =>  

@@ -41,7 +41,7 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
 
   val context = AcumeTreeCacheValue.context
   var isSuccessWritingToDisk = false
-  while (!isSuccessWritingToDisk) {
+  if(acumeValue.isInstanceOf[AcumeInMemoryValue]) {
     val f: Future[AcumeDiskValue] = Future({
       val diskDirectory = AcumeTreeCacheValue.getDiskDirectoryForPoint(acumeContext, acumeValue.cube, acumeValue.levelTimestamp)
       val path = new Path(diskDirectory)
@@ -81,7 +81,9 @@ trait AcumeValue {
 
 case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measureSchemaRdd: SchemaRDD) extends AcumeValue {
   registerAndCacheDataInMemory()
-
+  override def registerAndCacheDataInMemory() {
+    measureSchemaRdd.cache
+  }
 }
 
 case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measureSchemaRdd: SchemaRDD) extends AcumeValue {
