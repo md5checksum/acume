@@ -16,6 +16,7 @@ import com.guavus.acume.core.AcumeContextTrait
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.core.query.DataExportRequest
 import com.guavus.acume.cache.workflow.RequestType
+import com.guavus.rubix.user.management.utils.UserManagementUtils
 
 @Path("/" + "queryresponse")
 /**
@@ -30,7 +31,7 @@ class RestService {
   def exportAggregateData(dataExportRequest: DataExportRequest, @QueryParam(value = "super") userinfo: String,
       @QueryParam("user") user: String, @QueryParam("password") password: String): Serializable = {
     
-    Authentication.authenticate(userinfo, user, password)
+   UserManagementUtils.getIWebUMService().validateSession(null);
     dataExportRequest.setRequestDataType(RequestType.Aggregate)
     dataExportRequest.setRubixService(AcumeService.acumeService)
     AcumeService.acumeService.servExportCSV(dataExportRequest).asInstanceOf[Serializable]
@@ -43,7 +44,7 @@ class RestService {
   def exportTimeseriesData(dataExportRequest: DataExportRequest, @QueryParam(value = "super") userinfo: String,
       @QueryParam("user") user: String, @QueryParam("password") password: String): Serializable = {
     
-    Authentication.authenticate(userinfo, user, password)
+    UserManagementUtils.getIWebUMService().validateSession(null);
     dataExportRequest.setRequestDataType(RequestType.Timeseries)
     dataExportRequest.setRubixService(AcumeService.acumeService)
     AcumeService.acumeService.servExportCSV(dataExportRequest).asInstanceOf[Serializable]
@@ -56,12 +57,11 @@ class RestService {
   def exportSqlAggregateData(dataExportRequest: DataExportRequest, @QueryParam(value = "super") userinfo: String,
       @QueryParam("user") user: String, @QueryParam("password") password: String): Serializable = {
     
-    Authentication.authenticate(userinfo, user, password)
+    UserManagementUtils.getIWebUMService().validateSession(null);
     dataExportRequest.setRequestDataType(RequestType.Aggregate)
     dataExportRequest.setRubixService(AcumeService.acumeService)
     AcumeService.acumeService.servExportCSV(dataExportRequest).asInstanceOf[Serializable]
   }
-  
 
 	@POST
     @Consumes(Array("application/json"))
@@ -71,7 +71,6 @@ class RestService {
 			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
 	  servQuery(query, userinfo, user, password, getAdditionalInfo, true)
 	}
-	
 	
 	@POST
     @Consumes(Array("application/json"))
