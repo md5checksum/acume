@@ -335,7 +335,7 @@ Please don't use the following reserved property names:
         <property>
             <name>LDAPUSERDNTEMPLATE</name>
             <help><![CDATA[ - TODO]]></help>
-            <default><![CDATA[$uid={0},DC=test,DC=verizon,DC=com]]></default>
+            <default><![CDATA[]]></default>
             <targets>
                 <target>
                     <file><![CDATA[shiro.ini]]></file>
