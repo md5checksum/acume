@@ -48,7 +48,7 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
       val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
       fs.delete(path, true)
       acumeValue.measureSchemaRdd.saveAsParquetFile(diskDirectory)
-      val rdd = acumeContext.cacheSqlContext.parquetFile(diskDirectory)
+      val rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
       new AcumeDiskValue(acumeValue.levelTimestamp, acumeValue.cube, rdd)
     })(context)
 
