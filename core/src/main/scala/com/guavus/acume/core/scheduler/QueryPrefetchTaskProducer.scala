@@ -29,6 +29,7 @@ import com.guavus.rubix.query.remote.flex.QueryRequest
 import QueryPrefetchTaskProducer._
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.cache.core.Level
 
 object QueryPrefetchTaskProducer {
 
@@ -307,9 +308,16 @@ class QueryPrefetchTaskProducer(acumeContext: AcumeContextTrait, schemas: List[Q
 			 * check if request lie in variable retention map of the cube
 			 */
     var lastBinEndtime = aggrGranToLastBinInterval.get(-1).get.getEndTime()
-    var levelPolicyMap = Utility.getLevelPointMap(cube.getProperties.get(ConfConstants.levelpolicymap))
-    if (levelPolicyMap.containsKey(level)) {
-      val numPoints = levelPolicyMap.get(level).get
+    val levelpolicymap = cube.getProperties.get(ConfConstants.levelpolicymap).split("\\|")
+        val inMemoryPolicyMap = Utility.getLevelPointMap(levelpolicymap(0))
+        val diskLevelPolicyMap = 
+        if(levelpolicymap.size == 1) {
+        	inMemoryPolicyMap
+      	} else {
+      	  Utility.getLevelPointMap(levelpolicymap(1))
+      	}
+    if (diskLevelPolicyMap.containsKey(new Level(level))) {
+      val numPoints = diskLevelPolicyMap.get(new Level(level)).get
       val rangeStartTime = AcumeTreeCacheEvictionPolicy.getRangeStartTime(lastBinEndtime, level, numPoints)
       if (endTime <= rangeStartTime) {
         return false;

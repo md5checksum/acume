@@ -31,7 +31,7 @@ object AcumeCacheFactory {
      */
     class abc extends java.util.function.Function[CacheIdentifier, AcumeCache[k, v]]() {
       def apply(t: CacheIdentifier) = {
-        val levelSet = cube.levelPolicyMap.keySet.+(cube.baseGran.getGranularity)
+        val levelSet = cube.levelPolicyMap.keySet.+(new Level(cube.baseGran.getGranularity))
         val levels = levelSet.toArray
         //todo check if the cachelevelpolicy used should be configurable.
         val cacheLevelPolicy = new FixedLevelPolicy(levels, cube.baseGran.getGranularity)

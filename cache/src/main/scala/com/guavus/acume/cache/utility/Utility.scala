@@ -51,6 +51,7 @@ import com.guavus.acume.cache.common.DimensionSet
 import com.guavus.acume.cache.eviction.EvictionPolicy
 import com.guavus.acume.cache.core.AcumeCacheType
 import com.guavus.rubix.query.remote.flex.TimeZoneInfo
+import com.guavus.acume.cache.core.Level
 
 
 /**
@@ -115,69 +116,7 @@ object Utility extends Logging {
     sqlContext.table(tbl).unionAll(newrdd).registerTempTable(newtbl)
   }
   
-  def createEvictionDetailsMapFromFile(): MutableMap[String, EvictionDetails] = {
-    val evictionDetailsMap = MutableMap[String, EvictionDetails]()
-    try {
-      val properties: PropertiesConfiguration = new PropertiesConfiguration()
-      properties.setDelimiterParsingDisabled(true)
-      properties.load("evictiondetails.properties")
-      
-      val keySet = properties.getKeys
-      while (keySet.hasNext) {
-        val key = keySet.next().asInstanceOf[String]
-        val value = Option(properties.getString(key))
-        value match{
-          case None => 
-          case Some(value) => {
-            
-          val valuesArr = value.split(AcumeConstants.LINE_DELIMITED)
-          if (valuesArr.length == 1 && !value.contains(AcumeConstants.LINE)) {
-            try {
-              val memoryEvictionCount = Integer.parseInt(valuesArr(0))
-              val evictionDetails = new EvictionDetails()
-              evictionDetails.setMemoryEvictionThresholdCount(memoryEvictionCount)
-              evictionDetailsMap += key -> evictionDetails
-            } catch {
-              case e: Exception => {
-                logError("Error " + e + " in parseEvictionDetailsMapFromFile while parsing " + key)
-              }
-            }
-          } else if (valuesArr.length > 1 || (valuesArr.length == 1 && value.contains("|"))) {
-            val policyName = valuesArr(0)
-            val retentionMapString = 
-              if (valuesArr.length > 1) {
-                valuesArr(1)
-              } else ""
-            try {
-              val evictionDetails = new EvictionDetails()
-              if (StringUtils.isNotBlank(policyName)) {
-                Class.forName(policyName)
-                evictionDetails.setEvictionPolicyName(policyName)
-              }
-              if (StringUtils.isNotBlank(retentionMapString)) {
-                val retentionMap = getLevelPointMap(retentionMapString)
-                evictionDetails.setVariableRetentionMap(retentionMap)
-              }
-              
-              evictionDetailsMap.put(key, evictionDetails)
-            } catch {
-              case e: Exception => {
-                logError("Error " + e + " in parseEvictionDetailsMapFromFile while parsing " + key)
-              }
-            }
-          } else {
-            logError("Error in parseEvictionDetailsMapFromFile while parsing " + key)
-          } } 	
-        }
-      }  
-    } catch {
-      case e: Throwable => {
-        logError("Error " + e + " in parseEvictionDetailsMapFromFile...")
-        e.printStackTrace()
-      }
-    }
-    evictionDetailsMap
-  }
+//  def createEvictionDetailsMapFromFile(): MutableMap[String, EvictionDetails] = { }
   
   def getTimeZone(id: String): TimeZone = {
     val tz: TimeZone = 
@@ -410,7 +349,7 @@ object Utility extends Logging {
       	} else {
       	  Utility.getLevelPointMap(levelpolicymap(1))
       	}
-        val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.timeserieslevelpolicymap, ConfConstants.acumecoretimeserieslevelmap, conf, cubeName))
+        val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.timeserieslevelpolicymap, ConfConstants.acumecoretimeserieslevelmap, conf, cubeName)).map(x =>x._1.level -> x._2)
         val Gnx = getProperty(propertyMap, ConfConstants.basegranularity, ConfConstants.acumeglobalbasegranularity, conf, cubeName)
         val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
         val _$eviction = Class.forName(getProperty(propertyMap, ConfConstants.evictionpolicyforcube, ConfConstants.acumeglobalevictionpolicycube, conf, cubeName)).asSubclass(classOf[EvictionPolicy])
@@ -445,21 +384,32 @@ object Utility extends Logging {
 //    result
 //  }
   
-  def getLevelPointMap(mapString: String): Map[Long, Int] = {
-    val result = MutableMap[Long, Int]()
+  def getLevelPointMap(mapString: String): Map[Level, Int] = {
+    val result = MutableMap[Level, Int]()
     val tok = new StringTokenizer(mapString, ";")
     while (tok.hasMoreTokens()) {
       val currentMapElement = tok.nextToken()
       val token = currentMapElement.split(":")
       val gran: String = token(0)
+      val aggregationGran = if(token.length == 3) {
+    	  token(2)
+      } else {
+        token(0)
+      }
       val nmx = token(1).toInt
       val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(gran) match{
         case None => throw new IllegalArgumentException("Unsupported Granularity  " + gran)
         case Some(value) => value
       }
+      
+      val aggregationGranularity = TimeGranularity.getTimeGranularityForVariableRetentionName(aggregationGran) match{
+        case None => throw new IllegalArgumentException("Unsupported Granularity  " + aggregationGran)
+        case Some(value) => value
+      } 
       val level = granularity.getGranularity
-      result.put(level, nmx)
+      result.put(new Level(level, aggregationGranularity.getGranularity), nmx)
     }
+    print(result)
     result.toMap
   }
   

@@ -11,6 +11,7 @@ import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.common.Cube
 import scala.collection.mutable.MutableList
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import com.guavus.acume.cache.core.Level
 
 /**
  * @author archit.thakur
@@ -63,7 +64,7 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextT
     getEvictableCandidate(list, cube.diskLevelPolicyMap)
   }
   
-  def getEvictableCandidate(list: List[LevelTimestamp], variableretentionmap : Map[Long, Int]): Option[LevelTimestamp] = {
+  def getEvictableCandidate(list: List[LevelTimestamp], variableretentionmap : Map[Level, Int]): Option[LevelTimestamp] = {
     
     
     var count = 0
@@ -81,15 +82,15 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextT
     _$evictableCandidate
   }
   
-  private def getPriority(timeStamp: Long, level: Long, variableRetentionMap: Map[Long, Int]): Int = {
-    if (!variableRetentionMap.contains(level)) return 0
-    val numPoints = variableRetentionMap.get(level).getOrElse(throw new RuntimeException("Level not in VariableRetentionMap."))
+  private def getPriority(timeStamp: Long, level: Long, variableRetentionMap: Map[Level, Int]): Int = {
+    if (!variableRetentionMap.contains(new Level(level))) return 0
+    val numPoints = variableRetentionMap.get(new Level(level)).getOrElse(throw new RuntimeException("Level not in VariableRetentionMap."))
     val lastBinTime = cacheContext.getLastBinPersistedTime(cube.binsource) //Controller.getInstance.getLastBinPersistedTime(ConfigFactory.getInstance.getBean(classOf[TimeGranularity])
         //.getName, BinSource.getDefault.name(), Controller.RETRY_COUNT)
       if (timeStamp >= AcumeTreeCacheEvictionPolicy.getRangeStartTime(lastBinTime, level, numPoints)) 1 else 0
   }
 
-  private def isEvictiable(levelTimestamp: LevelTimestamp, variableRetentionMap: Map[Long, Int]): Boolean = {
+  private def isEvictiable(levelTimestamp: LevelTimestamp, variableRetentionMap: Map[Level, Int]): Boolean = {
     if (getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, variableRetentionMap) == 0) true else false
   }
 

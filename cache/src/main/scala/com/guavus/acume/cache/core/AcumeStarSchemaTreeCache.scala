@@ -40,6 +40,7 @@ import com.guavus.acume.cache.workflow.RequestType.Aggregate
 import com.guavus.acume.cache.workflow.RequestType.RequestType
 import com.guavus.acume.cache.workflow.RequestType.Timeseries
 import com.google.common.cache.Cache
+import com.guavus.acume.cache.common.LoadType
 
 /**
  * @author archit.thakur
@@ -102,7 +103,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
           } catch {
             case _: Exception => println(s"Getting data from Insta for $key as all children are not present")
           }
-          if (key.loadFromBackend)
+          if (key.loadType == LoadType.Insta)
             return getDataFromBackend(key);
           else
             throw new IllegalArgumentException("Couldnt populate parent point " + key + " from child points")
@@ -159,12 +160,12 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
           if (param.getTimeSeriesGranularity() != 0) {
             var level = Math.max(baseLevel, param.getTimeSeriesGranularity());
             val variableRetentionMap = getVariableRetentionMap
-            if (!variableRetentionMap.contains(level)) {
-              val headMap = variableRetentionMap.filterKeys(_ < level);
+            if (!variableRetentionMap.contains(new Level(level))) {
+              val headMap = variableRetentionMap.filterKeys(_.level < level);
               if (headMap.size == 0) {
                 throw new IllegalArgumentException("Wrong granularity " + level + " passed in request which is not present in variableRetentionMap ");
               }
-              level = headMap.lastKey
+              level = headMap.lastKey.level
             }
             level
           } else
@@ -185,9 +186,9 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
     }
   }
 
-  private def getVariableRetentionMap: SortedMap[Long, Int] = {
+  private def getVariableRetentionMap: SortedMap[Level, Int] = {
     val cubelocal = cube.levelPolicyMap
-    SortedMap[Long, Int]() ++ cubelocal
+    SortedMap[Level, Int]() ++ cubelocal
   }
 
   override def getDataFromBackend(levelTimestamp: LevelTimestamp): AcumeTreeCacheValue = {

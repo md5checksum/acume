@@ -5,6 +5,7 @@ import com.guavus.acume.cache.core.TimeGranularity._
 import com.guavus.acume.cache.eviction.EvictionPolicy
 import com.guavus.acume.cache.core.AcumeCacheType._
 import com.guavus.acume.cache.core.AcumeCacheType
+import com.guavus.acume.cache.core.Level
 
 /**
  * @author archit.thakur
@@ -30,7 +31,7 @@ case class DimensionTable(var tblnm: String, var maxid: Long) extends Serializab
 }
 
 case class Cube(cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, singleEntityKeys : Map[String, String], 
-    baseGran: TimeGranularity, isCacheable: Boolean, levelPolicyMap: Map[Long, Int], diskLevelPolicyMap : Map[Long, Int], cacheTimeseriesLevelPolicyMap: Map[Long, Int], 
+    baseGran: TimeGranularity, isCacheable: Boolean, levelPolicyMap: Map[Level, Int], diskLevelPolicyMap : Map[Level, Int], cacheTimeseriesLevelPolicyMap: Map[Long, Int], 
     evictionPolicyClass: Class[_ <: EvictionPolicy], schemaType : AcumeCacheType, propertyMap: Map[String,String]) 
     extends CubeTrait(cubeName, dimension, measure, schemaType) with Equals {
   

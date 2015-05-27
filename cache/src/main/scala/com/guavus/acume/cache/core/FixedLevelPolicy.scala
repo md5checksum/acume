@@ -10,8 +10,9 @@ import scala.math.Ordering.Implicits._
  * @author archit.thakur
  *
  */
-class FixedLevelPolicy(var levels: Array[Long], baseLevel: Long) extends AbstractCacheLevelPolicy(baseLevel) {
+class FixedLevelPolicy(var levels: Array[Level], baseLevel: Long) extends AbstractCacheLevelPolicy(baseLevel) {
 
+  implicit def convertToLong(level : Level) = level.level
   val levelIndex: Map[Long, Int] = Map[Long, Int]()
   val childParentsMap: Map[Long, MutableList[Long]] = Map[Long, MutableList[Long]]()
   val parentChildMap: Map[Long, Long] = Map[Long, Long]()
@@ -28,13 +29,13 @@ class FixedLevelPolicy(var levels: Array[Long], baseLevel: Long) extends Abstrac
   while (i >= 0) {
     val currentLevel = allLevel(i)
     var child = -1L
-    if (currentLevel == TimeGranularity.MONTH.getGranularity) {
+    if (currentLevel.level == TimeGranularity.MONTH.getGranularity) {
       var j = i - 1
       var breakCondition = false
       while (j >= 0 
           && !breakCondition) {
         val candidateChild = allLevel(j)
-        if (candidateChild <= TimeGranularity.DAY.getGranularity) {
+        if (candidateChild.level <= TimeGranularity.DAY.getGranularity) {
           child = candidateChild
           breakCondition = true
         }
@@ -105,12 +106,16 @@ class FixedLevelPolicy(var levels: Array[Long], baseLevel: Long) extends Abstrac
     }
     resultMap
   }
-
+  
   private def getAllParentsLevel(currentLevel: Long): MutableList[Long] = {
     childParentsMap.get(currentLevel) match{
       case Some(list) => list
       case None => MutableList[Long]()
     }
+  }
+
+  override def getAggregationLevel(currentLevel: Long): (Long/*level*/) = {
+    levels.filter(_.level == currentLevel)(0).aggregationLevel
   }
 
   def getParentHierarchy(currentLevel: Long): MutableList[Long] = {
@@ -122,4 +127,28 @@ class FixedLevelPolicy(var levels: Array[Long], baseLevel: Long) extends Abstrac
     }
     parentHierarchyLevels
   }
+}
+
+
+case class Level(level : Long) extends Comparable[Level] {
+  
+  var aggregationLevel = 0l
+  
+  def this(level : Long, aggregationLevel : Long) {
+    this(level)
+    this.aggregationLevel = aggregationLevel
+  }
+  
+  if(aggregationLevel == 0) {
+    aggregationLevel == level
+  }
+  
+  override def compareTo(level : Level) = {
+    this.level.compare(level.level)
+  }
+  
+  
+  override def toString() = {
+    "[" + level + "-" + aggregationLevel + "]"
+  } 
 }

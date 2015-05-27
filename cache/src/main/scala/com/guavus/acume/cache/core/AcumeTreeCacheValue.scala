@@ -39,16 +39,17 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
     acumeValue.evictFromMemory
   }
 
+  if(acumeValue.isInstanceOf[AcumeInMemoryValue]) {
   val context = AcumeTreeCacheValue.context
   var isSuccessWritingToDisk = false
-  while (!isSuccessWritingToDisk) {
     val f: Future[AcumeDiskValue] = Future({
       val diskDirectory = AcumeTreeCacheValue.getDiskDirectoryForPoint(acumeContext, acumeValue.cube, acumeValue.levelTimestamp)
       val path = new Path(diskDirectory)
       val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
       fs.delete(path, true)
+      acumeValue.measureSchemaRdd.sqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Writing " + diskDirectory, false)
       acumeValue.measureSchemaRdd.saveAsParquetFile(diskDirectory)
-      val rdd = acumeContext.cacheSqlContext.parquetFile(diskDirectory)
+      val rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
       new AcumeDiskValue(acumeValue.levelTimestamp, acumeValue.cube, rdd)
     })(context)
 
@@ -72,20 +73,31 @@ trait AcumeValue {
     measureSchemaRdd.unpersist(false)
   }
 
-  def registerAndCacheDataInMemory() {
-    measureSchemaRdd.cache
+  def registerAndCacheDataInMemory(tableName : String) {
+    measureSchemaRdd.sqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Reading " + tableName, false)
+    measureSchemaRdd.registerTempTable(tableName)
+    measureSchemaRdd.sqlContext.cacheTable(tableName)
     measureSchemaRdd.count
   }
 
 }
 
 case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measureSchemaRdd: SchemaRDD) extends AcumeValue {
-  registerAndCacheDataInMemory()
-
+  val tableName = cube.getAbsoluteCubeName + levelTimestamp.level + levelTimestamp.timestamp + levelTimestamp.aggregationLevel + "_memory"
+  registerAndCacheDataInMemory(tableName)
+  override def registerAndCacheDataInMemory(tableName : String) {
+	measureSchemaRdd.registerTempTable(tableName)
+    measureSchemaRdd.sqlContext.cacheTable(tableName)
+  }
+  
+  override protected def finalize() {
+    print("finalizing object " + levelTimestamp)
+  }
 }
 
 case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measureSchemaRdd: SchemaRDD) extends AcumeValue {
-  registerAndCacheDataInMemory()
+   val tableName = cube.getAbsoluteCubeName + levelTimestamp.level + levelTimestamp.timestamp + levelTimestamp.aggregationLevel +"_disk"
+  registerAndCacheDataInMemory(tableName)
 
 }
 
@@ -96,7 +108,7 @@ object AcumeTreeCacheValue {
   
   def getDiskDirectoryForPoint(acumeContext : AcumeCacheContextTrait, cube : Cube, levelTimestamp : LevelTimestamp) = {
     val cacheDirectory = acumeContext.cacheConf.get(ConfConstants.cacheBaseDirectory) + File.separator + acumeContext.cacheSqlContext.sparkContext.getConf.get("spark.app.name") + "-" + acumeContext.cacheConf.get(ConfConstants.cacheDirectory)
-    cacheDirectory + File.separator + cube.binsource + File.separator + cube.cubeName + File.separator + levelTimestamp.level + File.separator + levelTimestamp.timestamp
+    cacheDirectory + File.separator + cube.binsource + File.separator + cube.cubeName + File.separator + levelTimestamp.level + "-" +levelTimestamp.aggregationLevel + File.separator + levelTimestamp.timestamp
   }
 }
 
