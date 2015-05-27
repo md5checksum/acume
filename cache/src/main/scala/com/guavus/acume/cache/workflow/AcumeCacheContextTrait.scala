@@ -28,16 +28,22 @@ trait AcumeCacheContextTrait extends Serializable {
     acql(sql, null)
   }
 
-  def acql(sql : String, qltype: String): AcumeCacheResponse = { 
+  def acql(sql: String, qltype: String): AcumeCacheResponse = {
     setQuery(sql)
     try {
-     val ql : QLType.QLType = if(qltype == null)
-      QLType.getQLType(cacheConf.get(ConfConstants.qltype)) 
-    else
-      QLType.getQLType(qltype)
-    
-    validateQLType(ql)
-    rrCacheLoader.getRdd((sql, ql))
+      val ql: QLType.QLType = if (qltype == null)
+        QLType.getQLType(cacheConf.get(ConfConstants.qltype))
+      else
+        QLType.getQLType(qltype)
+
+      validateQLType(ql)
+
+      if (cacheConf.getInt(ConfConstants.rrsize._1) == 0) {
+        executeQuery(sql, ql)
+      } else {
+        rrCacheLoader.getRdd((sql, ql))
+      }
+
     } finally {
       unsetQuery()
     }
