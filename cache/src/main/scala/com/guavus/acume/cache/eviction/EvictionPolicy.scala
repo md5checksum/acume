@@ -7,6 +7,8 @@ import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.core.AcumeCacheType
 import com.guavus.acume.cache.core.AcumeCacheType._
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import java.util.concurrent.ConcurrentMap
+import com.guavus.acume.cache.core.AcumeTreeCacheValue
 
 /**
  * @author archit.thakur
@@ -18,9 +20,9 @@ abstract class EvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextTrait)
 
 //  def getEvictableCandidate(cache: List[LevelTimestamp]): Option[LevelTimestamp]
   
-  def getMemoryEvictableCandidate(list: List[LevelTimestamp]): Option[LevelTimestamp]
+  def getMemoryEvictableCandidate(list: Map[LevelTimestamp, AcumeTreeCacheValue]): Option[LevelTimestamp]
   
-  def getDiskEvictableCandidate(list: List[LevelTimestamp]): Option[LevelTimestamp]
+  def getDiskEvictableCandidate(list: Map[LevelTimestamp, AcumeTreeCacheValue]): Option[LevelTimestamp]
 }
 
 object EvictionPolicy{

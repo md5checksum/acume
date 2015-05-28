@@ -23,17 +23,20 @@ abstract case class AcumeTreeCacheValue(dimensionTableName: String = null, acume
   
   protected var acumeValue: AcumeValue
   def getAcumeValue() = acumeValue
+  var isInMemory : Boolean
   
   def evictFromMemory
 }
 
 class AcumeStarTreeCacheValue(dimensionTableName: String, protected var acumeValue: AcumeValue, acumeContext: AcumeCacheContextTrait) extends AcumeTreeCacheValue(dimensionTableName, acumeContext) {
   def evictFromMemory() = Unit
+  var isInMemory = true
 }
 
 class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeContext: AcumeCacheContextTrait) extends AcumeTreeCacheValue(null, acumeContext) {
   @volatile
   var shouldCache = true
+  var isInMemory = true
   import scala.concurrent._
   import scala.util.{ Success, Failure }
 
@@ -41,6 +44,7 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
     if (acumeValue.isInstanceOf[AcumeInMemoryValue])
       shouldCache = false
     acumeValue.evictFromMemory
+    isInMemory = false
   }
 
   acumeValue.acumeContext = acumeContext
@@ -79,7 +83,11 @@ trait AcumeValue {
   val logger: Logger = LoggerFactory.getLogger(classOf[AcumeValue])
   
   def evictFromMemory() {
-    measureSchemaRdd.unpersist(true)
+    try {
+    	measureSchemaRdd.unpersist(true)
+    } catch {
+      case e : Exception =>
+    }
   }
 
   def registerAndCacheDataInMemory(tableName : String) {

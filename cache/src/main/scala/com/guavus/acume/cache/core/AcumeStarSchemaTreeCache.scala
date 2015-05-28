@@ -40,6 +40,7 @@ import com.guavus.acume.cache.workflow.RequestType.Aggregate
 import com.guavus.acume.cache.workflow.RequestType.RequestType
 import com.guavus.acume.cache.workflow.RequestType.Timeseries
 import com.google.common.cache.Cache
+import com.guavus.acume.cache.common.LoadType
 
 /**
  * @author archit.thakur
@@ -102,7 +103,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
           } catch {
             case _: Exception => println(s"Getting data from Insta for $key as all children are not present")
           }
-          if (key.loadFromBackend)
+          if (key.loadType == LoadType.Insta)
             return getDataFromBackend(key);
           else
             throw new IllegalArgumentException("Couldnt populate parent point " + key + " from child points")

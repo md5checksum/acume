@@ -10,13 +10,13 @@ import com.guavus.acume.cache.utility.Utility
 import scala.util.control.Breaks._
 import org.apache.spark.sql.SchemaRDD
 import org.apache.hadoop.fs.Path
+import com.guavus.acume.cache.common.LoadType
 
 abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy)
   extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf, cube) {
 
   def checkIfTableAlreadyExist(levelTimestamp: LevelTimestamp): AcumeTreeCacheValue = {
     import scala.StringContext._
-    val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
     try {
       val diskDirectory = AcumeTreeCacheValue.getDiskDirectoryForPoint(acumeCacheContext, cube, levelTimestamp)
       val path = new Path(diskDirectory)
@@ -31,17 +31,26 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
     }
     null
   }
+  
+  def tryGet(key : LevelTimestamp) = {
+    try {
+        key.loadType = LoadType.DISK
+    	cachePointToTable.get(key)
+    } catch {
+      case e : java.util.concurrent.ExecutionException => if(e.getCause().isInstanceOf[NoDataException]) null else throw e
+    }
+  }
 
   protected def populateParent(childlevel: Long, childTimestamp: Long) {
     val parentSiblingMap = cacheLevelPolicy.getParentSiblingMap(childlevel, childTimestamp)
     for ((parent, children) <- parentSiblingMap) {
       val parentTimestamp = Utility.floorFromGranularity(childTimestamp, parent)
-      val parentPoint = checkIfTableAlreadyExist(new LevelTimestamp(CacheLevel.getCacheLevel(parent), parentTimestamp))
+      val parentPoint = tryGet(new LevelTimestamp(CacheLevel.getCacheLevel(parent), parentTimestamp, LoadType.DISK))
       if (parentPoint == null) {
         var shouldPopulateParent = true
         breakable {
           for (child <- children) {
-            val childData = checkIfTableAlreadyExist(new LevelTimestamp(CacheLevel.getCacheLevel(childlevel), child))
+            val childData = tryGet(new LevelTimestamp(CacheLevel.getCacheLevel(childlevel), child, LoadType.DISK))
             if (childData == null) {
               shouldPopulateParent = false
               break
@@ -49,7 +58,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
           }
         }
         if (shouldPopulateParent) {
-          val parentData = cachePointToTable.get(new LevelTimestamp(CacheLevel.getCacheLevel(parent), parentTimestamp, false))
+          val parentData = cachePointToTable.get(new LevelTimestamp(CacheLevel.getCacheLevel(parent), parentTimestamp, LoadType.InMemory))
           notifyObserverList
           populateParent(parent, Utility.floorFromGranularity(childTimestamp, parent))
         }
