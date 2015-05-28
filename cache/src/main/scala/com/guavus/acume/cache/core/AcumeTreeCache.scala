@@ -45,17 +45,27 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
     }
     null
   }
+  
+    def tryGet(key : LevelTimestamp) = {
+    try {
+        key.loadType = LoadType.DISK
+    	cachePointToTable.get(key)
+    } catch {
+      case e : java.util.concurrent.ExecutionException => if(e.getCause().isInstanceOf[NoDataException]) null else throw e
+    }
+  }
+
 
   protected def populateParent(childlevel: Long, childTimestamp: Long) {
     val parentSiblingMap = cacheLevelPolicy.getParentSiblingMap(childlevel, childTimestamp)
     for ((parent, children) <- parentSiblingMap) {
       val parentTimestamp = Utility.floorFromGranularity(childTimestamp, parent)
-      val parentPoint = cachePointToTable.get(new LevelTimestamp(CacheLevel.getCacheLevel(parent), parentTimestamp, LoadType.DISK))
+      val parentPoint = tryGet(new LevelTimestamp(CacheLevel.getCacheLevel(parent), parentTimestamp, LoadType.DISK))
       if (parentPoint == null) {
         var shouldPopulateParent = true
         breakable {
           for (child <- children) {
-            val childData = cachePointToTable.get(new LevelTimestamp(CacheLevel.getCacheLevel(childlevel), child, LoadType.DISK))
+            val childData = tryGet(new LevelTimestamp(CacheLevel.getCacheLevel(childlevel), child, LoadType.DISK))
             if (childData == null) {
               shouldPopulateParent = false
               break
@@ -82,7 +92,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
     logger.info("Combining level {} to {}", childlevel, aggregationLevel)
     val aggregatedDataTimestamp = Utility.floorFromGranularity(childTimestamp, aggregationLevel)
     val aggregatedTimestamp = new LevelTimestamp(CacheLevel.getCacheLevel(childlevel), aggregatedDataTimestamp, LoadType.DISK, CacheLevel.getCacheLevel(aggregationLevel))
-    var combinePoint = cachePointToTable.get(aggregatedTimestamp)
+    var combinePoint = tryGet(aggregatedTimestamp)
     val childrenData = scala.collection.mutable.ArrayBuffer[AcumeTreeCacheValue]()
     if (combinePoint == null) {
       var shouldCombine = true
@@ -90,8 +100,8 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         val children = cacheLevelPolicy.getCombinableIntervals(aggregatedDataTimestamp, aggregationLevel, childlevel)
         logger.info("Children are {}", children)
         for (child <- children) {
-          val childLevelTimestamp = new LevelTimestamp(CacheLevel.getCacheLevel(childlevel), child, LoadType.InMemory)
-          val childData = cachePointToTable.get(childLevelTimestamp)
+          val childLevelTimestamp = new LevelTimestamp(CacheLevel.getCacheLevel(childlevel), child, LoadType.DISK)
+          val childData = tryGet(childLevelTimestamp)
           childrenData += childData
           if (childData == null) {
             shouldCombine = false
@@ -104,7 +114,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         var isSuccessCombiningPoint = true
         val context = AcumeTreeCache.context
         val f: Future[Option[AcumeFlatSchemaCacheValue]] = Future({
-          if (cachePointToTable.get(aggregatedTimestamp) == null) {
+          if (tryGet(aggregatedTimestamp) == null) {
         	logger.info("Finally Combining level {} to {}", childlevel, aggregationLevel)
             Some(new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(aggregatedTimestamp, cube, mergeChildPoints(childrenData.map(_.getAcumeValue.measureSchemaRdd))), acumeCacheContext))
           } else {
