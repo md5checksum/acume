@@ -84,7 +84,10 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
         def load(key: LevelTimestamp): AcumeTreeCacheValue = {
           val output = checkIfTableAlreadyExist(key)
           if (output != null || key.loadType == LoadType.DISK) {
-        	  return output
+        	if(output == null) {
+        	  throw new NoDataException
+        	}
+            return output
           } else {
             logger.info(s"Getting data from Insta for $key as it was never calculated")
           }
