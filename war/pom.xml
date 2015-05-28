@@ -32,6 +32,12 @@
         <version>5.5.23</version>
         <scope>provided</scope>
     </dependency>
+    <dependency>
+        <groupId>tomcat</groupId>
+        <artifactId>jasper-runtime</artifactId>
+        <version>5.5.23</version>
+        <scope>provided</scope>
+    </dependency>
 
 <dependency>
 <groupId>com.guavus.acume</groupId>
@@ -123,6 +129,7 @@
                             <exclude>WEB-INF/lib/servlet-api*.jar</exclude>
 									 <exclude>WEB-INF/lib/guava*.jar</exclude>
                                      <exclude>WEB-INF/lib/jasper-compiler*.jar</exclude>
+                                     <exclude>WEB-INF/lib/jasper-runtime*.jar</exclude>
                         </excludes>
                     </overlay>
                 </overlays>
