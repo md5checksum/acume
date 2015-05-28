@@ -15,8 +15,12 @@ import java.util.concurrent.Executors
 import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.LevelTimestamp
 import org.apache.hadoop.fs.Path
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
+import AcumeTreeCacheValue._
 
 abstract case class AcumeTreeCacheValue(dimensionTableName: String = null, acumeContext: AcumeCacheContextTrait) {
+  
   protected var acumeValue: AcumeValue
   def getAcumeValue() = acumeValue
   
@@ -72,6 +76,7 @@ trait AcumeValue {
   val cube: Cube
   val measureSchemaRdd: SchemaRDD
   var acumeContext : AcumeCacheContextTrait = null
+  val logger: Logger = LoggerFactory.getLogger(classOf[AcumeValue])
   
   def evictFromMemory() {
     measureSchemaRdd.unpersist(true)
@@ -94,7 +99,7 @@ case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measur
   }
   
   override protected def finalize() {
-    print("Unpersisting Data object " + levelTimestamp + " for tempmemory ")
+    logger.info("Unpersisting Data object {} for temp_memory_only ", levelTimestamp)
     evictFromMemory
   }
 }
@@ -104,7 +109,7 @@ case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measur
   registerAndCacheDataInMemory(tableName)
   
   override protected def finalize() {
-    print("Unpersisting Data object " + levelTimestamp + " for memory as well as disk ")
+    logger.info("Unpersisting Data object {} for memory as well as disk ", levelTimestamp)
     evictFromMemory
     AcumeTreeCacheValue.deleteDirectory(AcumeTreeCacheValue.getDiskDirectoryForPoint(this.acumeContext, cube, levelTimestamp), acumeContext)
   }
@@ -115,6 +120,8 @@ object AcumeTreeCacheValue {
   val executorService = Executors.newFixedThreadPool(2)
   val context = ExecutionContext.fromExecutorService(AcumeTreeCacheValue.executorService)
 
+  val logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCacheValue])
+  
   def deleteDirectory(dir : String, acumeContext : AcumeCacheContextTrait) {
     val path = new Path(dir)
     val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
