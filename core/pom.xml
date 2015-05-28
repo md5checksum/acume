@@ -99,21 +99,21 @@
 			<artifactId>tomcat-embed-logging-juli</artifactId>
 			<version>${tomcat.version}</version>
 		</dependency>
-		<!--dependency>
+		<dependency>
 			<groupId>org.apache.tomcat.embed</groupId>
 			<artifactId>tomcat-embed-jasper</artifactId>
 			<version>${tomcat.version}</version>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-jasper</artifactId>
 			<version>${tomcat.version}</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-jasper-el</artifactId>
 			<version>${tomcat.version}</version>
-		</dependency-->
+		</dependency>
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-jsp-api</artifactId>
@@ -222,7 +222,7 @@
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-sql_2.10</artifactId>
-			<version>1.2.1-1a</version>
+			<version>1.2.1-1c</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>

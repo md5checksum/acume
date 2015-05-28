@@ -26,6 +26,19 @@
     	<artifactId>pcsaudf</artifactId>
     	<version>0.1</version>
 	</dependency>
+    <dependency>
+        <groupId>tomcat</groupId>
+        <artifactId>jasper-compiler</artifactId>
+        <version>5.5.23</version>
+        <scope>provided</scope>
+    </dependency>
+    <dependency>
+        <groupId>tomcat</groupId>
+        <artifactId>jasper-runtime</artifactId>
+        <version>5.5.23</version>
+        <scope>provided</scope>
+    </dependency>
+
 <dependency>
 <groupId>com.guavus.acume</groupId>
 <artifactId>core</artifactId>
@@ -115,6 +128,8 @@
 			    					 <exclude>WEB-INF/lib/log4j-*.jar</exclude>  
                             <exclude>WEB-INF/lib/servlet-api*.jar</exclude>
 									 <exclude>WEB-INF/lib/guava*.jar</exclude>
+                                     <exclude>WEB-INF/lib/jasper-compiler*.jar</exclude>
+                                     <exclude>WEB-INF/lib/jasper-runtime*.jar</exclude>
                         </excludes>
                     </overlay>
                 </overlays>

@@ -1,5 +1,6 @@
 package com.guavus.acume.cache.core
 
+
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import scala.util.{ Success, Failure }
 import com.guavus.acume.cache.common.LevelTimestamp
@@ -29,7 +30,6 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
   
   def checkIfTableAlreadyExist(levelTimestamp: LevelTimestamp): AcumeTreeCacheValue = {
     import scala.StringContext._
-//    val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
     try {
       val diskDirectory = AcumeTreeCacheValue.getDiskDirectoryForPoint(acumeCacheContext, cube, levelTimestamp)
       val path = new Path(diskDirectory)
@@ -54,7 +54,6 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       case e : java.util.concurrent.ExecutionException => if(e.getCause().isInstanceOf[NoDataException]) null else throw e
     }
   }
-
 
   protected def populateParent(childlevel: Long, childTimestamp: Long) {
     val parentSiblingMap = cacheLevelPolicy.getParentSiblingMap(childlevel, childTimestamp)

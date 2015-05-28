@@ -16,21 +16,28 @@ import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.LevelTimestamp
 import org.apache.hadoop.fs.Path
 import com.guavus.acume.cache.common.AcumeConstants
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
+import AcumeTreeCacheValue._
 
 abstract case class AcumeTreeCacheValue(dimensionTableName: String = null, acumeContext: AcumeCacheContextTrait) {
+  
   protected var acumeValue: AcumeValue
   def getAcumeValue() = acumeValue
+  var isInMemory : Boolean
   
   def evictFromMemory
 }
 
 class AcumeStarTreeCacheValue(dimensionTableName: String, protected var acumeValue: AcumeValue, acumeContext: AcumeCacheContextTrait) extends AcumeTreeCacheValue(dimensionTableName, acumeContext) {
   def evictFromMemory() = Unit
+  var isInMemory = true
 }
 
 class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeContext: AcumeCacheContextTrait) extends AcumeTreeCacheValue(null, acumeContext) {
   @volatile
   var shouldCache = true
+  var isInMemory = true
   import scala.concurrent._
   acumeValue.acumeContext = acumeContext
   import scala.util.{ Success, Failure }
@@ -38,11 +45,14 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
   def evictFromMemory() {
     if (acumeValue.isInstanceOf[AcumeInMemoryValue])
       shouldCache = false
+    acumeValue.evictFromMemory
+    isInMemory = false
   }
 
-  if(acumeValue.isInstanceOf[AcumeInMemoryValue]) {
+  acumeValue.acumeContext = acumeContext
   val context = AcumeTreeCacheValue.context
   var isSuccessWritingToDisk = false
+  if(acumeValue.isInstanceOf[AcumeInMemoryValue]) {
     val f: Future[AcumeDiskValue] = Future({
       val diskDirectory = AcumeTreeCacheValue.getDiskDirectoryForPoint(acumeContext, acumeValue.cube, acumeValue.levelTimestamp)
       AcumeTreeCacheValue.deleteDirectory(diskDirectory, acumeContext)
@@ -55,11 +65,12 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
     })(context)
 
     f.onComplete {
-      case Success(diskValue) =>
+      case Success(diskValue) => {
         this.acumeValue = diskValue
         if (!shouldCache)
           acumeValue.evictFromMemory
         isSuccessWritingToDisk = true
+      }
       case Failure(t) => isSuccessWritingToDisk = false
     }(context)
   }
@@ -70,53 +81,60 @@ trait AcumeValue {
   val cube: Cube
   val measureSchemaRdd: SchemaRDD
   var acumeContext : AcumeCacheContextTrait = null
+  val logger: Logger = LoggerFactory.getLogger(classOf[AcumeValue])
   
   def evictFromMemory() {
-    measureSchemaRdd.unpersist(true)
+    try {
+    	measureSchemaRdd.unpersist(true)
+    } catch {
+      case e : Exception =>
+    }
   }
 
   def registerAndCacheDataInMemory(tableName : String) {
-    measureSchemaRdd.sqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Reading " + tableName, false)
     measureSchemaRdd.registerTempTable(tableName)
     measureSchemaRdd.sqlContext.cacheTable(tableName)
-    measureSchemaRdd.count
+    measureSchemaRdd.sqlContext.table(tableName).count
   }
 
 }
 
 case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measureSchemaRdd: SchemaRDD) extends AcumeValue {
-  val tableName = cube.getAbsoluteCubeName + levelTimestamp.level + levelTimestamp.timestamp + levelTimestamp.aggregationLevel + "_temp"
+  val tableName = cube.getAbsoluteCubeName + levelTimestamp.level + levelTimestamp.timestamp + "_temp_memory_only"
   registerAndCacheDataInMemory(tableName)
   override def registerAndCacheDataInMemory(tableName : String) {
-	measureSchemaRdd.registerTempTable(tableName)
+    measureSchemaRdd.registerTempTable(tableName)
     measureSchemaRdd.sqlContext.cacheTable(tableName)
   }
   
   override protected def finalize() {
+    logger.info("Unpersisting Data object {} for temp_memory_only ", levelTimestamp)
     evictFromMemory
   }
 }
 
 case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measureSchemaRdd: SchemaRDD) extends AcumeValue {
-   val tableName = cube.getAbsoluteCubeName + levelTimestamp.level + levelTimestamp.timestamp + levelTimestamp.aggregationLevel +"_disk"
+   val tableName = cube.getAbsoluteCubeName + levelTimestamp.level + levelTimestamp.timestamp + "_memory_disk"
   registerAndCacheDataInMemory(tableName)
-
+  
   override protected def finalize() {
+    logger.info("Unpersisting Data object {} for memory as well as disk ", levelTimestamp)
     evictFromMemory
-    val diskDirectory = AcumeTreeCacheValue.getDiskDirectoryForPoint(acumeContext, cube, levelTimestamp)
-    AcumeTreeCacheValue.deleteDirectory(diskDirectory, acumeContext)
+    AcumeTreeCacheValue.deleteDirectory(AcumeTreeCacheValue.getDiskDirectoryForPoint(this.acumeContext, cube, levelTimestamp), acumeContext)
   }
+
 }
 
 object AcumeTreeCacheValue {
   val executorService = Executors.newFixedThreadPool(2)
   val context = ExecutionContext.fromExecutorService(AcumeTreeCacheValue.executorService)
 
+  val logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCacheValue])
   
   def deleteDirectory(dir : String, acumeContext : AcumeCacheContextTrait) {
     val path = new Path(dir)
-      val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
-      fs.delete(path, true)
+    val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
+    fs.delete(path, true)
   }
   
   def getDiskDirectoryForPoint(acumeContext : AcumeCacheContextTrait, cube : Cube, levelTimestamp : LevelTimestamp) = {
@@ -124,5 +142,3 @@ object AcumeTreeCacheValue {
     cacheDirectory + File.separator + cube.binsource + File.separator + cube.cubeName + File.separator + levelTimestamp.level + "-" +levelTimestamp.aggregationLevel + File.separator + levelTimestamp.timestamp
   }
 }
-
-

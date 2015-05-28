@@ -304,7 +304,7 @@ class QueryPrefetchTaskProducer(acumeContext: AcumeContextTrait, schemas: List[Q
 
   private def isTimeRangeValid(binSource: String,
     level: Long, cube: ICube, aggrGranToLastBinInterval: Map[Long, Interval], endTime: Long, startTime: Long): Boolean = {
-    /*
+   /*
 			 * check if request lie in variable retention map of the cube
 			 */
     var lastBinEndtime = aggrGranToLastBinInterval.get(-1).get.getEndTime()

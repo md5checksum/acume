@@ -47,6 +47,8 @@ import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.LoadType
 import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import com.guavus.acume.cache.common.LoadType
 
 /**
  * @author archit.thakur
@@ -73,8 +75,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
   cachePointToTable = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
     .maximumSize(acumetreecachesize).removalListener(new RemovalListener[LevelTimestamp, AcumeTreeCacheValue] {
       def onRemoval(notification: RemovalNotification[LevelTimestamp, AcumeTreeCacheValue]) {
-    	//acumeCacheContext.sqlContext.uncacheTable(notification.getValue().measuretableName)
-        //TODO check if the table RDD has to be removed or has to be moved from in memory to disk
+        logger.info("Evicting timestamp {} from acume.", notification.getKey())
       }
     })
     .build(
@@ -88,7 +89,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
               throw new NoDataException
             }
           } else {
-            println(s"Getting data from Insta for $key as it was never calculated")
+            logger.info(s"Getting data from Insta for $key as it was never calculated")
           }
           //First check if point can be populated through children
           try {
@@ -158,7 +159,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
               return populateParentPointFromChildren(key, rdds, schema)
             }
           } catch {
-            case e: Exception => println(s"Getting data from Insta for $key as all children are not present " + e.getStackTraceString)
+            case e: Exception => logger.info(s"Getting data from Insta for $key as all children are not present ")
           }
           if (key.loadType == LoadType.Insta)
             return getDataFromBackend(key);
@@ -346,6 +347,4 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     MetaData(-1, klist)
   }
 }
-
-
 class NoDataException extends Exception
