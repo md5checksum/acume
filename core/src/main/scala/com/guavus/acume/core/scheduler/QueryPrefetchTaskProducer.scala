@@ -303,13 +303,20 @@ class QueryPrefetchTaskProducer(acumeContext: AcumeContextTrait, schemas: List[Q
 
   private def isTimeRangeValid(binSource: String,
     level: Long, cube: ICube, aggrGranToLastBinInterval: Map[Long, Interval], endTime: Long, startTime: Long): Boolean = {
-    /*
+   /*
 			 * check if request lie in variable retention map of the cube
 			 */
     var lastBinEndtime = aggrGranToLastBinInterval.get(-1).get.getEndTime()
-    var levelPolicyMap = Utility.getLevelPointMap(cube.getProperties.get(ConfConstants.levelpolicymap))
-    if (levelPolicyMap.containsKey(level)) {
-      val numPoints = levelPolicyMap.get(level).get
+    val levelpolicymap = cube.getProperties.get(ConfConstants.levelpolicymap).split("\\|")
+        val inMemoryPolicyMap = Utility.getLevelPointMap(levelpolicymap(0))
+        val diskLevelPolicyMap = 
+        if(levelpolicymap.size == 1) {
+        	inMemoryPolicyMap
+      	} else {
+      	  Utility.getLevelPointMap(levelpolicymap(1))
+      	}
+    if (diskLevelPolicyMap.containsKey(level)) {
+      val numPoints = diskLevelPolicyMap.get(level).get
       val rangeStartTime = AcumeTreeCacheEvictionPolicy.getRangeStartTime(lastBinEndtime, level, numPoints)
       if (endTime <= rangeStartTime) {
         return false;
