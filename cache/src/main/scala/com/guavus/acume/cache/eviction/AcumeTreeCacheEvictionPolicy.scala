@@ -11,6 +11,8 @@ import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.common.Cube
 import scala.collection.mutable.MutableList
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import java.util.concurrent.ConcurrentMap
+import com.guavus.acume.cache.core.AcumeTreeCacheValue
 
 /**
  * @author archit.thakur
@@ -55,12 +57,20 @@ object AcumeTreeCacheEvictionPolicy {
 
 class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextTrait) extends EvictionPolicy(cube, cacheContext) {
 
-  def getEvictableCandidate(list: List[LevelTimestamp]): Option[LevelTimestamp] = {
+  def getMemoryEvictableCandidate(list: Map[LevelTimestamp, AcumeTreeCacheValue]): Option[LevelTimestamp] = {
+    getEvictableCandidate(list.filter(_._2.isInMemory), cube.levelPolicyMap)
+  }
+  
+  def getDiskEvictableCandidate(list: Map[LevelTimestamp, AcumeTreeCacheValue]): Option[LevelTimestamp] = {
+    getEvictableCandidate(list, cube.diskLevelPolicyMap)
+  }
+  
+  def getEvictableCandidate(list: Map[LevelTimestamp, AcumeTreeCacheValue], variableretentionmap : Map[Long, Int]): Option[LevelTimestamp] = {
     
-    val variableretentionmap = cube.levelPolicyMap
+    
     var count = 0
     var _$evictableCandidate: Option[LevelTimestamp] = None
-    for(leveltimestamp <- list) yield {
+    for((leveltimestamp, _x) <- list) yield {
       
       if(isEvictiable(leveltimestamp, variableretentionmap)) {
         if(count == 0)

@@ -402,13 +402,20 @@ object Utility extends Logging {
           Map[String, String]()
         }
         
-        val levelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.levelpolicymap, ConfConstants.acumecorelevelmap, conf, cubeName))
+        val levelpolicymap = getProperty(propertyMap, ConfConstants.levelpolicymap, ConfConstants.acumecorelevelmap, conf, cubeName).split("\\|")
+        val inMemoryPolicyMap = Utility.getLevelPointMap(levelpolicymap(0))
+        val diskLevelPolicyMap = 
+        if(levelpolicymap.size == 1) {
+        	inMemoryPolicyMap
+      	} else {
+      	  Utility.getLevelPointMap(levelpolicymap(1))
+      	}
         val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.timeserieslevelpolicymap, ConfConstants.acumecoretimeserieslevelmap, conf, cubeName))
         val Gnx = getProperty(propertyMap, ConfConstants.basegranularity, ConfConstants.acumeglobalbasegranularity, conf, cubeName)
         val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
         val _$eviction = Class.forName(getProperty(propertyMap, ConfConstants.evictionpolicyforcube, ConfConstants.acumeglobalevictionpolicycube, conf, cubeName)).asSubclass(classOf[EvictionPolicy])
         val schemaType = AcumeCacheType.getAcumeCacheType(getProperty(propertyMap, "cacheType", ConfConstants.acumeCacheDefaultType, conf, cubeName))
-        val cube = Cube(cubeName, cubebinsource, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), singleEntityKeysMap, granularity, true, levelpolicymap, timeserieslevelpolicymap, _$eviction, schemaType, propertyMap.toMap)
+        val cube = Cube(cubeName, cubebinsource, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), singleEntityKeysMap, granularity, true, inMemoryPolicyMap, diskLevelPolicyMap, timeserieslevelpolicymap, _$eviction, schemaType, propertyMap.toMap)
         cubeMap.put(CubeKey(cubeName, cubebinsource), cube)
         cube
       }

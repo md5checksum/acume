@@ -6,16 +6,44 @@ import CacheLevel._
  * @author archit.thakur
  *
  */
-case class LevelTimestamp(level: CacheLevel, timestamp:Long) {
+case class LevelTimestamp(level: CacheLevel, timestamp:Long,var aggregationLevel : CacheLevel = null) {
 	
-  @transient var loadFromBackend : Boolean = true
+  if(aggregationLevel == null) {
+    aggregationLevel = level
+  }
+  @transient var loadType = LoadType.Insta
   
-  def this(level : CacheLevel, timestamp : Long, loadFromBackend : Boolean) = {
+  def this(level : CacheLevel, timestamp : Long, loadType : LoadType.Value) = {
     this(level, timestamp)
-    this.loadFromBackend = loadFromBackend
+    this.loadType = loadType
   }
   
-  override def toString = level.localId.toString + timestamp.toString
+  def this(level : CacheLevel, timestamp : Long, loadType : LoadType.Value, aggregationLevel : CacheLevel) = {
+    this(level, timestamp, aggregationLevel)
+    this.loadType = loadType
+  }
+  
+  override def toString = level.localId.toString + timestamp.toString + aggregationLevel.localId
+}
+
+object LoadType extends Enumeration { 
+  
+  type LoadType = Value
+  val Insta = Value("Insta")
+  val DISK = Value("disk")
+  val InMemory = Value("InMemory")
+  
+  
+  def getLoadType(name: String): Value = { 
+    
+    name match { 
+      
+      case "Insta" => Insta
+      case "disk" => DISK
+      case "InMemory" => InMemory
+      case _ => throw new RuntimeException("This LoadType is not supported.")
+    }
+  }
 }
 
 class AggregationLevel extends Enumeration { 

@@ -31,6 +31,27 @@ import com.guavus.acume.cache.workflow.MetaData
 import com.guavus.acume.cache.workflow.RequestType.Aggregate
 import com.guavus.acume.cache.workflow.RequestType.RequestType
 import com.guavus.acume.cache.workflow.RequestType.Timeseries
+import org.apache.spark.sql.SchemaRDD
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
+import com.guavus.acume.cache.disk.utility.CubeUtil
+import org.apache.spark.sql.StructField
+import com.guavus.acume.cache.common.ConversionToSpark
+import org.apache.spark.sql.catalyst.types.LongType
+import org.apache.spark.AccumulatorParam
+import java.util.Arrays
+import com.guavus.acume.cache.common.LevelTimestamp
+import scala.collection.mutable.LinkedList
+import scala.collection.mutable.HashMap
+import org.apache.spark.sql.catalyst.expressions.Expression
+import org.apache.spark.sql.catalyst.expressions.Sum
+import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.common.CacheLevel
+import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import com.guavus.acume.cache.common.LoadType
 
 /**
  * @author archit.thakur
@@ -57,25 +78,28 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
   cachePointToTable = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
     .maximumSize(acumetreecachesize).removalListener(new RemovalListener[LevelTimestamp, AcumeTreeCacheValue] {
       def onRemoval(notification: RemovalNotification[LevelTimestamp, AcumeTreeCacheValue]) {
-        acumeCacheContext.sqlContext.uncacheTable(notification.getValue().measuretableName)
+        logger.info("Evicting timestamp {} from acume.", notification.getKey())
       }
     })
     .build(
       new CacheLoader[LevelTimestamp, AcumeTreeCacheValue]() {
         def load(key: LevelTimestamp): AcumeTreeCacheValue = {
           val output = checkIfTableAlreadyExist(key)
-          if (output != null) {
-        	  return new AcumeTreeCacheValue(null, output.measuretableName, output.measureschemardd)
+          if (output != null || key.loadType == LoadType.DISK) {
+        	if(output == null) {
+        	  throw new NoDataException
+        	}
+            return output
           } else {
-            println(s"Getting data from Insta for $key as it was never calculated")
+            logger.info(s"Getting data from Insta for $key as it was never calculated")
           }
           //First check if point can be populated through children
           try {
         	var schema: StructType = null
             var rdds = for (child <- cacheLevelPolicy.getChildrenIntervals(key.timestamp, key.level.localId)) yield {
               val _tableName = cube.cubeName + CacheLevel.getCacheLevel(cacheLevelPolicy.getLowerLevel(key.level.localId)) + child
-              
-              val outputRdd = sqlContext.table(_tableName)
+              val childValue = cachePointToTable.get(new LevelTimestamp(CacheLevel.getCacheLevel(cacheLevelPolicy.getLowerLevel(key.level.localId)), child, LoadType.DISK))
+              val outputRdd = childValue.getAcumeValue.measureSchemaRdd
               schema = outputRdd.schema
               outputRdd
             }
@@ -83,9 +107,9 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
               return populateParentPointFromChildren(key, rdds, schema)
             }
           } catch {
-            case e: Exception => println(s"Getting data from Insta for $key as all children are not present " + e.getStackTraceString)
+            case e: Exception => logger.info(s"Getting data from Insta for $key as all children are not present ")
           }
-          if (key.loadFromBackend)
+          if (key.loadType == LoadType.Insta)
             return getDataFromBackend(key);
           else
             throw new IllegalArgumentException("Couldnt populate parent point " + key + " from child points")
@@ -108,9 +132,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     value.registerTempTable(tempTable)
     val timestamp = key.timestamp
     val parentRdd = acumeCacheContext.sqlContext.sql(s"select $timestamp as ts, $selectDimensions, $selectMeasures from $tempTable " + groupBy)
-    parentRdd.registerTempTable(_tableName)
-    sqlContext.cacheTable(_tableName)
-    return new AcumeTreeCacheValue(null, _tableName, parentRdd)
+    return new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(key, cube, parentRdd), acumeCacheContext)
   }
   
   def mergeChildPoints(emptyRdd: SchemaRDD, rdds : Seq[SchemaRDD]) : SchemaRDD = {
@@ -133,7 +155,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     val levelTimestampMap = cacheLevelPolicy.getRequiredIntervals(startTime, endTime)
     buildTableForIntervals(levelTimestampMap, tableName, isMetaData)
   }
-
+  
   private def createTableForTimeseries(startTime: Long, endTime: Long, tableName: String, queryOptionalParam: Option[QueryOptionalParam], isMetaData: Boolean): MetaData = {
 
     val baseLevel = cube.baseGran.getGranularity
@@ -187,9 +209,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     val timestamp = levelTimestamp.timestamp
     val measureSet = (CubeUtil.getDimensionSet(cube) ++ CubeUtil.getMeasureSet(cube)).map(_.getName).mkString(",")
     val cachePoint = sqlContext.sql(s"select $timestamp as ts, $measureSet from " + _tableNameTemp)
-    cachePoint.registerTempTable(_tableName)
-    cacheTable(_tableName)
-    AcumeTreeCacheValue(null, _tableName, cachePoint)
+    new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(levelTimestamp, cube, cachePoint), acumeCacheContext)
   }
   
   def processBackendData(rdd: SchemaRDD) : SchemaRDD = {
@@ -212,7 +232,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
         val acumeTreeCacheValue = cachePointToTable.get(levelTimestamp)
         notifyObserverList
         populateParent(levelTimestamp.level.localId, levelTimestamp.timestamp)
-        val diskread = acumeTreeCacheValue.measureschemardd
+        val diskread = acumeTreeCacheValue.getAcumeValue.measureSchemaRdd
         finalSchema = diskread.schema
         val _$diskread = diskread
         _$diskread
@@ -234,3 +254,4 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     MetaData(-1, klist)
   }
 }
+class NoDataException extends Exception

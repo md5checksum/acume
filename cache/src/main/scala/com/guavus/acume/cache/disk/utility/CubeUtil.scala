@@ -106,7 +106,7 @@ object CubeUtil {
     val measuresSize = CubeUtil.getMeasureSet(cube).size
     val noneMeasuresSize = CubeUtil.getMeasureSet(cube).filter(_.getAggregationFunction.equalsIgnoreCase("none")).size
     
-    if(noneMeasuresSize == measuresSize) {
+    if(noneMeasuresSize == measuresSize || selectDimensions.isEmpty) {
       val selectMeasures = CubeUtil.getMeasureSet(cube).map(_.getName).mkString(",")
       (selectDimensions, selectMeasures, "")
     } else if(noneMeasuresSize == 0) {

@@ -1674,6 +1674,17 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
+     	<property>
+	     	<name>acumeAppQueueName</name>
+	     	<help><![CDATA[ - Yarn Queue name for Acume app]]></help>
+	     	<default><![CDATA[default]]></default>
+	     	<targets>
+				<target>
+	            	 <file><![CDATA[spark.properties]]></file>
+         	    	 <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+				</target>	
+	     	</targets>
+		</property>
      </PropertiesPerApplication>
 
     <PropertiesPerInstance>    
