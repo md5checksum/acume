@@ -11,6 +11,8 @@ import com.guavus.acume.cache.common.Measure
 import com.guavus.acume.cache.common.QLType
 import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
+import com.guavus.acume.cache.core.AcumeTreeCacheValue
+import scala.collection.mutable.ArrayBuffer
  
 /**
  * @author archit.thakur
@@ -133,11 +135,11 @@ trait AcumeCacheContextTrait extends Serializable {
 
 object AcumeCacheContextTrait {
   
-  val threadLocal = new InheritableThreadLocal[scala.collection.mutable.HashMap[String, String]]
+  val threadLocal = new InheritableThreadLocal[scala.collection.mutable.HashMap[String, Any]]
   
   def init() {
     if(threadLocal.get() == null)
-    	threadLocal.set(new scala.collection.mutable.HashMap[String, String]())
+    	threadLocal.set(new scala.collection.mutable.HashMap[String, Any]())
   }
   
   def setQuery(query : String) {
@@ -153,5 +155,13 @@ object AcumeCacheContextTrait {
     threadLocal.get.put("query", null)
   }
   
+  def addAcumeTreeCacheValue(acumeTreeCacheValue : AcumeTreeCacheValue) {
+    val list = threadLocal.get.getOrElse("AcumeTreeCacheValue", new ArrayBuffer[AcumeTreeCacheValue]).asInstanceOf[ArrayBuffer[AcumeTreeCacheValue]]
+    list.+=(acumeTreeCacheValue)
+    threadLocal.get().put("AcumeTreeCacheValue", list)
+  }
   
+  def unsetAcumeTreeCacheValue() {
+    threadLocal.get.remove("AcumeTreeCacheValue")
+  }
 }

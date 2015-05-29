@@ -96,7 +96,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
         	var schema: StructType = null
             var rdds = for (child <- cacheLevelPolicy.getChildrenIntervals(key.timestamp, key.level.localId)) yield {
               val _tableName = cube.cubeName + CacheLevel.getCacheLevel(cacheLevelPolicy.getLowerLevel(key.level.localId)) + child
-              val childValue = cachePointToTable.get(new LevelTimestamp(CacheLevel.getCacheLevel(cacheLevelPolicy.getLowerLevel(key.level.localId)), child, LoadType.DISK))
+              val childValue = tryGet(new LevelTimestamp(CacheLevel.getCacheLevel(cacheLevelPolicy.getLowerLevel(key.level.localId)), child, LoadType.DISK))
               val outputRdd = childValue.getAcumeValue.measureSchemaRdd
               schema = outputRdd.schema
               outputRdd
@@ -227,7 +227,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
       val timeIterated = for (item <- ts) yield {
         timestamps.+=(item)
         val levelTimestamp = LevelTimestamp(cachelevel, item)
-        val acumeTreeCacheValue = cachePointToTable.get(levelTimestamp)
+        val acumeTreeCacheValue = get(levelTimestamp)
         notifyObserverList
         populateParent(levelTimestamp.level.localId, levelTimestamp.timestamp)
         val diskread = acumeTreeCacheValue.getAcumeValue.measureSchemaRdd

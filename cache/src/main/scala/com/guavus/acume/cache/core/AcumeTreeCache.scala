@@ -11,6 +11,7 @@ import scala.util.control.Breaks._
 import org.apache.spark.sql.SchemaRDD
 import org.apache.hadoop.fs.Path
 import com.guavus.acume.cache.common.LoadType
+import com.guavus.acume.cache.common.LevelTimestamp
 
 abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy)
   extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf, cube) {
@@ -30,6 +31,12 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       case _: Exception =>  
     }
     null
+  }
+  
+  def get(key: LevelTimestamp) = {
+    val cacheValue = cachePointToTable.get(key)
+    AcumeCacheContextTrait.addAcumeTreeCacheValue(cacheValue)
+    cacheValue
   }
   
   def tryGet(key : LevelTimestamp) = {
