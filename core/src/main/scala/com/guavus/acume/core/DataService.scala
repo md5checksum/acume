@@ -34,6 +34,7 @@ import java.util.concurrent.TimeoutException
 import scala.concurrent._
 import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 
 /**
  * This class interacts with query builder and Olap cache.
@@ -103,6 +104,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     for ((key, value) <- acumeContext.ac.threadLocal.get()) {
       acumeContext.ac.cacheSqlContext.sparkContext.setLocalProperty(key, null)
     }
+    AcumeCacheContextTrait.unsetAcumeTreeCacheValue
   }
 
   private def getJobDescription(isSchedulerQuery: Boolean, jobGroup: String) = {
