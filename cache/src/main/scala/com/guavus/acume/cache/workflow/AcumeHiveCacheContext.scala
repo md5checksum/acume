@@ -31,7 +31,7 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
   
   private [acume] def executeQuery(sql: String, qltype: QLType.QLType) = {
     val resultSchemaRDD = sqlContext.sql(sql)
-    new AcumeCacheResponse(resultSchemaRDD, resultSchemaRDD, MetaData(-1, Nil))
+    new AcumeCacheResponse(resultSchemaRDD, resultSchemaRDD.rdd, MetaData(-1, Nil))
   }
   
 }

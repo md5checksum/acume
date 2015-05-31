@@ -82,7 +82,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     for (field <- fields) {
       dimsNames += field
     }
-    new SearchResponse(dimsNames, rows.map(x => asJavaList(x.map(y => y))).toList)
+    new SearchResponse(dimsNames, rows.map(x => asJavaList(x.toSeq.map(y => y))).toList)
   }
 
   private def setSparkJobLocalProperties() {
@@ -148,7 +148,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       calculateJobLevelProperties()
       val cacheResponse = execute(sql)
       val responseRdd = cacheResponse.rowRDD
-      val fields = queryBuilderService.get(0).getQuerySchema(sql, cacheResponse.schemaRDD.schema.fieldNames) //schemaRdd.schemaschema.fieldNames
+      val fields = queryBuilderService.get(0).getQuerySchema(sql, cacheResponse.schemaRDD.schema.fieldNames.toList) //schemaRdd.schemaschema.fieldNames
       def runWithTimeout[T](f: => Array[Row]): Array[Row] = {
         lazy val fut = future { f }
         Await.result(fut, DurationInt(acumeContext.acumeConf.getInt(ConfConstants.queryTimeOut, 30)) second)

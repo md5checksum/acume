@@ -9,10 +9,10 @@ import org.apache.spark.SparkContext
 import org.apache.spark.annotation.AlphaComponent
 import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.catalyst.expressions.Row
-import org.apache.spark.sql.catalyst.types.LongType
-import org.apache.spark.sql.catalyst.types.StructField
-import org.apache.spark.sql.catalyst.types.StructType
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.LongType
+import org.apache.spark.sql.types.StructField
+import org.apache.spark.sql.types.StructType
 import com.guavus.acume.cache.common.BaseCube
 import com.guavus.acume.cache.common.ConversionToSpark
 import com.guavus.acume.cache.common.DataType

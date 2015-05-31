@@ -3,7 +3,8 @@ package com.guavus.acume.cache.workflow
 import org.apache.spark.sql.SchemaRDD
 import scala.collection.mutable.MutableList
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.catalyst.expressions.Row
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.DataFrame
 
 
 /**
@@ -11,7 +12,7 @@ import org.apache.spark.sql.catalyst.expressions.Row
  *
  */
 
-case class AcumeCacheResponse(schemaRDD: SchemaRDD, rowRDD: RDD[Row], metadata:MetaData)
+case class AcumeCacheResponse(schemaRDD: DataFrame, rowRDD: RDD[Row], metadata:MetaData)
 
 
 

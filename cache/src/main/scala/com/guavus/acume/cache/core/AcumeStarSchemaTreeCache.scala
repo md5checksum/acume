@@ -12,10 +12,10 @@ import scala.collection.mutable.MutableList
 import org.apache.spark.AccumulatorParam
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.SchemaRDD
-import org.apache.spark.sql.StructField
-import org.apache.spark.sql.catalyst.expressions.Row
-import org.apache.spark.sql.catalyst.types.LongType
-import org.apache.spark.sql.catalyst.types.StructType
+import org.apache.spark.sql.types.StructField
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.types.LongType
+import org.apache.spark.sql.types.StructType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -61,7 +61,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
       StructField(field.getName, ConversionToSpark.convertToSparkDataType(CubeUtil.getFieldType(field)), true)
     })
   val latestschema = StructType(schema.toList :+ StructField("id", LongType, true))
-  acumeCacheContext.cacheSqlContext.registerRDDAsTable(Utility.getEmptySchemaRDD(acumeCacheContext.cacheSqlContext, latestschema).cache, dimensionTable.tblnm)
+  Utility.getEmptySchemaRDD(acumeCacheContext.cacheSqlContext, latestschema).cache.registerTempTable(dimensionTable.tblnm)
 
   override def createTempTable(keyMap: List[Map[String, Any]], startTime: Long, endTime: Long, requestType: RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
     requestType match {
@@ -181,7 +181,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
       val intervals: MutableMap[Long, MutableList[Long]] = MutableMap(level -> list)
       buildTableForIntervals(intervals, tableName, isMetaData)
     } else {
-      acumeCacheContext.cacheSqlContext.registerRDDAsTable(Utility.getEmptySchemaRDD(acumeCacheContext.sqlContext, cube), tableName)
+      Utility.getEmptySchemaRDD(acumeCacheContext.sqlContext, cube).registerTempTable(tableName)
       MetaData(-1, Nil)
     }
   }
@@ -222,7 +222,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
         val fullRdd = AcumeStarSchemaTreeCache.generateId(dimensionSetRdd, dTableName, acumeCacheContext.cacheSqlContext, latestschema)
         val finalDimensionRdd = acumeCacheContext.sqlContext.table(dTableName.tblnm).unionAll(fullRdd)
         dTableName.Modify
-        acumeCacheContext.sqlContext.registerRDDAsTable(finalDimensionRdd, dTableName.tblnm)
+        finalDimensionRdd.registerTempTable(dTableName.tblnm)
         metaData.put(DataLoadedMetadata.dimensionSetEndTime, endTime.toString)
       }
     }
@@ -234,7 +234,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
     val ar = sqlContext.sql(s"select $selectField from $aggregatedTbl left outer join $dtnm on $onField")
     //      val fullRdd = AcumeStarSchemaTreeCache.generateId(ar, dTableName, sqlContext)
     val joinedTbl = businessCube.getAbsoluteCubeName + levelTimestamp.level + "_" + levelTimestamp.timestamp
-    sqlContext.registerRDDAsTable(ar, joinedTbl)
+    ar.registerTempTable(joinedTbl)
 
     (correctMTable(businessCube, joinedTbl, levelTimestamp.timestamp),
       dTableName.tblnm)
@@ -307,18 +307,18 @@ object AcumeStarSchemaTreeCache {
       }
     }
 
-    val numPartitions = drdd.partitions.size
+    val numPartitions = drdd.rdd.partitions.size
     val accumulatorList = new Array[Long](numPartitions)
     Arrays.fill(accumulatorList, 0)
     val acc = sqlContext.sparkContext.accumulator(new Vector(accumulatorList))
     val lastMax = dtable.maxid
     //    def func(partionIndex : Int, itr : Iterator[Row]) = 
-
-    val returnRdd = sqlContext.applySchema(drdd.mapPartitionsWithIndex((partionIndex, itr) => {
+    import sqlContext.implicits._
+    val rdd = drdd.rdd.mapPartitionsWithIndex((partionIndex, itr) => {
       var k, j = 0
       val temp = itr.map(x => {
         val arr = new Array[Any](x.size + 1)
-        x.copyToArray(arr)
+        x.toSeq.copyToArray(arr)
         if (j >= 10) {
           j = 0
           k += 1
@@ -332,7 +332,9 @@ object AcumeStarSchemaTreeCache {
       arr(partionIndex) = k * numPartitions * 10 + partionIndex * 10 + lastMax + 1 + j
       acc += new Vector(arr)
       temp
-    }), dimensionTableSchema)
+    })
+//    import org.apache.spark.sql._
+    val returnRdd = sqlContext.createDataFrame(rdd, dimensionTableSchema)
     print(returnRdd.schema)
     val tempDimensionTable = dtable.tblnm + "Temp"
     returnRdd.registerTempTable(tempDimensionTable)

@@ -4,7 +4,7 @@ import scala.Array.canBuildFrom
 import org.apache.spark.AccumulatorParam
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SchemaRDD
-import org.apache.spark.sql.StructField
+import org.apache.spark.sql.types.StructField
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.utility.QueryOptionalParam

@@ -18,11 +18,12 @@ import org.apache.hive.service.cli._
 import org.apache.hive.service.cli.operation.ExecuteStatementOperation
 import org.apache.hive.service.cli.session.HiveSession
 import org.apache.spark.Logging
-import org.apache.spark.sql.catalyst.types._
+import org.apache.spark.sql.types._
 import org.apache.spark.sql.{Row => SparkRow, SchemaRDD}
 import org.apache.spark.sql.hive.{HiveContext, HiveMetastoreTypes}
 import org.apache.spark.sql.hive.thriftserver.ReflectionUtils._
 import com.guavus.acume.core.AcumeService
+import org.apache.spark.sql.DataFrame
 
 private[hive] class AcumeSparkExecuteStatementOperation(
     parentSession: HiveSession,
@@ -33,7 +34,7 @@ private[hive] class AcumeSparkExecuteStatementOperation(
     sessionToActivePool: SMap[HiveSession, String]) extends ExecuteStatementOperation(
   parentSession, statement, confOverlay, runInBackground) with Logging {
 
-  private var result: SchemaRDD = _
+  private var result: DataFrame = _
   private var iter: Iterator[SparkRow] = _
   private var dataTypes: Array[DataType] = _
 
@@ -47,7 +48,7 @@ private[hive] class AcumeSparkExecuteStatementOperation(
         val useIncrementalCollect =
           hiveContext.getConf("spark.sql.thriftServer.incrementalCollect", "false").toBoolean
         if (useIncrementalCollect) {
-          result.toLocalIterator
+          result.rdd.toLocalIterator
         } else {
           result.collect().iterator
         }
