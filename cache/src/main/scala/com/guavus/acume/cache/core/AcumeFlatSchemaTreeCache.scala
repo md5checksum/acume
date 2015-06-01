@@ -105,12 +105,14 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
               return populateParentPointFromChildren(key, rdds, schema)
             }
           } catch {
-            case e: Exception => logger.info(s"Getting data from Insta for $key as all children are not present ")
+            case e: Exception => logger.info(s"Couldnt populate data for $key as all children are not present.")
           }
-          if (key.loadType == LoadType.Insta)
+          if (key.loadType == LoadType.Insta) {
+        	logger.info(s"Getting data from Insta for $key as all children are not present ")
             return getDataFromBackend(key);
-          else
-            throw new IllegalArgumentException("Couldnt populate parent point " + key + " from child points")
+          } else {
+            throw new NoDataException
+          }
         }
       });
   
