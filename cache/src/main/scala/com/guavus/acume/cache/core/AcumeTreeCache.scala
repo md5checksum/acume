@@ -22,6 +22,7 @@ import com.guavus.acume.cache.workflow.AcumeCacheContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import com.guavus.acume.cache.common.LoadType
+import com.guavus.acume.cache.common.LevelTimestamp
 
 abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy)
   extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf, cube) {
@@ -46,7 +47,13 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
     null
   }
   
-    def tryGet(key : LevelTimestamp) = {
+  def get(key: LevelTimestamp) = {
+    val cacheValue = cachePointToTable.get(key)
+    AcumeCacheContextTrait.addAcumeTreeCacheValue(cacheValue)
+    cacheValue
+  }
+  
+  def tryGet(key : LevelTimestamp) = {
     try {
         key.loadType = LoadType.DISK
     	cachePointToTable.get(key)
