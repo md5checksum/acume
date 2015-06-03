@@ -327,31 +327,25 @@
             <Property_OriginalName>application.${rubixApp}.acumeCoreCacheUseInsta</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>Acume Instance: &lt;</Property_Name>
-            <Property_Value>Acume-Instance</Property_Value>
-            <Property_Type>read-only</Property_Type>
-            <Property_DataType>string</Property_DataType>
-        </Property>
-        <Property>
-            <Property_Name> rubixInstance</Property_Name>
+            <Property_Name>application.${rubixApp}.instanceId</Property_Name>
             <Property_Value />
             <Property_Type>read-write</Property_Type>
             <Property_DataType>integer</Property_DataType>
-            <Property_OriginalName>rubixInstance</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.instanceId</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.redirectPort</Property_Name>
+            <Property_Name> application.${rubixApp}.redirectPort</Property_Name>
             <Property_Value>6443</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>integer</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.redirectPort</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.redirectPort</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.docBase</Property_Name>
+            <Property_Name> application.${rubixApp}.docBase</Property_Name>
             <Property_Value>/opt/tms/rubix-atlas3.0</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.docBase</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.docBase</Property_OriginalName>
         </Property>
         <Property>
             <Property_Name> application.${rubixApp}.acumebinsource</Property_Name>
@@ -368,372 +362,369 @@
             <Property_OriginalName>application.${rubixApp}.timeserieslevelpolicymap</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.instanceId.${rubixInstance}.PERMSIZE</Property_Name>
+            <Property_Name> application.${rubixApp}.PERMSIZE</Property_Name>
             <Property_Value>128m</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.instanceId.${rubixInstance}.PERMSIZE</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.PERMSIZE</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.instanceId.${rubixInstance}.MAXPERMSIZE</Property_Name>
+            <Property_Name> application.${rubixApp}.MAXPERMSIZE</Property_Name>
             <Property_Value>256m</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.MAXPERMSIZE</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.MAXPERMSIZE</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.debugPort</Property_Name>
+            <Property_Name> application.${rubixApp}.debugPort</Property_Name>
             <Property_Value>0</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>integer</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.debugPort</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.debugPort</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.connectorPort</Property_Name>
+            <Property_Name> application.${rubixApp}.connectorPort</Property_Name>
             <Property_Value>6080</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>integer</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.connectorPort</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.connectorPort</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.connectorPortAJP</Property_Name>
+            <Property_Name> application.${rubixApp}.connectorPortAJP</Property_Name>
             <Property_Value>6029</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>integer</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.connectorPortAJP</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.connectorPortAJP</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.serverPort</Property_Name>
+            <Property_Name> application.${rubixApp}.serverPort</Property_Name>
             <Property_Value>6005</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>integer</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.serverPort</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.serverPort</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.nodeUniqueIdentifier</Property_Name>
+            <Property_Name> application.${rubixApp}.nodeUniqueIdentifier</Property_Name>
             <Property_Value>localhost</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName> application.${rubixApp}.rubixInstance.${rubixInstance}.nodeUniqueIdentifier</Property_OriginalName>
+            <Property_OriginalName> application.${rubixApp}.nodeUniqueIdentifier</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.umDBVersion</Property_Name>
+            <Property_Name> application.${rubixApp}.umDBVersion</Property_Name>
             <Property_Value>3.5.1</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.umDBVersion</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.umDBVersion</Property_OriginalName>
         </Property>
         <Property>
-              <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.obfuscateUsername</Property_Name>
+              <Property_Name>application.${rubixApp}.obfuscateUsername</Property_Name>
               <Property_Value>true</Property_Value>
               <Property_Type>read-write</Property_Type>
               <Property_DataType>boolean</Property_DataType>
-              <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.obfuscateUsername</Property_OriginalName>
+              <Property_OriginalName>application.${rubixApp}.obfuscateUsername</Property_OriginalName>
         </Property>
         <Property>
-              <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.maxUsersCount</Property_Name>
+              <Property_Name>application.${rubixApp}.maxUsersCount</Property_Name>
               <Property_Value>2147483647</Property_Value>
               <Property_Type>read-write</Property_Type>
               <Property_DataType>integer</Property_DataType>
-              <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.maxUsersCount</Property_OriginalName>
+              <Property_OriginalName>application.${rubixApp}.maxUsersCount</Property_OriginalName>
        </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.solutionDBVersion</Property_Name>
+            <Property_Name> application.${rubixApp}.solutionDBVersion</Property_Name>
             <Property_Value>2.0.2.1</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.solutionDBVersion</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.solutionDBVersion</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.isCaseInsensitive</Property_Name>
+            <Property_Name> application.${rubixApp}.isCaseInsensitive</Property_Name>
             <Property_Value>true</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>boolean</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.isCaseInsensitive</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.isCaseInsensitive</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.samlValidator</Property_Name>
+            <Property_Name> application.${rubixApp}.samlValidator</Property_Name>
             <Property_Value>com.guavus.rubix.user.management.sso.SAML20Validator</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.samlValidator</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.samlValidator</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.keyStoreName</Property_Name>
+            <Property_Name> application.${rubixApp}.keyStoreName</Property_Name>
             <Property_Value>/sso.jks</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.keyStoreName</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.keyStoreName</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.keyStorePassword</Property_Name>
+            <Property_Name> application.${rubixApp}.keyStorePassword</Property_Name>
             <Property_Value>sso123</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.keyStorePassword</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.keyStorePassword</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.protectedFileExtension</Property_Name>
+            <Property_Name>application.${rubixApp}.protectedFileExtension</Property_Name>
             <Property_Value>swf</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.protectedFileExtension</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.protectedFileExtension</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.unRestrictedResources</Property_Name>
+            <Property_Name>application.${rubixApp}.unRestrictedResources</Property_Name>
             <Property_Value>main.swf</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.unRestrictedResources</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.unRestrictedResources</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.applyServicePermission</Property_Name>
+            <Property_Name>application.${rubixApp}.applyServicePermission</Property_Name>
             <Property_Value>true</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.applyServicePermission</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.applyServicePermission</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.staticSecurityManagerEnabledShiroEnv</Property_Name>
+            <Property_Name>application.${rubixApp}.staticSecurityManagerEnabledShiroEnv</Property_Name>
             <Property_Value>false</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.staticSecurityManagerEnabledShiroEnv</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.staticSecurityManagerEnabledShiroEnv</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.ssoIssuerId</Property_Name>
+            <Property_Name>application.${rubixApp}.ssoIssuerId</Property_Name>
             <Property_Value>ssoTest</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.ssoIssuerId</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.ssoIssuerId</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.customNamingStrategyEnabledHibernate</Property_Name>
+            <Property_Name>application.${rubixApp}.customNamingStrategyEnabledHibernate</Property_Name>
             <Property_Value>false</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.customNamingStrategyEnabledHibernate</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.customNamingStrategyEnabledHibernate</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.pojoNameForCustomTablename</Property_Name>
+            <Property_Name>application.${rubixApp}.pojoNameForCustomTablename</Property_Name>
             <Property_Value>Filter</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.pojoNameForCustomTablename</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.pojoNameForCustomTablename</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.pojoNamesToUseHibernateSequence</Property_Name>
+            <Property_Name>application.${rubixApp}.pojoNamesToUseHibernateSequence</Property_Name>
             <Property_Value></Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.pojoNamesToUseHibernateSequence</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.pojoNamesToUseHibernateSequence</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.channelReceiverPort</Property_Name>
+            <Property_Name> application.${rubixApp}.channelReceiverPort</Property_Name>
             <Property_Value>4000</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>integer</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.channelReceiverPort</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.channelReceiverPort</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.tomcatClusterName</Property_Name>
+            <Property_Name> application.${rubixApp}.tomcatClusterName</Property_Name>
             <Property_Value>tomcat-cluster</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.tomcatClusterName</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.tomcatClusterName</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.tomcatClusterInfo</Property_Name>
+            <Property_Name>application.${rubixApp}.tomcatClusterInfo</Property_Name>
             <Property_Value></Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.tomcatClusterInfo</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.tomcatClusterInfo</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.cacheBaselayerBusinessCubeXml</Property_Name>
+            <Property_Name> application.${rubixApp}.cacheBaselayerBusinessCubeXml</Property_Name>
             <Property_Value>cubedefinition.xml</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.cacheBaselayerBusinessCubeXml</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.cacheBaselayerBusinessCubeXml</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.cacheBaselayerStorageType</Property_Name>
+            <Property_Name> application.${rubixApp}.cacheBaselayerStorageType</Property_Name>
             <Property_Value>text</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.cacheBaselayerStorageType</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.cacheBaselayerStorageType</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.cacheCoreTimezone</Property_Name>
+            <Property_Name> application.${rubixApp}.cacheCoreTimezone</Property_Name>
             <Property_Value>GMT</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.cacheCoreTimezone</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.cacheCoreTimezone</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.cacheBaselayerCubedefinitionXml</Property_Name>
+            <Property_Name> application.${rubixApp}.cacheBaselayerCubedefinitionXml</Property_Name>
             <Property_Value>cubexml</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.cacheBaselayerCubedefinitionXml</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.cacheBaselayerCubedefinitionXml</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.cacheExecuteQLtype</Property_Name>
+            <Property_Name> application.${rubixApp}.cacheExecuteQLtype</Property_Name>
             <Property_Value>sql</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.cacheExecuteQLtype</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.cacheExecuteQLtype</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.cacheRRCacheLoader</Property_Name>
+            <Property_Name> application.${rubixApp}.cacheRRCacheLoader</Property_Name>
             <Property_Value>com.guavus.acume.cache.workflow.RequestResponseCache</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.cacheRRCacheLoader</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.cacheRRCacheLoader</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.cacheCoreRRCacheConcurrenyLevel</Property_Name>
+            <Property_Name> application.${rubixApp}.cacheCoreRRCacheConcurrenyLevel</Property_Name>
             <Property_Value>3</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.cacheCoreRRCacheConcurrenyLevel</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.cacheCoreRRCacheConcurrenyLevel</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.cacheCoreRRCahceSize</Property_Name>
+            <Property_Name> application.${rubixApp}.cacheCoreRRCahceSize</Property_Name>
             <Property_Value>502</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.cacheCoreRRCahceSize</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.cacheCoreRRCahceSize</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.cacheDeleteFirstBinPersistedTime</Property_Name>
+            <Property_Name> application.${rubixApp}.cacheDeleteFirstBinPersistedTime</Property_Name>
             <Property_Value></Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.cacheDeleteFirstBinPersistedTime</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.cacheDeleteFirstBinPersistedTime</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.cacheDeleteLastBinPersistedTime</Property_Name>
+            <Property_Name> application.${rubixApp}.cacheDeleteLastBinPersistedTime</Property_Name>
             <Property_Value></Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.cacheDeleteLastBinPersistedTime</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.cacheDeleteLastBinPersistedTime</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.coreEnableJDBCServer</Property_Name>
+            <Property_Name> application.${rubixApp}.coreEnableJDBCServer</Property_Name>
             <Property_Value>false</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.coreEnableJDBCServer</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.coreEnableJDBCServer</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.acumeCoreAppConfig</Property_Name>
+            <Property_Name> application.${rubixApp}.acumeCoreAppConfig</Property_Name>
             <Property_Value>com.guavus.acume.core.configuration.rubixAppConfig</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.acumeCoreAppConfig</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.acumeCoreAppConfig</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.cachedbname</Property_Name>
+            <Property_Name> application.${rubixApp}.cachedbname</Property_Name>
             <Property_Value>default</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.cachedbname</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.cachedbname</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.coreudfconfigurationxml</Property_Name>
+            <Property_Name> application.${rubixApp}.coreudfconfigurationxml</Property_Name>
             <Property_Value>udfConfiguration.xml</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.coreudfconfigurationxml</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.coreudfconfigurationxml</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.acumeSuperUser</Property_Name>
+            <Property_Name> application.${rubixApp}.acumeSuperUser</Property_Name>
             <Property_Value>admin</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.acumeSuperUser</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.acumeSuperUser</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.acumeSpringResolver</Property_Name>
+            <Property_Name> application.${rubixApp}.acumeSpringResolver</Property_Name>
             <Property_Value>com.guavus.acume.core.spring.AcumeResolver</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.acumeSpringResolver</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.acumeSpringResolver</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.acumeMaxQueryLogRecord</Property_Name>
+            <Property_Name> application.${rubixApp}.acumeMaxQueryLogRecord</Property_Name>
             <Property_Value>10</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>integer</Property_DataType>
-            <Property_OriginalName> application.${rubixApp}.rubixInstance.${rubixInstance}.acumeMaxQueryLogRecord</Property_OriginalName>
+            <Property_OriginalName> application.${rubixApp}.acumeMaxQueryLogRecord</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name> application.${rubixApp}.rubixInstance.${rubixInstance}.timezonedbpath</Property_Name>
+            <Property_Name> application.${rubixApp}.timezonedbpath</Property_Name>
             <Property_Value>/opt/tms/rubix/zoneinfo</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName> application.${rubixApp}.rubixInstance.${rubixInstance}.timezonedbpath</Property_OriginalName>
+            <Property_OriginalName> application.${rubixApp}.timezonedbpath</Property_OriginalName>
         </Property>
 
         <Property>
-            <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.sqlcorrector</Property_Name>
+            <Property_Name>application.${rubixApp}.sqlcorrector</Property_Name>
             <Property_Value>com.guavus.acume.cache.sql.AcumeCacheSQLCorrector</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.sqlcorrector</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.sqlcorrector</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.sqlparser</Property_Name>
+            <Property_Name>application.${rubixApp}.sqlparser</Property_Name>
             <Property_Value>com.guavus.acume.cache.sql.AcumeCacheSQLParser</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.sqlparser</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.sqlparser</Property_OriginalName>
         </Property>
          <Property>
-            <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.corequeryengine</Property_Name>
+            <Property_Name>application.${rubixApp}.corequeryengine</Property_Name>
             <Property_Value>acume</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.corequeryengine</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.corequeryengine</Property_OriginalName>
         </Property>
          <Property>
-            <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.disabletotalquery</Property_Name>
+            <Property_Name>application.${rubixApp}.disabletotalquery</Property_Name>
             <Property_Value>false</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.disabletotalquery</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.disabletotalquery</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.queryTimeOut</Property_Name>
+            <Property_Name>application.${rubixApp}.queryTimeOut</Property_Name>
             <Property_Value>7200</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>integer</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.queryTimeOut</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.queryTimeOut</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.classificationMaxAllowedQueries</Property_Name>
+            <Property_Name>application.${rubixApp}.classificationMaxAllowedQueries</Property_Name>
             <Property_Value>default:25</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.classificationMaxAllowedQueries</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.classificationMaxAllowedQueries</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.cachebasedirectory</Property_Name>
+            <Property_Name>application.${rubixApp}.cachebasedirectory</Property_Name>
             <Property_Value>/data/acume</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.cachebasedirectory</Property_OriginalName>
+            <Property_OriginalName>application.${rubixApp}.cachebasedirectory</Property_OriginalName>
         </Property>
         <Property>
-            <Property_Name>application.${rubixApp}.rubixInstance.${rubixInstance}.cachedirectory</Property_Name>
+            <Property_Name>application.${rubixApp}.cachedirectory</Property_Name>
             <Property_Value></Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.rubixInstance.${rubixInstance}.cachedirectory</Property_OriginalName>
-        </Property>
-        <Property>
-            <Property_Name>Acume Instance: &gt;</Property_Name>
+            <Property_OriginalName>application.${rubixApp}.cachedirectory</Property_OriginalName>
         </Property>
     </Properties>
     <SubProfiles />
