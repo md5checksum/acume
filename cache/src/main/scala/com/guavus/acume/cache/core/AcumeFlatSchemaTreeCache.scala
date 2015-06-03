@@ -74,7 +74,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
   }
 
   val concurrencyLevel = conf.get(ConfConstants.rrcacheconcurrenylevel).toInt
-  val acumetreecachesize = concurrencyLevel + concurrencyLevel * (cube.levelPolicyMap.map(_._2).reduce(_ + _))
+  val acumetreecachesize = concurrencyLevel + concurrencyLevel * (cube.diskLevelPolicyMap.map(_._2).reduce(_ + _))
   cachePointToTable = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
     .maximumSize(acumetreecachesize).removalListener(new RemovalListener[LevelTimestamp, AcumeTreeCacheValue] {
       def onRemoval(notification: RemovalNotification[LevelTimestamp, AcumeTreeCacheValue]) {
@@ -98,7 +98,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
         	var schema: StructType = null
             var rdds = for (child <- cacheLevelPolicy.getChildrenIntervals(key.timestamp, key.level.localId)) yield {
               val _tableName = cube.cubeName + CacheLevel.getCacheLevel(cacheLevelPolicy.getLowerLevel(key.level.localId)) + child
-              val childValue = cachePointToTable.get(new LevelTimestamp(CacheLevel.getCacheLevel(cacheLevelPolicy.getLowerLevel(key.level.localId)), child, LoadType.DISK))
+              val childValue = tryGet(new LevelTimestamp(CacheLevel.getCacheLevel(cacheLevelPolicy.getLowerLevel(key.level.localId)), child, LoadType.DISK))
               val outputRdd = childValue.getAcumeValue.measureSchemaRdd
               schema = outputRdd.schema
               outputRdd
@@ -107,12 +107,14 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
               return populateParentPointFromChildren(key, rdds, schema)
             }
           } catch {
-            case e: Exception => logger.info(s"Getting data from Insta for $key as all children are not present ")
+            case e: Exception => logger.info(s"Couldnt populate data for $key as all children are not present.")
           }
-          if (key.loadType == LoadType.Insta)
+          if (key.loadType == LoadType.Insta) {
+        	logger.info(s"Getting data from Insta for $key as all children are not present ")
             return getDataFromBackend(key);
-          else
-            throw new IllegalArgumentException("Couldnt populate parent point " + key + " from child points")
+          } else {
+            throw new NoDataException
+          }
         }
       });
   
@@ -229,7 +231,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
       val timeIterated = for (item <- ts) yield {
         timestamps.+=(item)
         val levelTimestamp = LevelTimestamp(cachelevel, item)
-        val acumeTreeCacheValue = cachePointToTable.get(levelTimestamp)
+        val acumeTreeCacheValue = get(levelTimestamp)
         notifyObserverList
         populateParent(levelTimestamp.level.localId, levelTimestamp.timestamp)
         val diskread = acumeTreeCacheValue.getAcumeValue.measureSchemaRdd

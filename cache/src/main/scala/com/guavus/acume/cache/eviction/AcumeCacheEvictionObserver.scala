@@ -47,7 +47,7 @@ class AcumeCacheEvictionObserver(_$acumeCache: AcumeCache[_ <: Any, _ <: Any]) e
           Some(acumeCache.getCacheCollection.getIfPresent(memoryEvictable.get).asInstanceOf[AcumeTreeCacheValue]).map(_.evictFromMemory)
         }
         logger.info("Unpersisting Data object {} for disk too", memoryEvictable.get)
-        loading.invalidate(memoryEvictable.get)
+        loading.invalidate(diskEvictable.get)
       }
     } else if(diskEvictable != None) {
       logger.info("Unpersisting Data object {} for memory_disk", memoryEvictable.get)
