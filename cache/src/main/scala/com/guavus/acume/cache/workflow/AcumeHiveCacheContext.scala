@@ -1,5 +1,9 @@
 package com.guavus.acume.cache.workflow
 
+
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
@@ -11,15 +15,17 @@ import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.sql.ISqlCorrector
 import scala.collection.mutable.ArrayBuffer
 import com.guavus.acume.cache.common.Cube
-import scala.collection.JavaConversions._
 import com.guavus.acume.cache.disk.utility.DataLoader
 import java.util.concurrent.ConcurrentHashMap
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.disk.utility.InstaDataLoaderThinAcume
 import com.guavus.acume.cache.common.BaseCube
 import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.core.Level
 import com.guavus.acume.cache.common.CacheLevel
 import com.guavus.acume.cache.core.FixedLevelPolicy
+import com.guavus.acume.cache.core.CacheTimeSeriesLevelPolicy
+import scala.collection.immutable.SortedMap
 
 /**
  * @author kashish.jain
@@ -35,7 +41,7 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
   Utility.init(conf)
   Utility.unmarshalXML(conf.get(ConfConstants.businesscubexml), dimensionMap, measureMap)
   
-  val dataLoader: DataLoader = new InstaDataLoaderThinAcume(this, conf, null)
+  val dataLoader = new InstaDataLoaderThinAcume(this, conf, null)
 
   override private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
 
@@ -44,6 +50,24 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
   private [acume] def cacheConf = conf
   
   private [acume] def getCubeMap = throw new RuntimeException("Operation not supported")
+  
+  override def getFirstBinPersistedTime(binSource: String): Long = {
+    dataLoader.getFirstBinPersistedTime(binSource)
+  }
+
+  override def getLastBinPersistedTime(binSource: String): Long = {
+    dataLoader.getLastBinPersistedTime(binSource)
+  }
+
+  override def getBinSourceToIntervalMap(binSource: String): Map[Long, (Long, Long)] = {
+    dataLoader.getBinSourceToIntervalMap(binSource)
+  }
+  
+  override def getAllBinSourceToIntervalMap() : Map[String, Map[Long, (Long,Long)]] =  {
+		dataLoader.getAllBinSourceToIntervalMap
+  }
+  
+  val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]()(implicitly[Ordering[Long]].reverse) ++ Utility.getLevelPointMap(conf.get(ConfConstants.acumecoretimeserieslevelmap)).map(x=> (x._1.level, x._2)))
   
   private [acume] def executeQuery(sql: String, qltype: QLType.QLType) = {
     if(!cacheConf.getBoolean(ConfConstants.useInsta, false)) {
@@ -77,7 +101,12 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
       i = AcumeCacheContext.getTable(cube)
       updatedsql = updatedsql.replaceAll(s"$cube", s"$i")
       val finalRdd = if(rt == RequestType.Timeseries) {
-        val level = queryOptionalParams.getTimeSeriesGranularity
+        val level = 
+          if (queryOptionalParams.getTimeSeriesGranularity() != 0) {
+            queryOptionalParams.getTimeSeriesGranularity()
+          } else
+            cacheTimeseriesLevelPolicy.getLevelToUse(startTime, endTime, getLastBinPersistedTime(key_binsource))
+            
     	  val startTimeCeiling = Utility.floorFromGranularity(startTime, level)
     	  val endTimeFloor = Utility.floorFromGranularity(endTime, level)
            timestamps = Utility.getAllIntervals(startTimeCeiling, endTimeFloor, level)
