@@ -35,7 +35,7 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
   }
   Utility.init(conf)
   
-  val dataLoader: DataLoader = new InstaDataLoaderThinAcume(this, conf, null)
+  val dataLoader = new InstaDataLoaderThinAcume(this, conf, null)
   override private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
   
   Utility.unmarshalXML(conf.get(ConfConstants.businesscubexml), dimensionMap, measureMap)
@@ -45,6 +45,22 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
   private [acume] def cacheConf = conf
   
   private [acume] def getCubeMap = throw new RuntimeException("Operation not supported")
+  
+  override def getFirstBinPersistedTime(binSource: String): Long = {
+    dataLoader.getFirstBinPersistedTime(binSource)
+  }
+
+  override def getLastBinPersistedTime(binSource: String): Long = {
+    dataLoader.getLastBinPersistedTime(binSource)
+  }
+
+  override def getBinSourceToIntervalMap(binSource: String): Map[Long, (Long, Long)] = {
+    dataLoader.getBinSourceToIntervalMap(binSource)
+  }
+  
+  override def getAllBinSourceToIntervalMap() : Map[String, Map[Long, (Long,Long)]] =  {
+		dataLoader.getAllBinSourceToIntervalMap
+  }
   
    val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]()(implicitly[Ordering[Long]].reverse) ++ Utility.getLevelPointMap(conf.get(ConfConstants.acumecoretimeserieslevelmap)))
   
