@@ -17,6 +17,7 @@ import com.guavus.acume.core.configuration.AcumeAppConfig
 import com.guavus.acume.cache.common.ConfConstants
 import scala.util.Try
 import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.rubix.user.management.UMProperties
 
 /**
  * Entry point to start the tomcat. this must be called by spark or command line to start the application
@@ -37,6 +38,7 @@ object AcumeMain {
 	//Initiate the session Factory for user management db
     SessionFactory.getInstance(SessionContext.DISTRIBUTED)
     InitDatabase.initializeDatabaseTables(ArrayBuffer[IDML]())
+    UMProperties.setGlobalTimeZone(AcumeContextTrait.acumeContext.get.acumeConf.getAcumeTimeZone)
     println("Called AcumeMain")
     val startTime = System.currentTimeMillis()
     //Initialize all components for Acume Core
@@ -58,6 +60,7 @@ object AcumeMain {
 	//Initiate the session Factory for user management db
     SessionFactory.getInstance(SessionContext.DISTRIBUTED)
     InitDatabase.initializeDatabaseTables(ArrayBuffer[IDML]())
+    UMProperties.setGlobalTimeZone(AcumeContextTrait.acumeContext.get.acumeConf.getAcumeTimeZone)
     println("Called AcumeHiveMain")
     val startTime = System.currentTimeMillis()
     //Initialize all components for Acume Core

@@ -6,6 +6,7 @@ import java.util.Properties
 import scala.Array.canBuildFrom
 import scala.collection.JavaConverters.propertiesAsScalaMapConverter
 import scala.collection.mutable.HashMap
+import com.guavus.acume.cache.common.ConfConstants
 
 import org.slf4j.LoggerFactory
 
@@ -134,6 +135,11 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
   
   def getEnableJDBCServer(): String = {
     get("acume.core.enableJDBCServer", "false")
+  }
+
+  /* Get the timezone of acume */
+  def getAcumeTimeZone() : String = {
+    get(ConfConstants.timezone, "GMT")
   }
 
   def getAppConfig(): String = {
