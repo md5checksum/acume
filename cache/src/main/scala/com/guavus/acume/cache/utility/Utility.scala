@@ -52,6 +52,7 @@ import com.guavus.acume.cache.eviction.EvictionPolicy
 import com.guavus.acume.cache.core.AcumeCacheType
 import com.guavus.rubix.query.remote.flex.TimeZoneInfo
 import org.apache.spark.SparkContext
+//import com.guavus.acume.cache.core.Level
 
 /**
  * @author archit.thakur
@@ -419,7 +420,8 @@ object Utility extends Logging {
           Map[String, String]()
         }
         
-        val levelpolicymap = getProperty(propertyMap, ConfConstants.levelpolicymap, ConfConstants.acumecorelevelmap, conf, cubeName).split("\\|")
+        val levelPolicyString = getProperty(propertyMap, ConfConstants.levelpolicymap, ConfConstants.acumecorelevelmap, conf, cubeName)
+        val levelpolicymap = levelPolicyString.split("\\|")
         val inMemoryPolicyMap = Utility.getLevelPointMap(levelpolicymap(0))
         val diskLevelPolicyMap = 
         if(levelpolicymap.size == 1) {
@@ -427,7 +429,13 @@ object Utility extends Logging {
       	} else {
       	  Utility.getLevelPointMap(levelpolicymap(1))
       	}
+
         val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.timeserieslevelpolicymap, ConfConstants.acumecoretimeserieslevelmap, conf, cubeName))
+        
+        if(PropertyValidator.validateRetentionMap(Some(levelPolicyString), ConfConstants.acumecorelevelmap)) {
+          throw new RuntimeException(ConfConstants.acumecorelevelmap + " is not configured correctly")
+        }
+        
         val Gnx = getProperty(propertyMap, ConfConstants.basegranularity, ConfConstants.acumeglobalbasegranularity, conf, cubeName)
         val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
         val _$eviction = Class.forName(getProperty(propertyMap, ConfConstants.evictionpolicyforcube, ConfConstants.acumeglobalevictionpolicycube, conf, cubeName)).asSubclass(classOf[EvictionPolicy])

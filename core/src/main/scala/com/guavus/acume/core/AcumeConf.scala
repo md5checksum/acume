@@ -10,7 +10,7 @@ import scala.collection.mutable.HashMap
 import org.slf4j.LoggerFactory
 
 import com.guavus.acume.cache.common.ConfConstants
-import com.guavus.acume.util.PropertyValidator
+import com.guavus.acume.cache.utility.PropertyValidator
 
 /**
  * Configuration for a Acume application. Used to set various Acume parameters as key-value pairs.
