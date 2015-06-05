@@ -1,14 +1,12 @@
-package com.guavus.acume.util
+package com.guavus.acume.cache.utility
 
 import java.lang.Error
 import scala.collection.mutable.HashMap
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import com.guavus.acume.core.exceptions.ErrorHandler
 import com.guavus.acume.cache.common.ConfConstants
 
 case class PropertyValidator
-
 object PropertyValidator {
   
   private var logger: Logger = LoggerFactory.getLogger(classOf[PropertyValidator])
@@ -32,7 +30,7 @@ object PropertyValidator {
     {
       logger.info("Valid properties")
     } else {
-      ErrorHandler.handleError(new Error("Invalid acume properties...", new RuntimeException("Invalid acume properties...")))
+      throw new RuntimeException("Invalid acume properties...")
     }
   }
   
@@ -60,25 +58,47 @@ object PropertyValidator {
     true
   }
   
-  def validateRetentionMap(value : Option[String], key : String = "Key") : Boolean = {
-    if(value == None) {
+  def validateRetentionMap(levelPolicy : Option[String], key : String = "Key") : Boolean = {
+    
+    if(levelPolicy == None || levelPolicy.get.trim == "") {
       logger.error(key + " is not configured in acume conf")
       return false
     }
-    val entries = value.get.split(";")
-    if(entries.length == 0) {
-      logger.error("Length of " + key + " is invalid...")
+    
+    val levelpolicySplits = levelPolicy.get.trim.split("\\|")
+    val inMemoryPolicy = levelpolicySplits(0).trim
+    val diskPolicy = 
+      if(levelpolicySplits.size == 1) {
+        inMemoryPolicy
+      } else {
+        levelpolicySplits(1).trim
+      }
+    
+    if(!Some(diskPolicy).exists(_.trim.nonEmpty) || !Some(inMemoryPolicy).exists(_.trim.nonEmpty)) {
       return false
     }
-    entries.foreach(entry => {
-      val subentry = entry.split(":")
-      if(subentry.length != 2 || !isNumber(Some(subentry(1)), key)) {
-        logger.error("Format of " + key + " is invalid...")
+
+    val inMemoryPolicyMap = Utility.getLevelPointMap(inMemoryPolicy)
+    val diskPolicyMap = Utility.getLevelPointMap(diskPolicy)
+    
+    // Check whether disPolicyMap is > than inMemoryPolicyMap
+    for((inMemoryLevel,inMemoryPoints) <- inMemoryPolicyMap) {
+      val diskPolicyPoints = diskPolicyMap.get(inMemoryLevel).getOrElse({
+        logger.error("DiskPolicyMap doesnt have all the levels configured in cachelevelPolicyMap")
+        return false
+      })
+
+      if(diskPolicyPoints < inMemoryPoints) {
+        logger.error("DiskPolicyMap cannot be less than inMemorylevelPolicyMap")
         return false
       }
-    })
+      
+      if((inMemoryLevel.level*inMemoryPoints) < inMemoryLevel.aggregationLevel) {
+        logger.error("Combining interval is redundant.")
+        return false
+      }
+    }
     true
   }
-  
 
 }
