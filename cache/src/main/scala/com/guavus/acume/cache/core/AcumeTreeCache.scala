@@ -80,7 +80,9 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
   }
 
   def mergePathRdds(rdds : Iterable[SchemaRDD]) = {
-    	rdds.reduce(_.unionAll(_))
+    Utility.withDummyCallSite(acumeCacheContext.cacheSqlContext.sparkContext) {
+      rdds.reduce(_.unionAll(_))
+    }
   }
   
 }

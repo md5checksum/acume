@@ -14,6 +14,7 @@ import com.guavus.rubix.hibernate.SessionContext
 import com.guavus.rubix.hibernate.SessionFactory
 import com.guavus.rubix.user.management.IDML
 import com.guavus.rubix.user.management.InitDatabase
+import com.guavus.rubix.user.management.UMProperties
 
 /**
  * Entry point to start the tomcat. this must be called by spark or command line to start the application
@@ -36,6 +37,7 @@ object AcumeMain {
 	//Initiate the session Factory for user management db
     SessionFactory.getInstance(SessionContext.DISTRIBUTED)
     InitDatabase.initializeDatabaseTables(ArrayBuffer[IDML]())
+    UMProperties.setGlobalTimeZone(acumeContext.acumeConf.getAcumeTimeZone)
     println("Called AcumeMain on " + sqlQueryEngine)
     
     val startTime = System.currentTimeMillis()

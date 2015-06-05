@@ -148,6 +148,7 @@ object AcumeCacheContextTrait {
   }
   
   def getQuery(): String = {
+    init
     return threadLocal.get.getOrElse("query", null).asInstanceOf[String]
   }
   
