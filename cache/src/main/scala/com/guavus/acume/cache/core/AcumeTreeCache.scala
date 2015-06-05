@@ -1,28 +1,26 @@
 package com.guavus.acume.cache.core
 
-
-import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
-import scala.util.{ Success, Failure }
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.common.Cube
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.common.CacheLevel
-import com.guavus.acume.cache.utility.Utility
-import scala.util.control.Breaks._
-import org.apache.spark.sql.SchemaRDD
-import org.apache.hadoop.fs.Path
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.common.ConfConstants
-import scala.concurrent.ExecutionContext
 import java.util.concurrent.Executors
+
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.workflow.AcumeCacheContext
+import scala.util.Failure
+import scala.util.Success
+import scala.util.control.Breaks.break
+import scala.util.control.Breaks.breakable
+
+import org.apache.hadoop.fs.Path
+import org.apache.spark.sql.SchemaRDD
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import com.guavus.acume.cache.common.LoadType
+
+import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.CacheLevel
+import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.common.LoadType
+import com.guavus.acume.cache.utility.Utility
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 
 abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy)
   extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf, cube) {
@@ -33,11 +31,9 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
     import scala.StringContext._
     try {
       val diskDirectory = AcumeTreeCacheValue.getDiskDirectoryForPoint(acumeCacheContext, cube, levelTimestamp)
-      val path = new Path(diskDirectory)
-      logger.info("Checking if path exists => {}", path)
-      val fs = path.getFileSystem(acumeCacheContext.cacheSqlContext.sparkContext.hadoopConfiguration)
+    	val diskDirpath = new Path(diskDirectory)
       //Do previous run cleanup
-      if (fs.exists(path)) {
+      if (AcumeTreeCacheValue.isPathExisting(diskDirpath, acumeCacheContext) && AcumeTreeCacheValue.isDiskWriteComplete(diskDirectory, acumeCacheContext)) {
         val rdd = acumeCacheContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
         return new AcumeFlatSchemaCacheValue(new AcumeDiskValue(levelTimestamp, cube, rdd), acumeCacheContext)
       }
@@ -131,6 +127,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
 
         f.onComplete {
           case Success(cachevalue) =>
+             //Put the combined point to cachePointToTable
             cachevalue.map(x => cachePointToTable.put(aggregatedTimestamp, x))
             logger.info("Combined and added to cache {}", aggregatedTimestamp)
           case Failure(t) => isSuccessCombiningPoint = false

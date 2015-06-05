@@ -66,9 +66,11 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
 
     f.onComplete {
       case Success(diskValue) => {
+        logger.info("Disk write complete for {}" + acumeValue.levelTimestamp.toString())
         this.acumeValue = diskValue
-        if (!shouldCache)
-          acumeValue.evictFromMemory
+        if (!shouldCache) {
+          this.acumeValue.evictFromMemory 
+        }
         isSuccessWritingToDisk = true
       }
       case Failure(t) => isSuccessWritingToDisk = false
@@ -132,6 +134,7 @@ object AcumeTreeCacheValue {
   val logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCacheValue])
   
   def deleteDirectory(dir : String, acumeContext : AcumeCacheContextTrait) {
+    logger.debug("Deleting directory " + dir)
     val path = new Path(dir)
     val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
     fs.delete(path, true)
@@ -141,4 +144,16 @@ object AcumeTreeCacheValue {
     val cacheDirectory = acumeContext.cacheConf.get(ConfConstants.cacheBaseDirectory) + File.separator + acumeContext.cacheSqlContext.sparkContext.getConf.get("spark.app.name") + "-" + acumeContext.cacheConf.get(ConfConstants.cacheDirectory)
     cacheDirectory + File.separator + cube.binsource + File.separator + cube.cubeName + File.separator + levelTimestamp.level + "-" +levelTimestamp.aggregationLevel + File.separator + levelTimestamp.timestamp
   }
+  
+  def isPathExisting(path : Path, acumeContext : AcumeCacheContextTrait) : Boolean = {
+    logger.debug("Checking if path exists => {}", path)
+    val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
+    return fs.exists(path)
+  }
+  
+  def isDiskWriteComplete(diskDirectory : String, acumeContext : AcumeCacheContextTrait) : Boolean = {
+    val path =  new Path(diskDirectory + File.separator + "_SUCCESS")
+    isPathExisting(path, acumeContext)
+  }
+
 }
