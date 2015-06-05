@@ -135,7 +135,7 @@ trait AcumeCacheContextTrait extends Serializable {
 
 object AcumeCacheContextTrait {
   
-  val threadLocal = new InheritableThreadLocal[scala.collection.mutable.HashMap[String, Any]]
+  val threadLocal = new ThreadLocal[scala.collection.mutable.HashMap[String, Any]]
   
   def init() {
     if(threadLocal.get() == null)
