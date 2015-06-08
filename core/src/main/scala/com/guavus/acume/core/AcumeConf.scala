@@ -146,7 +146,11 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
   def getEnableScheduler() : Boolean = {
     getBoolean(ConfConstants.enableScheduler, true)
   }
-  
+
+  /* Get the timezone of acume */
+  def getAcumeTimeZone() : String = {
+    get(ConfConstants.timezone, "GMT")
+  }
   /**
    * Determines maximum duration query that insta can serve. 
    */

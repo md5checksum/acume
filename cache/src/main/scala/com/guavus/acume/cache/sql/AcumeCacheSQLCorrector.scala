@@ -69,6 +69,9 @@ class AcumeCacheSQLCorrector(val conf: AcumeCacheConf) extends ISqlCorrector {
     val expression = AcumeCacheCorrectorExpression(sql_where)
     
     edit(expression, expression, queryoptionalParams)
+    //Temporary hack in case a single query contains both binsource and rubix_cache_compression_interval
+    //TODO: Fix me generically
+    edit(expression, expression, queryoptionalParams)
     plainselect.setWhere(expression.expression)
     
     val newunparsedsql = plainselect.toString.replaceAll("\"", "")

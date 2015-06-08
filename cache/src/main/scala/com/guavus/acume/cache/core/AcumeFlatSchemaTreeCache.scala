@@ -64,7 +64,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
 
   override def createTempTable(keyMap: List[Map[String, Any]], startTime: Long, endTime: Long, requestType: RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
     requestType match {
-      case Aggregate => createTableForAggregate(startTime, endTime, tableName, false)
+      case Aggregate => createTableForAggregate(startTime, endTime, tableName, queryOptionalParam, false)
       case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam, false)
     }
   }
@@ -196,15 +196,24 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
 
   override def createTempTableAndMetadata(keyMap: List[Map[String, Any]], startTime: Long, endTime: Long, requestType: RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData = {
     requestType match {
-      case Aggregate => createTableForAggregate(startTime, endTime, tableName, true)
+      case Aggregate => createTableForAggregate(startTime, endTime, tableName, queryOptionalParam, true)
       case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam, true)
     }
   }
 
-  private def createTableForAggregate(startTime: Long, endTime: Long, tableName: String, isMetaData: Boolean): MetaData = {
+  private def createTableForAggregate(startTime: Long, endTime: Long, tableName: String, queryOptionalParam: Option[QueryOptionalParam], isMetaData: Boolean): MetaData = {
 
     val duration = endTime - startTime
-    val levelTimestampMap = cacheLevelPolicy.getRequiredIntervals1(startTime, endTime)
+    val timestampMap : Option[MutableMap[Long, MutableList[(Long, Long)]]] = queryOptionalParam match {
+        case Some(param) =>
+          if (param.getTimeSeriesGranularity() != 0) {
+            val level = param.getTimeSeriesGranularity
+            val startTimeCeiling = cacheLevelPolicy.getCeilingToLevel(startTime, level)
+            val endTimeFloor = cacheLevelPolicy.getFloorToLevel(endTime, level)
+            Some(MutableMap(level -> MutableList((startTimeCeiling, endTimeFloor))))
+          } else None
+      }
+    val levelTimestampMap = timestampMap.getOrElse(cacheLevelPolicy.getRequiredIntervals1(startTime, endTime))
     buildTableForIntervals(levelTimestampMap, tableName, isMetaData)
   }
   

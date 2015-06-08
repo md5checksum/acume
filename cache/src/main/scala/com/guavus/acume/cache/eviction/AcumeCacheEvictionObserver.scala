@@ -35,7 +35,7 @@ class AcumeCacheEvictionObserver(_$acumeCache: AcumeCache[_ <: Any, _ <: Any]) e
     val _$eviction = EvictionPolicy.getEvictionPolicy(acumeCache.cube, _$acumeCache.acumeCacheContext)
     val memoryEvictable = _$eviction.getMemoryEvictableCandidate(_$key.toMap)
     val diskEvictable = _$eviction.getDiskEvictableCandidate(_$key.toMap)
-    logger.info("[KASHISH] Memory Evictable {} {} , disk evictable {}","", memoryEvictable, diskEvictable)
+    logger.debug("memory Evictable {} {} , disk evictable {}","", memoryEvictable, diskEvictable)
     if (memoryEvictable != None) {
       if(diskEvictable == None) {
         logger.info("[KASHISH] Unpersisting Data object {} for memory", memoryEvictable.get)
@@ -46,8 +46,8 @@ class AcumeCacheEvictionObserver(_$acumeCache: AcumeCache[_ <: Any, _ <: Any]) e
           logger.info("[KASHISH] Unpersisting Data object {} for memory", memoryEvictable.get)
           Some(acumeCache.getCacheCollection.getIfPresent(memoryEvictable.get).asInstanceOf[AcumeTreeCacheValue]).map(_.evictFromMemory)
         }
-        logger.info("[KASHISH] Unpersisting Data object {} for disk too", memoryEvictable.get)
-        loading.invalidate(memoryEvictable.get)
+        logger.info("Unpersisting Data object {} for disk too", memoryEvictable.get)
+        loading.invalidate(diskEvictable.get)
       }
     } else if(diskEvictable != None) {
       logger.info("[KASHISH] Unpersisting Data object {} for memory_disk", memoryEvictable.get)

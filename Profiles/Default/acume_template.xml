@@ -980,6 +980,27 @@
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.acumeAppQueueName</Property_OriginalName>
         </Property>
+	<Property>
+              <Property_Name>application.${acumeApp}.JMXAUTHENTICATE</Property_Name>
+              <Property_Value>false</Property_Value>
+              <Property_Type>read-write</Property_Type>
+              <Property_DataType>boolean</Property_DataType>
+              <Property_OriginalName>application.${acumeApp}.JMXAUTHENTICATE</Property_OriginalName>
+       </Property>
+       <Property>
+              <Property_Name>application.${acumeApp}.JMXSSL</Property_Name>
+              <Property_Value>false</Property_Value>
+              <Property_Type>read-write</Property_Type>
+              <Property_DataType>boolean</Property_DataType>
+              <Property_OriginalName>application.${acumeApp}.JMXSSL</Property_OriginalName>
+       </Property>
+       <Property>
+              <Property_Name>application.${acumeApp}.JMXPORT</Property_Name>
+              <Property_Value>0</Property_Value>
+              <Property_Type>read-write</Property_Type>
+              <Property_DataType>integer</Property_DataType>
+              <Property_OriginalName>application.${acumeApp}.JMXPORT</Property_OriginalName>
+       </Property>
     </Properties>
     <SubProfiles />
 </Profile>

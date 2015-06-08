@@ -59,9 +59,12 @@ import com.guavus.acume.cache.core.Level
  */
 object Utility extends Logging {
   
+  val SHORT_FORM = "callSite.short"
+  val LONG_FORM = "callSite.long"
+      
   var calendar : Calendar = null
   def init(conf : AcumeCacheConf) {
-	 calendar = Calendar.getInstance(TimeZone.getTimeZone(conf.get(ConfConstants.timezone)))
+	 calendar = newCalendar(TimeZone.getTimeZone(conf.get(ConfConstants.timezone)))
   }
   
   def newCalendar() = calendar.clone().asInstanceOf[Calendar]
@@ -70,6 +73,20 @@ object Utility extends Logging {
     
     val rdd = sqlContext.sparkContext.emptyRDD[Row]
     sqlContext.applySchema(rdd, schema)
+  }
+  
+  def withDummyCallSite[T](sc: SparkContext)(body: => T): T = {
+    val oldShortCallSite = sc.getLocalProperty(SHORT_FORM)
+    val oldLongCallSite = sc.getLocalProperty(LONG_FORM)
+    try {
+      sc.setLocalProperty(SHORT_FORM, "")
+      sc.setLocalProperty(LONG_FORM, "")
+      body
+    } finally {
+      // Restore the old ones here
+      sc.setLocalProperty(SHORT_FORM, oldShortCallSite)
+      sc.setLocalProperty(LONG_FORM, oldLongCallSite)
+    }
   }
   
   def getStartTimeFromLevel(endTime : Long, granularity : Long, points : Int) : Long = {
@@ -162,7 +179,7 @@ object Utility extends Logging {
   }
 
   def floorToTimeZone(time: Long, timeGrnaularity: TimeGranularity): Long = {
-    val instance = newCalendar(TimeZone.getTimeZone("GMT"))
+    val instance = newCalendar
     floorToTimezone(time, timeGrnaularity, instance)
   }
 
@@ -354,6 +371,7 @@ object Utility extends Logging {
         }
         
         val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.timeserieslevelpolicymap, ConfConstants.acumecoretimeserieslevelmap, conf, cubeName)).map(x =>x._1.level -> x._2)
+
         val Gnx = getProperty(propertyMap, ConfConstants.basegranularity, ConfConstants.acumeglobalbasegranularity, conf, cubeName)
         val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
         val _$eviction = Class.forName(getProperty(propertyMap, ConfConstants.evictionpolicyforcube, ConfConstants.acumeglobalevictionpolicycube, conf, cubeName)).asSubclass(classOf[EvictionPolicy])
@@ -485,7 +503,7 @@ object Utility extends Logging {
   }
 
   def ceilingToTimeZone(time: Long, timeGrnaularity: TimeGranularity): Long = {
-    val instance = newCalendar(TimeZone.getTimeZone("GMT"))
+    val instance = newCalendar
     ceilingToTimezone(time, timeGrnaularity, instance)
   }
   
@@ -671,7 +689,7 @@ object Utility extends Logging {
     } finally {
       ds.close()
     }
-    val cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
+    val cal = newCalendar
     val rules = new java.util.ArrayList[java.util.List[String]]()
     for (i <- 0 until transTimes.length) {
       if (i > 0) {

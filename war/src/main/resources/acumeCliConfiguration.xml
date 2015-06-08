@@ -1686,6 +1686,44 @@ Please don't use the following reserved property names:
 				</target>	
 	     	</targets>
 		</property>
+		
+		<property>
+			<name>JMXPORT</name>
+			<help><![CDATA[ - JMX Port]]></help>
+			<default><![CDATA[0]]></default>
+			<targets>
+				<target>
+					<file><![CDATA[setenv.sh]]></file>
+					<path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+				</target>
+			</targets>
+		</property>
+
+	<property>
+		<name>JMXAUTHENTICATE</name>
+		<type>basic</type>
+		<help><![CDATA[ - ]]></help>
+		<default><![CDATA[false]]></default>
+		<targets>
+			<target>
+				<file><![CDATA[setenv.sh]]></file>
+				<path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+			</target>
+		</targets>
+	</property>
+
+	<property>
+		<name>JMXSSL</name>
+		<type>basic</type>
+		<help><![CDATA[ - ]]></help>
+		<default><![CDATA[false]]></default>
+		<targets>
+			<target>
+				<file><![CDATA[setenv.sh]]></file>
+				<path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+			</target>
+		</targets>
+	</property>
         
      </PropertiesPerApplication>
 
