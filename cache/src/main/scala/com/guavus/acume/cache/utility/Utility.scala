@@ -52,6 +52,7 @@ import com.guavus.acume.cache.eviction.EvictionPolicy
 import com.guavus.acume.cache.core.AcumeCacheType
 import com.guavus.rubix.query.remote.flex.TimeZoneInfo
 import com.guavus.acume.cache.core.Level
+import org.apache.spark.SparkContext
 
 /**
  * @author archit.thakur
