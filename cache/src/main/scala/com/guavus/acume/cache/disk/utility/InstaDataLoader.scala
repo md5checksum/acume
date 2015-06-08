@@ -6,11 +6,11 @@ import scala.util.control.Breaks._
 import org.apache.spark.AccumulatorParam
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.SchemaRDD
-import org.apache.spark.sql.StructField
-import org.apache.spark.sql.StructType
+import org.apache.spark.sql.types.StructField
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.catalyst.expressions.GenericRow
 import org.apache.spark.sql.catalyst.expressions.Row
-import org.apache.spark.sql.catalyst.types.LongType
+import org.apache.spark.sql.types.LongType
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.ConversionToSpark
@@ -124,7 +124,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
         print("Firing aggregate query on insta "  + instaDimRequest)
         val dimensionTblTemp = "dimensionDataInstaTemp" + businessCube.getAbsoluteCubeName + endTime
     val newTuplesRdd = insta.getNewTuples(instaDimRequest)
-    sqlContext.registerRDDAsTable(newTuplesRdd, dimensionTblTemp)
+    newTuplesRdd.registerTempTable(dimensionTblTemp)
     sqlContext.sql(s"select $renameToAcumeFields from $dimensionTblTemp")
   }
 
@@ -164,7 +164,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
         print("Firing aggregate query on insta "  + instaMeasuresRequest)
       val aggregatedMeasureDataInsta = insta.getAggregatedData(instaMeasuresRequest)
       val aggregatedTblTemp = "aggregatedMeasureDataInstaTemp" +businessCube.getAbsoluteCubeName + levelTimestamp.level + "_" + levelTimestamp.timestamp
-      sqlContext.registerRDDAsTable(aggregatedMeasureDataInsta, aggregatedTblTemp)
+      aggregatedMeasureDataInsta.registerTempTable(aggregatedTblTemp)
       //change schema for this schema rdd
       val renameToAcumeFields = (for(acumeField <- fields) yield {
         acumeFieldToBaseFieldMap.get(acumeField).get -> acumeField

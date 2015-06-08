@@ -1,16 +1,16 @@
 package com.guavus.acume.cache.common
 
-import org.apache.spark.sql.catalyst.types.StringType
-import org.apache.spark.sql.catalyst.types.NullType
-import org.apache.spark.sql.catalyst.types.LongType
-import org.apache.spark.sql.catalyst.types.IntegerType
-import org.apache.spark.sql.catalyst.types.TimestampType
-import org.apache.spark.sql.catalyst.types.DoubleType
-import org.apache.spark.sql.catalyst.types.BinaryType
-import org.apache.spark.sql.catalyst.types.BooleanType
-import org.apache.spark.sql.catalyst.types.ByteType
-import org.apache.spark.sql.catalyst.types.FloatType
-import org.apache.spark.sql.catalyst.types.ShortType
+import org.apache.spark.sql.types.StringType
+import org.apache.spark.sql.types.NullType
+import org.apache.spark.sql.types.LongType
+import org.apache.spark.sql.types.IntegerType
+import org.apache.spark.sql.types.TimestampType
+import org.apache.spark.sql.types.DoubleType
+import org.apache.spark.sql.types.BinaryType
+import org.apache.spark.sql.types.BooleanType
+import org.apache.spark.sql.types.ByteType
+import org.apache.spark.sql.types.FloatType
+import org.apache.spark.sql.types.ShortType
 import java.lang.RuntimeException
 import com.guavus.crux.core.ByteBuffer
 import com.guavus.crux.jaxb.classes.{DataType => CruxDataType}

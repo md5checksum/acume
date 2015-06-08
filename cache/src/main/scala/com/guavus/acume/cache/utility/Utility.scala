@@ -13,11 +13,11 @@ import org.apache.commons.configuration.PropertiesConfiguration
 import org.apache.commons.lang.StringUtils
 import org.apache.spark.Logging
 import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.catalyst.types.StructType
+import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.SchemaRDD
 import org.apache.spark.sql.catalyst.expressions.Row
-import org.apache.spark.sql.catalyst.types.LongType
-import org.apache.spark.sql.catalyst.types.StructField
+import org.apache.spark.sql.types.LongType
+import org.apache.spark.sql.types.StructField
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.ConversionToSpark
 import com.guavus.acume.cache.common.Cube

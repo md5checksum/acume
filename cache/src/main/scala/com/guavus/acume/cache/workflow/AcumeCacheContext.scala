@@ -130,7 +130,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     
     val klist = list.flatMap(_.timestamps).toList
     val kfg = execute(qltype, cubes.toList, updatedsql)
-    AcumeCacheResponse(kfg, kfg, MetaData(-1, klist))
+    AcumeCacheResponse(kfg, kfg.rdd, MetaData(-1, klist))
   }
   
   private [acume] def validateQuery(startTime : Long, endTime : Long, binSource : String) {
@@ -410,7 +410,7 @@ object AcumeCacheContext{
     if(sqlContext.isInstanceOf[HiveContext]){
     
       qltype match{
-      case QLType.hql => sqlContext.asInstanceOf[HiveContext].hql(_)
+      case QLType.hql => sqlContext.asInstanceOf[HiveContext].sql(_)
       case QLType.sql => sqlContext.sql(_)
       }
     }

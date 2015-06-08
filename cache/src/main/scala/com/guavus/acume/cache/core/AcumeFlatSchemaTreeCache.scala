@@ -9,7 +9,7 @@ import scala.collection.mutable.{Map => MutableMap}
 import scala.collection.mutable.MutableList
 
 import org.apache.spark.sql.SchemaRDD
-import org.apache.spark.sql.catalyst.types.StructType
+import org.apache.spark.sql.types.StructType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -35,9 +35,9 @@ import org.apache.spark.sql.SchemaRDD
 import org.slf4j.LoggerFactory
 import org.slf4j.Logger
 import com.guavus.acume.cache.disk.utility.CubeUtil
-import org.apache.spark.sql.StructField
+import org.apache.spark.sql.types.StructField
 import com.guavus.acume.cache.common.ConversionToSpark
-import org.apache.spark.sql.catalyst.types.LongType
+import org.apache.spark.sql.types.LongType
 import org.apache.spark.AccumulatorParam
 import java.util.Arrays
 import com.guavus.acume.cache.common.LevelTimestamp
@@ -189,7 +189,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
       val intervals: MutableMap[Long, MutableList[Long]] = MutableMap(level -> list)
       buildTableForIntervals(intervals, tableName, isMetaData)
     } else {
-      acumeCacheContext.cacheSqlContext.registerRDDAsTable(Utility.getEmptySchemaRDD(acumeCacheContext.sqlContext, cube), tableName)
+      Utility.getEmptySchemaRDD(acumeCacheContext.sqlContext, cube).registerTempTable(tableName)
       MetaData(-1, Nil)
     }
   }

@@ -144,13 +144,13 @@ object PartitionDistributorRDD {
 	val hiveContext = new HiveContext(sc)
 	
 	val hiveRdd = hiveContext.sql(args(1))
-	val numPartitions = hiveRdd.partitions.size
+	val numPartitions = hiveRdd.rdd.partitions.size
 	println("NumPartitions = " + numPartitions)
     
 	var partitionDistributorRDD = new PartitionDistributorRDD(sc, numPartitions)
 	partitionDistributorRDD = partitionDistributorRDD.cache
 
-	val zipped = partitionDistributorRDD.zipRdd(hiveRdd)
+	val zipped = partitionDistributorRDD.zipRdd(hiveRdd.rdd)
 	zipped.cache
 	
 	zipped.collect.foreach(println)
