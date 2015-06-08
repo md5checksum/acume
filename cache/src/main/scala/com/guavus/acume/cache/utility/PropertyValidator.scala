@@ -60,6 +60,7 @@ object PropertyValidator {
   
   def validateRetentionMap(levelPolicy : Option[String], key : String = "Key") : Boolean = {
     
+    logger.info("[KASHISH] Validating retentionmap  " + levelPolicy.getOrElse(logger.error(key + " is not configured in acume conf"))) 
     if(levelPolicy == None || levelPolicy.get.trim == "") {
       logger.error(key + " is not configured in acume conf")
       return false
@@ -84,17 +85,17 @@ object PropertyValidator {
     // Check whether disPolicyMap is > than inMemoryPolicyMap
     for((inMemoryLevel,inMemoryPoints) <- inMemoryPolicyMap) {
       val diskPolicyPoints = diskPolicyMap.get(inMemoryLevel).getOrElse({
-        logger.error("DiskPolicyMap doesnt have all the levels configured in cachelevelPolicyMap")
+        logger.error("[KASHISH] DiskPolicyMap doesnt have all the levels configured in cachelevelPolicyMap")
         return false
       })
 
       if(diskPolicyPoints < inMemoryPoints) {
-        logger.error("DiskPolicyMap cannot be less than inMemorylevelPolicyMap")
+        logger.error("[KASHISH] DiskPolicyMap cannot be less than inMemorylevelPolicyMap")
         return false
       }
       
       if((inMemoryLevel.level*inMemoryPoints) < inMemoryLevel.aggregationLevel) {
-        logger.error("Combining interval is redundant.")
+        logger.error("[KASHISH] Combining interval is redundant.")
         return false
       }
     }

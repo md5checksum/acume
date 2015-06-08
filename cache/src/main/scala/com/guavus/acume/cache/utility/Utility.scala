@@ -349,7 +349,7 @@ object Utility extends Logging {
       	} else {
       	  Utility.getLevelPointMap(levelpolicymap(1))
       	}
-        if(PropertyValidator.validateRetentionMap(Some(levelPolicyString), ConfConstants.acumecorelevelmap)) {
+        if(!PropertyValidator.validateRetentionMap(Some(levelPolicyString), ConfConstants.acumecorelevelmap)) {
           throw new RuntimeException(ConfConstants.acumecorelevelmap + " is not configured correctly")
         }
         

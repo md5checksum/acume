@@ -14,6 +14,8 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import com.guavus.acume.cache.core.Level
 import java.util.concurrent.ConcurrentMap
 import com.guavus.acume.cache.core.AcumeTreeCacheValue
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 /**
  * @author archit.thakur
@@ -21,7 +23,7 @@ import com.guavus.acume.cache.core.AcumeTreeCacheValue
  */
 
 object AcumeTreeCacheEvictionPolicy {
-
+  
   def getRangeStartTime(lastBinTimeStamp: Long, level: Long, numPoints: Int): Long = {
     val rangeEndTime = Utility.floorFromGranularity(lastBinTimeStamp, level)
     val rangeStartTime = 
@@ -57,6 +59,8 @@ object AcumeTreeCacheEvictionPolicy {
 }
 
 class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextTrait) extends EvictionPolicy(cube, cacheContext) {
+  
+  private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCacheEvictionPolicy])
 
   def getMemoryEvictableCandidate(list: Map[LevelTimestamp, AcumeTreeCacheValue]): Option[LevelTimestamp] = {
     getEvictableCandidate(list.filter(_._2.isInMemory), cube.levelPolicyMap)
@@ -67,7 +71,6 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextT
   }
   
   def getEvictableCandidate(list: Map[LevelTimestamp, AcumeTreeCacheValue], variableretentionmap : Map[Level, Int]): Option[LevelTimestamp] = {
-    
     
     var count = 0
     var _$evictableCandidate: Option[LevelTimestamp] = None
@@ -80,20 +83,29 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextT
       }
     }
     if(count > 1)
-      println("WARNING: More than one evictable candidate found.")
+      logger.warn("WARNING: More than one evictable candidate found.")
     _$evictableCandidate
   }
   
-  private def getPriority(timeStamp: Long, level: Long, variableRetentionMap: Map[Level, Int]): Int = {
+  private def getPriority(timeStamp: Long, level: Long, aggregationLevel: Long, variableRetentionMap: Map[Level, Int]): Int = {
     if (!variableRetentionMap.contains(new Level(level))) return 0
     val numPoints = variableRetentionMap.get(new Level(level)).getOrElse(throw new RuntimeException("Level not in VariableRetentionMap."))
     val lastBinTime = cacheContext.getLastBinPersistedTime(cube.binsource) //Controller.getInstance.getLastBinPersistedTime(ConfigFactory.getInstance.getBean(classOf[TimeGranularity])
         //.getName, BinSource.getDefault.name(), Controller.RETRY_COUNT)
-      if (timeStamp >= AcumeTreeCacheEvictionPolicy.getRangeStartTime(lastBinTime, level, numPoints)) 1 else 0
+    val rangeStarTime = AcumeTreeCacheEvictionPolicy.getRangeStartTime(lastBinTime, level, numPoints)
+    var timeStampTobeChecked = timeStamp
+    if(aggregationLevel != level) {
+      // This is a combined point
+      // Check if the last child of this combined point is evictable or not
+      timeStampTobeChecked = Utility.getPreviousTimeForGranularity(Utility.getNextTimeFromGranularity(timeStamp, aggregationLevel, Utility.newCalendar()), level, Utility.newCalendar())
+    }
+    logger.info("[Kashish] timeStampTobeChecked is {} ", timeStampTobeChecked)
+    if(timeStampTobeChecked >= rangeStarTime) 1 else 0
   }
 
   private def isEvictiable(levelTimestamp: LevelTimestamp, variableRetentionMap: Map[Level, Int]): Boolean = {
-    if (getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, variableRetentionMap) == 0) true else false
+    logger.info("[Kashish] isEvictiable {} ", LevelTimestamp)
+    if (getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, levelTimestamp.aggregationLevel.localId, variableRetentionMap) == 0) true else false
   }
 
   private def intializeMetaData(variableRetentionMap: Map[Long, Int]): HashMap[Long, Long] = {

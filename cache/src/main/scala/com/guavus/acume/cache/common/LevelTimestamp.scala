@@ -6,7 +6,7 @@ import CacheLevel._
  * @author archit.thakur
  *
  */
-case class LevelTimestamp(level: CacheLevel, timestamp:Long,var aggregationLevel : CacheLevel = null) {
+case class LevelTimestamp(level : CacheLevel, timestamp : Long, var aggregationLevel : CacheLevel = null) {
 	
   if(aggregationLevel == null) {
     aggregationLevel = level
