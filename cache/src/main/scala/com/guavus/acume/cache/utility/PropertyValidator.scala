@@ -88,12 +88,12 @@ object PropertyValidator {
       })
 
       if(diskPolicyPoints < inMemoryPoints) {
-        logger.error("[KASHISH] DiskPolicyMap cannot be less than inMemorylevelPolicyMap")
+        logger.error("DiskPolicyMap cannot be less than inMemorylevelPolicyMap")
         return false
       }
       
       if((inMemoryLevel.level*inMemoryPoints) < inMemoryLevel.aggregationLevel) {
-        logger.error("[KASHISH] Combining interval is redundant.")
+        logger.error("Combining interval is redundant.")
         return false
       }
     }

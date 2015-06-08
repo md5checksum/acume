@@ -38,19 +38,19 @@ class AcumeCacheEvictionObserver(_$acumeCache: AcumeCache[_ <: Any, _ <: Any]) e
     logger.debug("memory Evictable {} {} , disk evictable {}","", memoryEvictable, diskEvictable)
     if (memoryEvictable != None) {
       if(diskEvictable == None) {
-        logger.info("[KASHISH] Unpersisting Data object {} for memory", memoryEvictable.get)
-        logger.info("[KASHISH] Cache Collection {} ", acumeCache.getCacheCollection)
+        logger.info("Unpersisting Data object {} for memory", memoryEvictable.get)
+        logger.info("Cache Collection {} ", acumeCache.getCacheCollection)
         Some(acumeCache.getCacheCollection.getIfPresent(memoryEvictable.get).asInstanceOf[AcumeTreeCacheValue]).map(_.evictFromMemory)
       } else if(diskEvictable != None) {
         if(memoryEvictable != diskEvictable) {
-          logger.info("[KASHISH] Unpersisting Data object {} for memory", memoryEvictable.get)
+          logger.info("Unpersisting Data object {} for memory", memoryEvictable.get)
           Some(acumeCache.getCacheCollection.getIfPresent(memoryEvictable.get).asInstanceOf[AcumeTreeCacheValue]).map(_.evictFromMemory)
         }
         logger.info("Unpersisting Data object {} for disk too", memoryEvictable.get)
         loading.invalidate(diskEvictable.get)
       }
     } else if(diskEvictable != None) {
-      logger.info("[KASHISH] Unpersisting Data object {} for memory_disk", memoryEvictable.get)
+      logger.info("Unpersisting Data object {} for memory_disk", memoryEvictable.get)
       loading.invalidate(diskEvictable.get)
     }
   }

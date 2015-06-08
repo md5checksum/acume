@@ -55,7 +55,6 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
   if(acumeValue.isInstanceOf[AcumeInMemoryValue]) {
     val f: Future[AcumeDiskValue] = Future({
       val diskDirectory = AcumeTreeCacheValue.getDiskDirectoryForPoint(acumeContext, acumeValue.cube, acumeValue.levelTimestamp)
-      logger.info("[Kashish] timestamp is {} ", acumeValue.levelTimestamp)
       AcumeTreeCacheValue.deleteDirectory(diskDirectory, acumeContext)
       acumeValue.measureSchemaRdd.sqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Writing " + diskDirectory, false)
       acumeValue.measureSchemaRdd.saveAsParquetFile(diskDirectory)
@@ -103,7 +102,7 @@ trait AcumeValue {
 }
 
 case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measureSchemaRdd: SchemaRDD) extends AcumeValue {
-  val tableName = cube.getAbsoluteCubeName + levelTimestamp.level + levelTimestamp.timestamp + "_temp_memory_only"
+  val tableName = cube.getAbsoluteCubeName + levelTimestamp.level + "-" + levelTimestamp.aggregationLevel + levelTimestamp.timestamp + "_temp_memory_only"
   registerAndCacheDataInMemory(tableName)
   override def registerAndCacheDataInMemory(tableName : String) {
     measureSchemaRdd.registerTempTable(tableName)
@@ -111,17 +110,17 @@ case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measur
   }
   
   override protected def finalize() {
-    logger.info("[KASHISH] Unpersisting Data object {} for temp_memory_only ", levelTimestamp)
+    logger.info("Unpersisting Data object {} for temp_memory_only ", levelTimestamp)
     evictFromMemory
   }
 }
 
 case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measureSchemaRdd: SchemaRDD) extends AcumeValue {
-  val tableName = cube.getAbsoluteCubeName + levelTimestamp.level + levelTimestamp.timestamp + "_memory_disk"
+  val tableName = cube.getAbsoluteCubeName + levelTimestamp.level + "-" + levelTimestamp.aggregationLevel + levelTimestamp.timestamp + "_memory_disk"
   registerAndCacheDataInMemory(tableName)
   
   override protected def finalize() {
-    logger.info("[KASHISH] Unpersisting Data object {} for memory as well as disk ", levelTimestamp)
+    logger.info("Unpersisting Data object {} for memory as well as disk ", levelTimestamp)
     evictFromMemory
     AcumeTreeCacheValue.deleteDirectory(AcumeTreeCacheValue.getDiskDirectoryForPoint(this.acumeContext, cube, levelTimestamp), acumeContext)
   }

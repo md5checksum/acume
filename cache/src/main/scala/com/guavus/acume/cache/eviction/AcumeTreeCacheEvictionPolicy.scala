@@ -84,6 +84,7 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextT
     }
     if(count > 1)
       logger.warn("WARNING: More than one evictable candidate found.")
+    //logger.info("Evicting {}", _$evictableCandidate.get.toString())
     _$evictableCandidate
   }
   
@@ -98,13 +99,12 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextT
       // This is a combined point
       // Check if the last child of this combined point is evictable or not
       timeStampTobeChecked = Utility.getPreviousTimeForGranularity(Utility.getNextTimeFromGranularity(timeStamp, aggregationLevel, Utility.newCalendar()), level, Utility.newCalendar())
+      logger.info("Checking combined point ki eviction {} ", timeStampTobeChecked)
     }
-    logger.info("[Kashish] timeStampTobeChecked is {} ", timeStampTobeChecked)
     if(timeStampTobeChecked >= rangeStarTime) 1 else 0
   }
 
   private def isEvictiable(levelTimestamp: LevelTimestamp, variableRetentionMap: Map[Level, Int]): Boolean = {
-    logger.info("[Kashish] isEvictiable {} ", LevelTimestamp)
     if (getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, levelTimestamp.aggregationLevel.localId, variableRetentionMap) == 0) true else false
   }
 
