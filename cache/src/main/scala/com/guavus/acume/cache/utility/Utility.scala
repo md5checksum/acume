@@ -432,7 +432,7 @@ object Utility extends Logging {
 
         val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.timeserieslevelpolicymap, ConfConstants.acumecoretimeserieslevelmap, conf, cubeName))
         
-        if(PropertyValidator.validateRetentionMap(Some(levelPolicyString), ConfConstants.acumecorelevelmap)) {
+        if(!PropertyValidator.validateRetentionMap(Some(levelPolicyString), ConfConstants.acumecorelevelmap)) {
           throw new RuntimeException(ConfConstants.acumecorelevelmap + " is not configured correctly")
         }
         
