@@ -5,7 +5,7 @@
     <Properties>
         <Property>
             <Property_Name>acumeApp</Property_Name>
-            <Property_Value>acume</Property_Value>
+            <Property_Value/>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>acumeApp</Property_OriginalName>
