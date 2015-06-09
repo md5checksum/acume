@@ -97,9 +97,9 @@ object PropertyValidator {
 //        logger.error("Combining interval is redundant.")
 //        return false
 //      }
-      
+
 //      val fraction = inMemoryLevel.aggregationLevel/inMemoryLevel.level
-//      if(fraction.ceil != fraction) {
+//      if(Math.ceil(fraction).toLong != fraction) {
 //        logger.error("Combining level is not a multiple of base level")
 //        return false
 //      }
