@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.guavus:MemSerializer:yarn:platform4.0">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/guavus/MemSerializer/platform4.0/MemSerializer-platform4.0-yarn.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/guavus/MemSerializer/platform4.0/MemSerializer-platform4.0-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/guavus/MemSerializer/platform4.0/MemSerializer-platform4.0-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

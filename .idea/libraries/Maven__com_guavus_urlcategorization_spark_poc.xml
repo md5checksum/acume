@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.guavus:urlcategorization:spark-poc">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/guavus/urlcategorization/spark-poc/urlcategorization-spark-poc.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/guavus/urlcategorization/spark-poc/urlcategorization-spark-poc-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/guavus/urlcategorization/spark-poc/urlcategorization-spark-poc-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>

@@ -29,7 +29,7 @@ object AggregateResponse {
 
 @SerialVersionUID(1L)
 @XmlRootElement
-class AggregateResponse extends Serializable {
+class AggregateResponse extends IResponse with Serializable {
 
   @BeanProperty
   var results: List[AggregateResultSet] = _

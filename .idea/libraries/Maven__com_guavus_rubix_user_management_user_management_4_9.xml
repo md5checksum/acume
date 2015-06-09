@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: com.guavus.rubix.user.management:user-management:4.9">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/guavus/rubix/user/management/user-management/4.9/user-management-4.9.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/com/guavus/rubix/user/management/user-management/4.9/user-management-4.9-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/com/guavus/rubix/user/management/user-management/4.9/user-management-4.9-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
