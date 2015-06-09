@@ -7,6 +7,7 @@ import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.{Map => MutableMap}
 import scala.collection.mutable.MutableList
 import scala.collection.mutable.SortedSet
+import scala.collection.JavaConversions._
 import scala.util.control.Breaks._
 import org.apache.spark.AccumulatorParam
 import org.apache.spark.rdd.RDD
@@ -23,15 +24,8 @@ import com.google.common.cache.RemovalListener
 import com.google.common.cache.RemovalNotification
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.CacheLevel
-import com.guavus.acume.cache.common.CacheLevel
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.disk.utility.CubeUtil
 import com.guavus.acume.cache.disk.utility.DataLoader
@@ -42,10 +36,7 @@ import com.guavus.acume.cache.workflow.MetaData
 import com.guavus.acume.cache.workflow.RequestType.Aggregate
 import com.guavus.acume.cache.workflow.RequestType.RequestType
 import com.guavus.acume.cache.workflow.RequestType.Timeseries
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.LoadType
-import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import com.guavus.acume.cache.common.LoadType
 

@@ -2,6 +2,7 @@ package com.guavus.acume.cache.core
 
 import java.util.concurrent.Executors
 
+import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.Failure
@@ -52,7 +53,26 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
   def tryGet(key : LevelTimestamp) = {
     try {
       key.loadType = LoadType.DISK
-    	cachePointToTable.get(key)
+      var cacheValue : AcumeTreeCacheValue = null
+      // Check if a combined point is available enclosing this timeRange
+      val combinedPointsOfCache = cachePointToTable.asMap().filterKeys(x => x.aggregationLevel == x.level).toMap
+      var tempTimeRange = Long.MaxValue
+      for ((leveltimestamp, table) <- combinedPointsOfCache) {
+        val rangeStartTime = leveltimestamp.timestamp
+        val rangeEndTime = Utility.getPreviousTimeForGranularity(Utility.getNextTimeFromGranularity(leveltimestamp.timestamp, leveltimestamp.aggregationLevel.localId, Utility.newCalendar()), leveltimestamp.level.localId, Utility.newCalendar())
+        if(key.timestamp <= rangeEndTime ||  key.timestamp >= rangeStartTime) {
+          if(tempTimeRange > rangeEndTime - rangeStartTime) {
+            //Fetch the data from the smallest combined point.
+            cacheValue = table
+            tempTimeRange = rangeEndTime - rangeStartTime
+          }
+        }
+      }
+      if(cacheValue == null) {
+        // If the timeStamp not found in combined point. Find it in cache
+        cacheValue = cachePointToTable.get(key)
+      }
+      cacheValue
     } catch {
       case e : java.util.concurrent.ExecutionException => if(e.getCause().isInstanceOf[NoDataException]) null else throw e
     }
