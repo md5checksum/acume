@@ -470,6 +470,47 @@ object Utility extends Logging {
 //    result
 //  }
   
+   
+   def getPriority(timeStamp: Long, level: Long, variableRetentionMap: Map[Long, Int], lastBinTime : Long): Int = {
+    if (!variableRetentionMap.contains(level)) return 0
+    val numPoints = variableRetentionMap.get(level).getOrElse(throw new RuntimeException("Level not in VariableRetentionMap."))
+        //.getName, BinSource.getDefault.name(), Controller.RETRY_COUNT)
+      if (timeStamp >= getRangeStartTime(lastBinTime, level, numPoints)) 1 else 0
+  }
+  
+  def getRangeStartTime(lastBinTimeStamp: Long, level: Long, numPoints: Int): Long = {
+    val rangeEndTime = Utility.floorFromGranularity(lastBinTimeStamp, level)
+    val rangeStartTime = 
+    if (level == TimeGranularity.MONTH.getGranularity) {
+      val cal = Utility.newCalendar()
+      cal.setTimeInMillis(rangeEndTime * 1000)
+      cal.add(Calendar.MONTH, -1 * numPoints)
+      cal.getTimeInMillis / 1000
+    } else if (level == TimeGranularity.DAY.getGranularity) {
+      val cal = Utility.newCalendar()
+      cal.setTimeInMillis(rangeEndTime * 1000)
+      cal.add(Calendar.DAY_OF_MONTH, -1 * numPoints)
+      cal.getTimeInMillis / 1000
+    } else if (level == TimeGranularity.WEEK.getGranularity) {
+      val cal = Utility.newCalendar()
+      cal.setTimeInMillis(rangeEndTime * 1000)
+      cal.add(Calendar.DAY_OF_MONTH, -1 * numPoints * 7)
+      cal.getTimeInMillis / 1000
+    } else if ((level == TimeGranularity.THREE_HOUR.getGranularity) || 
+      (level == TimeGranularity.FOUR_HOUR.getGranularity)) {
+      val cal = Utility.newCalendar()
+      cal.setTimeInMillis(rangeEndTime * 1000)
+      val endOffset = cal.getTimeZone.getOffset(cal.getTimeInMillis) / 1000
+      val tempRangeStartTime = rangeEndTime - numPoints * level
+      cal.setTimeInMillis(tempRangeStartTime * 1000)
+      val startOffset = cal.getTimeZone.getOffset(cal.getTimeInMillis) / 1000
+      tempRangeStartTime + (endOffset - startOffset)
+    } else {
+      rangeEndTime - numPoints * level
+    }
+    rangeStartTime
+  }
+
   def getLevelPointMap(mapString: String): Map[Long, Int] = {
     val result = MutableMap[Long, Int]()
     val tok = new StringTokenizer(mapString, ";")

@@ -33,6 +33,7 @@ class TimeGranularity (@BeanProperty var granularity: Long, variableRetentionNam
     getSecondsToTimeGranMap.put(granularity, this)
     getVariableRetentionNameToTimeGranMap.put(variableRetentionName, this)
     getGranToVariableRetentionNameMap.put(granularity, variableRetentionName)
+    getNameToTimeGranMap.put(name, this)
 
     def setTimeGranularityName(name: String) {
       this.name = name
