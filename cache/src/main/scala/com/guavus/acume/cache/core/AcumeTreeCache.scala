@@ -55,7 +55,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       key.loadType = LoadType.DISK
       var cacheValue : AcumeTreeCacheValue = null
       // Check if a combined point is available enclosing this timeRange
-      val combinedPointsOfCache = cachePointToTable.asMap().filterKeys(x => x.aggregationLevel != x.level).toMap
+      val combinedPointsOfCache = cachePointToTable.asMap().filterKeys(x => (x.aggregationLevel != x.level) && (x.level == key.level)).toMap
       var tempTimeRange = Long.MaxValue
       for ((leveltimestamp, table) <- combinedPointsOfCache) {
         val rangeStartTime = leveltimestamp.timestamp
