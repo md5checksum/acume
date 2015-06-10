@@ -769,6 +769,27 @@
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${rubixApp}.rootLoggingLevel</Property_OriginalName>
         </Property>
+        <Property>
+            <Property_Name>application.${rubixApp}.executorLoggingLevel</Property_Name>
+            <Property_Value>INFO</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${rubixApp}.executorLoggingLevel</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${rubixApp}.executorLogFileSize</Property_Name>
+            <Property_Value>1000000000</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>integer</Property_DataType>
+            <Property_OriginalName>application.${rubixApp}.executorLogFileSize</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${rubixApp}.executorLogBackups</Property_Name>
+            <Property_Value>10</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>integer</Property_DataType>
+            <Property_OriginalName>application.${rubixApp}.executorLogBackups</Property_OriginalName>
+        </Property>
 
     </Properties>
     <SubProfiles />
