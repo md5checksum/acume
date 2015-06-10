@@ -3,34 +3,44 @@
 	<!-- SYNCHRONOUS APPENDERS -->
 
 	<appender name="FILE_LOG" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="File" value="${catalina.base}/bin/acume.log" />
+		<param name="File" value="${catalina.base}/logs/acume.log" />
 		<param name="DatePattern" value="'.'yyyy-MM-dd" />
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="[%p] %d %c %M - %m%n" />
+			<param name="ConversionPattern" value="%d [%t] %-5p %c - %m%n" />
 		</layout>
 	</appender>
+
 
 	<appender name="BLAZEDS" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="File" value="${catalina.base}/bin/blazeds.log" />
+		<param name="File" value="${catalina.base}/logs/blazeds.log" />
 		<param name="DatePattern" value="'.'yyyy-MM-dd" />
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="[%p] %d %c %M - %m%n" />
-		</layout>
-	</appender>
-	
-	<appender name="FLEX" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="File" value="${catalina.base}/bin/flex.log" />
-		<param name="DatePattern" value="'.'yyyy-MM-dd" />
-		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="[%p] %d %c %M - %m%n" />
+			<param name="ConversionPattern" value="%m%n" />
 		</layout>
 	</appender>
 
-	<appender name="FILE_REQ_RES_LOG" class="org.apache.log4j.DailyRollingFileAppender">
-		<param name="File" value="${catalina.base}/bin/acume-req-res.log" />
+	<appender name="FLEX" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="${catalina.base}/logs/flex.log" />
 		<param name="DatePattern" value="'.'yyyy-MM-dd" />
 		<layout class="org.apache.log4j.PatternLayout">
-			<param name="ConversionPattern" value="[%p] %d %c %M - %m%n" />
+			<param name="ConversionPattern" value="%m%n" />
+		</layout>
+	</appender>
+
+
+	<appender name="FILE_REQ_RES_LOG" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="${catalina.base}/logs/acume-req-res.log" />
+		<param name="DatePattern" value="'.'yyyy-MM-dd" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d [%t] %-5p %c - %m%n" />
+		</layout>
+	</appender>
+
+	<appender name="CATALINA" class="org.apache.log4j.DailyRollingFileAppender">
+		<param name="File" value="${catalina.base}/logs/catalina.out" />
+		<param name="DatePattern" value="'.'yyyy-MM-dd" />
+		<layout class="org.apache.log4j.PatternLayout">
+			<param name="ConversionPattern" value="%d [%t] %-5p %c - %m%n" />
 		</layout>
 	</appender>
 
@@ -56,9 +66,14 @@
 	<appender name="ASYNC_FILE_REQ_RES_LOG" class="org.apache.log4j.AsyncAppender">
 		<appender-ref ref="FILE_REQ_RES_LOG" />
 	</appender>
+	<appender name="ASYNC_CATALINA" class="org.apache.log4j.AsyncAppender">
+		<appender-ref ref="CATALINA" />
+	</appender>
 	<appender name="ASYNC_SYSLOG" class="org.apache.log4j.AsyncAppender">
 		<appender-ref ref="SYSLOG" />
 	</appender>
+
+
 
 	<!-- LOGGERS, should use ASYNCHRONOUS APPENDERS to avoid bottlenecks in 
 		logging -->
@@ -80,6 +95,15 @@
 	</logger>
 	<logger name="com.mchange.v2.c3p0" level="$CLI_REPLACE_C3P0LOGGINGLEVEL$">
 		<appender-ref ref="ASYNC_FILE_LOG" />
+	</logger>
+	<logger name="API-com.guavus.rubix.user.management.login.HttpLoginService"
+		level="$CLI_REPLACE_ROOTLOGGINGLEVEL$">
+		<appender-ref ref="ASYNC_CATALINA" />
+	</logger>
+	<logger
+		name="API-com.guavus.rubix.user.management.service.UserManagementService"
+		level="$CLI_REPLACE_ROOTLOGGINGLEVEL$">
+		<appender-ref ref="ASYNC_CATALINA" />
 	</logger>
 	<logger name="API-com.guavus.rubix.user.management.login.HttpLoginService"
 		level="$CLI_REPLACE_ROOTLOGGINGLEVEL$">
