@@ -726,6 +726,50 @@
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${rubixApp}.cachedirectory</Property_OriginalName>
         </Property>
+
+        <Property>
+            <Property_Name>application.${rubixApp}.requestResponseLoggingLevel</Property_Name>
+            <Property_Value>INFO</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${rubixApp}.requestResponseLoggingLevel</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${rubixApp}.flexLoggingLevel</Property_Name>
+            <Property_Value>INFO</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${rubixApp}.flexLoggingLevel</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${rubixApp}.blazedsLoggingLevel</Property_Name>
+            <Property_Value>DEBUG</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${rubixApp}.blazedsLoggingLevel</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${rubixApp}.c3p0LoggingLevel</Property_Name>
+            <Property_Value>INFO</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${rubixApp}.c3p0LoggingLevel</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${rubixApp}.jgroupsLoggingLevel</Property_Name>
+            <Property_Value>ERROR</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${rubixApp}.jgroupsLoggingLevel</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${rubixApp}.rootLoggingLevel</Property_Name>
+            <Property_Value>INFO</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${rubixApp}.rootLoggingLevel</Property_OriginalName>
+        </Property>
+
     </Properties>
     <SubProfiles />
 </Profile>
