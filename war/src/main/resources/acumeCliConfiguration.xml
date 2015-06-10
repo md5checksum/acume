@@ -484,6 +484,82 @@ Please don't use the following reserved property names:
                         </targets>
                   </property>
 
+
+        <!-- Logging properties -->
+
+       <property>
+               <name>requestResponseLoggingLevel</name>
+               <help><![CDATA[ - Logging level for Request-Response logs]]></help>
+               <default><![CDATA[INFO]]></default>
+               <targets>
+                       <target>
+                               <file><![CDATA[log4j.xml]]></file>
+                               <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                       </target>
+               </targets>
+       </property>
+
+       <property>
+               <name>flexLoggingLevel</name>
+               <help><![CDATA[ - Logging level for Flex]]></help>
+               <default><![CDATA[INFO]]></default>
+               <targets>
+                       <target>
+                               <file><![CDATA[log4j.xml]]></file>
+                               <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                       </target>
+               </targets>
+       </property>
+
+       <property>
+               <name>blazedsLoggingLevel</name>
+               <help><![CDATA[ - Logging level for BlazeDS]]></help>
+               <default><![CDATA[DEBUG]]></default>
+               <targets>
+                       <target>
+                               <file><![CDATA[log4j.xml]]></file>
+                               <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                       </target>
+               </targets>
+       </property>
+
+       <property>
+               <name>c3p0LoggingLevel</name>
+               <help><![CDATA[ - Logging level for C3P0]]></help>
+               <default><![CDATA[INFO]]></default>
+               <targets>
+                       <target>
+                               <file><![CDATA[log4j.xml]]></file>
+                               <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                       </target>
+               </targets>
+       <property>
+
+       <property>
+               <name>jgroupsLoggingLevel</name>
+               <help><![CDATA[ - Logging level for JGroups]]></help>
+               <default><![CDATA[ERROR]]></default>
+               <targets>
+                       <target>
+                               <file><![CDATA[log4j.xml]]></file>
+                               <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                       </target>
+               </targets>
+       </property>
+
+       <property>
+               <name>rootLoggingLevel</name>
+               <help><![CDATA[ - Root Logging level]]></help>
+               <default><![CDATA[info]]></default>
+               <targets>
+                       <target>
+                               <file><![CDATA[log4j.xml]]></file>
+                               <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                       </target>
+               </targets>
+       </property>
+
+
         <property>
             <name>mailHost</name>
             <type>advance_sensitive</type>
