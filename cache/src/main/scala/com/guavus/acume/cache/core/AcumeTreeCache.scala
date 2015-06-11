@@ -58,10 +58,9 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
     import scala.StringContext._
     try {
       val diskDirectory = AcumeTreeCacheValue.getDiskDirectoryForPoint(acumeCacheContext, cube, levelTimestamp)
-      val path = new Path(diskDirectory)
-	  val fs = path.getFileSystem(acumeCacheContext.cacheSqlContext.sparkContext.hadoopConfiguration)
+      val diskDirpath = new Path(diskDirectory)
 	  //Do previous run cleanup
-	  if(fs.exists(path)) {
+	  if(AcumeTreeCacheValue.isPathExisting(diskDirpath, acumeCacheContext) && AcumeTreeCacheValue.isDiskWriteComplete(diskDirectory, acumeCacheContext)) {
 	    val rdd = acumeCacheContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
 	    return new AcumeFlatSchemaCacheValue(new AcumeDiskValue(levelTimestamp, cube, rdd), acumeCacheContext)
 	  }
