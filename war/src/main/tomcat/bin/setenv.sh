@@ -21,7 +21,7 @@ for (( i=0; i<$NUM_GC_LOG_FILES; i++ ))
     fi
   done
 
-GC_OPTS="-XX:+UseG1GC -XX:MetaspaceSize=$CLI_REPLACE_MAXPERMSIZE$ -Xloggc:gc.log -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+UseGCLogFileRotation -XX:GCLogFileSize=500M -XX:NumberOfGCLogFiles=$NUM_GC_LOG_FILES"
+GC_OPTS="-XX:+UseG1GC -XX:MetaspaceSize=$CLI_REPLACE_MAXPERMSIZE$ -Xloggc:../logs/gc.log -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+UseGCLogFileRotation -XX:GCLogFileSize=500M -XX:NumberOfGCLogFiles=$NUM_GC_LOG_FILES"
 
 export ACUME_JAVA_OPTS=$DEBUG_OPTS$ACUME_PERMGEN_CONFIG$JMX_OPTS$GC_OPTS
 
