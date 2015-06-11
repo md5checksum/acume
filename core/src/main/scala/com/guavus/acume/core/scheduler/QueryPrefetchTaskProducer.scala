@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory
 import com.guavus.acume.cache.core.EvictionDetails
 import com.guavus.acume.cache.core.Interval
 import com.guavus.acume.cache.core.TimeGranularity
-import com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.core.AcumeConf
 import com.guavus.acume.core.AcumeService
@@ -318,7 +317,7 @@ class QueryPrefetchTaskProducer(acumeContext: AcumeContextTrait, schemas: List[Q
       	}
     if (diskLevelPolicyMap.containsKey(new Level(level))) {
       val numPoints = diskLevelPolicyMap.get(new Level(level)).get
-      val rangeStartTime = AcumeTreeCacheEvictionPolicy.getRangeStartTime(lastBinEndtime, level, numPoints)
+      val rangeStartTime = Utility.getRangeStartTime(lastBinEndtime, level, numPoints)
       if (endTime <= rangeStartTime) {
         return false;
       }

@@ -53,6 +53,10 @@ import com.guavus.acume.cache.core.AcumeCacheType
 import com.guavus.rubix.query.remote.flex.TimeZoneInfo
 import com.guavus.acume.cache.core.Level
 import org.apache.spark.SparkContext
+import java.io.OutputStream
+import java.io.InputStream
+import java.util.Collection
+import java.io.Closeable
 
 /**
  * @author archit.thakur
@@ -69,9 +73,8 @@ object Utility extends Logging {
   }
   
   def newCalendar() = calendar.clone().asInstanceOf[Calendar]
-  
+
   def getEmptySchemaRDD(sqlContext: SQLContext, schema: StructType)= {
-    
     val rdd = sqlContext.sparkContext.emptyRDD[Row]
     sqlContext.applySchema(rdd, schema)
   }
@@ -367,10 +370,11 @@ object Utility extends Logging {
       	} else {
       	  Utility.getLevelPointMap(levelpolicymap(1))
       	}
+       // val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.timeserieslevelpolicymap, ConfConstants.acumecoretimeserieslevelmap, conf, cubeName))
+        
         if(!PropertyValidator.validateRetentionMap(Some(levelPolicyString), ConfConstants.acumecorelevelmap)) {
           throw new RuntimeException(ConfConstants.acumecorelevelmap + " is not configured correctly")
         }
-        
         val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.timeserieslevelpolicymap, ConfConstants.acumecoretimeserieslevelmap, conf, cubeName)).map(x =>x._1.level -> x._2)
 
         val Gnx = getProperty(propertyMap, ConfConstants.basegranularity, ConfConstants.acumeglobalbasegranularity, conf, cubeName)
@@ -406,6 +410,52 @@ object Utility extends Logging {
 //    }
 //    result
 //  }
+
+  def getPriority(timeStamp: Long, level: Long, aggregationLevel: Long, variableRetentionMap: Map[Level, Int], lastBinTime : Long): Int = {
+    if (!variableRetentionMap.contains(new Level(level))) return 0
+    val numPoints = variableRetentionMap.get(new Level(level)).getOrElse(throw new RuntimeException("Level not in VariableRetentionMap."))
+    val rangeStarTime = getRangeStartTime(lastBinTime, level, numPoints)
+    var timeStampTobeChecked = timeStamp
+    if(aggregationLevel != level) {
+      // This is a combined point
+      // Check if the last child of this combined point is evictable or not
+      timeStampTobeChecked = Utility.getPreviousTimeForGranularity(Utility.getNextTimeFromGranularity(timeStamp, aggregationLevel, Utility.newCalendar()), level, Utility.newCalendar())
+    }
+    if(timeStampTobeChecked >= rangeStarTime) 1 else 0
+  }
+
+  def getRangeStartTime(lastBinTimeStamp: Long, level: Long, numPoints: Int): Long = {
+    val rangeEndTime = Utility.floorFromGranularity(lastBinTimeStamp, level)
+    val rangeStartTime = 
+    if (level == TimeGranularity.MONTH.getGranularity) {
+      val cal = Utility.newCalendar()
+      cal.setTimeInMillis(rangeEndTime * 1000)
+      cal.add(Calendar.MONTH, -1 * numPoints)
+      cal.getTimeInMillis / 1000
+    } else if (level == TimeGranularity.DAY.getGranularity) {
+      val cal = Utility.newCalendar()
+      cal.setTimeInMillis(rangeEndTime * 1000)
+      cal.add(Calendar.DAY_OF_MONTH, -1 * numPoints)
+      cal.getTimeInMillis / 1000
+    } else if (level == TimeGranularity.WEEK.getGranularity) {
+      val cal = Utility.newCalendar()
+      cal.setTimeInMillis(rangeEndTime * 1000)
+      cal.add(Calendar.DAY_OF_MONTH, -1 * numPoints * 7)
+      cal.getTimeInMillis / 1000
+    } else if ((level == TimeGranularity.THREE_HOUR.getGranularity) || 
+      (level == TimeGranularity.FOUR_HOUR.getGranularity)) {
+      val cal = Utility.newCalendar()
+      cal.setTimeInMillis(rangeEndTime * 1000)
+      val endOffset = cal.getTimeZone.getOffset(cal.getTimeInMillis) / 1000
+      val tempRangeStartTime = rangeEndTime - numPoints * level
+      cal.setTimeInMillis(tempRangeStartTime * 1000)
+      val startOffset = cal.getTimeZone.getOffset(cal.getTimeInMillis) / 1000
+      tempRangeStartTime + (endOffset - startOffset)
+    } else {
+      rangeEndTime - numPoints * level
+    }
+    rangeStartTime
+  }
   
   def getLevelPointMap(mapString: String): Map[Level, Int] = {
     val result = MutableMap[Level, Int]()
@@ -737,5 +787,57 @@ object Utility extends Logging {
 			 exc : Throwable) : Boolean = {
 		 expected.isInstance(exc) || (exc != null && isCause(expected, exc.getCause()));
 	}
+  
+    
+   /**
+   * Copies passed inputstream to passed outputstream.
+   * @param input
+   * @param output
+   * @throws IOException
+   */
+  def copyStream(input: InputStream, output: OutputStream) {
+    val buffer = Array.ofDim[Byte](1024)
+    var bytesRead: Int = input.read(buffer)
+    while (bytesRead != -1) {
+      output.write(buffer, 0, bytesRead)
+      bytesRead = input.read(buffer)
+    }
+  }
+  
+  def closeStream(s: Closeable) {
+    if (s != null) s.close()
+  }
+  
+  def getTimeInHumanReadableForm(time: Long, timeZone: String): String = {
+    val calendar = Calendar.getInstance(Utility.getTimeZone(timeZone))
+    calendar.setTimeInMillis(time * 1000)
+    val formatter = new SimpleDateFormat("MMM dd EEE yyyy HH:mm z")
+    formatter.setTimeZone(TimeZone.getTimeZone(timeZone))
+    formatter.format(calendar.getTime)
+  }
 
+  def getTimeInHumanReadableForm(time: Long, timeZone: String, calendar: Calendar): String = {
+    calendar.setTimeInMillis(time * 1000)
+    val formatter = new SimpleDateFormat("MMM dd EEE yyyy HH:mm z")
+    formatter.setTimeZone(TimeZone.getTimeZone(timeZone))
+    formatter.format(calendar.getTime)
+  }
+  
+  def getCurrentDateInHumanReadableForm(): String = {
+    val calendar = Calendar.getInstance
+    val formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH-mm-ss")
+    formatter.format(calendar.getTime)
+  }
+
+  def getCalendar(timeZone: String): Calendar = {
+    val calendar = Calendar.getInstance(Utility.getTimeZone(timeZone))
+    calendar
+  }
+  
+  def isNullOrEmpty[T <: Collection[_]](t: T): Boolean = t == null || t.isEmpty
+
+  def isNullOrEmpty[K, V](map: Map[K, V]): Boolean = map == null || map.isEmpty
+
+  def isNullOrEmpty(array: Array[Long]): Boolean = array == null || (array.length == 0)
+  
 }

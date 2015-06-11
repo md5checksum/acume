@@ -6,14 +6,10 @@ import scala.concurrent._
 import scala.util.{ Success, Failure }
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.ConfConstants
 import java.io.File
-import com.guavus.acume.cache.common.LevelTimestamp
 import java.util.concurrent.Executors
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.common.LevelTimestamp
 import org.apache.hadoop.fs.Path
 import com.guavus.acume.cache.common.AcumeConstants
 import org.slf4j.LoggerFactory
@@ -69,7 +65,7 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
         logger.info("Disk write complete for {}" + acumeValue.levelTimestamp.toString())
         this.acumeValue = diskValue
         if (!shouldCache) {
-          this.acumeValue.evictFromMemory 
+        	acumeValue.evictFromMemory
         }
         isSuccessWritingToDisk = true
       }
@@ -139,12 +135,7 @@ object AcumeTreeCacheValue {
     val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
     fs.delete(path, true)
   }
-  
-  def getDiskDirectoryForPoint(acumeContext : AcumeCacheContextTrait, cube : Cube, levelTimestamp : LevelTimestamp) = {
-    val cacheDirectory = acumeContext.cacheConf.get(ConfConstants.cacheBaseDirectory) + File.separator + acumeContext.cacheSqlContext.sparkContext.getConf.get("spark.app.name") + "-" + acumeContext.cacheConf.get(ConfConstants.cacheDirectory)
-    cacheDirectory + File.separator + cube.binsource + File.separator + cube.cubeName + File.separator + levelTimestamp.level + "-" +levelTimestamp.aggregationLevel + File.separator + levelTimestamp.timestamp
-  }
-  
+
   def isPathExisting(path : Path, acumeContext : AcumeCacheContextTrait) : Boolean = {
     logger.debug("Checking if path exists => {}", path)
     val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
@@ -154,6 +145,11 @@ object AcumeTreeCacheValue {
   def isDiskWriteComplete(diskDirectory : String, acumeContext : AcumeCacheContextTrait) : Boolean = {
     val path =  new Path(diskDirectory + File.separator + "_SUCCESS")
     isPathExisting(path, acumeContext)
+  }
+
+  def getDiskDirectoryForPoint(acumeContext : AcumeCacheContextTrait, cube : Cube, levelTimestamp : LevelTimestamp) = {
+    val cacheDirectory = acumeContext.cacheConf.get(ConfConstants.cacheBaseDirectory) + File.separator + acumeContext.cacheSqlContext.sparkContext.getConf.get("spark.app.name") + "-" + acumeContext.cacheConf.get(ConfConstants.cacheDirectory)
+    cacheDirectory + File.separator + cube.binsource + File.separator + cube.cubeName + File.separator + levelTimestamp.level + "-" +levelTimestamp.aggregationLevel + File.separator + levelTimestamp.timestamp
   }
 
 }

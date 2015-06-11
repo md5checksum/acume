@@ -1,5 +1,6 @@
 package com.guavus.acume.cache.core
 
+import java.io.File
 import java.util.concurrent.Executors
 
 import scala.collection.JavaConversions._
@@ -22,19 +23,51 @@ import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.LoadType
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import com.guavus.acume.cache.common.ConfConstants
 
 abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy)
   extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf, cube) {
-
+  
   private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCache])
   
+  deleteExtraDataFromDiskAtStartUp
+  
+  def deleteExtraDataFromDiskAtStartUp() {
+    println("Starting deleting file")
+    try {
+      val cacheDirectory = acumeCacheContext.cacheConf.get(ConfConstants.cacheBaseDirectory) + File.separator + acumeCacheContext.cacheSqlContext.sparkContext.getConf.get("spark.app.name") + "-" + acumeCacheContext.cacheConf.get(ConfConstants.cacheDirectory) + File.separator + cube.binsource + File.separator + cube.cubeName
+      val path = new Path(cacheDirectory)
+      val fs = path.getFileSystem(acumeCacheContext.cacheSqlContext.sparkContext.hadoopConfiguration)
+      val directories = fs.listStatus(path).map(x => { CacheLevel.nameToLevelMap.get(x.getPath().getName()) }).map(x => { x.get.localId.longValue })
+      val notPresentLevels = directories.filter(!cube.diskLevelPolicyMap.contains(_))
+      print("Directorie are " + directories)
+      print(notPresentLevels.mkString(","))
+      for (notPresent <- notPresentLevels) {
+        logger.info("deleting directory {} ",  (cacheDirectory + File.separator + CacheLevel.getCacheLevel(notPresent)))
+        fs.delete(new Path(cacheDirectory + File.separator + CacheLevel.getCacheLevel(notPresent)))
+      }
+      val presentLevels = directories.filter(cube.diskLevelPolicyMap.contains(_))
+      println(presentLevels.mkString(","))
+      for (presentLevel <- presentLevels) {
+        val timestamps = fs.listStatus(new Path(cacheDirectory + File.separator + CacheLevel.getCacheLevel(presentLevel))).map(_.getPath().getName().toLong)
+        for (timestamp <- timestamps)
+          if (Utility.getPriority(timestamp, presentLevel, presentLevel, cube.levelPolicyMap, acumeCacheContext.getLastBinPersistedTime(cube.binsource)) == 0) {
+            logger.info("deleting file {} " , (AcumeTreeCacheValue.getDiskDirectoryForPoint(acumeCacheContext, cube, new LevelTimestamp(CacheLevel.getCacheLevel(presentLevel), timestamp))))
+            fs.delete(new Path(AcumeTreeCacheValue.getDiskDirectoryForPoint(acumeCacheContext, cube, new LevelTimestamp(CacheLevel.getCacheLevel(presentLevel), timestamp))))
+          }
+      }
+    } catch {
+      case e: Exception => logger.warn(e.getMessage())
+    }
+  }
+
   def checkIfTableAlreadyExist(levelTimestamp: LevelTimestamp): AcumeTreeCacheValue = {
     import scala.StringContext._
     try {
       val diskDirectory = AcumeTreeCacheValue.getDiskDirectoryForPoint(acumeCacheContext, cube, levelTimestamp)
-    	val diskDirpath = new Path(diskDirectory)
-      //Do previous run cleanup
-      if (AcumeTreeCacheValue.isPathExisting(diskDirpath, acumeCacheContext) && AcumeTreeCacheValue.isDiskWriteComplete(diskDirectory, acumeCacheContext)) {
+      val diskDirpath = new Path(diskDirectory)
+	    //Do previous run cleanup
+	    if (AcumeTreeCacheValue.isPathExisting(diskDirpath, acumeCacheContext) && AcumeTreeCacheValue.isDiskWriteComplete(diskDirectory, acumeCacheContext)) {
         val rdd = acumeCacheContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
         return new AcumeFlatSchemaCacheValue(new AcumeDiskValue(levelTimestamp, cube, rdd), acumeCacheContext)
       }
