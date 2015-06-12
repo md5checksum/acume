@@ -2,7 +2,6 @@ package com.guavus.acume.cache.core
 
 import java.io.File
 import java.util.concurrent.Executors
-
 import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -10,12 +9,10 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.control.Breaks.break
 import scala.util.control.Breaks.breakable
-
 import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.SchemaRDD
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.CacheLevel
 import com.guavus.acume.cache.common.Cube
@@ -24,6 +21,8 @@ import com.guavus.acume.cache.common.LoadType
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import com.guavus.acume.cache.common.ConfConstants
+import org.apache.spark.sql.catalyst.expressions.Row
+import org.apache.spark.rdd.RDD
 
 abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy)
   extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf, cube) {
@@ -145,8 +144,23 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
     }
   }
 
+  /* Method to combine child points to aggregated parent point */
   def mergeChildPoints(rdds: Seq[SchemaRDD]): SchemaRDD = rdds.reduce(_.unionAll(_))
 
+  /* Method to combine child points to a single zipped point containing data of all the points*/
+  def zipChildPoints(rdds : Seq[SchemaRDD]): SchemaRDD = {
+    
+    def zipTwo(itr: Iterator[Row], other: Iterator[Row]): Iterator[Row] = {
+      itr.zip(other).flatMap(x => Seq(x._1, x._2))
+    }
+    
+    acumeCacheContext.cacheSqlContext().applySchema(
+        rdds.map(x => x.asInstanceOf[RDD[Row]]).reduce({ _.zipPartitions(_)(zipTwo(_, _)) }),
+        rdds.iterator.next().schema
+    )
+  }
+
+  
   protected def combineLevels(childlevel: Long, childTimestamp: Long) {
     //TODO check if this level has to be combined at any other level
     val aggregationLevel = cacheLevelPolicy.getAggregationLevel(childlevel)
@@ -180,7 +194,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         val f: Future[Option[AcumeFlatSchemaCacheValue]] = Future({
           if (tryGet(aggregatedTimestamp) == null) {
         	  logger.info("Finally Combining level {} to aggregationlevel " + aggregationLevel + " and levelTimeStamp {} ", childlevel, aggregatedTimestamp)
-            Some(new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(aggregatedTimestamp, cube, mergeChildPoints(childrenData.map(_.getAcumeValue.measureSchemaRdd))), acumeCacheContext))
+            Some(new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(aggregatedTimestamp, cube, zipChildPoints(childrenData.map(_.getAcumeValue.measureSchemaRdd))), acumeCacheContext))
           } else {
             logger.info("Already present {}", aggregatedTimestamp)
             None
