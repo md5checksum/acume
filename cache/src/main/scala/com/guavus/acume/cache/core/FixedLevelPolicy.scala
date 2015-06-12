@@ -6,7 +6,7 @@ import com.guavus.acume.cache.utility.Utility
 import scala.math.Ordering.Implicits._
 
 @SerialVersionUID(1L)
-/**
+/*
  * @author archit.thakur
  *
  */
@@ -130,23 +130,53 @@ class FixedLevelPolicy(var levels: Array[Level], baseLevel: Long) extends Abstra
 }
 
 
-case class Level(level : Long) extends Comparable[Level] {
+case class Level(var level: Long) extends Comparable[Level] {
   
   var aggregationLevel = 0l
+  
+  if(aggregationLevel == 0) {
+    aggregationLevel == level
+  }
   
   def this(level : Long, aggregationLevel : Long) {
     this(level)
     this.aggregationLevel = aggregationLevel
   }
   
-  if(aggregationLevel == 0) {
-    aggregationLevel == level
+  def this(levelString : String) {
+    //Initialize the level from the directoryName
+    this(1)
+    val cacheLevels = levelString.split("-")
+    if(cacheLevels.size == 2){
+    	// This is a combined level directory
+      this.level = cacheLevels(0).toLong
+      this.aggregationLevel = cacheLevels(1).toLong
+    } else {
+    	// This is a non-combined level directory
+      this.level = cacheLevels(0).toLong
+      this.aggregationLevel = cacheLevels(0).toLong 
+    }
+  }
+  
+  def toDirectoryName : String = {
+    if(level == aggregationLevel)
+      level.toString()
+    else
+      level + "-" + aggregationLevel
   }
   
   override def compareTo(level : Level) = {
-    this.level.compare(level.level)
+    val aggregationCompare = this.aggregationLevel.compare(level.aggregationLevel)
+    val levelCompare = this.level.compare(level.level)
+
+    if(levelCompare != 0) {
+      // In case of >,> | >,= | >,< |  <,> | <,= | <,<
+      levelCompare
+    } else {
+      // In case of =,= | =,> | =,< 
+      aggregationCompare
+    }
   }
-  
   
   override def toString() = {
     "[" + level + "-" + aggregationLevel + "]"

@@ -1,19 +1,23 @@
 package com.guavus.acume.cache.core
 
-import org.apache.spark.sql.SchemaRDD
-import scala.concurrent.Future
-import scala.concurrent._
-import scala.util.{ Success, Failure }
-import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.common.Cube
-import com.guavus.acume.cache.common.ConfConstants
-import java.io.File
 import java.util.concurrent.Executors
-import org.apache.hadoop.fs.Path
-import com.guavus.acume.cache.common.AcumeConstants
-import org.slf4j.LoggerFactory
+
+import scala.concurrent._
+import scala.concurrent.Future
+import scala.util.Failure
+import scala.util.Success
+
+import org.apache.spark.sql.SchemaRDD
 import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+import com.guavus.acume.cache.common.CacheLevel
+import com.guavus.acume.cache.common.CacheLevel._
+import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.utility.Utility
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+
 import AcumeTreeCacheValue._
 
 abstract case class AcumeTreeCacheValue(dimensionTableName: String = null, acumeContext: AcumeCacheContextTrait) {
@@ -50,8 +54,8 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
   var isSuccessWritingToDisk = false
   if(acumeValue.isInstanceOf[AcumeInMemoryValue]) {
     val f: Future[AcumeDiskValue] = Future({
-      val diskDirectory = AcumeTreeCacheValue.getDiskDirectoryForPoint(acumeContext, acumeValue.cube, acumeValue.levelTimestamp)
-      AcumeTreeCacheValue.deleteDirectory(diskDirectory, acumeContext)
+      val diskDirectory = Utility.getDiskDirectoryForPoint(acumeContext, acumeValue.cube, acumeValue.levelTimestamp)
+      Utility.deleteDirectory(diskDirectory, acumeContext)
       acumeValue.measureSchemaRdd.sqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Writing " + diskDirectory, false)
       acumeValue.measureSchemaRdd.saveAsParquetFile(diskDirectory)
       val rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
@@ -98,8 +102,12 @@ trait AcumeValue {
 }
 
 case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measureSchemaRdd: SchemaRDD) extends AcumeValue {
-  val tableName = cube.getAbsoluteCubeName + levelTimestamp.level + "-" + levelTimestamp.aggregationLevel + levelTimestamp.timestamp + "_temp_memory_only"
+  var tableName = cube.getAbsoluteCubeName
+  tableName = tableName + Utility.getlevelDirectoryName(levelTimestamp.level, levelTimestamp.aggregationLevel)
+  tableName = tableName + levelTimestamp.timestamp + "_temp_memory_only"
+  
   registerAndCacheDataInMemory(tableName)
+  
   override def registerAndCacheDataInMemory(tableName : String) {
     measureSchemaRdd.registerTempTable(tableName)
     measureSchemaRdd.sqlContext.cacheTable(tableName)
@@ -112,13 +120,16 @@ case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measur
 }
 
 case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measureSchemaRdd: SchemaRDD) extends AcumeValue {
-  val tableName = cube.getAbsoluteCubeName + levelTimestamp.level + "-" + levelTimestamp.aggregationLevel + levelTimestamp.timestamp + "_memory_disk"
+  var tableName = cube.getAbsoluteCubeName
+  tableName = tableName + Utility.getlevelDirectoryName(levelTimestamp.level, levelTimestamp.aggregationLevel)
+  tableName = tableName + levelTimestamp.timestamp + "_memory_disk"
+  
   registerAndCacheDataInMemory(tableName)
   
   override protected def finalize() {
     logger.info("Unpersisting Data object {} for memory as well as disk ", levelTimestamp)
     evictFromMemory
-    AcumeTreeCacheValue.deleteDirectory(AcumeTreeCacheValue.getDiskDirectoryForPoint(this.acumeContext, cube, levelTimestamp), acumeContext)
+    Utility.deleteDirectory(Utility.getDiskDirectoryForPoint(this.acumeContext, cube, levelTimestamp), acumeContext)
   }
 
 }
@@ -129,27 +140,4 @@ object AcumeTreeCacheValue {
 
   val logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCacheValue])
   
-  def deleteDirectory(dir : String, acumeContext : AcumeCacheContextTrait) {
-    logger.debug("Deleting directory " + dir)
-    val path = new Path(dir)
-    val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
-    fs.delete(path, true)
-  }
-
-  def isPathExisting(path : Path, acumeContext : AcumeCacheContextTrait) : Boolean = {
-    logger.debug("Checking if path exists => {}", path)
-    val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
-    return fs.exists(path)
-  }
-  
-  def isDiskWriteComplete(diskDirectory : String, acumeContext : AcumeCacheContextTrait) : Boolean = {
-    val path =  new Path(diskDirectory + File.separator + "_SUCCESS")
-    isPathExisting(path, acumeContext)
-  }
-
-  def getDiskDirectoryForPoint(acumeContext : AcumeCacheContextTrait, cube : Cube, levelTimestamp : LevelTimestamp) = {
-    val cacheDirectory = acumeContext.cacheConf.get(ConfConstants.cacheBaseDirectory) + File.separator + acumeContext.cacheSqlContext.sparkContext.getConf.get("spark.app.name") + "-" + acumeContext.cacheConf.get(ConfConstants.cacheDirectory)
-    cacheDirectory + File.separator + cube.binsource + File.separator + cube.cubeName + File.separator + levelTimestamp.level + "-" +levelTimestamp.aggregationLevel + File.separator + levelTimestamp.timestamp
-  }
-
 }

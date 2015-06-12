@@ -21,6 +21,7 @@ import org.apache.spark.sql.catalyst.types.StructField
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.ConversionToSpark
 import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.core.EvictionDetails
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.core.TimeGranularity._
@@ -42,6 +43,7 @@ import scala.collection.JavaConverters._
 import com.guavus.acume.cache.common.AcumeCacheConf
 import scala.collection.mutable.ArrayBuffer
 import com.guavus.acume.cache.workflow.AcumeCacheContext
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import scala.collection.JavaConversions._
 import com.guavus.acume.cache.common.DataType
 import com.guavus.acume.cache.common.FieldType
@@ -57,11 +59,15 @@ import java.io.OutputStream
 import java.io.InputStream
 import java.util.Collection
 import java.io.Closeable
+import org.apache.hadoop.fs.Path
+import com.guavus.acume.cache.common.CacheLevel
+import CacheLevel._
 
 /**
  * @author archit.thakur
  *
  */
+
 object Utility extends Logging {
   
   val SHORT_FORM = "callSite.short"
@@ -839,5 +845,44 @@ object Utility extends Logging {
   def isNullOrEmpty[K, V](map: Map[K, V]): Boolean = map == null || map.isEmpty
 
   def isNullOrEmpty(array: Array[Long]): Boolean = array == null || (array.length == 0)
+  
+  def deleteDirectory(dir : String, acumeContext : AcumeCacheContextTrait) {
+    logDebug("Deleting directory " + dir)
+    val path = new Path(dir)
+    val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
+    fs.delete(path, true)
+  }
+
+  def isPathExisting(path : Path, acumeContext : AcumeCacheContextTrait) : Boolean = {
+    logDebug("Checking if path exists => " + path)
+    val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
+    return fs.exists(path)
+  }
+  
+  def isDiskWriteComplete(diskDirectory : String, acumeContext : AcumeCacheContextTrait) : Boolean = {
+    val path =  new Path(diskDirectory + File.separator + "_SUCCESS")
+    isPathExisting(path, acumeContext)
+  }
+  
+  def getDiskBaseDirectory(acumeContext : AcumeCacheContextTrait) = {
+    var diskBaseDirectory = acumeContext.cacheConf.get(ConfConstants.cacheBaseDirectory) + File.separator + acumeContext.cacheSqlContext.sparkContext.getConf.get("spark.app.name") 
+    diskBaseDirectory = diskBaseDirectory + "-" + acumeContext.cacheConf.get(ConfConstants.cacheDirectory)
+    diskBaseDirectory
+  }
+  def getCubeBaseDirectory(acumeContext : AcumeCacheContextTrait, cube : Cube) : String = {
+    var cubeBaseDirectory = getDiskBaseDirectory(acumeContext) + File.separator + cube.binsource + File.separator + cube.cubeName + File.separator
+    cubeBaseDirectory
+  }
+
+  def getlevelDirectoryName(level: CacheLevel, aggregationLevel: CacheLevel) : String = {
+    new Level(level.localId, aggregationLevel.localId).toDirectoryName
+  }
+  
+  def getDiskDirectoryForPoint(acumeContext : AcumeCacheContextTrait, cube : Cube, levelTimestamp : LevelTimestamp) : String = {
+    var diskDirectoryForPoints = getCubeBaseDirectory(acumeContext, cube)
+    diskDirectoryForPoints = diskDirectoryForPoints + File.separator + getlevelDirectoryName(levelTimestamp.level, levelTimestamp.aggregationLevel)
+    diskDirectoryForPoints + File.separator + levelTimestamp.timestamp
+    diskDirectoryForPoints
+  }
   
 }
