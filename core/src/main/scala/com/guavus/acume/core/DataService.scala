@@ -2,7 +2,6 @@ package com.guavus.acume.core
 
 import com.guavus.rubix.query.remote.flex.TimeseriesResponse
 import com.guavus.rubix.query.remote.flex.AggregateResponse
-import com.guavus.rubix.query.remote.flex.IResponse
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.catalyst.expressions.Row
 import com.guavus.rubix.query.remote.flex.QueryRequest
@@ -35,7 +34,7 @@ import java.util.concurrent.TimeoutException
 import scala.concurrent._
 import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
-//import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 
 /**
  * This class interacts with query builder and Olap cache.
@@ -58,14 +57,14 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
   /**
    * Takes QueryRequest i.e. Rubix query and return aggregate Response.
    */
-  def servAggregate(queryRequest: QueryRequest): IResponse = {
+  def servAggregate(queryRequest: QueryRequest): AggregateResponse = {
     servRequest(queryRequest.toSql("")).asInstanceOf[AggregateResponse]
   }
 
   /**
    * Takes QueryRequest i.e. Rubix query and return timeseries Response.
    */
-  def servTimeseries(queryRequest: QueryRequest): IResponse = {
+  def servTimeseries(queryRequest: QueryRequest): TimeseriesResponse = {
     servRequest(queryRequest.toSql("ts,")).asInstanceOf[TimeseriesResponse]
   }
 
@@ -105,7 +104,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     for ((key, value) <- acumeContext.ac.threadLocal.get()) {
       acumeContext.ac.cacheSqlContext.sparkContext.setLocalProperty(key, null)
     }
-    //AcumeCacheContextTrait.unsetAcumeTreeCacheValue
+    AcumeCacheContextTrait.unsetAcumeTreeCacheValue
   }
 
   private def getJobDescription(isSchedulerQuery: Boolean, jobGroup: String) = {

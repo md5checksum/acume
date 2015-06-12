@@ -22,7 +22,7 @@ object TimeseriesResponse {
 }
 
 @XmlRootElement
-class TimeseriesResponse(@BeanProperty var results: List[TimeseriesResultSet], @BeanProperty var responseDimensions: List[String], @BeanProperty var responseMeasures: List[String], @BeanProperty var timestamps: List[Long]) extends IResponse with Serializable {
+class TimeseriesResponse(@BeanProperty var results: List[TimeseriesResultSet], @BeanProperty var responseDimensions: List[String], @BeanProperty var responseMeasures: List[String], @BeanProperty var timestamps: List[Long]) extends Serializable {
 
   override def toString(): String = {
     val maxLen = ConfigFactory.getInstance.getBean(classOf[AcumeContextTrait]).acumeConf().getMaxQueryLogRecords	
