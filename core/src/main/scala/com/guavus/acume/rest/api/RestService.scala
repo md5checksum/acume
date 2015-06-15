@@ -31,7 +31,7 @@ class RestService {
   def exportAggregateData(dataExportRequest: DataExportRequest, @QueryParam(value = "super") userinfo: String,
       @QueryParam("user") user: String, @QueryParam("password") password: String): Serializable = {
     
-   UserManagementUtils.getIWebUMService().validateSession(null);
+    Authentication.authenticate(userinfo, user, password)
     dataExportRequest.setRequestDataType(RequestType.Aggregate)
     dataExportRequest.setRubixService(AcumeService.acumeService)
     AcumeService.acumeService.servExportCSV(dataExportRequest).asInstanceOf[Serializable]
@@ -44,7 +44,7 @@ class RestService {
   def exportTimeseriesData(dataExportRequest: DataExportRequest, @QueryParam(value = "super") userinfo: String,
       @QueryParam("user") user: String, @QueryParam("password") password: String): Serializable = {
     
-    UserManagementUtils.getIWebUMService().validateSession(null);
+    Authentication.authenticate(userinfo, user, password)
     dataExportRequest.setRequestDataType(RequestType.Timeseries)
     dataExportRequest.setRubixService(AcumeService.acumeService)
     AcumeService.acumeService.servExportCSV(dataExportRequest).asInstanceOf[Serializable]
@@ -57,7 +57,7 @@ class RestService {
   def exportSqlAggregateData(dataExportRequest: DataExportRequest, @QueryParam(value = "super") userinfo: String,
       @QueryParam("user") user: String, @QueryParam("password") password: String): Serializable = {
     
-    UserManagementUtils.getIWebUMService().validateSession(null);
+    Authentication.authenticate(userinfo, user, password)
     dataExportRequest.setRequestDataType(RequestType.Aggregate)
     dataExportRequest.setRubixService(AcumeService.acumeService)
     AcumeService.acumeService.servExportCSV(dataExportRequest).asInstanceOf[Serializable]
