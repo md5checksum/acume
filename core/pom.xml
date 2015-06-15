@@ -29,6 +29,7 @@
 		<maven.compiler.target>1.8</maven.compiler.target>
 		<tomcat.version>7.0.34</tomcat.version>
 		<jersey-version>1.8</jersey-version>
+		<aspectj.version>1.8.3</aspectj.version>
 		<org.springframework.version>4.1.4.RELEASE</org.springframework.version>
 	</properties>
 	<dependencies>
@@ -157,7 +158,15 @@
 				<exclusion>
                         		<groupId>log4j</groupId>
                         		<artifactId>log4j</artifactId>
-                		</exclusion>
+                </exclusion>
+                <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                 </exclusion>
+                 <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                 </exclusion>	
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -234,6 +243,18 @@
 			<artifactId>spark-hive_2.10</artifactId>
 			<version>1.2.1</version>
 			<scope>provided</scope>
+		</dependency>
+
+		<!-- AspectJ -->
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>${aspectj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjtools</artifactId>
+			<version>${aspectj.version}</version>
 		</dependency>
 
 		<!-- Spark dependencies end -->
@@ -399,6 +420,40 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>aspectj-maven-plugin</artifactId>
+				<version>1.4</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<showWeaveInfo>true</showWeaveInfo>
+					<aspectDirectory>src/main/aspect</aspectDirectory>
+					<weaveDirectories>
+                  		<weaveDirectory>${project.build.directory}/classes</weaveDirectory>
+             		 </weaveDirectories>
+					<aspectLibraries>
+						<aspectLibrary>
+							<groupId>org.apache.shiro</groupId>
+							<artifactId>shiro-aspectj</artifactId>
+						</aspectLibrary>
+					</aspectLibraries>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+                            <goal>compile</goal>       <!-- use this goal to weave all your main classes -->
+						</goals>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.aspectj</groupId>
+						<artifactId>aspectjtools</artifactId>
+						<version>${aspectj.version}</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
