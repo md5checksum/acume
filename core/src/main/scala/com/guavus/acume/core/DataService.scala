@@ -131,14 +131,14 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       def calculateJobLevelProperties() {
         this.synchronized {
 
+          if (acumeContext.ac.threadLocal.get() == null) {
+        		acumeContext.ac.threadLocal.set(new HashMap[String, Any]())
+          }
           val isSchedulerQuery = queryBuilderService.get(0).isSchedulerQuery(sql)
           val queryPoolPolicy = if (isSchedulerQuery) queryPoolSchedulerPolicy else queryPoolUIPolicy
           classificationname = queryPoolPolicy.getQueryClassification(sql, classificationStats);
           queryPoolPolicy.checkForThrottle(classificationname, classificationStats)
           poolname = queryPoolPolicy.getPoolNameForClassification(classificationname, poolStats)
-          if (acumeContext.ac.threadLocal.get() == null) {
-            acumeContext.ac.threadLocal.set(new HashMap[String, Any]())
-          }
 
           if (classificationname != null && poolname != null) {
             poolStatAttribute = poolStats.getStatsForPool(poolname)
