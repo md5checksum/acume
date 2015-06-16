@@ -57,6 +57,8 @@ import java.io.OutputStream
 import java.io.InputStream
 import java.util.Collection
 import java.io.Closeable
+import com.google.common.collect.Iterables
+import acume.exception.AcumeException
 
 /**
  * @author archit.thakur
@@ -74,6 +76,23 @@ object Utility extends Logging {
   
   def newCalendar() = calendar.clone().asInstanceOf[Calendar]
 
+  
+  def getCausalChain(throwable : Throwable) = {
+	    var tempThrowable = throwable
+		val causes = new java.util.LinkedHashSet[Throwable]()
+	    while (tempThrowable != null && !causes.contains(tempThrowable)) {
+	      causes.add(tempThrowable);
+	      tempThrowable = tempThrowable.getCause();
+	    }
+	    causes
+	  }
+  
+  def throwIfRubixException(t : Throwable) {
+		val reItr = Iterables.filter(Utility.getCausalChain(t), classOf[AcumeException]).iterator();
+		if(reItr.hasNext())
+			throw reItr.next();
+	}
+  
   def getEmptySchemaRDD(sqlContext: SQLContext, schema: StructType)= {
     val rdd = sqlContext.sparkContext.emptyRDD[Row]
     sqlContext.applySchema(rdd, schema)

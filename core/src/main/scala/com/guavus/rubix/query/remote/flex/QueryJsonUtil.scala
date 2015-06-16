@@ -2,19 +2,36 @@ package com.guavus.rubix.query.remote.flex
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import java.util.Arrays
+import com.google.common.collect.Lists
+import java.util.Collections
 
 object QueryJsonUtil {
 
-  private var gson: Gson = new GsonBuilder().create()
+   private var gson: Gson = new GsonBuilder().create()
 
   def queryRequestToJson(request: QueryRequest): String = gson.toJson(request)
 
   def fromJsonToQueryRequest(json: String): QueryRequest = {
     gson.fromJson(json, classOf[QueryRequest])
   }
+  
+  def fromJsonToQueryRequests(json: String): java.util.ArrayList[QueryRequest] = {
+    val array = gson.fromJson(json, classOf[Array[QueryRequest]])
+    val response = new java.util.ArrayList[QueryRequest](array.length)
+    for(request <- array) {
+      response.add(request)
+    }
+    response
+  }
+  
 
   def aggregateResponseToJson(response: AggregateResponse): String = gson.toJson(response)
 
+  def aggregateResponsesToJson(response: java.util.ArrayList[AggregateResponse]): String = gson.toJson(response)
+  
+  def timeseriesResponsesToJson(response: java.util.ArrayList[TimeseriesResponse]): String = gson.toJson(response)
+  
   def timeseriesResponseToJson(response: TimeseriesResponse): String = gson.toJson(response)
 
   def fromJsonToSearchRequest(json: String): SearchRequest = {
