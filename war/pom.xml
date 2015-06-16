@@ -132,6 +132,7 @@
                                      <exclude>WEB-INF/lib/jasper-runtime*.jar</exclude>
                                      <exclude>WEB-INF/lib/xercesImpl*.jar</exclude>
                                      <exclude>WEB-INF/lib/xml-apis*.jar</exclude>
+				     <exclude>WEB-INF/lib/logback-*.jar</exclude>
                         </excludes>
                     </overlay>
                 </overlays>
