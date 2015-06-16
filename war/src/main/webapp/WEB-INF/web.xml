@@ -102,16 +102,16 @@
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet-->
-	<servlet>
+	<!--servlet>
 		<servlet-name>AcumeInitServlet</servlet-name>
 		<servlet-class>com.guavus.acume.servlet.AcumeInitServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
-	</servlet>
-	<!-- <servlet>
+	</servlet-->
+	<servlet>
 		<servlet-name>HiveInitServlet</servlet-name>
 		<servlet-class>com.guavus.acume.servlet.AcumeHiveInitServlet</servlet-class>
-		<load-on-startup>2</load-on-startup>
-	</servlet> -->
+		<load-on-startup>1</load-on-startup>
+	</servlet>
 	<!-- servlet-mapping>
 		<servlet-name>RGService</servlet-name>
 		<url-pattern>/queryresponse/aggregate</url-pattern>
