@@ -790,7 +790,13 @@
             <Property_DataType>integer</Property_DataType>
             <Property_OriginalName>application.${rubixApp}.executorLogBackups</Property_OriginalName>
         </Property>
-
+	<Property>
+            <Property_Name>application.${rubixApp}.acumeCoreThreadPoolSize</Property_Name>
+            <Property_Value>25</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>integer</Property_DataType>
+            <Property_OriginalName>application.${rubixApp}.acumeCoreThreadPoolSize</Property_OriginalName>
+        </Property>
     </Properties>
     <SubProfiles />
 </Profile>

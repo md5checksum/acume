@@ -17,6 +17,7 @@ import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.core.query.DataExportRequest
 import com.guavus.acume.cache.workflow.RequestType
 import com.guavus.rubix.user.management.utils.UserManagementUtils
+import java.io.Serializable
 
 @Path("/" + "queryresponse")
 /**
@@ -84,6 +85,24 @@ class RestService {
 	@POST
     @Consumes(Array("application/json"))
     @Produces(Array("application/json"))
+    @Path("aggregateMultiple")
+	def servAggregateMultiple(query : java.util.ArrayList[QueryRequest], @QueryParam(value = "super") userinfo : String,
+			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
+	  servMultiple(query, userinfo, user, password, getAdditionalInfo, true)
+	}
+	
+	@POST
+    @Consumes(Array("application/json"))
+    @Produces(Array("application/json"))
+    @Path("timeseriesMultiple")
+	def servTimeseriesMultiple(query : java.util.ArrayList[QueryRequest], @QueryParam(value = "super") userinfo : String,
+			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
+	  servMultiple(query, userinfo, user, password, getAdditionalInfo, false)
+	}
+	
+	@POST
+    @Consumes(Array("application/json"))
+    @Produces(Array("application/json"))
     @Path("search")
 	def servSearchQuery(query : SearchRequest, @QueryParam(value = "super") userinfo : String,
 			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
@@ -104,6 +123,18 @@ class RestService {
 		  AcumeService.acumeService.servAggregateQuery(query).asInstanceOf[Serializable]
 		} else {
 			AcumeService.acumeService.servTimeseriesQuery(query).asInstanceOf[Serializable]
+		}
+	}
+	
+	def servMultiple(query : java.util.ArrayList[QueryRequest], userinfo : String,
+			user : String, password : String, getAdditionalInfo : Boolean, isAggregate : Boolean) : Serializable = {
+		val startTime = System.currentTimeMillis();
+		Authentication.authenticate(userinfo, user, password)
+		// Submit the request to query builder which will return the actual query to be fired on olap cache. It will also return the type of query it was aggregate/timeseries. After receiving
+		if(isAggregate) {
+		  AcumeService.acumeService.servAggregateMultiple(query).asInstanceOf[Serializable]
+		} else {
+			AcumeService.acumeService.servTimeseriesMultiple(query).asInstanceOf[Serializable]
 		}
 	}
 	

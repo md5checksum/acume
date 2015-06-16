@@ -60,6 +60,28 @@ class TimeSeriesRequestServlet extends AbstractRequestServlet {
  
 }
 
+class TimeSeriesMultipleRequestServlet extends AbstractRequestServlet {
+
+   override def getResponse(req : HttpServletRequest) : Serializable = {
+    val queryRequests  = QueryJsonUtil.fromJsonToQueryRequests(req.getReader().readLine())
+    service.servTimeseriesMultiple(queryRequests,  req.getParameter("super"),
+			req.getParameter("user"), req.getParameter("password"), false)
+  }
+ 
+}
+
+class AggregateMultipleRequestServlet extends AbstractRequestServlet {
+
+  override def getResponse(req : HttpServletRequest) : Serializable = {
+    
+    val queryRequests = QueryJsonUtil.fromJsonToQueryRequests(req.getReader().readLine())
+    service.servAggregateMultiple(queryRequests,  req.getParameter("super"),
+			req.getParameter("user"), req.getParameter("password"), false)
+  
+  }
+ 
+}
+
 class ValidateQueryServlet extends AbstractRequestServlet {
 
    override def getResponse(req : HttpServletRequest) : Serializable = {
