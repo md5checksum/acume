@@ -533,7 +533,7 @@ Please don't use the following reserved property names:
                                <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                        </target>
                </targets>
-       <property>
+       </property>
 
        <property>
                <name>jgroupsLoggingLevel</name>
