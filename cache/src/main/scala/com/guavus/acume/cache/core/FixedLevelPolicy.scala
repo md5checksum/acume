@@ -132,11 +132,11 @@ class FixedLevelPolicy(var levels: Array[Level], baseLevel: Long) extends Abstra
 
 case class Level(var level: Long) extends Comparable[Level] {
   
-  var aggregationLevel = 0l
+  var aggregationLevel = level
   
-  if(aggregationLevel == 0) {
-    aggregationLevel == level
-  }
+//  if(aggregationLevel == 0) {
+//    aggregationLevel == level
+//  }
   
   def this(level : Long, aggregationLevel : Long) {
     this(level)
@@ -166,9 +166,10 @@ case class Level(var level: Long) extends Comparable[Level] {
   }
   
   override def compareTo(level : Level) = {
-    val aggregationCompare = this.aggregationLevel.compare(level.aggregationLevel)
-    val levelCompare = this.level.compare(level.level)
-
+    // val aggregationCompare = this.aggregationLevel.compare(level.aggregationLevel)
+    // val levelCompare = 
+    this.level.compare(level.level)
+    /*
     if(levelCompare != 0) {
       // In case of >,> | >,= | >,< |  <,> | <,= | <,<
       levelCompare
@@ -176,6 +177,7 @@ case class Level(var level: Long) extends Comparable[Level] {
       // In case of =,= | =,> | =,< 
       aggregationCompare
     }
+    */
   }
   
   override def toString() = {

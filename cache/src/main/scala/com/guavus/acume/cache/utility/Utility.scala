@@ -371,12 +371,12 @@ object Utility extends Logging {
         val levelpolicymap = levelPolicyString.split("\\|")
         val inMemoryPolicyMap = Utility.getLevelPointMap(levelpolicymap(0))
         val diskLevelPolicyMap = 
-        if(levelpolicymap.size == 1) {
-        	inMemoryPolicyMap
-      	} else {
-      	  Utility.getLevelPointMap(levelpolicymap(1))
-      	}
-       // val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.timeserieslevelpolicymap, ConfConstants.acumecoretimeserieslevelmap, conf, cubeName))
+          if(levelpolicymap.size == 1) {
+          	inMemoryPolicyMap
+        	} else {
+        	  Utility.getLevelPointMap(levelpolicymap(1))
+        	}
+        // val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.timeserieslevelpolicymap, ConfConstants.acumecoretimeserieslevelmap, conf, cubeName))
         
         if(!PropertyValidator.validateRetentionMap(Some(levelPolicyString), ConfConstants.acumecorelevelmap)) {
           throw new RuntimeException(ConfConstants.acumecorelevelmap + " is not configured correctly")
@@ -870,7 +870,7 @@ object Utility extends Logging {
     diskBaseDirectory
   }
   def getCubeBaseDirectory(acumeContext : AcumeCacheContextTrait, cube : Cube) : String = {
-    var cubeBaseDirectory = getDiskBaseDirectory(acumeContext) + File.separator + cube.binsource + File.separator + cube.cubeName + File.separator
+    var cubeBaseDirectory = getDiskBaseDirectory(acumeContext) + File.separator + cube.binsource + File.separator + cube.cubeName
     cubeBaseDirectory
   }
 
@@ -881,7 +881,7 @@ object Utility extends Logging {
   def getDiskDirectoryForPoint(acumeContext : AcumeCacheContextTrait, cube : Cube, levelTimestamp : LevelTimestamp) : String = {
     var diskDirectoryForPoints = getCubeBaseDirectory(acumeContext, cube)
     diskDirectoryForPoints = diskDirectoryForPoints + File.separator + getlevelDirectoryName(levelTimestamp.level, levelTimestamp.aggregationLevel)
-    diskDirectoryForPoints + File.separator + levelTimestamp.timestamp
+    diskDirectoryForPoints = diskDirectoryForPoints + File.separator + levelTimestamp.timestamp
     diskDirectoryForPoints
   }
   

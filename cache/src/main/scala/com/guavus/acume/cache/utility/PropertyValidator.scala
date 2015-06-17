@@ -14,7 +14,7 @@ object PropertyValidator {
   def validate(settings : HashMap[String, String]) = {
     if (validateRetentionMap(settings.get(ConfConstants.schedulerVariableRetentionMap), ConfConstants.schedulerVariableRetentionMap)
         && validateRetentionMap(settings.get(ConfConstants.acumecorelevelmap), ConfConstants.acumecorelevelmap)
-        && validateRetentionMap(settings.get(ConfConstants.acumecoretimeserieslevelmap), ConfConstants.acumecoretimeserieslevelmap)
+        && validateTimeSeriesRetentionMap(settings.get(ConfConstants.acumecoretimeserieslevelmap), ConfConstants.acumecoretimeserieslevelmap)
         && isNumber(settings.get(ConfConstants.rrcacheconcurrenylevel), ConfConstants.rrcacheconcurrenylevel)
 	    && isNumber(settings.get(ConfConstants.rrsize._1), ConfConstants.rrsize._1)
 	    && isNumber(settings.get(ConfConstants.prefetchTaskRetryIntervalInMillis), ConfConstants.prefetchTaskRetryIntervalInMillis)
@@ -58,6 +58,26 @@ object PropertyValidator {
     true
   }
   
+  def validateTimeSeriesRetentionMap(value : Option[String], key : String = "Key") : Boolean = {
+    if(value == None) {
+      logger.error(key + " is not configured in acume conf")
+      return false
+    }
+    val entries = value.get.split(";")
+    if(entries.length == 0) {
+      logger.error("Length of " + key + " is invalid...")
+      return false
+    }
+    entries.foreach(entry => {
+      val subentry = entry.split(":")
+      if(subentry.length != 2 || !isNumber(Some(subentry(1)), key)) {
+        logger.error("Format of " + key + " is invalid...")
+        return false
+      }
+    })
+    true
+  }
+  
   def validateRetentionMap(levelPolicy : Option[String], key : String = "Key") : Boolean = {
     if(levelPolicy == None || levelPolicy.get.trim == "") {
       logger.error(key + " is not configured in acume conf")
@@ -96,11 +116,11 @@ object PropertyValidator {
         logger.error("Combining interval is redundant.")
         return false
       }
-      
+    
       val fraction = inMemoryLevel.aggregationLevel/inMemoryLevel.level
       if(Math.ceil(fraction).toLong != fraction) {
         logger.error("Combining level is not a multiple of base level")
-        return false
+       return false
       }
     }
     true

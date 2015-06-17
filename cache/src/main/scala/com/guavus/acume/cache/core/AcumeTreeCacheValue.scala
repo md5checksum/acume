@@ -96,6 +96,8 @@ trait AcumeValue {
   def registerAndCacheDataInMemory(tableName : String) {
     measureSchemaRdd.registerTempTable(tableName)
     measureSchemaRdd.sqlContext.cacheTable(tableName)
+    val diskDirectory = Utility.getDiskDirectoryForPoint(acumeContext, cube, levelTimestamp)
+    measureSchemaRdd.sqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Reading " + diskDirectory, false)
     measureSchemaRdd.sqlContext.table(tableName).count
   }
 
@@ -104,7 +106,7 @@ trait AcumeValue {
 case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measureSchemaRdd: SchemaRDD) extends AcumeValue {
   var tableName = cube.getAbsoluteCubeName
   tableName = tableName + Utility.getlevelDirectoryName(levelTimestamp.level, levelTimestamp.aggregationLevel)
-  tableName = tableName + levelTimestamp.timestamp + "_temp_memory_only"
+  tableName = tableName + "_" + levelTimestamp.timestamp + "_temp_memory_only"
   
   registerAndCacheDataInMemory(tableName)
   
@@ -122,7 +124,7 @@ case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measur
 case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measureSchemaRdd: SchemaRDD) extends AcumeValue {
   var tableName = cube.getAbsoluteCubeName
   tableName = tableName + Utility.getlevelDirectoryName(levelTimestamp.level, levelTimestamp.aggregationLevel)
-  tableName = tableName + levelTimestamp.timestamp + "_memory_disk"
+  tableName = tableName + "_" + levelTimestamp.timestamp + "_memory_disk"
   
   registerAndCacheDataInMemory(tableName)
   
@@ -137,7 +139,6 @@ case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measur
 object AcumeTreeCacheValue {
   val executorService = Executors.newFixedThreadPool(2)
   val context = ExecutionContext.fromExecutorService(AcumeTreeCacheValue.executorService)
-
   val logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCacheValue])
   
 }

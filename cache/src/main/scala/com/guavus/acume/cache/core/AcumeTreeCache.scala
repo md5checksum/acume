@@ -150,12 +150,8 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
   /* Method to combine child points to a single zipped point containing data of all the points*/
   def zipChildPoints(rdds : Seq[SchemaRDD]): SchemaRDD = {
     
-    def zipTwo(itr: Iterator[Row], other: Iterator[Row]): Iterator[Row] = {
-      itr.zip(other).flatMap(x => Seq(x._1, x._2))
-    }
-    
     acumeCacheContext.cacheSqlContext().applySchema(
-        rdds.map(x => x.asInstanceOf[RDD[Row]]).reduce({ _.zipPartitions(_)(zipTwo(_, _)) }),
+        rdds.map(x => x.asInstanceOf[RDD[Row]]).reduce({ _.zipPartitions(_)(AcumeTreeCache.zipTwo(_, _)) }),
         rdds.iterator.next().schema
     )
   }
@@ -234,9 +230,15 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
 }
 
 object AcumeTreeCache {
+  @transient
   val executorService = Executors.newFixedThreadPool(1)
+  @transient
   val context = ExecutionContext.fromExecutorService(AcumeTreeCache.executorService)
 
+  def zipTwo(itr: Iterator[Row], other: Iterator[Row]): Iterator[Row] = {
+    itr.zip(other).flatMap(x => Seq(x._1, x._2))
+  }
+  
 }
 
 
