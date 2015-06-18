@@ -251,7 +251,7 @@
         </Property>
         <Property>
             <Property_Name> application.${rubixApp}.umInitialHost</Property_Name>
-            <Property_Value>localhost</Property_Value>
+            <Property_Value>localhost[7900]</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${rubixApp}.umInitialHost</Property_OriginalName>
@@ -349,7 +349,7 @@
         </Property>
         <Property>
             <Property_Name> application.${rubixApp}.acumebinsource</Property_Name>
-            <Property_Value>default</Property_Value>
+            <Property_Value>__DEFAULT_BINSOURCE__</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${rubixApp}.acumebinsource</Property_OriginalName>
