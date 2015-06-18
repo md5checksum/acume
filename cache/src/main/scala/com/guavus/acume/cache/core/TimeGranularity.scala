@@ -23,7 +23,6 @@ object TimeGranularity extends Enumeration {
   val FIVE_MINUTE = new TimeGranularity(5 * 60L, "5m")
   val ONE_MINUTE = new TimeGranularity(60L, "1m")
   val HALF_DAY = new TimeGranularity(12 * 60 * 60L, "12h")
-  val AGGREGATE = new TimeGranularity(-1, "aggregate")
 
 class TimeGranularity (@BeanProperty var granularity: Long, variableRetentionName: String)
       extends Val with Serializable {

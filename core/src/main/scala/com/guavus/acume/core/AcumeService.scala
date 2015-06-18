@@ -2,7 +2,6 @@ package com.guavus.acume.core
 
 import com.guavus.acume.core.configuration.ConfigFactory
 import com.guavus.rubix.query.remote.flex.AggregateResponse
-import com.guavus.rubix.query.remote.flex.IResponse
 import com.guavus.rubix.query.remote.flex.QueryRequest
 import com.guavus.rubix.query.remote.flex.SearchRequest
 import com.guavus.rubix.query.remote.flex.SearchResponse
@@ -63,7 +62,7 @@ class AcumeService(dataService: DataService) {
   /**
    * Serves only aggregate request. if request type is timeseries this method fails.
    */
-  def  servAggregateMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[IResponse] = {
+  def  servAggregateMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[AggregateResponse] = {
     servMultiple[AggregateResponse](RequestDataType.Aggregate, queryRequests)
   }
   
@@ -123,15 +122,15 @@ class AcumeService(dataService: DataService) {
   /**
    * Serves only aggregate request. if request type is timeseries this method fails.
    */
-  def  servAggregateQuery(queryRequest : QueryRequest) : IResponse = {
+  def  servAggregateQuery(queryRequest : QueryRequest) : AggregateResponse = {
     dataService.servAggregate(queryRequest)
   }
   
-  def servTimeseriesMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[IResponse] = {
+  def servTimeseriesMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[TimeseriesResponse] = {
     servMultiple[TimeseriesResponse](RequestDataType.TimeSeries, queryRequests)
   }
   
-  def servTimeseriesQuery(queryRequest : QueryRequest) : IResponse = {
+  def servTimeseriesQuery(queryRequest : QueryRequest) : TimeseriesResponse = {
     dataService.servTimeseries(queryRequest)
   }
   
