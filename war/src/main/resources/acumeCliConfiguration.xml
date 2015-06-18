@@ -1051,7 +1051,7 @@ Please don't use the following reserved property names:
             <name>acumebinsource</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
-            <default><![CDATA[default]]></default>
+            <default><![CDATA[__DEFAULT_BINSRC__]]></default>
             <targets>
                 <target>
                     <file><![CDATA[acume.conf]]></file>
