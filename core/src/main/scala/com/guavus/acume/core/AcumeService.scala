@@ -64,7 +64,7 @@ class AcumeService(dataService: DataService) {
    * Serves only aggregate request. if request type is timeseries this method fails.
    */
   def  servAggregateMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[IResponse] = {
-    servMultiple[IResponse](RequestDataType.Aggregate, queryRequests)
+    servMultiple[AggregateResponse](RequestDataType.Aggregate, queryRequests)
   }
   
   
@@ -128,7 +128,7 @@ class AcumeService(dataService: DataService) {
   }
   
   def servTimeseriesMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[IResponse] = {
-    servMultiple[IResponse](RequestDataType.TimeSeries, queryRequests)
+    servMultiple[TimeseriesResponse](RequestDataType.TimeSeries, queryRequests)
   }
   
   def servTimeseriesQuery(queryRequest : QueryRequest) : IResponse = {
