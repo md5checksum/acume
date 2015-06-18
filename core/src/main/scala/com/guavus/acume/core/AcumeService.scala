@@ -40,6 +40,7 @@ import com.guavus.acume.cache.utility.Utility
 import com.google.common.base.Function
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * Main service of acume which serves the request from UI and rest services. It checks if the response is present in RR cache otherwise fire the query on OLAP cache.
@@ -68,19 +69,18 @@ class AcumeService(dataService: DataService) {
   
   
   private def setCallId(request : QueryRequest) {
-		var callModuleId="MODULE";
+		var callModuleId = List("MODULE");
 		if(request.getParamMap() !=null ){
-			callModuleId = request.getParamMap().filter(_.getName.equals("M_ID")).iterator.next.getValue
-			if(callModuleId==null || callModuleId.length()==0) {
-				callModuleId = LoggingInfoWrapper.NO_MODULE_ID;
+			callModuleId = request.getParamMap().filter(_.getName.equals("M_ID")).map(_.getValue()).toList
+			if(callModuleId==null || callModuleId.size==0) {
+				callModuleId =List(LoggingInfoWrapper.NO_MODULE_ID);
 			}
 		}
 
 		val id = this.counter.getAndIncrement();
 		val loggingInfoWrapper = new LoggingInfoWrapper();
-		loggingInfoWrapper.setTransactionId(callModuleId+"-"+id+"-");
+		loggingInfoWrapper.setTransactionId(callModuleId(0)+"-"+id+"-");
 		AcumeThreadLocal.set(loggingInfoWrapper);
-
 	}
 
   
@@ -91,7 +91,9 @@ class AcumeService(dataService: DataService) {
     val isIDSet = false;
     var callIndex = 1;
     val threadPool = QueryExecutorThreads.getPool();
-    for (key <- requests) {
+    val itr = requests.iterator
+    while(itr.hasNext()) {
+      val key = itr.next()
       if (!isIDSet) {
         setCallId(key);
       }
