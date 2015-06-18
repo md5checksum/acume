@@ -5,7 +5,6 @@ import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions._
 import java.util.function.Function
-import com.guavus.acume.rest.api.TooManyOpenConnectionException
 
 abstract class QueryPoolPolicy(throttleMap : Map[String, Int]) {
   
@@ -13,7 +12,7 @@ abstract class QueryPoolPolicy(throttleMap : Map[String, Int]) {
   
   def checkForThrottle(classification : String, classificationStats : ClassificationStats) = throttleMap.get(classification).map(throttleValue => { 
     if(classificationStats.getStatsForClassification(classification).currentRunningQries.get() >= throttleValue)
-    	throw new TooManyOpenConnectionException
+    	throw new RuntimeException("Application Throttled. Queue Full.")
     else
       null
     }).getOrElse(null)
