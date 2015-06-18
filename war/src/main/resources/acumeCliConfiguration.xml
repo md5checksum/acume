@@ -464,7 +464,7 @@ Please don't use the following reserved property names:
 		  <property>
                         <name>acumebinsource</name>
                         <help><![CDATA[ - If Insta is to be used for Hive Queries]]></help>
-                        <default><![CDATA[__DEFAULT_BINSOURCE__]]></default>
+                        <default><![CDATA[__DEFAULT_BINSRC__]]></default>
                         <targets>
                                 <target>
                                         <file><![CDATA[acume.conf]]></file>
