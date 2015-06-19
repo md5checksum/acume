@@ -33,7 +33,7 @@ class RestService {
       @QueryParam("user") user: String, @QueryParam("password") password: String): Serializable = {
     
     Authentication.authenticate(userinfo, user, password)
-    dataExportRequest.setRequestDataType(RequestType.Aggregate)
+    dataExportRequest.setRequestDataType("Aggregate")
     dataExportRequest.setRubixService(AcumeService.acumeService)
     AcumeService.acumeService.servExportCSV(dataExportRequest).asInstanceOf[Serializable]
   }
@@ -46,7 +46,7 @@ class RestService {
       @QueryParam("user") user: String, @QueryParam("password") password: String): Serializable = {
     
     Authentication.authenticate(userinfo, user, password)
-    dataExportRequest.setRequestDataType(RequestType.Timeseries)
+    dataExportRequest.setRequestDataType("Timeseries")
     dataExportRequest.setRubixService(AcumeService.acumeService)
     AcumeService.acumeService.servExportCSV(dataExportRequest).asInstanceOf[Serializable]
   }
@@ -59,7 +59,7 @@ class RestService {
       @QueryParam("user") user: String, @QueryParam("password") password: String): Serializable = {
     
     Authentication.authenticate(userinfo, user, password)
-    dataExportRequest.setRequestDataType(RequestType.Aggregate)
+    dataExportRequest.setRequestDataType("Aggregate")
     dataExportRequest.setRubixService(AcumeService.acumeService)
     AcumeService.acumeService.servExportCSV(dataExportRequest).asInstanceOf[Serializable]
   }

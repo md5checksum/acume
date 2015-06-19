@@ -5,10 +5,19 @@ import com.google.gson.GsonBuilder
 import java.util.Arrays
 import com.google.common.collect.Lists
 import java.util.Collections
+import com.guavus.acume.core.query.DataExportRequest
+import com.guavus.acume.core.query.DataExportResponse
+
 
 object QueryJsonUtil {
 
-   private var gson: Gson = new GsonBuilder().create()
+  private var gson: Gson = new GsonBuilder().create()
+  
+  def dataExportRequestToJson(request : DataExportRequest) : String = gson.toJson(request)
+
+  def fromJsonToExportResponse(json: String): DataExportResponse = {
+    gson.fromJson(json, classOf[DataExportResponse])
+  }
 
   def queryRequestToJson(request: QueryRequest): String = gson.toJson(request)
 
