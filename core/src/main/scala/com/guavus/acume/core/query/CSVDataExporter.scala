@@ -32,6 +32,10 @@ import com.guavus.rubix.query.remote.flex.TimeseriesResponse
 
 import javax.xml.bind.annotation.XmlRootElement
 
+/*
+* @author kashish.jain
+*/
+
 object CSVDataExporter {
   
   var logger : Logger = LoggerFactory.getLogger(classOf[CSVDataExporter])

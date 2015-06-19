@@ -471,7 +471,7 @@
         </Property>
     	<Property>
             <Property_Name> application.${acumeApp}.umInitialHost</Property_Name>
-            <Property_Value>localhost</Property_Value>
+            <Property_Value>localhost[7900]</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.umInitialHost</Property_OriginalName>
@@ -576,7 +576,7 @@
         </Property>
     	<Property>
             <Property_Name> application.${acumeApp}.acumebinsource</Property_Name>
-            <Property_Value>default</Property_Value>
+            <Property_Value>__DEFAULT_BINSRC__</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.acumebinsource</Property_OriginalName>
