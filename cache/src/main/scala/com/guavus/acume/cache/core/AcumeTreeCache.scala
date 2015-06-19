@@ -151,7 +151,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
   def zipChildPoints(rdds : Seq[SchemaRDD]): SchemaRDD = {
     
     acumeCacheContext.cacheSqlContext().applySchema(
-        rdds.map(x => x.asInstanceOf[RDD[Row]]).reduce({ _.zipPartitions(_)(AcumeTreeCache.zipTwo(_, _)) }),
+        rdds.map(x => x.asInstanceOf[RDD[Row]]).reduce({ _.zipPartitions(_)(AcumeCombineUtil.zipTwo(_, _)) }),
         rdds.iterator.next().schema
     )
   }
@@ -200,13 +200,15 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         f.onComplete {
           case Success(cachevalue) =>
             if(cachevalue != None) {
-            	//Combining successful. Evict the child points from memory 
-              childrenData.foreach(x => {
-            	  logger.info("Evicting child point" + x.getAcumeValue().levelTimestamp.toString())
-              })
+            	logger.info("Combine writing complete " + aggregatedTimestamp)
+              
+              //Put the combined point to cachePointToTable
+              logger.info("Putting combined point to memory")
+              cachePointToTable.put(aggregatedTimestamp, cachevalue.get)
+    
+              //Combining successful. Evict the child points from memory 
             	childrenData.map(_.evictFromMemory)
-            	//Put the combined point to cachePointToTable
-            	cachevalue.map(x => cachePointToTable.put(aggregatedTimestamp, x))
+            	
             }
           case Failure(t) => isSuccessCombiningPoint = false
           logger.error("", t)
@@ -235,10 +237,12 @@ object AcumeTreeCache {
   @transient
   val context = ExecutionContext.fromExecutorService(AcumeTreeCache.executorService)
 
-  def zipTwo(itr: Iterator[Row], other: Iterator[Row]): Iterator[Row] = {
+}
+
+object AcumeCombineUtil {
+   def zipTwo(itr: Iterator[Row], other: Iterator[Row]): Iterator[Row] = {
     itr.zip(other).flatMap(x => Seq(x._1, x._2))
   }
-  
 }
 
 
