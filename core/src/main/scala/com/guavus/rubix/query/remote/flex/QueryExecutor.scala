@@ -17,7 +17,7 @@ object QueryExecutor {
 private var logger: Logger = LoggerFactory.getLogger(classOf[QueryExecutor[Any]])  
 }
 
-class QueryExecutor[T](private var acumeService: AcumeService, private var loginInfo: String, private var request: QueryRequest, requestDataType : RequestDataType.RequestDataType) extends Callable[T] {
+class QueryExecutor[T](private var acumeService: AcumeService, private var loginInfo: String, private var request: Any, requestDataType : RequestDataType.RequestDataType) extends Callable[T] {
 
   @BeanProperty
   var callId: String = _
@@ -29,11 +29,13 @@ class QueryExecutor[T](private var acumeService: AcumeService, private var login
     AcumeThreadLocal.set(LoggingInfoWrapper)
     try {
       HttpUtils.setLoginInfo(loginInfo)
-      requestDataType match {
-        case RequestDataType.Aggregate => response = acumeService.servAggregateQuery(request).asInstanceOf[T]
-        case RequestDataType.TimeSeries => response = acumeService.servTimeseriesQuery(request).asInstanceOf[T]
-        case _ => throw new IllegalArgumentException("QueryExecutor does not support request type: " + requestDataType)
-      }
+        val queryRequest = request.asInstanceOf[QueryRequest]
+        requestDataType match {
+          case RequestDataType.Aggregate => response = acumeService.servAggregateQuery(queryRequest).asInstanceOf[T]
+          case RequestDataType.TimeSeries => response = acumeService.servTimeseriesQuery(queryRequest).asInstanceOf[T]
+          case RequestDataType.SQL => acumeService.servSqlQuery(request.asInstanceOf[String]).asInstanceOf[T]
+          case _ => throw new IllegalArgumentException("QueryExecutor does not support request type: " + requestDataType)
+        }
     } finally {
       HttpUtils.recycle()
       AcumeThreadLocal.unset()
