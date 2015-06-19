@@ -104,7 +104,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     for ((key, value) <- acumeContext.ac.threadLocal.get()) {
       acumeContext.ac.cacheSqlContext.sparkContext.setLocalProperty(key, null)
     }
-    AcumeCacheContextTrait.unsetAcumeTreeCacheValue
+    AcumeCacheContextTrait.unsetAll(acumeContext.ac)
   }
 
   private def getJobDescription(isSchedulerQuery: Boolean, jobGroup: String) = {

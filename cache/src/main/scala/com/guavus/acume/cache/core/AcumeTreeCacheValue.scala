@@ -101,6 +101,7 @@ trait AcumeValue {
 }
 
 case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measureSchemaRdd: SchemaRDD) extends AcumeValue {
+  val tempTables = AcumeCacheContextTrait.getInstaTempTable()
   val tableName = cube.getAbsoluteCubeName + levelTimestamp.level + levelTimestamp.timestamp + "_temp_memory_only"
   registerAndCacheDataInMemory(tableName)
   override def registerAndCacheDataInMemory(tableName : String) {
@@ -109,8 +110,16 @@ case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measur
   }
   
   override protected def finalize() {
+    try {
     logger.info("Unpersisting Data object {} for temp_memory_only ", levelTimestamp)
+    logger.info("Dropping temp tables {}", tempTables.mkString(","))
     evictFromMemory
+    tempTables.get.asInstanceOf[scala.collection.mutable.ArrayBuffer[String]].map(x => measureSchemaRdd.sqlContext.dropTempTable(x))
+    measureSchemaRdd.sqlContext.dropTempTable(tableName)
+    }catch {
+    case e: Exception => logger.error("", e)
+    case e: Throwable => logger.error("", e)
+    }
   }
 }
 
@@ -122,6 +131,7 @@ case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measur
     logger.info("Unpersisting Data object {} for memory as well as disk ", levelTimestamp)
     evictFromMemory
     AcumeTreeCacheValue.deleteDirectory(AcumeTreeCacheValue.getDiskDirectoryForPoint(this.acumeContext, cube, levelTimestamp), acumeContext)
+    measureSchemaRdd.sqlContext.dropTempTable(tableName)
   }
 
 }

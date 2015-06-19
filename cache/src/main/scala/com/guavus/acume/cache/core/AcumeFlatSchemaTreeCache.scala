@@ -130,6 +130,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
 
     val tempTable = _tableName + "Temp"
     value.registerTempTable(tempTable)
+    AcumeCacheContextTrait.setInstaTempTable(tempTable)
     val timestamp = key.timestamp
     val parentRdd = acumeCacheContext.sqlContext.sql(s"select $timestamp as ts, $selectDimensions, $selectMeasures from $tempTable " + groupBy)
     return new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(key, cube, parentRdd), acumeCacheContext)
@@ -215,6 +216,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     
     val _tableNameTemp = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString + "_temp"
     processedDiskLoaded.registerTempTable(_tableNameTemp)
+    AcumeCacheContextTrait.setInstaTempTable(_tableNameTemp)
     val timestamp = levelTimestamp.timestamp
     val measureSet = (CubeUtil.getDimensionSet(cube) ++ CubeUtil.getMeasureSet(cube)).map(_.getName).mkString(",")
     val cachePoint = sqlContext.sql(s"select $timestamp as ts, $measureSet from " + _tableNameTemp)
@@ -253,11 +255,11 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
       val dataloadedrdd = mergePathRdds(schemarddlist)
       val baseMeasureSetTable = cube.cubeName + "MeasureSet" + getUniqueRandomeNo
       val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
-      dataloadedrdd.registerTempTable(joinDimMeasureTableName)
-      val _$acumecache = table(joinDimMeasureTableName)
+      val _$acumecache = dataloadedrdd
       if (logger.isTraceEnabled)
         _$acumecache.collect.map(x => logger.trace(x.toString))
       _$acumecache.registerTempTable(tableName)
+      AcumeCacheContextTrait.setQueryTable(tableName)
     }
     val klist = timestamps.toList
     MetaData(-1, klist)
