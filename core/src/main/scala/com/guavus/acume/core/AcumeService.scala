@@ -68,14 +68,17 @@ class AcumeService(dataService: DataService) {
   }
   
   
-  private def setCallId(request : QueryRequest) {
+  private def setCallId(request : Any) {
 		var callModuleId = List("MODULE");
-		if(request.getParamMap() !=null ){
-			callModuleId = request.getParamMap().filter(_.getName.equals("M_ID")).map(_.getValue()).toList
-			if(callModuleId==null || callModuleId.size==0) {
-				callModuleId =List(LoggingInfoWrapper.NO_MODULE_ID);
-			}
-		}
+    if (request.isInstanceOf[QueryRequest]) {
+      val queryRequest = request.asInstanceOf[QueryRequest]
+  		if(queryRequest.getParamMap() !=null ){
+  			callModuleId = queryRequest.getParamMap().filter(_.getName.equals("M_ID")).map(_.getValue()).toList
+  			if(callModuleId==null || callModuleId.size==0) {
+  				callModuleId =List(LoggingInfoWrapper.NO_MODULE_ID);
+  			}
+  		}
+    }
 
 		val id = this.counter.getAndIncrement();
 		val loggingInfoWrapper = new LoggingInfoWrapper();
@@ -85,7 +88,7 @@ class AcumeService(dataService: DataService) {
 
   
   private def servMultiple[T](requestDataType : RequestDataType.RequestDataType,
-			requests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[T] = {
+			requests : java.util.ArrayList[_ <: Any]) : java.util.ArrayList[T] = {
 
     val futureResponses = new java.util.ArrayList[Future[T]]();
     val isIDSet = false;
@@ -103,7 +106,7 @@ class AcumeService(dataService: DataService) {
       callIndex += 1
     }
 
-    val responses = scala.collection.mutable.HashMap[QueryRequest, T]()
+    val responses = scala.collection.mutable.HashMap[Any, T]()
     val iterator = requests.iterator();
     for (futureResponse <- futureResponses) {
       val key = iterator.next();
@@ -141,7 +144,7 @@ class AcumeService(dataService: DataService) {
   }
   
   def servSqlQueryMultiple(queryRequests : java.util.ArrayList[String]) : java.util.ArrayList[Serializable] = {
-    new java.util.ArrayList(queryRequests.map(servSqlQuery(_).asInstanceOf[Serializable]))
+    servMultiple[Serializable](RequestDataType.SQL, queryRequests)
   }
   
   def  servSqlQuery2(queryRequest : String) = {
