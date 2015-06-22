@@ -250,9 +250,15 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
       }
       timeIterated
     }
+    import scala.collection.JavaConversions._
     if (!levelTime.isEmpty) {
       val schemarddlist = levelTime.flatten
-      val dataloadedrdd = mergePathRdds(schemarddlist)
+      val dataloadedrdd = if(schemarddlist.size != 1) {
+    	mergePathRdds(schemarddlist)
+      } else {
+        val list = List(Utility.getEmptySchemaRDD(acumeCacheContext.sqlContext, cube)) ++ schemarddlist.toList
+        mergePathRdds(list.map(_.asInstanceOf[SchemaRDD]).toIterable)
+      }
       val baseMeasureSetTable = cube.cubeName + "MeasureSet" + getUniqueRandomeNo
       val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
       val _$acumecache = dataloadedrdd
