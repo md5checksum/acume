@@ -32,7 +32,7 @@ class QueryExecutor[T](private var acumeService: AcumeService, private var login
         requestDataType match {
           case RequestDataType.Aggregate => response = acumeService.servAggregateQuery(request.asInstanceOf[QueryRequest]).asInstanceOf[T]
           case RequestDataType.TimeSeries => response = acumeService.servTimeseriesQuery(request.asInstanceOf[QueryRequest]).asInstanceOf[T]
-          case RequestDataType.SQL => acumeService.servSqlQuery(request.asInstanceOf[String]).asInstanceOf[T]
+          case RequestDataType.SQL => response = acumeService.servSqlQuery(request.asInstanceOf[String]).asInstanceOf[T]
           case _ => throw new IllegalArgumentException("QueryExecutor does not support request type: " + requestDataType)
         }
     } finally {
