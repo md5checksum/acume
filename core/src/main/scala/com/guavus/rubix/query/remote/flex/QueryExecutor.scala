@@ -29,10 +29,9 @@ class QueryExecutor[T](private var acumeService: AcumeService, private var login
     AcumeThreadLocal.set(LoggingInfoWrapper)
     try {
       HttpUtils.setLoginInfo(loginInfo)
-        val queryRequest = request.asInstanceOf[QueryRequest]
         requestDataType match {
-          case RequestDataType.Aggregate => response = acumeService.servAggregateQuery(queryRequest).asInstanceOf[T]
-          case RequestDataType.TimeSeries => response = acumeService.servTimeseriesQuery(queryRequest).asInstanceOf[T]
+          case RequestDataType.Aggregate => response = acumeService.servAggregateQuery(request.asInstanceOf[QueryRequest]).asInstanceOf[T]
+          case RequestDataType.TimeSeries => response = acumeService.servTimeseriesQuery(request.asInstanceOf[QueryRequest]).asInstanceOf[T]
           case RequestDataType.SQL => acumeService.servSqlQuery(request.asInstanceOf[String]).asInstanceOf[T]
           case _ => throw new IllegalArgumentException("QueryExecutor does not support request type: " + requestDataType)
         }
