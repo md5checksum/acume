@@ -164,7 +164,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
         print("Firing aggregate query on insta "  + instaMeasuresRequest)
       val aggregatedMeasureDataInsta = insta.getAggregatedData(instaMeasuresRequest)
       val aggregatedTblTemp = "aggregatedMeasureDataInstaTemp" +businessCube.cubeName + levelTimestamp.level + "_" + levelTimestamp.timestamp
-      sqlContext.registerRDDAsTable(aggregatedMeasureDataInsta, aggregatedTblTemp)
+      aggregatedMeasureDataInsta.registerTempTable(aggregatedTblTemp)
       AcumeCacheContextTrait.setInstaTempTable(aggregatedTblTemp)
       //change schema for this schema rdd
       val renameToAcumeFields = (for(acumeField <- fields) yield {
