@@ -51,11 +51,14 @@ import com.guavus.acume.cache.common.DimensionSet
 import com.guavus.acume.cache.eviction.EvictionPolicy
 import com.guavus.acume.cache.core.AcumeCacheType
 import com.guavus.rubix.query.remote.flex.TimeZoneInfo
+import org.apache.spark.SparkContext
 //import com.guavus.acume.cache.core.Level
 import java.io.OutputStream
 import java.io.InputStream
 import java.util.Collection
 import java.io.Closeable
+import com.google.common.collect.Iterables
+import acume.exception.AcumeException
 
 /**
  * @author archit.thakur
@@ -63,16 +66,50 @@ import java.io.Closeable
  */
 object Utility extends Logging {
   
+  val SHORT_FORM = "callSite.short"
+  val LONG_FORM = "callSite.long"
+      
   var calendar : Calendar = null
   def init(conf : AcumeCacheConf) {
-	 calendar = Calendar.getInstance(TimeZone.getTimeZone(conf.get(ConfConstants.timezone)))
+	 calendar = newCalendar(TimeZone.getTimeZone(conf.get(ConfConstants.timezone)))
   }
   
   def newCalendar() = calendar.clone().asInstanceOf[Calendar]
 
+  
+  def getCausalChain(throwable : Throwable) = {
+	    var tempThrowable = throwable
+		val causes = new java.util.LinkedHashSet[Throwable]()
+	    while (tempThrowable != null && !causes.contains(tempThrowable)) {
+	      causes.add(tempThrowable);
+	      tempThrowable = tempThrowable.getCause();
+	    }
+	    causes
+	  }
+  
+  def throwIfRubixException(t : Throwable) {
+		val reItr = Iterables.filter(Utility.getCausalChain(t), classOf[AcumeException]).iterator();
+		if(reItr.hasNext())
+			throw reItr.next();
+	}
+  
   def getEmptySchemaRDD(sqlContext: SQLContext, schema: StructType)= {
     val rdd = sqlContext.sparkContext.emptyRDD[Row]
     sqlContext.applySchema(rdd, schema)
+  }
+  
+  def withDummyCallSite[T](sc: SparkContext)(body: => T): T = {
+    val oldShortCallSite = sc.getLocalProperty(SHORT_FORM)
+    val oldLongCallSite = sc.getLocalProperty(LONG_FORM)
+    try {
+      sc.setLocalProperty(SHORT_FORM, "")
+      sc.setLocalProperty(LONG_FORM, "")
+      body
+    } finally {
+      // Restore the old ones here
+      sc.setLocalProperty(SHORT_FORM, oldShortCallSite)
+      sc.setLocalProperty(LONG_FORM, oldLongCallSite)
+    }
   }
   
   def getStartTimeFromLevel(endTime : Long, granularity : Long, points : Int) : Long = {
@@ -227,7 +264,7 @@ object Utility extends Logging {
   }
 
   def floorToTimeZone(time: Long, timeGrnaularity: TimeGranularity): Long = {
-    val instance = newCalendar(TimeZone.getTimeZone("GMT"))
+    val instance = newCalendar
     floorToTimezone(time, timeGrnaularity, instance)
   }
 
@@ -455,6 +492,47 @@ object Utility extends Logging {
 //    result
 //  }
   
+   
+   def getPriority(timeStamp: Long, level: Long, variableRetentionMap: Map[Long, Int], lastBinTime : Long): Int = {
+    if (!variableRetentionMap.contains(level)) return 0
+    val numPoints = variableRetentionMap.get(level).getOrElse(throw new RuntimeException("Level not in VariableRetentionMap."))
+        //.getName, BinSource.getDefault.name(), Controller.RETRY_COUNT)
+      if (timeStamp >= getRangeStartTime(lastBinTime, level, numPoints)) 1 else 0
+  }
+  
+  def getRangeStartTime(lastBinTimeStamp: Long, level: Long, numPoints: Int): Long = {
+    val rangeEndTime = Utility.floorFromGranularity(lastBinTimeStamp, level)
+    val rangeStartTime = 
+    if (level == TimeGranularity.MONTH.getGranularity) {
+      val cal = Utility.newCalendar()
+      cal.setTimeInMillis(rangeEndTime * 1000)
+      cal.add(Calendar.MONTH, -1 * numPoints)
+      cal.getTimeInMillis / 1000
+    } else if (level == TimeGranularity.DAY.getGranularity) {
+      val cal = Utility.newCalendar()
+      cal.setTimeInMillis(rangeEndTime * 1000)
+      cal.add(Calendar.DAY_OF_MONTH, -1 * numPoints)
+      cal.getTimeInMillis / 1000
+    } else if (level == TimeGranularity.WEEK.getGranularity) {
+      val cal = Utility.newCalendar()
+      cal.setTimeInMillis(rangeEndTime * 1000)
+      cal.add(Calendar.DAY_OF_MONTH, -1 * numPoints * 7)
+      cal.getTimeInMillis / 1000
+    } else if ((level == TimeGranularity.THREE_HOUR.getGranularity) || 
+      (level == TimeGranularity.FOUR_HOUR.getGranularity)) {
+      val cal = Utility.newCalendar()
+      cal.setTimeInMillis(rangeEndTime * 1000)
+      val endOffset = cal.getTimeZone.getOffset(cal.getTimeInMillis) / 1000
+      val tempRangeStartTime = rangeEndTime - numPoints * level
+      cal.setTimeInMillis(tempRangeStartTime * 1000)
+      val startOffset = cal.getTimeZone.getOffset(cal.getTimeInMillis) / 1000
+      tempRangeStartTime + (endOffset - startOffset)
+    } else {
+      rangeEndTime - numPoints * level
+    }
+    rangeStartTime
+  }
+
   def getLevelPointMap(mapString: String): Map[Long, Int] = {
     val result = MutableMap[Long, Int]()
     val tok = new StringTokenizer(mapString, ";")
@@ -541,7 +619,7 @@ object Utility extends Logging {
   }
 
   def ceilingToTimeZone(time: Long, timeGrnaularity: TimeGranularity): Long = {
-    val instance = newCalendar(TimeZone.getTimeZone("GMT"))
+    val instance = newCalendar
     ceilingToTimezone(time, timeGrnaularity, instance)
   }
   
@@ -727,7 +805,7 @@ object Utility extends Logging {
     } finally {
       ds.close()
     }
-    val cal = Calendar.getInstance(TimeZone.getTimeZone("GMT"))
+    val cal = newCalendar
     val rules = new java.util.ArrayList[java.util.List[String]]()
     for (i <- 0 until transTimes.length) {
       if (i > 0) {

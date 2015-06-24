@@ -68,7 +68,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
 
   override def createTempTable(keyMap: List[Map[String, Any]], startTime: Long, endTime: Long, requestType: RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
     requestType match {
-      case Aggregate => createTableForAggregate(startTime, endTime, tableName, false)
+      case Aggregate => createTableForAggregate(startTime, endTime, tableName, queryOptionalParam, false)
       case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam, false)
     }
   }
@@ -132,8 +132,9 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
 
     val tempTable = _tableName + "Temp"
     value.registerTempTable(tempTable)
+    AcumeCacheContextTrait.setInstaTempTable(tempTable)
     val timestamp = key.timestamp
-    val parentRdd = acumeCacheContext.sqlContext.sql(s"select $timestamp as ts, $selectDimensions, $selectMeasures from $tempTable " + groupBy)
+    val parentRdd = acumeCacheContext.sqlContext.sql(s"select $timestamp as ts " + (if(!selectDimensions.isEmpty) s", $selectDimensions " else "") + (if(!selectMeasures.isEmpty) s", $selectMeasures" else "") + s" from $tempTable " + groupBy)
     return new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(key, cube, parentRdd), acumeCacheContext)
   }
   
@@ -146,15 +147,24 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
 
   override def createTempTableAndMetadata(keyMap: List[Map[String, Any]], startTime: Long, endTime: Long, requestType: RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData = {
     requestType match {
-      case Aggregate => createTableForAggregate(startTime, endTime, tableName, true)
+      case Aggregate => createTableForAggregate(startTime, endTime, tableName, queryOptionalParam, true)
       case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam, true)
     }
   }
 
-  private def createTableForAggregate(startTime: Long, endTime: Long, tableName: String, isMetaData: Boolean): MetaData = {
+  private def createTableForAggregate(startTime: Long, endTime: Long, tableName: String, queryOptionalParam: Option[QueryOptionalParam], isMetaData: Boolean): MetaData = {
 
     val duration = endTime - startTime
-    val levelTimestampMap = cacheLevelPolicy.getRequiredIntervals(startTime, endTime)
+    val timestampMap : Option[MutableMap[Long, MutableList[Long]]] = queryOptionalParam match {
+        case Some(param) =>
+          if (param.getTimeSeriesGranularity() != 0) {
+            val level = param.getTimeSeriesGranularity
+            val startTimeCeiling = cacheLevelPolicy.getCeilingToLevel(startTime, level)
+            val endTimeFloor = cacheLevelPolicy.getFloorToLevel(endTime, level)
+            Some(MutableMap(level -> Utility.getAllIntervals(startTimeCeiling, endTimeFloor, level)))
+          } else None
+      }
+    val levelTimestampMap = timestampMap.getOrElse(cacheLevelPolicy.getRequiredIntervals(startTime, endTime))
     buildTableForIntervals(levelTimestampMap, tableName, isMetaData)
   }
   
@@ -208,6 +218,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     
     val _tableNameTemp = cube.getAbsoluteCubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString + "_temp"
     processedDiskLoaded.registerTempTable(_tableNameTemp)
+    AcumeCacheContextTrait.setInstaTempTable(_tableNameTemp)
     val timestamp = levelTimestamp.timestamp
     val measureSet = (CubeUtil.getDimensionSet(cube) ++ CubeUtil.getMeasureSet(cube)).map(_.getName).mkString(",")
     val cachePoint = sqlContext.sql(s"select $timestamp as ts, $measureSet from " + _tableNameTemp)
@@ -241,16 +252,22 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
       }
       timeIterated
     }
+    import scala.collection.JavaConversions._
     if (!levelTime.isEmpty) {
       val schemarddlist = levelTime.flatten
-      val dataloadedrdd = mergePathRdds(schemarddlist)
-      val baseMeasureSetTable = cube.getAbsoluteCubeName + "MeasureSet" + getUniqueRandomeNo
+      val dataloadedrdd = if(schemarddlist.size != 1) {
+    	mergePathRdds(schemarddlist)
+      } else {
+        val list = List(Utility.getEmptySchemaRDD(acumeCacheContext.sqlContext, cube)) ++ schemarddlist.toList
+        mergePathRdds(list.map(_.asInstanceOf[SchemaRDD]).toIterable)
+      }
+      val baseMeasureSetTable = cube.cubeName + "MeasureSet" + getUniqueRandomeNo
       val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
-      dataloadedrdd.registerTempTable(joinDimMeasureTableName)
-      val _$acumecache = table(joinDimMeasureTableName)
+      val _$acumecache = dataloadedrdd
       if (logger.isTraceEnabled)
         _$acumecache.collect.map(x => logger.trace(x.toString))
       _$acumecache.registerTempTable(tableName)
+      AcumeCacheContextTrait.setQueryTable(tableName)
     }
     val klist = timestamps.toList
     MetaData(-1, klist)

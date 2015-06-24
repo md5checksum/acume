@@ -126,12 +126,13 @@
                         <artifactId>user-management</artifactId>
                         <excludes>
 			    					 <exclude>WEB-INF/lib/log4j-*.jar</exclude>  
-                            <exclude>WEB-INF/lib/servlet-api*.jar</exclude>
+                            		 <exclude>WEB-INF/lib/servlet-api*.jar</exclude>
 									 <exclude>WEB-INF/lib/guava*.jar</exclude>
                                      <exclude>WEB-INF/lib/jasper-compiler*.jar</exclude>
                                      <exclude>WEB-INF/lib/jasper-runtime*.jar</exclude>
                                      <exclude>WEB-INF/lib/xercesImpl*.jar</exclude>
                                      <exclude>WEB-INF/lib/xml-apis*.jar</exclude>
+				     				 <exclude>WEB-INF/lib/logback-*.jar</exclude>
                         </excludes>
                     </overlay>
                 </overlays>

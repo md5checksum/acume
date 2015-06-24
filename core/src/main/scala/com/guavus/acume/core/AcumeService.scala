@@ -26,11 +26,28 @@ import com.guavus.acume.core.webservice.HttpError
 import javax.ws.rs.core.Response
 import javax.ws.rs.core.Response.ResponseBuilder
 import com.guavus.acume.core.exceptions.AcumeExceptionConstants
+import com.guavus.acume.workflow.RequestDataType
+import scala.collection.mutable.HashMap
+import java.util.concurrent.Future
+import com.guavus.acume.threads.QueryExecutorThreads
+import com.guavus.rubix.logging.util.LoggingInfoWrapper
+import com.guavus.rubix.logging.util.AcumeThreadLocal
+import java.util.concurrent.atomic.AtomicInteger
+import com.guavus.rubix.logging.util.LoggingInfoWrapper
+import com.guavus.rubix.query.remote.flex.QueryExecutor
+import com.guavus.acume.user.management.utils.HttpUtils
+import com.guavus.acume.cache.utility.Utility
+import com.google.common.base.Function
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
 
 /**
  * Main service of acume which serves the request from UI and rest services. It checks if the response is present in RR cache otherwise fire the query on OLAP cache.
  */
 class AcumeService(dataService: DataService) {
+  
+  private val counter = new AtomicInteger(1);
   
   def this() = {
     this(ConfigFactory.getInstance.getBean(classOf[DataService]))
@@ -47,8 +64,65 @@ class AcumeService(dataService: DataService) {
    * Serves only aggregate request. if request type is timeseries this method fails.
    */
   def  servAggregateMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[AggregateResponse] = {
-    new java.util.ArrayList(queryRequests.map(servAggregateQuery(_)))
+    servMultiple[AggregateResponse](RequestDataType.Aggregate, queryRequests)
   }
+  
+  
+  private def setCallId(request : Any) {
+		var callModuleId = List("MODULE");
+    if (request.isInstanceOf[QueryRequest]) {
+      val queryRequest = request.asInstanceOf[QueryRequest]
+  		if(queryRequest.getParamMap() !=null ){
+  			callModuleId = queryRequest.getParamMap().filter(_.getName.equals("M_ID")).map(_.getValue()).toList
+  			if(callModuleId==null || callModuleId.size==0) {
+  				callModuleId =List(LoggingInfoWrapper.NO_MODULE_ID);
+  			}
+  		}
+    }
+
+		val id = this.counter.getAndIncrement();
+		val loggingInfoWrapper = new LoggingInfoWrapper();
+		loggingInfoWrapper.setTransactionId(callModuleId(0)+"-"+id+"-");
+		AcumeThreadLocal.set(loggingInfoWrapper);
+	}
+
+  
+  private def servMultiple[T](requestDataType : RequestDataType.RequestDataType,
+			requests : java.util.ArrayList[_ <: Any]) : java.util.ArrayList[T] = {
+
+    val futureResponses = new java.util.ArrayList[Future[T]]();
+    val isIDSet = false;
+    var callIndex = 1;
+    val threadPool = QueryExecutorThreads.getPool();
+    val itr = requests.iterator
+    while(itr.hasNext()) {
+      val key = itr.next()
+      if (!isIDSet) {
+        setCallId(key);
+      }
+      val queryExecutorTask = new QueryExecutor[T](this,
+        HttpUtils.getLoginInfo(), key, requestDataType)
+      futureResponses.add(threadPool.submit(queryExecutorTask))
+      callIndex += 1
+    }
+
+    val responses = scala.collection.mutable.HashMap[Any, T]()
+    val iterator = requests.iterator();
+    for (futureResponse <- futureResponses) {
+      val key = iterator.next();
+      try {
+        responses.put(key, futureResponse.get());
+      } catch {
+        case e: InterruptedException => {
+          Utility.throwIfRubixException(e);
+          throw new RuntimeException("Exception encountered while getting response for " + key, e);
+        }
+      }
+    }
+
+    new java.util.ArrayList(requests.map(responses.get(_).get))
+  }
+
   
   /**
    * Serves only aggregate request. if request type is timeseries this method fails.
@@ -58,7 +132,7 @@ class AcumeService(dataService: DataService) {
   }
   
   def servTimeseriesMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[TimeseriesResponse] = {
-    new java.util.ArrayList(queryRequests.map(servTimeseriesQuery(_)))
+    servMultiple[TimeseriesResponse](RequestDataType.TimeSeries, queryRequests)
   }
   
   def servTimeseriesQuery(queryRequest : QueryRequest) : TimeseriesResponse = {
@@ -67,6 +141,10 @@ class AcumeService(dataService: DataService) {
   
   def  servSqlQuery(queryRequest : String) : Serializable = {
     dataService.servRequest(queryRequest).asInstanceOf[Serializable]
+  }
+  
+  def servSqlQueryMultiple(queryRequests : java.util.ArrayList[String]) : java.util.ArrayList[Serializable] = {
+    servMultiple[Serializable](RequestDataType.SQL, queryRequests)
   }
   
   def  servSqlQuery2(queryRequest : String) = {

@@ -3,6 +3,8 @@ package com.guavus.acume.workflow
 object RequestDataType extends Enumeration {
 
   val Aggregate = new RequestDataType()
+  
+  val SQL = new RequestDataType()
 
   val Peak = new RequestDataType()
 

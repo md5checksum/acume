@@ -10,7 +10,7 @@ import scala.collection.JavaConversions._
  *
  */
 trait CacheLevelPolicyTrait extends Serializable {
-
+  var levels : Array[Long]
   def getRequiredIntervals(startTime: Long, endTime: Long): Map[Long, MutableList[Long]]
   def getParentInterval(time: Long, level: Long): Long
   def getChildrenIntervals(startTime: Long, level: Long): MutableList[Long]

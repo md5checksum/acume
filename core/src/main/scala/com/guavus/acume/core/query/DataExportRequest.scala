@@ -2,16 +2,17 @@ package com.guavus.acume.core.query;
 
 import java.io.OutputStream
 import java.util.List
-
 import scala.beans.BeanProperty
-
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.workflow.RequestType
 import com.guavus.acume.core.AcumeService
 import com.guavus.rubix.query.remote.flex.NameValue
 import com.guavus.rubix.query.remote.flex.QueryRequest
-
 import javax.xml.bind.annotation.XmlRootElement
+import com.guavus.rubix.query.remote.flex.QueryJsonUtil
+/*
+* @author kashish.jain
+*/
 
 object FILE_TYPE extends Enumeration {
 	val FILTERS = new FILE_TYPE()
@@ -50,6 +51,14 @@ class DataExportRequest(@BeanProperty var requests: List[QueryRequest],
   @BeanProperty
   var rubixService: AcumeService = _
 
+  def this(requests: List[QueryRequest], columnDisplayNames: List[NameValue], filterDescriptionString: String, fileType: String) {
+    this()
+    this.requests = requests
+    this.columnDisplayNames = columnDisplayNames
+    this.filterDescriptionString = filterDescriptionString
+    this.fileType = fileType
+  }
+  
   def this(requests: List[QueryRequest], columnDisplayNames: List[NameValue], fileType: EXPORT_FILE_TYPE.Value) {
     this(requests, columnDisplayNames, null, fileType)
   }
@@ -57,5 +66,7 @@ class DataExportRequest(@BeanProperty var requests: List[QueryRequest],
   def this(requests: List[QueryRequest], fileType: EXPORT_FILE_TYPE.Value) {
     this(requests, null, fileType)
   }
+  
+  override def toString(): String = QueryJsonUtil.dataExportRequestToJson(this)
 
 }

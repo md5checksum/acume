@@ -1051,7 +1051,7 @@ Please don't use the following reserved property names:
             <name>acumebinsource</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
-            <default><![CDATA[default]]></default>
+            <default><![CDATA[__DEFAULT_BINSRC__]]></default>
             <targets>
                 <target>
                     <file><![CDATA[acume.conf]]></file>
@@ -1547,6 +1547,18 @@ Please don't use the following reserved property names:
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[]]></default>
+            <targets>
+                <target>
+			<file><![CDATA[acume.conf]]></file>
+                    	<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+	<property>
+            <name>acumeCoreThreadPoolSize</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[25]]></default>
             <targets>
                 <target>
                     <file><![CDATA[acume.conf]]></file>
