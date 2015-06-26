@@ -117,6 +117,12 @@ class AcumeService(dataService: DataService) {
           Utility.throwIfRubixException(e);
           throw new RuntimeException("Exception encountered while getting response for " + key, e);
         }
+      } finally {
+        for (futureValue <- futureResponses) {
+          if (!futureValue.isDone()) {
+            futureValue.cancel(true)
+          }
+        }
       }
     }
 
