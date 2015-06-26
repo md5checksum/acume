@@ -4,6 +4,7 @@ import scala.collection.mutable.MutableList
 import scala.collection.JavaConversions._
 import com.guavus.acume.cache.utility.Utility
 import scala.math.Ordering.Implicits._
+import com.guavus.acume.cache.common.CacheLevel
 
 @SerialVersionUID(1L)
 /*
@@ -160,9 +161,9 @@ case class Level(var level: Long) extends Comparable[Level] {
   
   def toDirectoryName : String = {
     if(level == aggregationLevel)
-      level.toString()
+      CacheLevel.getCacheLevel(level).toString()
     else
-      level + "-" + aggregationLevel
+      CacheLevel.getCacheLevel(level) + "-" + CacheLevel.getCacheLevel(aggregationLevel)
   }
   
   override def compareTo(level : Level) = {
