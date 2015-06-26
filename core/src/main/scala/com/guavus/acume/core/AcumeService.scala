@@ -41,6 +41,9 @@ import com.google.common.base.Function
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.TimeoutException
+import acume.exception.AcumeException
 
 /**
  * Main service of acume which serves the request from UI and rest services. It checks if the response is present in RR cache otherwise fire the query on OLAP cache.
@@ -113,11 +116,15 @@ class AcumeService(dataService: DataService) {
       try {
         responses.put(key, futureResponse.get());
       } catch {
+        case e: ExecutionException => {
+          Utility.throwIfRubixException(e);
+          throw new RuntimeException("Exception encountered while getting response for " + key, e);
+        }
         case e: InterruptedException => {
           Utility.throwIfRubixException(e);
           throw new RuntimeException("Exception encountered while getting response for " + key, e);
         }
-      }
+      } 
     }
 
     new java.util.ArrayList(requests.map(responses.get(_).get))

@@ -35,6 +35,8 @@ import scala.concurrent._
 import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import acume.exception.AcumeException
+import com.guavus.acume.core.exceptions.AcumeExceptionConstants
 
 /**
  * This class interacts with query builder and Olap cache.
@@ -148,21 +150,19 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         }
       }
       calculateJobLevelProperties()
-      
       def runWithTimeout[T](f: => (AcumeCacheResponse, Array[Row])): (AcumeCacheResponse, Array[Row]) = {
         lazy val fut = future { f }
         Await.result(fut, DurationInt(acumeContext.acumeConf.getInt(ConfConstants.queryTimeOut, 30)) second)
       }
       def run(sql: String, jobGroupId : String, jobDescription : String, conf : AcumeConf, localProperties : HashMap[String, Any]) = {
-        
         getSparkJobLocalProperties ++= localProperties
         setSparkJobLocalProperties
         try {
-         AcumeConf.setConf(conf)
-         acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
-         val cacheResponse = execute(sql)
-         val responseRdd = cacheResponse.rowRDD
-         (cacheResponse, responseRdd.collect)
+          AcumeConf.setConf(conf)
+          acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
+          val cacheResponse = execute(sql)
+          val responseRdd = cacheResponse.rowRDD
+          (cacheResponse, responseRdd.collect)
         } finally {
           unsetSparkJobLocalProperties
         }
@@ -276,7 +276,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       case e: TimeoutException =>
         logger.error("Cancelling Query " + sql + " with GroupId " + jobGroupId + " due to timeout.", e)
         acumeContext.sc.cancelJobGroup(jobGroupId)
-        throw e;
+        throw new AcumeException(AcumeExceptionConstants.TIMEOUT_EXCEPTION.name);
       case e: Throwable =>
         logger.error("Cancelling Query " + sql + " with GroupId " + jobGroupId, e)
         acumeContext.sc.cancelJobGroup(jobGroupId)
