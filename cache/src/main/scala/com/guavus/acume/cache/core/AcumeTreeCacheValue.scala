@@ -58,6 +58,7 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
       Utility.deleteDirectory(diskDirectory, acumeContext)
       acumeValue.measureSchemaRdd.sqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Writing " + diskDirectory, false)
       acumeValue.measureSchemaRdd.saveAsParquetFile(diskDirectory)
+      acumeContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Reading " + diskDirectory, false)
       val rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
       val value = new AcumeDiskValue(acumeValue.levelTimestamp, acumeValue.cube, rdd)
       value.acumeContext = acumeContext
@@ -74,6 +75,7 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
         isSuccessWritingToDisk = true
       }
       case Failure(t) => isSuccessWritingToDisk = false
+      logger.error("", t)
     }(context)
   }
 }
@@ -96,8 +98,6 @@ trait AcumeValue {
   def registerAndCacheDataInMemory(tableName : String) {
     measureSchemaRdd.registerTempTable(tableName)
     measureSchemaRdd.sqlContext.cacheTable(tableName)
-    val diskDirectory = Utility.getDiskDirectoryForPoint(acumeContext, cube, levelTimestamp)
-    measureSchemaRdd.sqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Reading " + diskDirectory, false)
     measureSchemaRdd.sqlContext.table(tableName).count
   }
 

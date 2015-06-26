@@ -300,7 +300,6 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
         	    val levelTimestamp = new LevelTimestamp(CacheLevel.getCacheLevel(level), interval, CacheLevel.getCacheLevel(level))
         	    logger.info("Selecting table with timestamp {} for interval {}, {}", levelTimestamp, startTime.toString, endTime.toString)
         	    val innerAcumeValue = cachePointToTable.get(levelTimestamp).getAcumeValue.measureSchemaRdd
-        	    notifyObserverList
         	    populateParent(levelTimestamp.level.localId, levelTimestamp.timestamp)
         	    combineLevels(levelTimestamp.level.localId, levelTimestamp.timestamp)
         	    innerAcumeValue
@@ -308,7 +307,11 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
         	} else {
         	  logger.info("Selecting table with timestamp {}", aggregatedTimestamp)
         	  import acumeCacheContext.sqlContext._
-        	  Seq(acumeValue.getAcumeValue.measureSchemaRdd.where('ts >= startTime).where('ts < endTime))
+        	  if(level == aggregationlevel) {
+        	    Seq(acumeValue.getAcumeValue.measureSchemaRdd)
+        	  } else {
+        		Seq(acumeValue.getAcumeValue.measureSchemaRdd.where('ts >= startTime).where('ts < endTime))
+        	  }
         	}
         	timestamp = Utility.getNextTimeFromGranularity(timestamp, aggregationlevel, Utility.newCalendar)
         	finalRdds ++= acumeValues

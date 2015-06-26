@@ -88,6 +88,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
   def get(key: LevelTimestamp) = {
     val cacheValue = cachePointToTable.get(key)
     AcumeCacheContextTrait.addAcumeTreeCacheValue(cacheValue)
+    notifyObserverList
     cacheValue
   }
   
@@ -95,24 +96,8 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
     try {
       key.loadType = LoadType.DISK
       var cacheValue : AcumeTreeCacheValue = null
-      // Check if a combined point is available enclosing this timeRange
-      val combinedPointsOfCache = cachePointToTable.asMap().filterKeys(x => (x.aggregationLevel != x.level) && (x.level == key.level)).toMap
-      var tempTimeRange = Long.MaxValue
-      for ((leveltimestamp, table) <- combinedPointsOfCache) {
-        val rangeStartTime = leveltimestamp.timestamp
-        val rangeEndTime = Utility.getPreviousTimeForGranularity(Utility.getNextTimeFromGranularity(leveltimestamp.timestamp, leveltimestamp.aggregationLevel.localId, Utility.newCalendar()), leveltimestamp.level.localId, Utility.newCalendar())
-        if(key.timestamp <= rangeEndTime ||  key.timestamp >= rangeStartTime) {
-          if(tempTimeRange > rangeEndTime - rangeStartTime) {
-            //Fetch the data from the smallest combined point.
-            cacheValue = table
-            tempTimeRange = rangeEndTime - rangeStartTime
-          }
-        }
-      }
-      if(cacheValue == null) {
-        // If the timeStamp not found in combined point. Find it in cache
-        cacheValue = cachePointToTable.get(key)
-      }
+      cacheValue = cachePointToTable.get(key)
+      notifyObserverList
       cacheValue
     } catch {
       case e : java.util.concurrent.ExecutionException => if(e.getCause().isInstanceOf[NoDataException]) null else throw e
