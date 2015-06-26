@@ -207,7 +207,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
               cachePointToTable.put(aggregatedTimestamp, cachevalue.get)
     
               //Combining successful. Evict the child points from memory 
-            	childrenData.map(_.evictFromMemory)
+            	childrenData.map(x => cachePointToTable.invalidate(x.getAcumeValue.levelTimestamp))
             	
             }
           case Failure(t) => isSuccessCombiningPoint = false
