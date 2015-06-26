@@ -151,7 +151,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
   def zipChildPoints(rdds : Seq[SchemaRDD]): SchemaRDD = {
     
     acumeCacheContext.cacheSqlContext().applySchema(
-        rdds.map(x => x.asInstanceOf[RDD[Row]]).reduce({ _.zipPartitions(_)(AcumeCombineUtil.zipTwo(_, _)) }),
+        rdds.map(x => x.asInstanceOf[RDD[Row]]).reduce((x, y) => { x.union(y).coalesce(Math.max(x.partitions.size, y.partitions.size), false)}),
         rdds.iterator.next().schema
     )
   }
