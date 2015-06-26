@@ -58,7 +58,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         val levelDirectoryName = Utility.getlevelDirectoryName(CacheLevel.getCacheLevel(presentLevel.level.longValue()), CacheLevel.getCacheLevel(presentLevel.aggregationLevel.longValue()))
         val timestamps = fs.listStatus(new Path(cacheBaseDirectory + File.separator + levelDirectoryName)).map(_.getPath().getName().toLong)
         for (timestamp <- timestamps)
-          if (Utility.getPriority(timestamp, presentLevel.level, presentLevel.aggregationLevel, cube.levelPolicyMap, acumeCacheContext.getLastBinPersistedTime(cube.binsource)) == 0) {
+          if (Utility.getPriority(timestamp, presentLevel.level, presentLevel.aggregationLevel, cube.diskLevelPolicyMap, acumeCacheContext.getLastBinPersistedTime(cube.binsource)) == 0) {
             val directoryToBeDeleted = cacheBaseDirectory + File.separator + levelDirectoryName + File.separator + timestamp
             Utility.deleteDirectory(directoryToBeDeleted, acumeCacheContext)
           }
