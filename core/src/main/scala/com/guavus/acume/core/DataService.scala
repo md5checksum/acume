@@ -148,27 +148,31 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         }
       }
       calculateJobLevelProperties()
-      val cacheResponse = execute(sql)
-      val responseRdd = cacheResponse.rowRDD
-      val fields = queryBuilderService.get(0).getQuerySchema(sql, cacheResponse.schemaRDD.schema.fieldNames) //schemaRdd.schemaschema.fieldNames
-      def runWithTimeout[T](f: => Array[Row]): Array[Row] = {
+      
+      def runWithTimeout[T](f: => (AcumeCacheResponse, Array[Row])): (AcumeCacheResponse, Array[Row]) = {
         lazy val fut = future { f }
         Await.result(fut, DurationInt(acumeContext.acumeConf.getInt(ConfConstants.queryTimeOut, 30)) second)
       }
-      def run(rdd: RDD[Row], jobGroupId : String, jobDescription : String, conf : AcumeConf, localProperties : HashMap[String, Any]) = {
+      def run(sql: String, jobGroupId : String, jobDescription : String, conf : AcumeConf, localProperties : HashMap[String, Any]) = {
+        
         getSparkJobLocalProperties ++= localProperties
         setSparkJobLocalProperties
         try {
-       AcumeConf.setConf(conf)
-       acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
-       rdd.collect
+         AcumeConf.setConf(conf)
+         acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
+         val cacheResponse = execute(sql)
+         val responseRdd = cacheResponse.rowRDD
+         (cacheResponse, responseRdd.collect)
         } finally {
           unsetSparkJobLocalProperties
         }
       }
       
       val localProperties = getSparkJobLocalProperties
-      val rows = runWithTimeout(run(responseRdd, jobGroupId, jobDescription, acumeContext.acumeConf, localProperties))
+      val (cacheResponse, rows) = runWithTimeout(run(sql, jobGroupId, jobDescription, acumeContext.acumeConf, localProperties))
+      
+      val fields = queryBuilderService.get(0).getQuerySchema(sql, cacheResponse.schemaRDD.schema.fieldNames) //schemaRdd.schemaschema.fieldNames
+      
       val acumeSchema: QueryBuilderSchema = queryBuilderService.get(0).getQueryBuilderSchema
       val dimsNames = new ArrayBuffer[String]()
       val measuresNames = new ArrayBuffer[String]()

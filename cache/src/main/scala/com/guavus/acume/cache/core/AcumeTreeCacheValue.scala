@@ -56,7 +56,10 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
       val path = new Path(diskDirectory)
       val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
       fs.delete(path, true)
+      acumeContext.cacheSqlContext.sparkContext.setLocalProperty("spark.scheduler.pool", "scheduler")
+      acumeContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Writing " + diskDirectory, false)
       acumeValue.measureSchemaRdd.saveAsParquetFile(diskDirectory)
+      acumeContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Reading " + diskDirectory, false)
       val rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
       val value = new AcumeDiskValue(acumeValue.levelTimestamp, acumeValue.cube, rdd)
       value.acumeContext = acumeContext
