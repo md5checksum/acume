@@ -7,6 +7,18 @@
 	<version>0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
    <name>Acume Project Parent POM</name>
+        <profiles>
+        <profile>
+        <id>acumeDefaultProfile</id>
+        <activation>
+           <activeByDefault>true</activeByDefault>
+        </activation>
+        <properties>
+        <pversion>0.1-SNAPSHOT</pversion>
+        <pudfversion>0.0.1-SNAPSHOT</pudfversion>
+        </properties>
+        </profile>
+        </profiles>
 
 	<modules>
 		<module>cache</module>
