@@ -65,7 +65,7 @@ object ParquetDataConvertor {
 	    m.map(x => ConversionToCrux.convertToCruxFieldDataType(x.getDataType)))
 	  }
       
-      val text = new TextDelimitedScheme(fields, "\t", _datatype.toArray)._getRdd(inputpath, sqlContext.sparkContext).map(x => Row.fromSeq(x.getValueArray.toSeq))
+      val text = new TextDelimitedScheme(fields, "\t", _datatype.toArray, "UTF-8")._getRdd(inputpath, sqlContext.sparkContext).map(x => Row.fromSeq(x.getValueArray.toSeq))
     
       sqlContext.applySchema(text, schema).saveAsParquetFile(outputpath)
       
