@@ -164,7 +164,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
     val aggregatedDataTimestamp = Utility.floorFromGranularity(childTimestamp, aggregationLevel)
     val aggregatedTimestamp = new LevelTimestamp(CacheLevel.getCacheLevel(childlevel), aggregatedDataTimestamp, LoadType.DISK, CacheLevel.getCacheLevel(aggregationLevel))
     var combinePoint = tryGet(aggregatedTimestamp)
-    val childrenData = scala.collection.mutable.ArrayBuffer[AcumeTreeCacheValue]()
+    val childrenData = scala.collection.mutable.ArrayBuffer[AcumeValue]()
     if (combinePoint == null) {
       var shouldCombine = true
       breakable {
@@ -173,11 +173,13 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         for (child <- children) {
           val childLevelTimestamp = new LevelTimestamp(CacheLevel.getCacheLevel(childlevel), child, LoadType.DISK)
           val childData = tryGet(childLevelTimestamp)
-          childrenData += childData
+          childrenData += childData.getAcumeValue
           if (childData == null) {
             shouldCombine = false
             logger.info("Not combining, child data is not present {}", childLevelTimestamp)
             break
+          } else {
+        	  childrenData += childData.getAcumeValue
           }
         }
       }
@@ -187,7 +189,9 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         val f: Future[Option[AcumeFlatSchemaCacheValue]] = Future({
           if (tryGet(aggregatedTimestamp) == null) {
         	  logger.info("Finally Combining level {} to aggregationlevel " + aggregationLevel + " and levelTimeStamp {} ", childlevel, aggregatedTimestamp)
-            Some(new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(aggregatedTimestamp, cube, zipChildPoints(childrenData.map(_.getAcumeValue.measureSchemaRdd))), acumeCacheContext))
+        	  val cachevalue = new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(aggregatedTimestamp, cube, zipChildPoints(childrenData.map(_.measureSchemaRdd))), acumeCacheContext)
+        	  cachePointToTable.put(aggregatedTimestamp, cachevalue)
+        	  Some(cachevalue)
           } else {
             logger.info("Already present {}", aggregatedTimestamp)
             None
@@ -198,14 +202,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
           case Success(cachevalue) =>
             if(cachevalue != None) {
             	logger.info("Combine writing complete " + aggregatedTimestamp)
-              
-              //Put the combined point to cachePointToTable
-              logger.info("Putting combined point to memory")
-              cachePointToTable.put(aggregatedTimestamp, cachevalue.get)
-    
-              //Combining successful. Evict the child points from memory 
-            	childrenData.map(x => cachePointToTable.invalidate(x.getAcumeValue.levelTimestamp))
-            	
+            	childrenData.map(x => cachePointToTable.invalidate(x.levelTimestamp))
             }
           case Failure(t) => isSuccessCombiningPoint = false
           logger.error("", t)
