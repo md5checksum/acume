@@ -6,17 +6,19 @@ import scala.concurrent._
 import scala.util.{ Success, Failure }
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.ConfConstants
 import java.io.File
-import com.guavus.acume.cache.common.LevelTimestamp
-import java.util.concurrent.Executors
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.common.LevelTimestamp
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
+
 import org.apache.hadoop.fs.Path
 import org.slf4j.LoggerFactory
 import org.slf4j.Logger
+
+import com.guavus.acume.threads.NamedThreadPoolFactory
+
 import AcumeTreeCacheValue._
 
 abstract case class AcumeTreeCacheValue(dimensionTableName: String = null, acumeContext: AcumeCacheContextTrait) {
@@ -48,7 +50,7 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
   }
 
   acumeValue.acumeContext = acumeContext
-  val context = AcumeTreeCacheValue.context
+  val context = AcumeTreeCacheValue.getContext(acumeContext.cacheConf.getInt(ConfConstants.threadPoolSize))
   var isSuccessWritingToDisk = false
   if(acumeValue.isInstanceOf[AcumeInMemoryValue]) {
     val f: Future[AcumeDiskValue] = Future({
@@ -140,8 +142,22 @@ case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measur
 }
 
 object AcumeTreeCacheValue {
-  val executorService = Executors.newFixedThreadPool(2)
-  val context = ExecutionContext.fromExecutorService(AcumeTreeCacheValue.executorService)
+  
+  val DISK_CACHE_WRITER_THREADS = 2
+  
+  private var context: ExecutionContextExecutorService = null
+  
+  def getContext(queueSize: Int) = {
+    synchronized {
+      if(context == null) {
+        val executorService = new ThreadPoolExecutor(DISK_CACHE_WRITER_THREADS, DISK_CACHE_WRITER_THREADS,
+                                      0L, TimeUnit.MILLISECONDS,
+                                      new LinkedBlockingQueue[Runnable](queueSize),new NamedThreadPoolFactory("DiskCacheWriter"));
+        context = ExecutionContext.fromExecutorService(executorService)
+      }
+    }
+    context
+  }
 
   val logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCacheValue])
   
