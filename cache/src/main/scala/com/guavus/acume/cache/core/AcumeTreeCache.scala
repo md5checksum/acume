@@ -173,7 +173,6 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         for (child <- children) {
           val childLevelTimestamp = new LevelTimestamp(CacheLevel.getCacheLevel(childlevel), child, LoadType.DISK)
           val childData = tryGet(childLevelTimestamp)
-          childrenData += childData.getAcumeValue
           if (childData == null) {
             shouldCombine = false
             logger.info("Not combining, child data is not present {}", childLevelTimestamp)
