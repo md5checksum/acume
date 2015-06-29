@@ -141,6 +141,24 @@ case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measur
 
 }
 
+class LimitedQueue[Runnable](maxSize: Int) extends LinkedBlockingQueue[Runnable](maxSize) {
+
+  override def offer(e: Runnable): Boolean = {
+    try {
+      if(e.getClass.getName.equalsIgnoreCase("scala.concurrent.impl.CallbackRunnable")) {
+        super.offer(e)
+      } else {
+        put(e)
+      }
+      return true
+    } catch {
+      case ie: InterruptedException => Thread.currentThread().interrupt()
+    }
+    false
+  }
+}
+
+
 object AcumeTreeCacheValue {
   
   val DISK_CACHE_WRITER_THREADS = 2
@@ -152,7 +170,7 @@ object AcumeTreeCacheValue {
       if(context == null) {
         val executorService = new ThreadPoolExecutor(DISK_CACHE_WRITER_THREADS, DISK_CACHE_WRITER_THREADS,
                                       0L, TimeUnit.MILLISECONDS,
-                                      new LinkedBlockingQueue[Runnable](queueSize),new NamedThreadPoolFactory("DiskCacheWriter"));
+                                      new LimitedQueue[Runnable](queueSize),new NamedThreadPoolFactory("DiskCacheWriter"));
         context = ExecutionContext.fromExecutorService(executorService)
       }
     }
