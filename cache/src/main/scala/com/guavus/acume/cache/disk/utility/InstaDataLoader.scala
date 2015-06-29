@@ -34,12 +34,15 @@ import java.util.concurrent.TimeUnit
 import org.apache.spark.sql.hive.HiveContext
 import com.google.common.util.concurrent.ListenableFuture
 import com.google.common.util.concurrent.Futures
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
 
 class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @transient  conf: AcumeCacheConf, @transient acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends DataLoader(acumeCacheContext, conf, null) {
 
   @transient var insta: Insta = null
   @transient val sqlContext = acumeCacheContext.cacheSqlContext
   @transient var cubeList: List[InstaCubeMetaInfo] = null
+  @transient private val logger: Logger = LoggerFactory.getLogger(classOf[InstaDataLoader])
   val binSourceToIntervalMap = CacheBuilder.newBuilder().refreshAfterWrite(acumeCacheContext.cacheConf.getInt(ConfConstants.instaAvailabilityPollInterval), TimeUnit.SECONDS)
     .build(
       new CacheLoader[String, Map[String, Map[Long, (Long, Long)]]]() {
@@ -121,7 +124,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
       
     val instaDimRequest = InstaRequest(startTime, endTime,
         businessCube.binsource, dimSet.cubeName, List(rowFilters), measureFilters)
-        print("Firing aggregate query on insta "  + instaDimRequest)
+        logger.info("Firing aggregate query on insta "  + instaDimRequest)
         val dimensionTblTemp = "dimensionDataInstaTemp" + businessCube.cubeName+ endTime
     val newTuplesRdd = insta.getNewTuples(instaDimRequest)
     sqlContext.registerRDDAsTable(newTuplesRdd, dimensionTblTemp)
@@ -161,7 +164,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
 
       val instaMeasuresRequest = InstaRequest(levelTimestamp.timestamp, endTime,
         businessCube.binsource, dimSet.cubeName, List(), measureFilters)
-        print("Firing aggregate query on insta "  + instaMeasuresRequest)
+        logger.info("Firing aggregate query on insta "  + instaMeasuresRequest)
       val aggregatedMeasureDataInsta = insta.getAggregatedData(instaMeasuresRequest)
       val aggregatedTblTemp = "aggregatedMeasureDataInstaTemp" +businessCube.cubeName + levelTimestamp.level + "_" + levelTimestamp.timestamp
       sqlContext.registerRDDAsTable(aggregatedMeasureDataInsta, aggregatedTblTemp)

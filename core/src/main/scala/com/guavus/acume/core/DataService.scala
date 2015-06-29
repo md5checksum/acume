@@ -126,7 +126,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     try {
       val isSchedulerQuery = queryBuilderService.get(0).isSchedulerQuery(sql)
       val jobDescription = getJobDescription(isSchedulerQuery, Thread.currentThread().getName() + Thread.currentThread().getId())
-      print(jobDescription)
+      logger.info(jobDescription)
       
       def calculateJobLevelProperties() {
         this.synchronized {
@@ -327,7 +327,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
 
     if (!modifiedSql.equals("")) {
       if (!queryBuilderService.iterator.next.isSchedulerQuery(sql)) {
-        print(modifiedSql)
+        logger.info(modifiedSql)
         val resp = acumeContext.ac.acql(modifiedSql)
         if (!queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql) && !acumeContext.acumeConf.getDisableTotalForAggregateQueries) {
           resp.metadata.totalRecords = acumeContext.ac.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getLong(0)
