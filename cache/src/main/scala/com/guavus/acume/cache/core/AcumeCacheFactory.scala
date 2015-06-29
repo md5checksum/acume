@@ -49,7 +49,7 @@ object AcumeCacheFactory {
             }
           cube.schemaType.getCache(keyMap.toMap, acumeCacheContext, acumeCacheConf, cube, cacheLevelPolicy, cacheTimeseriesLevelPolicy).asInstanceOf[AcumeCache[k,v]]
         }
-        val acumeCacheEvictionObserver = new AcumeCacheEvictionObserver(_$instance.asInstanceOf[AcumeCache[k, v]])
+        val acumeCacheEvictionObserver = new AcumeCacheEvictionObserver[k,v](_$instance.asInstanceOf[AcumeCache[k, v]])
         _$instance
       }
     }
