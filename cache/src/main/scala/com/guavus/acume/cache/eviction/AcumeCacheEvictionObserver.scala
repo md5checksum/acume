@@ -20,9 +20,9 @@ import com.guavus.acume.cache.core.AcumeFlatSchemaTreeCache
  *
  */
 
-class AcumeCacheEvictionObserver(_$acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends AcumeCacheObserver {
+class AcumeCacheEvictionObserver[k,v](_$acumeCache: AcumeCache[k, v]) extends AcumeCacheObserver {
 
-   private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeCacheEvictionObserver])
+   private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeCacheEvictionObserver[k, v]])
   
   _$acumeCache.newObserverAddition(this)
   
@@ -39,11 +39,11 @@ class AcumeCacheEvictionObserver(_$acumeCache: AcumeCache[_ <: Any, _ <: Any]) e
     if (memoryEvictable != None) {
       if(diskEvictable == None) {
         logger.info("Cache : {} {} Unpersisting Data object {} for memory", "",  _$acumeCache.cube.getAbsoluteCubeName, memoryEvictable.get)
-        Some(acumeCache.getCacheCollection.getIfPresent(memoryEvictable.get).asInstanceOf[AcumeTreeCacheValue]).map(_.evictFromMemory)
+        Some(acumeCache.getCacheCollection.getIfPresent(memoryEvictable.get.asInstanceOf[k]).asInstanceOf[AcumeTreeCacheValue]).map(_.evictFromMemory)
       } else if(diskEvictable != None) {
         if(memoryEvictable != diskEvictable) {
           logger.info("Cache : {} {} Unpersisting Data object {} for memory", "", _$acumeCache.cube.getAbsoluteCubeName, memoryEvictable.get)
-          Some(acumeCache.getCacheCollection.getIfPresent(memoryEvictable.get).asInstanceOf[AcumeTreeCacheValue]).map(_.evictFromMemory)
+          Some(acumeCache.getCacheCollection.getIfPresent(memoryEvictable.get.asInstanceOf[k]).asInstanceOf[AcumeTreeCacheValue]).map(_.evictFromMemory)
         }
         logger.info("Cache : {} {} Unpersisting Data object {} for disk too", "", _$acumeCache.cube.getAbsoluteCubeName, memoryEvictable.get)
         loading.invalidate(diskEvictable.get)
