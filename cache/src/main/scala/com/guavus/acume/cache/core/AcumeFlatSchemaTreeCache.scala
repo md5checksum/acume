@@ -49,7 +49,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
   extends AcumeTreeCache(acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeriesAggregationPolicy) {
 
   @transient val sqlContext = acumeCacheContext.cacheSqlContext
-  private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeFlatSchemaTreeCache].getSimpleName() + "" + cube.getAbsoluteCubeName)
+  private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeFlatSchemaTreeCache].getSimpleName() + "-" + cube.getAbsoluteCubeName)
   val diskUtility = DataLoader.getDataLoader(acumeCacheContext, conf, this)
 
 
@@ -293,7 +293,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
               (aggregatedTimestamp, tryGet(aggregatedTimestamp))
             }
           	val (tempStart, tempEnd) = (Math.max(startTime, timestamp), Math.min(endTime, Utility.getNextTimeFromGranularity(timestamp, aggregationlevel, Utility.newCalendar)))
-        	finalTimestamps.++=(Utility.getAllIntervals(tempStart, tempStart, level))
+        	finalTimestamps.++=(Utility.getAllIntervals(tempStart, tempEnd, level))
         	val acumeValues = if(acumeValue == null) {
         	  logger.info("Table not found for timestamp {}", aggregatedTimestamp)
         	  val intervals = Utility.getAllIntervals(tempStart, tempEnd, level)
