@@ -49,7 +49,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
   extends AcumeTreeCache(acumeCacheContext, conf, cube, cacheLevelPolicy, timeSeriesAggregationPolicy) {
 
   @transient val sqlContext = acumeCacheContext.cacheSqlContext
-  private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeFlatSchemaTreeCache])
+  private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeFlatSchemaTreeCache].getSimpleName() + "" + cube.getAbsoluteCubeName)
   val diskUtility = DataLoader.getDataLoader(acumeCacheContext, conf, this)
 
 
@@ -292,10 +292,11 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
               val aggregatedTimestamp = new LevelTimestamp(CacheLevel.getCacheLevel(level), timestamp, LoadType.DISK, CacheLevel.getCacheLevel(aggregationlevel))
               (aggregatedTimestamp, tryGet(aggregatedTimestamp))
             }
-        	finalTimestamps.++=(Utility.getAllIntervals(startTime, endTime, level))
+          	val (tempStart, tempEnd) = (Math.max(startTime, timestamp), Math.min(endTime, Utility.getNextTimeFromGranularity(timestamp, aggregationlevel, Utility.newCalendar)))
+        	finalTimestamps.++=(Utility.getAllIntervals(tempStart, tempStart, level))
         	val acumeValues = if(acumeValue == null) {
         	  logger.info("Table not found for timestamp {}", aggregatedTimestamp)
-        	  val intervals = Utility.getAllIntervals(startTime, endTime, level)
+        	  val intervals = Utility.getAllIntervals(tempStart, tempEnd, level)
         	  for(interval <- intervals) yield {
         	    val levelTimestamp = new LevelTimestamp(CacheLevel.getCacheLevel(level), interval, CacheLevel.getCacheLevel(level))
         	    logger.info("Selecting table with timestamp {} for interval {}, {}", levelTimestamp, startTime.toString, endTime.toString)
@@ -320,7 +321,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
       }).flatten
 
     }
-    print("Timestamps in final output are " + finalTimestamps)
+    logger.info("Timestamps in final output are {}", finalTimestamps)
 //    val levelTime = for (levelTsMapEntry <- levelTimestampMap) yield {
 //      val (level, ts) = levelTsMapEntry
 //      val cachelevel = CacheLevel.getCacheLevel(level)
