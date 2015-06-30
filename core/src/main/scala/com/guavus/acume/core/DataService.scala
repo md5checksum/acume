@@ -117,7 +117,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     }
   }
 
-  def servRequest(sql: String): Any = {
+  def servRequest(sql: String, poolIdentifier: String = "default"): Any = {
 
     val starttime = System.currentTimeMillis()
     var poolname: String = null
@@ -140,12 +140,18 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
           val queryPoolPolicy = if (isSchedulerQuery) queryPoolSchedulerPolicy else queryPoolUIPolicy
           classificationname = queryPoolPolicy.getQueryClassification(sql, classificationStats);
           queryPoolPolicy.checkForThrottle(classificationname, classificationStats)
-          poolname = queryPoolPolicy.getPoolNameForClassification(classificationname, poolStats)
+          poolname = if (isSchedulerQuery) queryPoolPolicy.getPoolNameForClassification(classificationname, poolStats) else poolIdentifier
 
           if (classificationname != null && poolname != null) {
             poolStatAttribute = poolStats.getStatsForPool(poolname)
-            classificationStatAttribute = classificationStats.getStatsForClassification(classificationname)
-            updateInitialStats(poolname, poolStatAttribute, classificationStatAttribute)
+            if (poolStatAttribute.currentRunningQries == 0 || poolname.equalsIgnoreCase("default") || poolname.equalsIgnoreCase("scheduler") ) {
+              println("classification")
+              classificationStatAttribute = classificationStats.getStatsForClassification(classificationname)
+              updateInitialStats(poolname, poolStatAttribute, classificationStatAttribute)
+            } else {
+              println("pool name :", poolname)
+              poolStatAttribute.currentRunningQries.addAndGet(1)
+            }
           }
         }
       }
@@ -298,11 +304,14 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
   def updateFinalStats(poolname: String, classname: String, poolStatAttribute: StatAttributes, classificationStatAttribute: StatAttributes, starttime: Long, endtime: Long) {
     var querytimeDifference = endtime - starttime
     setFinalStatAttribute(poolStatAttribute, querytimeDifference)
-    setFinalStatAttribute(classificationStatAttribute, querytimeDifference)
-
+    if (poolStatAttribute.currentRunningQries == 0 || poolname.equalsIgnoreCase("default") || poolname.equalsIgnoreCase("scheduler")) {
+      setFinalStatAttribute(classificationStatAttribute, querytimeDifference)
+      classificationStats.setStatsForClassification(classname, classificationStatAttribute)
+      println("classification delete")
+      acumeContext.ac.threadLocal.set(new HashMap[String, Any]())
+    }
+    println("pool query delete : ", poolname)
     poolStats.setStatsForPool(poolname, poolStatAttribute)
-    classificationStats.setStatsForClassification(classname, classificationStatAttribute)
-    acumeContext.ac.threadLocal.set(new HashMap[String, Any]())
   }
 
   def setFinalStatAttribute(statAttribute: StatAttributes, querytimeDifference: Long) {

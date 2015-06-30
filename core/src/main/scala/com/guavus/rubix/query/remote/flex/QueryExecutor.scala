@@ -17,7 +17,7 @@ object QueryExecutor {
 private var logger: Logger = LoggerFactory.getLogger(classOf[QueryExecutor[Any]])  
 }
 
-class QueryExecutor[T](private var acumeService: AcumeService, private var loginInfo: String, private var request: Any, requestDataType : RequestDataType.RequestDataType) extends Callable[T] {
+class QueryExecutor[T](private var acumeService: AcumeService, private var loginInfo: String, private var request: Any, requestDataType : RequestDataType.RequestDataType, stringIdentifier: String = "default") extends Callable[T] {
 
   @BeanProperty
   var callId: String = _
@@ -32,7 +32,7 @@ class QueryExecutor[T](private var acumeService: AcumeService, private var login
         requestDataType match {
           case RequestDataType.Aggregate => response = acumeService.servAggregateQuery(request.asInstanceOf[QueryRequest]).asInstanceOf[T]
           case RequestDataType.TimeSeries => response = acumeService.servTimeseriesQuery(request.asInstanceOf[QueryRequest]).asInstanceOf[T]
-          case RequestDataType.SQL => response = acumeService.servSqlQuery(request.asInstanceOf[String]).asInstanceOf[T]
+          case RequestDataType.SQL => response = acumeService.servSqlQuery(request.asInstanceOf[String], stringIdentifier).asInstanceOf[T]
           case _ => throw new IllegalArgumentException("QueryExecutor does not support request type: " + requestDataType)
         }
     } finally {

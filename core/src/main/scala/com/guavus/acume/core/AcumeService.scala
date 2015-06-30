@@ -66,7 +66,7 @@ class AcumeService(dataService: DataService) {
   /**
    * Serves only aggregate request. if request type is timeseries this method fails.
    */
-  def  servAggregateMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[AggregateResponse] = {
+  def  servAggregateMultiple(queryRequests : java.util.ArrayList[QueryRequest], stringIdentifier: String = "default") : java.util.ArrayList[AggregateResponse] = {
     servMultiple[AggregateResponse](RequestDataType.Aggregate, queryRequests)
   }
   
@@ -91,20 +91,21 @@ class AcumeService(dataService: DataService) {
 
   
   private def servMultiple[T](requestDataType : RequestDataType.RequestDataType,
-			requests : java.util.ArrayList[_ <: Any]) : java.util.ArrayList[T] = {
+			requests : java.util.ArrayList[_ <: Any], stringIdentifier: String = "default") : java.util.ArrayList[T] = {
 
     val futureResponses = new java.util.ArrayList[Future[T]]();
     val isIDSet = false;
     var callIndex = 1;
     val threadPool = QueryExecutorThreads.getPool();
     val itr = requests.iterator
+    
     while(itr.hasNext()) {
       val key = itr.next()
       if (!isIDSet) {
         setCallId(key);
       }
       val queryExecutorTask = new QueryExecutor[T](this,
-        HttpUtils.getLoginInfo(), key, requestDataType)
+        HttpUtils.getLoginInfo(), key, requestDataType, stringIdentifier)
       futureResponses.add(threadPool.submit(queryExecutorTask))
       callIndex += 1
     }
@@ -124,7 +125,7 @@ class AcumeService(dataService: DataService) {
           Utility.throwIfRubixException(e);
           throw new RuntimeException("Exception encountered while getting response for " + key, e);
         }
-      } 
+      }
     }
 
     new java.util.ArrayList(requests.map(responses.get(_).get))
@@ -138,7 +139,7 @@ class AcumeService(dataService: DataService) {
     dataService.servAggregate(queryRequest)
   }
   
-  def servTimeseriesMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[TimeseriesResponse] = {
+  def servTimeseriesMultiple(queryRequests : java.util.ArrayList[QueryRequest], stringIdentifier: String = "default") : java.util.ArrayList[TimeseriesResponse] = {
     servMultiple[TimeseriesResponse](RequestDataType.TimeSeries, queryRequests)
   }
   
@@ -146,12 +147,12 @@ class AcumeService(dataService: DataService) {
     dataService.servTimeseries(queryRequest)
   }
   
-  def  servSqlQuery(queryRequest : String) : Serializable = {
-    dataService.servRequest(queryRequest).asInstanceOf[Serializable]
+  def  servSqlQuery(queryRequest : String, stringIdentifier: String = "default") : Serializable = {
+    dataService.servRequest(queryRequest, stringIdentifier).asInstanceOf[Serializable]
   }
   
-  def servSqlQueryMultiple(queryRequests : java.util.ArrayList[String]) : java.util.ArrayList[Serializable] = {
-    servMultiple[Serializable](RequestDataType.SQL, queryRequests)
+  def servSqlQueryMultiple(queryRequests : java.util.ArrayList[String], stringIdentifier: String = "default") : java.util.ArrayList[Serializable] = {
+    servMultiple[Serializable](RequestDataType.SQL, queryRequests, stringIdentifier)
   }
   
   def  servSqlQuery2(queryRequest : String) = {
