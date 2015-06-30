@@ -144,10 +144,11 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
 
           if (classificationname != null && poolname != null) {
             poolStatAttribute = poolStats.getStatsForPool(poolname)
-            if (poolStatAttribute.currentRunningQries == 0 || poolname.equalsIgnoreCase("default") || poolname.equalsIgnoreCase("scheduler") ) {
+            if (poolStatAttribute.currentRunningQries.get == 0 || poolname.equalsIgnoreCase("default") || poolname.equalsIgnoreCase("scheduler") ) {
               println("classification")
               classificationStatAttribute = classificationStats.getStatsForClassification(classificationname)
               updateInitialStats(poolname, poolStatAttribute, classificationStatAttribute)
+              println("classification count :", classificationStatAttribute.currentRunningQries)
             } else {
               println("pool name :", poolname)
               poolStatAttribute.currentRunningQries.addAndGet(1)
@@ -304,10 +305,11 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
   def updateFinalStats(poolname: String, classname: String, poolStatAttribute: StatAttributes, classificationStatAttribute: StatAttributes, starttime: Long, endtime: Long) {
     var querytimeDifference = endtime - starttime
     setFinalStatAttribute(poolStatAttribute, querytimeDifference)
-    if (poolStatAttribute.currentRunningQries == 0 || poolname.equalsIgnoreCase("default") || poolname.equalsIgnoreCase("scheduler")) {
+    if (poolStatAttribute.currentRunningQries.get == 0 || poolname.equalsIgnoreCase("default") || poolname.equalsIgnoreCase("scheduler")) {
       setFinalStatAttribute(classificationStatAttribute, querytimeDifference)
       classificationStats.setStatsForClassification(classname, classificationStatAttribute)
       println("classification delete")
+      println("classification count :", classificationStatAttribute.currentRunningQries)
       acumeContext.ac.threadLocal.set(new HashMap[String, Any]())
     }
     println("pool query delete : ", poolname)
