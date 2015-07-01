@@ -12,7 +12,8 @@ abstract class QueryPoolPolicy(throttleMap : Map[String, Int]) {
   
   def getQueryClassification(query : String, classificationStats : ClassificationStats) : String = null
   
-  def checkForThrottle(classification : String, classificationStats : ClassificationStats) = throttleMap.get(classification).map(throttleValue => { 
+  def checkForThrottle(classification : String, classificationStats : ClassificationStats) = throttleMap.get(classification).map(throttleValue => {
+    println("inside throttle : ", classificationStats.getStatsForClassification(classification).currentRunningQries.get())
     if(classificationStats.getStatsForClassification(classification).currentRunningQries.get() >= throttleValue)
       throw new AcumeException(AcumeExceptionConstants.TOO_MANY_CONNECTION_EXCEPTION.name)
     else

@@ -44,6 +44,8 @@ import scala.collection.mutable.ArrayBuffer
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.TimeoutException
 import acume.exception.AcumeException
+import java.util.concurrent.Callable
+import java.util.concurrent.ExecutorService
 
 /**
  * Main service of acume which serves the request from UI and rest services. It checks if the response is present in RR cache otherwise fire the query on OLAP cache.
@@ -88,46 +90,87 @@ class AcumeService(dataService: DataService) {
 		loggingInfoWrapper.setTransactionId(callModuleId(0)+"-"+id+"-");
 		AcumeThreadLocal.set(loggingInfoWrapper);
 	}
-
   
-  private def servMultiple[T](requestDataType : RequestDataType.RequestDataType,
-			requests : java.util.ArrayList[_ <: Any]) : java.util.ArrayList[T] = {
-
+  private def servMultipleCallables[T](callableResponses: java.util.ArrayList[Callable[T]], threadPool: ExecutorService): java.util.ArrayList[T] = {
     val futureResponses = new java.util.ArrayList[Future[T]]();
     val isIDSet = false;
-    var callIndex = 1;
-    val threadPool = QueryExecutorThreads.getPool();
-    val itr = requests.iterator
-    while(itr.hasNext()) {
-      val key = itr.next()
-      if (!isIDSet) {
-        setCallId(key);
+    
+    callableResponses foreach (callableResponse => {
+      futureResponses.add(threadPool.submit(callableResponse))
+    })
+    
+    val responses = new java.util.ArrayList[T]()
+      for (futureResponse <- futureResponses) {
+        try {
+          responses.add(futureResponse.get())
+        } catch {
+          case e: ExecutionException => {
+            Utility.throwIfRubixException(e)
+            //TO DO print the exact query which throw exception
+            throw new RuntimeException("Exception encountered while getting response for ", e)
+          }
+          case e: InterruptedException => {
+            Utility.throwIfRubixException(e);
+            //TO DO print the exact query which throw exception
+            throw new RuntimeException("Exception encountered while getting response for ", e);
+          }
+        }
       }
-      val queryExecutorTask = new QueryExecutor[T](this,
-        HttpUtils.getLoginInfo(), key, requestDataType)
-      futureResponses.add(threadPool.submit(queryExecutorTask))
-      callIndex += 1
+    responses
+  }
+
+  private def servMultiple[T](requestDataType: RequestDataType.RequestDataType,
+                              requests: java.util.ArrayList[_ <: Any]): java.util.ArrayList[T] = {
+
+    var sql = requestDataType match {
+      case RequestDataType.Aggregate  => requests.get(0).asInstanceOf[QueryRequest].toSql("")
+      case RequestDataType.TimeSeries => requests.get(0).asInstanceOf[QueryRequest].toSql("ts,")
+      case RequestDataType.SQL        => requests.get(0).asInstanceOf[String]
+      case _                          => throw new IllegalArgumentException("QueryExecutor does not support request type: " + requestDataType)
     }
 
+    val starttime = System.currentTimeMillis()
+    var poolname: String = null
+    var classificationname: String = null
+    var poolStatAttribute: StatAttributes = null
+    var classificationStatAttribute: StatAttributes = null
+    this.synchronized {
+    
+    var classification_pool = dataService.checkJobLevelProperties(sql)
+    poolname = classification_pool._2
+    classificationname = classification_pool._1
+
+    dataService.updateInitialStats(poolname, classificationname)
+    }
+    
     val responses = scala.collection.mutable.HashMap[Any, T]()
-    val iterator = requests.iterator();
-    for (futureResponse <- futureResponses) {
-      val key = iterator.next();
-      try {
-        responses.put(key, futureResponse.get());
-      } catch {
-        case e: ExecutionException => {
-          Utility.throwIfRubixException(e)
-          throw new RuntimeException("Exception encountered while getting response for " + key, e)
+
+    try {
+      val callableResponses = new java.util.ArrayList[Callable[T]]();
+      val isIDSet = false;
+      val threadPool = QueryExecutorThreads.getPool();
+      val itr = requests.iterator
+      while (itr.hasNext()) {
+        val key = itr.next()
+        if (!isIDSet) {
+          setCallId(key);
         }
-        case e: InterruptedException => {
-          Utility.throwIfRubixException(e);
-          throw new RuntimeException("Exception encountered while getting response for " + key, e);
-        }
+        val queryExecutorTask = new QueryExecutor[T](this,
+          HttpUtils.getLoginInfo(), key, requestDataType)
+        callableResponses.add(queryExecutorTask)
+      }
+      
+      servMultipleCallables[T](callableResponses, threadPool)
+
+    } finally {
+      if (classificationname != null && poolname != null) {
+        poolStatAttribute = dataService.poolStats.getStatsForPool(poolname)
+        classificationStatAttribute = dataService.classificationStats.getStatsForClassification(classificationname)
+        println("poolname delete : ", poolStatAttribute.currentRunningQries.get)
+        println("classificationStatAttribute delete : ", classificationStatAttribute.currentRunningQries.get)
+        dataService.updateFinalStats(poolname, classificationname, poolStatAttribute, classificationStatAttribute, starttime, System.currentTimeMillis())
       }
     }
-
-    new java.util.ArrayList(requests.map(responses.get(_).get))
   }
 
   

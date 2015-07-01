@@ -117,20 +117,47 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     }
   }
 
+  def checkJobLevelProperties(sql: String): (String, String) = {
+    this.synchronized {
+
+      var poolname: String = null
+      var classificationname: String = null
+
+      if (acumeContext.ac.threadLocal.get() == null) {
+        acumeContext.ac.threadLocal.set(new HashMap[String, Any]())
+      }
+      val isSchedulerQuery = queryBuilderService.get(0).isSchedulerQuery(sql)
+      val queryPoolPolicy = if (isSchedulerQuery) queryPoolSchedulerPolicy else queryPoolUIPolicy
+      classificationname = queryPoolPolicy.getQueryClassification(sql, classificationStats);
+      queryPoolPolicy.checkForThrottle(classificationname, classificationStats)
+      poolname = queryPoolPolicy.getPoolNameForClassification(classificationname, poolStats)
+      
+      new Tuple2(classificationname, poolname)
+    }
+  }
+
+  def updateInitialStats(poolname: String, classificationname: String) {
+    if (classificationname != null && poolname != null) {
+      var poolStatAttribute = poolStats.getStatsForPool(poolname)
+      var classificationStatAttribute = classificationStats.getStatsForClassification(classificationname)
+      updateInitialStats(poolname, poolStatAttribute, classificationStatAttribute)
+    }
+  }
+
   def servRequest(sql: String): Any = {
 
-    val starttime = System.currentTimeMillis()
+    /*val starttime = System.currentTimeMillis()
     var poolname: String = null
     var classificationname: String = null
     var poolStatAttribute: StatAttributes = null
-    var classificationStatAttribute: StatAttributes = null
+    var classificationStatAttribute: StatAttributes = null*/
     val jobGroupId = Thread.currentThread().getName() + "-" + Thread.currentThread().getId() + "-" + counter.getAndIncrement
     try {
       val isSchedulerQuery = queryBuilderService.get(0).isSchedulerQuery(sql)
       val jobDescription = getJobDescription(isSchedulerQuery, Thread.currentThread().getName() + Thread.currentThread().getId())
       logger.info(jobDescription)
       
-      def calculateJobLevelProperties() {
+      /*def calculateJobLevelProperties() {
         this.synchronized {
 
           if (acumeContext.ac.threadLocal.get() == null) {
@@ -149,7 +176,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
           }
         }
       }
-      calculateJobLevelProperties()
+      calculateJobLevelProperties()*/
       
       def runWithTimeout[T](f: => (AcumeCacheResponse, Array[Row])): (AcumeCacheResponse, Array[Row]) = {
         lazy val fut = future { f }
@@ -285,8 +312,8 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         throw e;
     } finally {
       unsetSparkJobLocalProperties
-      if (classificationname != null && poolname != null)
-        updateFinalStats(poolname, classificationname, poolStatAttribute, classificationStatAttribute, starttime, System.currentTimeMillis())
+      //if (classificationname != null && poolname != null)
+        //updateFinalStats(poolname, classificationname, poolStatAttribute, classificationStatAttribute, starttime, System.currentTimeMillis())
     }
   }
 
@@ -294,6 +321,8 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     poolStatAttribute.currentRunningQries.addAndGet(1)
     classificationStatAttribute.currentRunningQries.addAndGet(1)
 
+    println("poolname : ", poolStatAttribute.currentRunningQries.get)
+    println("classificationStatAttribute : ", classificationStatAttribute.currentRunningQries.get)
     acumeContext.ac.threadLocal.get().put("spark.scheduler.pool", poolname)
   }
 
