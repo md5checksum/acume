@@ -651,7 +651,7 @@ Please don't use the following reserved property names:
         <property>
             <name>staticSecurityManagerEnabledShiroEnv</name>
             <help><![CDATA[ - TODO]]></help>
-            <default><![CDATA[false]]></default>
+            <default><![CDATA[true]]></default>
             <targets>
                 <target>
                     <file><![CDATA[usermanagement.properties]]></file>
