@@ -65,20 +65,15 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
       val rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
       val value = new AcumeDiskValue(acumeValue.levelTimestamp, acumeValue.cube, rdd)
       value.acumeContext = acumeContext
+      logger.info("Disk write complete for {}" + acumeValue.levelTimestamp.toString())
+      this.acumeValue = value
+      if (!shouldCache) {
+        acumeValue.evictFromMemory
+      }
+      isSuccessWritingToDisk = true
       value
     })(context)
 
-    f.onComplete {
-      case Success(diskValue) => {
-        logger.info("Disk write complete for {}" + acumeValue.levelTimestamp.toString())
-        this.acumeValue = diskValue
-        if (!shouldCache) {
-        	acumeValue.evictFromMemory
-        }
-        isSuccessWritingToDisk = true
-      }
-      case Failure(t) => isSuccessWritingToDisk = false
-    }(context)
   }
 }
 
@@ -145,11 +140,7 @@ class LimitedQueue[Runnable](maxSize: Int) extends LinkedBlockingQueue[Runnable]
 
   override def offer(e: Runnable): Boolean = {
     try {
-      if(e.getClass.getName.equalsIgnoreCase("scala.concurrent.impl.CallbackRunnable")) {
-        super.offer(e)
-      } else {
-        put(e)
-      }
+      put(e)
       return true
     } catch {
       case ie: InterruptedException => Thread.currentThread().interrupt()
