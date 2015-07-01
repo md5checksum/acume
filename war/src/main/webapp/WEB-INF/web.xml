@@ -45,7 +45,10 @@
 		<listener-class>flex.messaging.HttpFlexSession</listener-class>
 	</listener>
 
-
+	<context-param>
+    	<param-name>shiroEnvironmentClass</param-name>
+    	<param-value>com.guavus.rubix.user.shiro.StaticSecurityManagerIniWebEnvironment</param-value>
+	</context-param>
 
 	<servlet>
 		<servlet-name>MessageBrokerServlet</servlet-name>
