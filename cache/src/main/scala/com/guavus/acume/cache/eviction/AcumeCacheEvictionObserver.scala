@@ -49,7 +49,7 @@ class AcumeCacheEvictionObserver(_$acumeCache: AcumeCache[_ <: Any, _ <: Any]) e
         loading.invalidate(diskEvictable.get)
       }
     } else if(diskEvictable != None) {
-      logger.info("Cache : {} {} Unpersisting Data object {} for memory_disk",  "", _$acumeCache.cube.getAbsoluteCubeName, memoryEvictable.get)
+      logger.info("Cache : {} {} Unpersisting Data object {} for memory_disk",  "", _$acumeCache.cube.getAbsoluteCubeName, diskEvictable.get)
       loading.invalidate(diskEvictable.get)
     }
   }
