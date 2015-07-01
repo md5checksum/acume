@@ -107,8 +107,18 @@ object PropertyValidator {
         return false
       })
 
+      if(inMemoryPoints < 0) {
+        logger.error("Number of points cannot be less than 0")
+        return false
+      }
+      
       if(diskPolicyPoints < inMemoryPoints) {
         logger.error("DiskPolicyMap cannot be less than inMemorylevelPolicyMap")
+        return false
+      }
+      
+      if((inMemoryLevel.level != inMemoryLevel.aggregationLevel) && (inMemoryPoints == 0)) {
+        logger.error("Combining interval is redundant as the number of points are 0")
         return false
       }
       
