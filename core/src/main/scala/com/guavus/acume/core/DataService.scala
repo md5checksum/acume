@@ -35,6 +35,8 @@ import scala.concurrent._
 import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import acume.exception.AcumeException
+import com.guavus.acume.core.exceptions.AcumeExceptionConstants
 
 /**
  * This class interacts with query builder and Olap cache.
@@ -276,7 +278,8 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       case e: TimeoutException =>
         logger.error("Cancelling Query " + sql + " with GroupId " + jobGroupId + " due to timeout.", e)
         acumeContext.sc.cancelJobGroup(jobGroupId)
-        throw e;
+        throw new AcumeException(AcumeExceptionConstants.TIMEOUT_EXCEPTION.name);
+       case e: Throwable =>
       case e: Throwable =>
         logger.error("Cancelling Query " + sql + " with GroupId " + jobGroupId, e)
         acumeContext.sc.cancelJobGroup(jobGroupId)
