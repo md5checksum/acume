@@ -326,6 +326,14 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     acumeContext.ac.threadLocal.get().put("spark.scheduler.pool", poolname)
   }
 
+  def updateFinalStats(poolname: String, classname: String, starttime: Long) {
+    var poolStatAttribute = poolStats.getStatsForPool(poolname)
+    var classificationStatAttribute = classificationStats.getStatsForClassification(classname)
+    println("poolname delete : ", poolStatAttribute.currentRunningQries.get)
+    println("classificationStatAttribute delete : ", classificationStatAttribute.currentRunningQries.get)
+    updateFinalStats(poolname, classname, poolStatAttribute, classificationStatAttribute, starttime, System.currentTimeMillis())
+  }
+
   def updateFinalStats(poolname: String, classname: String, poolStatAttribute: StatAttributes, classificationStatAttribute: StatAttributes, starttime: Long, endtime: Long) {
     var querytimeDifference = endtime - starttime
     setFinalStatAttribute(poolStatAttribute, querytimeDifference)
