@@ -128,7 +128,7 @@ case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measur
   registerAndCacheDataInMemory(tableName)
   
   override protected def finalize() {
-    logger.info("Unpersisting Data object {} for memory as well as disk ", levelTimestamp)
+    logger.info("Unpersisting Data object " + levelTimestamp + " for cube " + cube.getAbsoluteCubeName +" from memory as well as disk ")
     evictFromMemory
     AcumeTreeCacheValue.deleteDirectory(AcumeTreeCacheValue.getDiskDirectoryForPoint(this.acumeContext, cube, levelTimestamp), acumeContext)
     measureSchemaRdd.sqlContext.dropTempTable(tableName)
@@ -143,7 +143,7 @@ object AcumeTreeCacheValue {
   val logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCacheValue])
   
   def deleteDirectory(dir : String, acumeContext : AcumeCacheContextTrait) {
-    logger.debug("Deleting directory " + dir)
+    logger.info("Deleting directory " + dir)
     val path = new Path(dir)
     val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
     fs.delete(path, true)
