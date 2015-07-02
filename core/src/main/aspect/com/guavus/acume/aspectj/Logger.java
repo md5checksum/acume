@@ -39,7 +39,7 @@ public class Logger {
     private static Map<String,org.slf4j.Logger> loggers = new ConcurrentHashMap<String,org.slf4j.Logger>();
     private static TimeZone utcTimeZone = getTimeZone("UTC");
 
-//    @Around("execution(public * com.guavus.acume.core.PSUserService.*(..)) || execution(public * com.guavus.acume.core.AcumeService.servAggregateQuery(..)) || execution(public * com.guavus.acume.core.AcumeService.servTimeseriesQuery(..))")
+    @Around("execution(public * com.guavus.acume.core.PSUserService.*(..)) || execution(public * com.guavus.acume.core.AcumeService.servAggregateQuery(..)) || execution(public * com.guavus.acume.core.AcumeService.servTimeseriesQuery(..))")
     public Object logApiRequests(ProceedingJoinPoint thisJoinPoint)
         throws Throwable {
         return logApiRequests(thisJoinPoint, true, true, true);
