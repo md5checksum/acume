@@ -61,15 +61,15 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
   /**
    * Takes QueryRequest i.e. Rubix query and return aggregate Response.
    */
-  def servAggregate(queryRequest: QueryRequest): AggregateResponse = {
-    servRequest(queryRequest.toSql("")).asInstanceOf[AggregateResponse]
+  def servAggregate(queryRequest: QueryRequest, property: HashMap[String, Any] = null): AggregateResponse = {
+    servRequest(queryRequest.toSql(""), property).asInstanceOf[AggregateResponse]
   }
 
   /**
    * Takes QueryRequest i.e. Rubix query and return timeseries Response.
    */
-  def servTimeseries(queryRequest: QueryRequest): TimeseriesResponse = {
-    servRequest(queryRequest.toSql("ts,")).asInstanceOf[TimeseriesResponse]
+  def servTimeseries(queryRequest: QueryRequest, property: HashMap[String, Any] = null): TimeseriesResponse = {
+    servRequest(queryRequest.toSql("ts,"), property).asInstanceOf[TimeseriesResponse]
   }
 
   def servSearchRequest(queryRequest: SearchRequest): SearchResponse = {
@@ -119,7 +119,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     }
   }
 
-  def checkJobLevelProperties(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): (List[String], List[String]) = {
+  def checkJobLevelProperties(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): (List[(String, HashMap[String, Any])], List[String]) = {
     this.synchronized {
 
       val queryPoolPolicy = queryPoolUIPolicy
@@ -137,20 +137,20 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       
       var classificationDetails = queryPoolPolicy.getQueriesClassification(sqlList.toList, classificationStats)
       var poolList: java.util.ArrayList[String] = new java.util.ArrayList()
-      var classificationList: java.util.ArrayList[String] = new java.util.ArrayList()
+      var classificationList: java.util.ArrayList[(String, HashMap[String, Any])] = new java.util.ArrayList()
       
       classificationDetails foreach (classification => {
         queryPoolPolicy.checkForThrottle(classification._1, classificationStats)
         var poolname = queryPoolPolicy.getPoolNameForClassification(classification._1, poolStats)
         poolList.add(poolname)
-        classificationList.add(classification._1)
+        classificationList.add(new Tuple2(classification._1, classification._2))
       })
       
       new Tuple2(classificationList.toList, poolList.toList)
     }
   }
 
-  def servRequest(sql: String): Any = {
+  def servRequest(sql: String, property: HashMap[String, Any] = null): Any = {
 
     val jobGroupId = Thread.currentThread().getName() + "-" + Thread.currentThread().getId() + "-" + counter.getAndIncrement
     try {
@@ -180,7 +180,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         }
       }
       
-      val localProperties = getSparkJobLocalProperties
+      val localProperties = if (property == null) getSparkJobLocalProperties else property
       val (cacheResponse, rows) = runWithTimeout(run(sql, jobGroupId, jobDescription, acumeContext.acumeConf, localProperties))
       
       val fields = queryBuilderService.get(0).getQuerySchema(sql, cacheResponse.schemaRDD.schema.fieldNames) //schemaRdd.schemaschema.fieldNames

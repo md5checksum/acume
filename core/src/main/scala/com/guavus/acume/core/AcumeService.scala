@@ -69,13 +69,6 @@ class AcumeService(dataService: DataService) {
     // call the query builder and convert query in standard sql-92 format. After that fires this query on to OLAP cache and materialize the RDD and populate the reponse.
   }
   
-  /**
-   * Serves only aggregate request. if request type is timeseries this method fails.
-   */
-  def  servAggregateMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[AggregateResponse] = {
-    servMultiple[AggregateResponse](RequestDataType.Aggregate, queryRequests)
-  }
-  
   private def setCallId(request : Any) {
 		var callModuleId = List("MODULE");
     if (request.isInstanceOf[QueryRequest]) {
@@ -94,15 +87,9 @@ class AcumeService(dataService: DataService) {
 		AcumeThreadLocal.set(loggingInfoWrapper);
 	}
 
-  private def servMultiple[T](callableResponses: java.util.ArrayList[Callable[T]], requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): java.util.ArrayList[T] = {
+  private def servMultiple[T](callableResponses: java.util.ArrayList[Callable[T]], requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType, checkJobProperty: Boolean, classificationList: List[String], poolList: List[String]): java.util.ArrayList[T] = {
 
     val starttime = System.currentTimeMillis()
-    var classificationList: List[String] = null
-    var poolList: List[String] = null
-
-    val values = checkJobPropertiesAndUpdateStats(requests, requestDataType)
-    classificationList = values._1
-    poolList = values._2
 
     def runWithTimeout[T](f: => java.util.ArrayList[T]): java.util.ArrayList[T] = {
       lazy val fut = future { f }
@@ -127,7 +114,7 @@ class AcumeService(dataService: DataService) {
         for (futureResponse <- futureResponses) {
           try {
             responses.add(futureResponse.get())
-            if (poolIterator.hasNext)
+            if (checkJobProperty && poolIterator.hasNext)
               dataService.queryPoolUIPolicy.updateStats(poolIterator.next(), classificationIterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
           } catch {
             case e: ExecutionException => {
@@ -143,59 +130,59 @@ class AcumeService(dataService: DataService) {
           }
         }
       } finally {
-        while (poolIterator.hasNext) {
-          dataService.queryPoolUIPolicy.updateStats(poolIterator.next(), classificationIterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+        if (checkJobProperty) {
+          while (poolIterator.hasNext) {
+            dataService.queryPoolUIPolicy.updateStats(poolIterator.next(), classificationIterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+          }
+          dataService.queryPoolUIPolicy.updateFinalStats(poolList.iterator.next(), classificationList.iterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
         }
-        dataService.queryPoolUIPolicy.updateFinalStats(poolList.iterator.next(), classificationList.iterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
       }
       responses
     }
     runWithTimeout[T](run())
   }
   
-  //to handle callables we may also restrict to check job properties if it has already been inside the callable
-  def servMultipleCallables[T](callableResponses: java.util.ArrayList[Callable[T]], queryRequest : String = "multiple_query"): java.util.ArrayList[T] = {
-    try {
-      
-      setCallId("multiple sql")
-      servMultiple[T](callableResponses, new java.util.ArrayList(List(queryRequest)), RequestDataType.SQL)
-      
-    } catch {
-      case e: TimeoutException =>
-        throw new AcumeException(AcumeExceptionConstants.TIMEOUT_EXCEPTION.name);
-      case e: Throwable =>
-        throw e;
-    }
-  }
-  
-  def checkJobPropertiesAndUpdateStats(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): (List[String], List[String]) = {
+  def checkJobPropertiesAndUpdateStats(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): (List[(String, HashMap[String, Any])], List[String]) = {
     var poolname: String = null
     var classificationname: String = null
     this.synchronized {
       var classificationandpool = dataService.checkJobLevelProperties(requests, requestDataType)
-      dataService.queryPoolUIPolicy.updateInitialStats(classificationandpool._2, classificationandpool._1, dataService.poolStats, dataService.classificationStats)
+      dataService.queryPoolUIPolicy.updateInitialStats(classificationandpool._2, classificationandpool._1.map(x => x._1), dataService.poolStats, dataService.classificationStats)
       classificationandpool
     }
   }
   
   private def servMultiple[T](requestDataType: RequestDataType.RequestDataType,
-                              requests: java.util.ArrayList[_ <: Any]): java.util.ArrayList[T] = {
+                              requests: java.util.ArrayList[_ <: Any], checkJobProperty: Boolean): java.util.ArrayList[T] = {
 
     try {
+
+      val starttime = System.currentTimeMillis()
+      var classificationList: List[(String, HashMap[String, Any])] = null
+      var poolList: List[String] = null
+
+      if (checkJobProperty) {
+        val values = checkJobPropertiesAndUpdateStats(requests, requestDataType)
+        classificationList = values._1
+        poolList = values._2
+      }
+      
       val callableResponses = new java.util.ArrayList[Callable[T]]();
       val isIDSet = false;
       val itr = requests.iterator
+      val classificationIterator = classificationList.iterator
       while (itr.hasNext()) {
         val key = itr.next()
+        val classificationDetail = classificationIterator.next()
         if (!isIDSet) {
           setCallId(key);
         }
         val queryExecutorTask = new QueryExecutor[T](this,
-          HttpUtils.getLoginInfo(), key, requestDataType)
+          HttpUtils.getLoginInfo(), key, requestDataType, classificationDetail._2)
         callableResponses.add(queryExecutorTask)
       }
       
-      servMultiple[T](callableResponses, requests, requestDataType)
+      servMultiple[T](callableResponses, requests, requestDataType, checkJobProperty, classificationList.map(x => x._1), poolList)
     } catch {
       case e: TimeoutException =>
         throw new AcumeException(AcumeExceptionConstants.TIMEOUT_EXCEPTION.name);
@@ -207,36 +194,40 @@ class AcumeService(dataService: DataService) {
   /**
    * Serves only aggregate request. if request type is timeseries this method fails.
    */
-  def  servAggregateSingleQuery(queryRequest : QueryRequest) : AggregateResponse = {
-    dataService.servAggregate(queryRequest)
+  def  servAggregateSingleQuery(queryRequest : QueryRequest, property: HashMap[String, Any] = null) : AggregateResponse = {
+    dataService.servAggregate(queryRequest, property)
   }
   
-  def servTimeseriesSingleQuery(queryRequest : QueryRequest) : TimeseriesResponse = {
-    dataService.servTimeseries(queryRequest)
+  def servTimeseriesSingleQuery(queryRequest : QueryRequest, property: HashMap[String, Any] = null) : TimeseriesResponse = {
+    dataService.servTimeseries(queryRequest, property)
   }
   
-  def  servSingleQuery(queryRequest : String) : Serializable = {
-    dataService.servRequest(queryRequest).asInstanceOf[Serializable]
+  def  servSingleQuery(queryRequest : String, property: HashMap[String, Any] = null) : Serializable = {
+    dataService.servRequest(queryRequest, property).asInstanceOf[Serializable]
   }
   
-  def  servAggregateQuery(queryRequest : QueryRequest) : AggregateResponse = {
-    servMultiple[AggregateResponse](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest))).get(0)
+  def  servAggregateMultiple(queryRequests : java.util.ArrayList[QueryRequest], checkJobProperty: Boolean = true) : java.util.ArrayList[AggregateResponse] = {
+    servMultiple[AggregateResponse](RequestDataType.Aggregate, queryRequests, checkJobProperty)
   }
   
-  def servTimeseriesMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[TimeseriesResponse] = {
-    servMultiple[TimeseriesResponse](RequestDataType.TimeSeries, queryRequests)
+  def  servAggregateQuery(queryRequest : QueryRequest, checkJobProperty: Boolean = true) : AggregateResponse = {
+    servMultiple[AggregateResponse](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest)), checkJobProperty).get(0)
   }
   
-  def servTimeseriesQuery(queryRequest : QueryRequest) : TimeseriesResponse = {
-    servMultiple[TimeseriesResponse](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest))).get(0)
+  def servTimeseriesMultiple(queryRequests : java.util.ArrayList[QueryRequest], checkJobProperty: Boolean = true) : java.util.ArrayList[TimeseriesResponse] = {
+    servMultiple[TimeseriesResponse](RequestDataType.TimeSeries, queryRequests, checkJobProperty)
   }
   
-  def  servSqlQuery(queryRequest : String) : Serializable = {
-    servMultiple[Serializable](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest))).get(0)
+  def servTimeseriesQuery(queryRequest : QueryRequest, checkJobProperty: Boolean = true) : TimeseriesResponse = {
+    servMultiple[TimeseriesResponse](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest)), checkJobProperty).get(0)
   }
   
-  def servSqlQueryMultiple(queryRequests : java.util.ArrayList[String]) : java.util.ArrayList[Serializable] = {
-    servMultiple[Serializable](RequestDataType.SQL, queryRequests)
+  def  servSqlQuery(queryRequest : String, checkJobProperty: Boolean = true) : Serializable = {
+    servMultiple[Serializable](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest)), checkJobProperty).get(0)
+  }
+  
+  def servSqlQueryMultiple(queryRequests : java.util.ArrayList[String], checkJobProperty: Boolean = true) : java.util.ArrayList[Serializable] = {
+    servMultiple[Serializable](RequestDataType.SQL, queryRequests, checkJobProperty)
   }
   
   def  servSqlQuery2(queryRequest : String) = {
