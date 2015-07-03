@@ -152,8 +152,10 @@ class AcumeService(dataService: DataService) {
     }
   }
   
-  private def servMultiple[T](requestDataType: RequestDataType.RequestDataType,
-                              requests: java.util.ArrayList[_ <: Any], checkJobProperty: Boolean): java.util.ArrayList[T] = {
+  
+  //Developer API for not calling checkJobproperties and directly calling the QueryExecutor
+  def servMultiple[T](requestDataType: RequestDataType.RequestDataType,
+                              requests: java.util.ArrayList[_ <: Any], checkJobProperty: Boolean = true): java.util.ArrayList[T] = {
 
     try {
 
@@ -170,10 +172,14 @@ class AcumeService(dataService: DataService) {
       val callableResponses = new java.util.ArrayList[Callable[T]]();
       val isIDSet = false;
       val itr = requests.iterator
-      val classificationIterator = classificationList.iterator
+      val classificationIterator = if (classificationList != null) classificationList.iterator else null
       while (itr.hasNext()) {
         val key = itr.next()
-        val classificationDetail = classificationIterator.next()
+        var classificationDetail: (String, HashMap[String, Any]) = (null, null)
+        if (classificationIterator != null) {
+          classificationDetail = classificationIterator.next()
+        }
+        
         if (!isIDSet) {
           setCallId(key);
         }
@@ -182,7 +188,7 @@ class AcumeService(dataService: DataService) {
         callableResponses.add(queryExecutorTask)
       }
       
-      servMultiple[T](callableResponses, requests, requestDataType, checkJobProperty, classificationList.map(x => x._1), poolList)
+      servMultiple[T](callableResponses, requests, requestDataType, checkJobProperty, if (classificationList != null) classificationList.map(x => x._1) else null, poolList)
     } catch {
       case e: TimeoutException =>
         throw new AcumeException(AcumeExceptionConstants.TIMEOUT_EXCEPTION.name);
@@ -206,28 +212,28 @@ class AcumeService(dataService: DataService) {
     dataService.servRequest(queryRequest, property).asInstanceOf[Serializable]
   }
   
-  def  servAggregateMultiple(queryRequests : java.util.ArrayList[QueryRequest], checkJobProperty: Boolean = true) : java.util.ArrayList[AggregateResponse] = {
-    servMultiple[AggregateResponse](RequestDataType.Aggregate, queryRequests, checkJobProperty)
+  def  servAggregateMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[AggregateResponse] = {
+    servMultiple[AggregateResponse](RequestDataType.Aggregate, queryRequests)
   }
   
-  def  servAggregateQuery(queryRequest : QueryRequest, checkJobProperty: Boolean = true) : AggregateResponse = {
-    servMultiple[AggregateResponse](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest)), checkJobProperty).get(0)
+  def  servAggregateQuery(queryRequest : QueryRequest) : AggregateResponse = {
+    servMultiple[AggregateResponse](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest))).get(0)
   }
   
-  def servTimeseriesMultiple(queryRequests : java.util.ArrayList[QueryRequest], checkJobProperty: Boolean = true) : java.util.ArrayList[TimeseriesResponse] = {
-    servMultiple[TimeseriesResponse](RequestDataType.TimeSeries, queryRequests, checkJobProperty)
+  def servTimeseriesMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[TimeseriesResponse] = {
+    servMultiple[TimeseriesResponse](RequestDataType.TimeSeries, queryRequests)
   }
   
-  def servTimeseriesQuery(queryRequest : QueryRequest, checkJobProperty: Boolean = true) : TimeseriesResponse = {
-    servMultiple[TimeseriesResponse](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest)), checkJobProperty).get(0)
+  def servTimeseriesQuery(queryRequest : QueryRequest) : TimeseriesResponse = {
+    servMultiple[TimeseriesResponse](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest))).get(0)
   }
   
-  def  servSqlQuery(queryRequest : String, checkJobProperty: Boolean = true) : Serializable = {
-    servMultiple[Serializable](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest)), checkJobProperty).get(0)
+  def  servSqlQuery(queryRequest : String) : Serializable = {
+    servMultiple[Serializable](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest))).get(0)
   }
   
-  def servSqlQueryMultiple(queryRequests : java.util.ArrayList[String], checkJobProperty: Boolean = true) : java.util.ArrayList[Serializable] = {
-    servMultiple[Serializable](RequestDataType.SQL, queryRequests, checkJobProperty)
+  def servSqlQueryMultiple(queryRequests : java.util.ArrayList[String]) : java.util.ArrayList[Serializable] = {
+    servMultiple[Serializable](RequestDataType.SQL, queryRequests)
   }
   
   def  servSqlQuery2(queryRequest : String) = {

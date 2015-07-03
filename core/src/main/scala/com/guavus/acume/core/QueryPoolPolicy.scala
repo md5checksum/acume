@@ -90,7 +90,7 @@ abstract class QueryPoolPolicy(throttleMap : Map[String, Int], acumeContext: Acu
    
 }
 
-class TmoQueryPoolPolicyImpl(throttleMap : Map[String, Int], acumeContext: AcumeContext) extends QueryPoolPolicy(throttleMap, acumeContext) {
+class MultipleQueryPoolPolicyImpl(throttleMap : Map[String, Int], acumeContext: AcumeContext) extends QueryPoolPolicy(throttleMap, acumeContext) {
   
   override def getQueryClassification(query : String, classificationStats : ClassificationStats) : String = "default"
 
