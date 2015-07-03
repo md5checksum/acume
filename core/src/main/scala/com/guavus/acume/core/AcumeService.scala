@@ -76,7 +76,6 @@ class AcumeService(dataService: DataService) {
     servMultiple[AggregateResponse](RequestDataType.Aggregate, queryRequests)
   }
   
-  
   private def setCallId(request : Any) {
 		var callModuleId = List("MODULE");
     if (request.isInstanceOf[QueryRequest]) {
@@ -94,17 +93,26 @@ class AcumeService(dataService: DataService) {
 		loggingInfoWrapper.setTransactionId(callModuleId(0)+"-"+id+"-");
 		AcumeThreadLocal.set(loggingInfoWrapper);
 	}
-  
-  private def servMultiple[T](callableResponses: java.util.ArrayList[Callable[T]], threadPool: ExecutorService): java.util.ArrayList[T] = {
+
+  private def servMultiple[T](callableResponses: java.util.ArrayList[Callable[T]], requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): java.util.ArrayList[T] = {
+
+    val starttime = System.currentTimeMillis()
+    var classificationList: List[String] = null
+    var poolList: List[String] = null
+
+    val values = checkJobPropertiesAndUpdateStats(requests, requestDataType)
+    classificationList = values._1
+    poolList = values._2
 
     def runWithTimeout[T](f: => java.util.ArrayList[T]): java.util.ArrayList[T] = {
       lazy val fut = future { f }
       Await.result(fut, DurationInt(dataService.acumeContext.acumeConf.getInt(ConfConstants.queryTimeOut, 30)) second)
     }
-    
+
     def run() = {
 
       val futureResponses = new java.util.ArrayList[Future[T]]();
+      val threadPool = QueryExecutorThreads.getPool();
       val isIDSet = false;
 
       callableResponses foreach (callableResponse => {
@@ -112,97 +120,70 @@ class AcumeService(dataService: DataService) {
       })
 
       val responses = new java.util.ArrayList[T]()
-      for (futureResponse <- futureResponses) {
-        try {
-          responses.add(futureResponse.get())
-        } catch {
-          case e: ExecutionException => {
-            Utility.throwIfRubixException(e)
-            //TO DO print the exact query which throw exception
-            throw new RuntimeException("Exception encountered while getting response for ", e)
-          }
-          case e: InterruptedException => {
-            Utility.throwIfRubixException(e);
-            //TO DO print the exact query which throw exception
-            throw new RuntimeException("Exception encountered while getting response for ", e);
+      val classificationIterator = classificationList.iterator
+      val poolIterator = poolList.iterator
+
+      try {
+        for (futureResponse <- futureResponses) {
+          try {
+            responses.add(futureResponse.get())
+            if (poolIterator.hasNext)
+              dataService.queryPoolUIPolicy.updateStats(poolIterator.next(), classificationIterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+          } catch {
+            case e: ExecutionException => {
+              Utility.throwIfRubixException(e)
+              //TO DO print the exact query which throw exception
+              throw new RuntimeException("Exception encountered while getting response for ", e)
+            }
+            case e: InterruptedException => {
+              Utility.throwIfRubixException(e);
+              //TO DO print the exact query which throw exception
+              throw new RuntimeException("Exception encountered while getting response for ", e);
+            }
           }
         }
+      } finally {
+        while (poolIterator.hasNext) {
+          dataService.queryPoolUIPolicy.updateStats(poolIterator.next(), classificationIterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+        }
+        dataService.queryPoolUIPolicy.updateFinalStats(poolList.iterator.next(), classificationList.iterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
       }
       responses
     }
     runWithTimeout[T](run())
   }
   
-  def servMultipleCallables[T](callableResponses: java.util.ArrayList[Callable[T]]): java.util.ArrayList[T] = {
-    var classificationname: String = null
-    var poolname: String = null
-    val starttime = System.currentTimeMillis()
-    
+  //to handle callables we may also restrict to check job properties if it has already been inside the callable
+  def servMultipleCallables[T](callableResponses: java.util.ArrayList[Callable[T]], queryRequest : String = "multiple_query"): java.util.ArrayList[T] = {
     try {
       
-      //what sql need to pass exactly as the function is called with callables not any specific query
-      var sql = getSql(RequestDataType.SQL, "multiple sql")
-      val values = checkJobPropertiesAndUpdateStats(sql)
-      classificationname = values._1
-      poolname = values._2
-      
-      val threadPool = QueryExecutorThreads.getPool();
-      
       setCallId("multiple sql")
-      
-      servMultiple[T](callableResponses, threadPool)
+      servMultiple[T](callableResponses, new java.util.ArrayList(List(queryRequest)), RequestDataType.SQL)
       
     } catch {
       case e: TimeoutException =>
         throw new AcumeException(AcumeExceptionConstants.TIMEOUT_EXCEPTION.name);
       case e: Throwable =>
         throw e;
-    } finally {
-      if (classificationname != null && poolname != null) {
-        dataService.updateFinalStats(poolname, classificationname, starttime)
-      }
     }
   }
   
-  def checkJobPropertiesAndUpdateStats(sql: String): (String ,String) = {
+  def checkJobPropertiesAndUpdateStats(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): (List[String], List[String]) = {
     var poolname: String = null
     var classificationname: String = null
     this.synchronized {
-      var classification_pool = dataService.checkJobLevelProperties(sql)
-      poolname = classification_pool._2
-      classificationname = classification_pool._1
-      dataService.updateInitialStats(poolname, classificationname)
+      var classificationandpool = dataService.checkJobLevelProperties(requests, requestDataType)
+      dataService.queryPoolUIPolicy.updateInitialStats(classificationandpool._2, classificationandpool._1, dataService.poolStats, dataService.classificationStats)
+      classificationandpool
     }
-    (classificationname, poolname)
   }
   
-  private def getSql(requestDataType: RequestDataType.RequestDataType, requests: Any): String ={
-    var sql = requestDataType match {
-      case RequestDataType.Aggregate  => requests.asInstanceOf[QueryRequest].toSql("")
-      case RequestDataType.TimeSeries => requests.asInstanceOf[QueryRequest].toSql("ts,")
-      case RequestDataType.SQL        => requests.asInstanceOf[String]
-      case _                          => throw new IllegalArgumentException("QueryExecutor does not support request type: " + requestDataType)
-    }
-    sql
-  }
-
   private def servMultiple[T](requestDataType: RequestDataType.RequestDataType,
                               requests: java.util.ArrayList[_ <: Any]): java.util.ArrayList[T] = {
 
-    var classificationname: String = null
-    var poolname: String = null
-    val starttime = System.currentTimeMillis()
-    
     try {
-
-      var sql = getSql(requestDataType, requests.get(0))
-      val values = checkJobPropertiesAndUpdateStats(sql)
-      classificationname = values._1
-      poolname = values._2
-
       val callableResponses = new java.util.ArrayList[Callable[T]]();
       val isIDSet = false;
-      val threadPool = QueryExecutorThreads.getPool();
       val itr = requests.iterator
       while (itr.hasNext()) {
         val key = itr.next()
@@ -213,27 +194,33 @@ class AcumeService(dataService: DataService) {
           HttpUtils.getLoginInfo(), key, requestDataType)
         callableResponses.add(queryExecutorTask)
       }
-
-      servMultiple[T](callableResponses, threadPool)
-
+      
+      servMultiple[T](callableResponses, requests, requestDataType)
     } catch {
       case e: TimeoutException =>
         throw new AcumeException(AcumeExceptionConstants.TIMEOUT_EXCEPTION.name);
       case e: Throwable =>
         throw e;
-    } finally {
-      if (classificationname != null && poolname != null) {
-        dataService.updateFinalStats(poolname, classificationname, starttime)
-      }
     }
   }
-
   
   /**
    * Serves only aggregate request. if request type is timeseries this method fails.
    */
-  def  servAggregateQuery(queryRequest : QueryRequest) : AggregateResponse = {
+  def  servAggregateSingleQuery(queryRequest : QueryRequest) : AggregateResponse = {
     dataService.servAggregate(queryRequest)
+  }
+  
+  def servTimeseriesSingleQuery(queryRequest : QueryRequest) : TimeseriesResponse = {
+    dataService.servTimeseries(queryRequest)
+  }
+  
+  def  servSingleQuery(queryRequest : String) : Serializable = {
+    dataService.servRequest(queryRequest).asInstanceOf[Serializable]
+  }
+  
+  def  servAggregateQuery(queryRequest : QueryRequest) : AggregateResponse = {
+    servMultiple[AggregateResponse](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest))).get(0)
   }
   
   def servTimeseriesMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[TimeseriesResponse] = {
@@ -241,11 +228,11 @@ class AcumeService(dataService: DataService) {
   }
   
   def servTimeseriesQuery(queryRequest : QueryRequest) : TimeseriesResponse = {
-    dataService.servTimeseries(queryRequest)
+    servMultiple[TimeseriesResponse](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest))).get(0)
   }
   
   def  servSqlQuery(queryRequest : String) : Serializable = {
-    dataService.servRequest(queryRequest).asInstanceOf[Serializable]
+    servMultiple[Serializable](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest))).get(0)
   }
   
   def servSqlQueryMultiple(queryRequests : java.util.ArrayList[String]) : java.util.ArrayList[Serializable] = {

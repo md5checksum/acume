@@ -37,6 +37,8 @@ import ExecutionContext.Implicits.global
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import acume.exception.AcumeException
 import com.guavus.acume.core.exceptions.AcumeExceptionConstants
+import com.guavus.acume.workflow.RequestDataType
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * This class interacts with query builder and Olap cache.
@@ -53,8 +55,8 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
 	  val i = x.indexOf(":")
 			  (x.substring(0, i).trim, x.substring(i+1, x.length).trim.toInt)
   })
-  val queryPoolUIPolicy: QueryPoolPolicy = Class.forName(policyclass).getConstructors()(0).newInstance(throttleMap.toMap).asInstanceOf[QueryPoolPolicy]
-  val queryPoolSchedulerPolicy: QueryPoolPolicy = Class.forName(ConfConstants.queryPoolSchedPolicyClass).getConstructors()(0).newInstance().asInstanceOf[QueryPoolPolicy]
+  val queryPoolUIPolicy: QueryPoolPolicy = Class.forName(policyclass).getConstructors()(0).newInstance(throttleMap.toMap, acumeContext).asInstanceOf[QueryPoolPolicy]
+  val queryPoolSchedulerPolicy: QueryPoolPolicy = Class.forName(ConfConstants.queryPoolSchedPolicyClass).getConstructors()(0).newInstance(acumeContext).asInstanceOf[QueryPoolPolicy]
 
   /**
    * Takes QueryRequest i.e. Rubix query and return aggregate Response.
@@ -117,66 +119,47 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     }
   }
 
-  def checkJobLevelProperties(sql: String): (String, String) = {
+  def checkJobLevelProperties(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): (List[String], List[String]) = {
     this.synchronized {
 
-      var poolname: String = null
-      var classificationname: String = null
-
-      if (acumeContext.ac.threadLocal.get() == null) {
-        acumeContext.ac.threadLocal.set(new HashMap[String, Any]())
-      }
-      val isSchedulerQuery = queryBuilderService.get(0).isSchedulerQuery(sql)
-      val queryPoolPolicy = if (isSchedulerQuery) queryPoolSchedulerPolicy else queryPoolUIPolicy
-      classificationname = queryPoolPolicy.getQueryClassification(sql, classificationStats);
-      queryPoolPolicy.checkForThrottle(classificationname, classificationStats)
-      poolname = queryPoolPolicy.getPoolNameForClassification(classificationname, poolStats)
+      val queryPoolPolicy = queryPoolUIPolicy
       
-      new Tuple2(classificationname, poolname)
-    }
-  }
-
-  def updateInitialStats(poolname: String, classificationname: String) {
-    if (classificationname != null && poolname != null) {
-      var poolStatAttribute = poolStats.getStatsForPool(poolname)
-      var classificationStatAttribute = classificationStats.getStatsForClassification(classificationname)
-      updateInitialStats(poolname, poolStatAttribute, classificationStatAttribute)
+      var sqlList: java.util.ArrayList[String] = new java.util.ArrayList()
+      requests foreach (request => {
+        requestDataType match {
+          case RequestDataType.Aggregate => sqlList.add(request.asInstanceOf[QueryRequest].toSql(""))
+          case RequestDataType.TimeSeries => sqlList.add(request.asInstanceOf[QueryRequest].toSql("ts,"))
+          case RequestDataType.SQL => sqlList.add(request.asInstanceOf[String])
+          case _ => throw new IllegalArgumentException("QueryExecutor does not support request type: " + requestDataType)
+        }
+      })
+      
+      
+      var classificationDetails = queryPoolPolicy.getQueriesClassification(sqlList.toList, classificationStats)
+      var poolList: java.util.ArrayList[String] = new java.util.ArrayList()
+      var classificationList: java.util.ArrayList[String] = new java.util.ArrayList()
+      
+      classificationDetails foreach (classification => {
+        queryPoolPolicy.checkForThrottle(classification._1, classificationStats)
+        var poolname = queryPoolPolicy.getPoolNameForClassification(classification._1, poolStats)
+        poolList.add(poolname)
+        classificationList.add(classification._1)
+      })
+      
+      new Tuple2(classificationList.toList, poolList.toList)
     }
   }
 
   def servRequest(sql: String): Any = {
 
-    /*val starttime = System.currentTimeMillis()
-    var poolname: String = null
-    var classificationname: String = null
-    var poolStatAttribute: StatAttributes = null
-    var classificationStatAttribute: StatAttributes = null*/
     val jobGroupId = Thread.currentThread().getName() + "-" + Thread.currentThread().getId() + "-" + counter.getAndIncrement
     try {
+      if (acumeContext.ac.threadLocal.get() == null) {
+        acumeContext.ac.threadLocal.set(new HashMap[String, Any]())
+      }
       val isSchedulerQuery = queryBuilderService.get(0).isSchedulerQuery(sql)
       val jobDescription = getJobDescription(isSchedulerQuery, Thread.currentThread().getName() + Thread.currentThread().getId())
       logger.info(jobDescription)
-      
-      /*def calculateJobLevelProperties() {
-        this.synchronized {
-
-          if (acumeContext.ac.threadLocal.get() == null) {
-        		acumeContext.ac.threadLocal.set(new HashMap[String, Any]())
-          }
-          val isSchedulerQuery = queryBuilderService.get(0).isSchedulerQuery(sql)
-          val queryPoolPolicy = if (isSchedulerQuery) queryPoolSchedulerPolicy else queryPoolUIPolicy
-          classificationname = queryPoolPolicy.getQueryClassification(sql, classificationStats);
-          queryPoolPolicy.checkForThrottle(classificationname, classificationStats)
-          poolname = queryPoolPolicy.getPoolNameForClassification(classificationname, poolStats)
-
-          if (classificationname != null && poolname != null) {
-            poolStatAttribute = poolStats.getStatsForPool(poolname)
-            classificationStatAttribute = classificationStats.getStatsForClassification(classificationname)
-            updateInitialStats(poolname, poolStatAttribute, classificationStatAttribute)
-          }
-        }
-      }
-      calculateJobLevelProperties()*/
       
       def runWithTimeout[T](f: => (AcumeCacheResponse, Array[Row])): (AcumeCacheResponse, Array[Row]) = {
         lazy val fut = future { f }
@@ -312,42 +295,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         throw e;
     } finally {
       unsetSparkJobLocalProperties
-      //if (classificationname != null && poolname != null)
-        //updateFinalStats(poolname, classificationname, poolStatAttribute, classificationStatAttribute, starttime, System.currentTimeMillis())
     }
-  }
-
-  def updateInitialStats(poolname: String, poolStatAttribute: StatAttributes, classificationStatAttribute: StatAttributes) {
-    poolStatAttribute.currentRunningQries.addAndGet(1)
-    classificationStatAttribute.currentRunningQries.addAndGet(1)
-
-    println("poolname : ", poolStatAttribute.currentRunningQries.get)
-    println("classificationStatAttribute : ", classificationStatAttribute.currentRunningQries.get)
-    acumeContext.ac.threadLocal.get().put("spark.scheduler.pool", poolname)
-  }
-
-  def updateFinalStats(poolname: String, classname: String, starttime: Long) {
-    var poolStatAttribute = poolStats.getStatsForPool(poolname)
-    var classificationStatAttribute = classificationStats.getStatsForClassification(classname)
-    println("poolname delete : ", poolStatAttribute.currentRunningQries.get)
-    println("classificationStatAttribute delete : ", classificationStatAttribute.currentRunningQries.get)
-    updateFinalStats(poolname, classname, poolStatAttribute, classificationStatAttribute, starttime, System.currentTimeMillis())
-  }
-
-  def updateFinalStats(poolname: String, classname: String, poolStatAttribute: StatAttributes, classificationStatAttribute: StatAttributes, starttime: Long, endtime: Long) {
-    var querytimeDifference = endtime - starttime
-    setFinalStatAttribute(poolStatAttribute, querytimeDifference)
-    setFinalStatAttribute(classificationStatAttribute, querytimeDifference)
-
-    poolStats.setStatsForPool(poolname, poolStatAttribute)
-    classificationStats.setStatsForClassification(classname, classificationStatAttribute)
-    acumeContext.ac.threadLocal.set(new HashMap[String, Any]())
-  }
-
-  def setFinalStatAttribute(statAttribute: StatAttributes, querytimeDifference: Long) {
-    statAttribute.currentRunningQries.decrementAndGet
-    statAttribute.totalNumQueries.addAndGet(1)
-    statAttribute.totalTimeDuration.addAndGet(querytimeDifference)
   }
 
   def execute(sql: String): AcumeCacheResponse = {
