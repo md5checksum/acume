@@ -9,6 +9,7 @@ import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.cache.utility.Utility
 import java.io.File
 import com.guavus.acume.cache.common.LevelTimestamp
 import java.util.concurrent.Executors
@@ -50,17 +51,37 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
   acumeValue.acumeContext = acumeContext
   val context = AcumeTreeCacheValue.context
   var isSuccessWritingToDisk = false
+  
   if(acumeValue.isInstanceOf[AcumeInMemoryValue]) {
     val f: Future[AcumeDiskValue] = Future({
+      var value : AcumeDiskValue = null
       val diskDirectory = AcumeTreeCacheValue.getDiskDirectoryForPoint(acumeContext, acumeValue.cube, acumeValue.levelTimestamp)
-      val path = new Path(diskDirectory)
-      val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
-      fs.delete(path, true)
-      acumeValue.measureSchemaRdd.saveAsParquetFile(diskDirectory)
-      val rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
-      val value = new AcumeDiskValue(acumeValue.levelTimestamp, acumeValue.cube, rdd)
-      value.acumeContext = acumeContext
+      AcumeTreeCacheValue.deleteDirectory(diskDirectory, acumeContext)
+      
+      // Check if the point is outside the diskLevelPolicyMap
+      val levelTimeStamp = acumeValue.levelTimestamp
+      val cube = acumeValue.cube
+      val rangeStartTime = Utility.getRangeStartTime(acumeContext.getLastBinPersistedTime(cube.binsource), levelTimeStamp.level.localId, cube.diskLevelPolicyMap.get(levelTimeStamp.level.localId).get)
+      val timeStamp = levelTimeStamp.timestamp
+      
+      // if the timestamp lies in the disk cache range then only write it to disk. Else not.
+      if(timeStamp >= rangeStartTime && timeStamp < acumeContext.getLastBinPersistedTime(cube.binsource)) {
+        acumeContext.cacheSqlContext.sparkContext.setLocalProperty("spark.scheduler.pool", "scheduler")
+        acumeContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Writing " + diskDirectory, false)
+        acumeValue.measureSchemaRdd.saveAsParquetFile(diskDirectory)
+        acumeContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Reading " + diskDirectory, false)
+        val rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
+        value = new AcumeDiskValue(acumeValue.levelTimestamp, acumeValue.cube, rdd)
+        value.acumeContext = acumeContext
+        logger.info("Disk write complete for {}" + acumeValue.levelTimestamp.toString())
+        this.acumeValue = value
+        if (!shouldCache) {
+          acumeValue.evictFromMemory
+        }
+      }
+      isSuccessWritingToDisk = true
       value
+      
     })(context)
 
     f.onComplete {
@@ -102,7 +123,7 @@ trait AcumeValue {
 
 case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measureSchemaRdd: SchemaRDD) extends AcumeValue {
   val tempTables = AcumeCacheContextTrait.getInstaTempTable()
-  val tableName = cube.getAbsoluteCubeName + levelTimestamp.level + levelTimestamp.timestamp + "_temp_memory_only"
+  val tableName = (cube.getAbsoluteCubeName + levelTimestamp.level + levelTimestamp.timestamp + "_temp_memory_only")
   registerAndCacheDataInMemory(tableName)
   override def registerAndCacheDataInMemory(tableName : String) {
     measureSchemaRdd.registerTempTable(tableName)
@@ -111,14 +132,14 @@ case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measur
   
   override protected def finalize() {
     try {
-    logger.info("Unpersisting Data object {} for temp_memory_only ", levelTimestamp)
-    logger.info("Dropping temp tables {}", tempTables.mkString(","))
-    evictFromMemory
-    tempTables.get.asInstanceOf[scala.collection.mutable.ArrayBuffer[String]].map(x => measureSchemaRdd.sqlContext.dropTempTable(x))
-    measureSchemaRdd.sqlContext.dropTempTable(tableName)
-    }catch {
-    case e: Exception => logger.error("", e)
-    case e: Throwable => logger.error("", e)
+      logger.info("Unpersisting Data object {} for temp_memory_only ", levelTimestamp)
+      logger.info("Dropping temp tables {}", tempTables.mkString(","))
+      evictFromMemory
+      tempTables.get.asInstanceOf[scala.collection.mutable.ArrayBuffer[String]].map(x => measureSchemaRdd.sqlContext.dropTempTable(x))
+      measureSchemaRdd.sqlContext.dropTempTable(tableName)
+    } catch {
+      case e: Exception => logger.error("", e)
+      case e: Throwable => logger.error("", e)
     }
   }
 }
