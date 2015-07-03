@@ -107,9 +107,13 @@ class AcumeService(dataService: DataService) {
       })
 
       val responses = new java.util.ArrayList[T]()
-      val classificationIterator = classificationList.iterator
-      val poolIterator = poolList.iterator
-
+      var classificationIterator: Iterator[String] = null
+      var poolIterator: Iterator[String] = null
+      if (checkJobProperty) {
+        classificationIterator = classificationList.iterator
+        poolIterator = poolList.iterator
+      }
+      
       try {
         for (futureResponse <- futureResponses) {
           try {
