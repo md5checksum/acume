@@ -21,10 +21,12 @@ abstract class QueryPoolPolicy(throttleMap : Map[String, Int], acumeContext: Acu
     classificationList.toList
   }
   
+  def getNumberOfQueries(classificationList: List[String]): Int = 1
+  
   def getQueryClassification(query : String, classificationStats : ClassificationStats) : String = null
   
-  def checkForThrottle(classification : String, classificationStats : ClassificationStats) = throttleMap.get(classification).map(throttleValue => { 
-    if(classificationStats.getStatsForClassification(classification).currentRunningQries.get() >= throttleValue)
+  def checkForThrottle(classification : String, classificationStats : ClassificationStats, numberOfQueries: Int) = throttleMap.get(classification).map(throttleValue => { 
+    if(classificationStats.getStatsForClassification(classification).currentRunningQries.get() + numberOfQueries >= throttleValue)
       throw new AcumeException(AcumeExceptionConstants.TOO_MANY_CONNECTION_EXCEPTION.name)
     else
       null
@@ -119,6 +121,8 @@ class QueryPoolPolicyImpl(throttleMap : Map[String, Int], acumeContext: AcumeCon
   override def getPoolNameForClassification(classification : String, poolStats : PoolStats) : String = "default"
   
   override def updateFinalStats(poolname: String, classificationname: String, poolStats: PoolStats, classificationStats: ClassificationStats, starttime: Long, endtime: Long) = null
+  
+  override def getNumberOfQueries(classificationList: List[String]): Int = classificationList.size
 }
 
 class QueryPoolPolicySchedulerImpl(acumeContext: AcumeContext) extends QueryPoolPolicy(Map.empty, acumeContext) {

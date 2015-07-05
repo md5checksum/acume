@@ -139,8 +139,9 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       var poolList: java.util.ArrayList[String] = new java.util.ArrayList()
       var classificationList: java.util.ArrayList[(String, HashMap[String, Any])] = new java.util.ArrayList()
       
+      queryPoolPolicy.checkForThrottle(classificationDetails.get(0)._1, classificationStats, queryPoolPolicy.getNumberOfQueries(classificationDetails.map(x => x._1)))
+      
       classificationDetails foreach (classification => {
-        queryPoolPolicy.checkForThrottle(classification._1, classificationStats)
         var poolname = queryPoolPolicy.getPoolNameForClassification(classification._1, poolStats)
         poolList.add(poolname)
         classificationList.add(new Tuple2(classification._1, classification._2))
