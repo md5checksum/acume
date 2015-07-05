@@ -96,6 +96,18 @@ class MultipleQueryPoolPolicyImpl(throttleMap : Map[String, Int], acumeContext: 
 
   override def getPoolNameForClassification(classification : String, poolStats : PoolStats) : String = "default"
   
+  override def updateInitialStats(poolList: List[String], classificationList: List[String], poolStats: PoolStats, classificationStats: ClassificationStats) {
+    
+      if (classificationList != null && !classificationList.isEmpty && poolList != null && !poolList.isEmpty) {
+        var poolStatAttribute = poolStats.getStatsForPool(poolList.get(0))
+        var classificationStatAttribute = classificationStats.getStatsForClassification(classificationList.get(0))
+        poolStatAttribute.currentRunningQries.addAndGet(1)
+        classificationStatAttribute.currentRunningQries.addAndGet(1)
+        println("poolname : ", poolStatAttribute.currentRunningQries.get)
+        println("classificationStatAttribute : ", classificationStatAttribute.currentRunningQries.get)
+      }
+  }
+  
   override def updateStats(poolname: String, classificationname: String, poolStats: PoolStats, classificationStats: ClassificationStats, starttime: Long, endtime: Long) = null
   
 }
