@@ -190,6 +190,11 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         	  logger.info("Finally Combining level {} to aggregationlevel " + aggregationLevel + " and levelTimeStamp {} ", childlevel, aggregatedTimestamp)
         	  val cachevalue = new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(aggregatedTimestamp, cube, zipChildPoints(childrenData.map(_.measureSchemaRdd))), acumeCacheContext)
         	  cachePointToTable.put(aggregatedTimestamp, cachevalue)
+        	  notifyObserverList
+        	  var diskWritingComplete = false;
+        	  while(cachevalue.getAcumeValue.isInstanceOf[AcumeInMemoryValue]) {
+        	    Thread.sleep(1000)
+        	  }
         	  Some(cachevalue)
           } else {
             logger.info("Already present {}", aggregatedTimestamp)
