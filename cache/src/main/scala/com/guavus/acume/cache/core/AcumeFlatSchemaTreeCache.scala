@@ -214,7 +214,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     val diskloaded = diskUtility.loadData(keyMap, cube, levelTimestamp)
     val processedDiskLoaded = processBackendData(diskloaded)
     
-    val _tableNameTemp = (cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString + "_temp").toLowerCase()
+    val _tableNameTemp = (cube.getAbsoluteCubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString + "_temp").toLowerCase()
     processedDiskLoaded.registerTempTable(_tableNameTemp)
     AcumeCacheContextTrait.setInstaTempTable(_tableNameTemp)
     val timestamp = levelTimestamp.timestamp
