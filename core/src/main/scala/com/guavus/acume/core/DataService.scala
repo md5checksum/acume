@@ -106,7 +106,14 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     for ((key, value) <- acumeContext.ac.threadLocal.get()) {
       acumeContext.ac.cacheSqlContext.sparkContext.setLocalProperty(key, null)
     }
-    AcumeCacheContextTrait.unsetAll(acumeContext.ac)
+    
+    try{
+    	AcumeCacheContextTrait.unsetAll(acumeContext.ac)      
+    } catch {
+      case ex : Exception => logger.error("Error while unsetting sparkProperties", ex)
+      case th : Throwable => logger.error("Error while unsetting sparkProperties", th)
+    }
+    
   }
 
   private def getJobDescription(isSchedulerQuery: Boolean, jobGroup: String) = {

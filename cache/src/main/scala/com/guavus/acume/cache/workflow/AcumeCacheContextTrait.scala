@@ -13,6 +13,7 @@ import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
 import com.guavus.acume.cache.core.AcumeTreeCacheValue
 import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.HashMap
  
 /**
  * @author archit.thakur
@@ -132,66 +133,55 @@ trait AcumeCacheContextTrait extends Serializable {
 }
 
 
-
 object AcumeCacheContextTrait {
   
-  val threadLocal = new ThreadLocal[scala.collection.mutable.HashMap[String, Any]]
-  
-  def init() {
-    if(threadLocal.get() == null)
-    	threadLocal.set(new scala.collection.mutable.HashMap[String, Any]())
+  private val threadLocal = new ThreadLocal[HashMap[String, Any]]() { 
+    override protected def initialValue() : HashMap[String, Any] = {
+      new HashMap[String, Any]()
+    }
   }
   
   def setQuery(query : String) {
-    init
     threadLocal.get.put("query", query)
   }
   
   def getQuery(): String = {
-    init
     return threadLocal.get.getOrElse("query", null).asInstanceOf[String]
   }
   
   def unsetQuery() {
-    init
     threadLocal.get.put("query", null)
   }
   
   def addAcumeTreeCacheValue(acumeTreeCacheValue : AcumeTreeCacheValue) {
-    init
     val list = threadLocal.get.getOrElse("AcumeTreeCacheValue", new ArrayBuffer[AcumeTreeCacheValue]).asInstanceOf[ArrayBuffer[AcumeTreeCacheValue]]
     list.+=(acumeTreeCacheValue)
     threadLocal.get().put("AcumeTreeCacheValue", list)
   }
   
   def setQueryTable(tableName : String) {
-    init
     val list = threadLocal.get.getOrElse("QueryTable", new ArrayBuffer[String]).asInstanceOf[ArrayBuffer[String]]
     list.+=(tableName)
     threadLocal.get().put("QueryTable", list)
   }
   
   def setInstaTempTable(tableName : String) {
-    init
     val list = threadLocal.get.getOrElse("InstaTempTable", new ArrayBuffer[String]).asInstanceOf[ArrayBuffer[String]]
     list.+=(tableName)
     threadLocal.get().put("InstaTempTable", list)
   }
   
   def unsetAcumeTreeCacheValue() {
-    init
     threadLocal.get.remove("AcumeTreeCacheValue")
   }
   
   def unsetQueryTable(cacheContext : AcumeCacheContextTrait) {
-    init
-    threadLocal.get.remove("QueryTable").map(x => {
+    val x = threadLocal.get.remove("QueryTable").map(x => {
       x.asInstanceOf[ArrayBuffer[String]].map(cacheContext.cacheSqlContext.dropTempTable(_))
-      })
+    })
   }
   
   def getInstaTempTable() = {
-    init
     threadLocal.get.remove("InstaTempTable")
   }
   
