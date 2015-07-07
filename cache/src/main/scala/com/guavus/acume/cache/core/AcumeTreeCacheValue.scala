@@ -61,11 +61,10 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
       // Check if the point is outside the diskLevelPolicyMap
       val levelTimeStamp = acumeValue.levelTimestamp
       val cube = acumeValue.cube
-      val rangeStartTime = Utility.getRangeStartTime(acumeContext.getLastBinPersistedTime(cube.binsource), levelTimeStamp.level.localId, cube.diskLevelPolicyMap.get(levelTimeStamp.level.localId).get)
-      val timeStamp = levelTimeStamp.timestamp
+      val priority = Utility.getPriority(levelTimeStamp.timestamp, levelTimeStamp.level.localId, cube.diskLevelPolicyMap, acumeContext.getLastBinPersistedTime(cube.binsource))
       
       // if the timestamp lies in the disk cache range then only write it to disk. Else not.
-      if(timeStamp >= rangeStartTime && timeStamp < acumeContext.getLastBinPersistedTime(cube.binsource)) {
+      if(priority != 0) {
         acumeContext.cacheSqlContext.sparkContext.setLocalProperty("spark.scheduler.pool", "scheduler")
         acumeContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Writing " + diskDirectory, false)
         acumeValue.measureSchemaRdd.saveAsParquetFile(diskDirectory)
@@ -145,7 +144,7 @@ case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measur
 }
 
 case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measureSchemaRdd: SchemaRDD) extends AcumeValue {
-   val tableName = cube.getAbsoluteCubeName + levelTimestamp.level + levelTimestamp.timestamp + "_memory_disk"
+   val tableName = (cube.getAbsoluteCubeName + levelTimestamp.level + levelTimestamp.timestamp + "_memory_disk").toLowerCase()
   registerAndCacheDataInMemory(tableName)
   
   override protected def finalize() {
