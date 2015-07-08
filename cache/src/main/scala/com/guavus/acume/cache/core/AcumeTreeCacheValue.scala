@@ -122,7 +122,7 @@ trait AcumeValue {
 
 case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measureSchemaRdd: SchemaRDD) extends AcumeValue {
   val tempTables = AcumeCacheContextTrait.getInstaTempTable()
-  val tableName = (cube.getAbsoluteCubeName + levelTimestamp.level + levelTimestamp.timestamp + "_temp_memory_only").toLowerCase()
+  val tableName = (cube.getAbsoluteCubeName + levelTimestamp.level + levelTimestamp.timestamp + "_temp_memory_only")
   registerAndCacheDataInMemory(tableName)
   override def registerAndCacheDataInMemory(tableName : String) {
     measureSchemaRdd.registerTempTable(tableName)
@@ -144,7 +144,7 @@ case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measur
 }
 
 case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measureSchemaRdd: SchemaRDD) extends AcumeValue {
-   val tableName = (cube.getAbsoluteCubeName + levelTimestamp.level + levelTimestamp.timestamp + "_memory_disk").toLowerCase()
+   val tableName = cube.getAbsoluteCubeName + levelTimestamp.level + levelTimestamp.timestamp + "_memory_disk"
   registerAndCacheDataInMemory(tableName)
   
   override protected def finalize() {

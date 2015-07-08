@@ -68,8 +68,8 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
 
   override def createTempTable(keyMap: List[Map[String, Any]], startTime: Long, endTime: Long, requestType: RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]) {
     requestType match {
-      case Aggregate => createTableForAggregate(startTime, endTime, tableName.toLowerCase(), queryOptionalParam, false)
-      case Timeseries => createTableForTimeseries(startTime, endTime, tableName.toLowerCase(), queryOptionalParam, false)
+      case Aggregate => createTableForAggregate(startTime, endTime, tableName, queryOptionalParam, false)
+      case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam, false)
     }
   }
 
@@ -130,7 +130,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     //aggregate over measures after merging child points
     val (selectDimensions, selectMeasures, groupBy) = CubeUtil.getDimensionsAggregateMeasuresGroupBy(cube)
 
-    val tempTable = (_tableName + "Temp").toLowerCase()
+    val tempTable = _tableName + "Temp"
     value.registerTempTable(tempTable)
     AcumeCacheContextTrait.setInstaTempTable(tempTable)
     val timestamp = key.timestamp
@@ -147,8 +147,8 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
 
   override def createTempTableAndMetadata(keyMap: List[Map[String, Any]], startTime: Long, endTime: Long, requestType: RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData = {
     requestType match {
-      case Aggregate => createTableForAggregate(startTime, endTime, tableName.toLowerCase(), queryOptionalParam, true)
-      case Timeseries => createTableForTimeseries(startTime, endTime, tableName.toLowerCase(), queryOptionalParam, true)
+      case Aggregate => createTableForAggregate(startTime, endTime, tableName, queryOptionalParam, true)
+      case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam, true)
     }
   }
 
@@ -210,13 +210,13 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
   }
 
   override def getDataFromBackend(levelTimestamp: LevelTimestamp): AcumeTreeCacheValue = {
-    val _tableName = cube.getAbsoluteCubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
+   // val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
     import acumeCacheContext.sqlContext._
     val cacheLevel = levelTimestamp.level
     val diskloaded = diskUtility.loadData(keyMap, cube, levelTimestamp)
     val processedDiskLoaded = processBackendData(diskloaded)
     
-    val _tableNameTemp = (cube.getAbsoluteCubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString + "_temp").toLowerCase()
+    val _tableNameTemp = cube.getAbsoluteCubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString + "_temp"
     processedDiskLoaded.registerTempTable(_tableNameTemp)
     AcumeCacheContextTrait.setInstaTempTable(_tableNameTemp)
     val timestamp = levelTimestamp.timestamp

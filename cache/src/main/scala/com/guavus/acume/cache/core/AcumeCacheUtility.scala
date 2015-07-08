@@ -18,7 +18,7 @@ object AcumeCacheUtility {
     val join = s"Select * from ${globalDTableName} INNER JOIN $baseMeasureSetTable ON id = tupleid"
     val globalDTable = table(globalDTableName)
     val joinedRDD = sqlContext.sql(join)
-    joinedRDD.registerTempTable(finalName.toLowerCase())
+    joinedRDD.registerTempTable(finalName)
   }
     
   private [core] def getSchemaRDD(acumeCacheContext: AcumeCacheContext, cube: Cube, joinDimMeasureTableName: String) = { 
