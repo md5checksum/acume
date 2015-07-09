@@ -41,7 +41,7 @@
 		<dependency>
 			<groupId>com.guavus.acume</groupId>
 			<artifactId>cache</artifactId>
-			<version>${pversion}</version>
+			<version>0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.guavus</groupId>
@@ -274,7 +274,7 @@
 		<dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>QueryBuilder</artifactId>
-			<version>${pversion}</version>
+			<version>0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.guavus</groupId>

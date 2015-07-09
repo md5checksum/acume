@@ -6,7 +6,7 @@ import CacheLevel._
  * @author archit.thakur
  *
  */
-case class LevelTimestamp(level: CacheLevel, timestamp:Long,var aggregationLevel : CacheLevel = null) {
+case class LevelTimestamp(level: CacheLevel, timestamp: Long, var aggregationLevel : CacheLevel = null) {
 	
   if(aggregationLevel == null) {
     aggregationLevel = level
@@ -23,7 +23,7 @@ case class LevelTimestamp(level: CacheLevel, timestamp:Long,var aggregationLevel
     this.loadType = loadType
   }
   
-  override def toString = level.localId.toString + timestamp.toString + aggregationLevel.localId
+  override def toString = level.localId.toString + "_" + timestamp.toString + "_" + aggregationLevel.localId
 }
 
 object LoadType extends Enumeration { 

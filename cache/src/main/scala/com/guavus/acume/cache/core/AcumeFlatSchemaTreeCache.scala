@@ -208,13 +208,13 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
   }
 
   override def getDataFromBackend(levelTimestamp: LevelTimestamp): AcumeTreeCacheValue = {
-    val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
+   // val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
     import acumeCacheContext.sqlContext._
     val cacheLevel = levelTimestamp.level
     val diskloaded = diskUtility.loadData(keyMap, cube, levelTimestamp)
     val processedDiskLoaded = processBackendData(diskloaded)
     
-    val _tableNameTemp = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString + "_temp"
+    val _tableNameTemp = cube.getAbsoluteCubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString + "_temp"
     processedDiskLoaded.registerTempTable(_tableNameTemp)
     AcumeCacheContextTrait.setInstaTempTable(_tableNameTemp)
     val timestamp = levelTimestamp.timestamp

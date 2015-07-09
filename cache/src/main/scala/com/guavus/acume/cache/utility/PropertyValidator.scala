@@ -82,7 +82,7 @@ object PropertyValidator {
     val diskPolicyMap = Utility.getLevelPointMap(diskPolicy)
     
     // Check whether disPolicyMap is > than inMemoryPolicyMap
-    for((inMemoryLevel,inMemoryPoints) <- inMemoryPolicyMap) {
+    for((inMemoryLevel, inMemoryPoints) <- inMemoryPolicyMap) {
       val diskPolicyPoints = diskPolicyMap.get(inMemoryLevel).getOrElse({
         logger.error("DiskPolicyMap doesnt have all the levels configured in cachelevelPolicyMap")
         return false
