@@ -97,9 +97,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
             var rdds = for (child <- cacheLevelPolicy.getChildrenIntervals(key.timestamp, key.level.localId)) yield {
               val _tableName = cube.cubeName + CacheLevel.getCacheLevel(cacheLevelPolicy.getLowerLevel(key.level.localId)) + child
               val childValue = tryGet(new LevelTimestamp(CacheLevel.getCacheLevel(cacheLevelPolicy.getLowerLevel(key.level.localId)), child, LoadType.DISK))
-              val outputRdd = childValue.getAcumeValue.measureSchemaRdd
-              schema = outputRdd.schema
-              outputRdd
+              childValue.getAcumeValue
             }
             if (schema != null) {
               return populateParentPointFromChildren(key, rdds, schema)
@@ -116,14 +114,14 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
         }
       });
   
-  def populateParentPointFromChildren(key : LevelTimestamp, rdds : Seq[SchemaRDD], schema : StructType) : AcumeTreeCacheValue = {
+  def populateParentPointFromChildren(key : LevelTimestamp, rdds : Seq[AcumeValue], schema : StructType) : AcumeTreeCacheValue = {
 
     logger.info("Populating parent point from children for key " + key)
     val emptyRdd = Utility.getEmptySchemaRDD(sqlContext, schema)
 
     val _tableName = cube.cubeName + key.level.toString + key.timestamp.toString
 
-    val value = mergeChildPoints(emptyRdd, rdds)
+    val value = mergeChildPoints(emptyRdd, rdds.map(_.measureSchemaRdd))
     
     //aggregate over measures after merging child points
     val (selectDimensions, selectMeasures, groupBy) = CubeUtil.getDimensionsAggregateMeasuresGroupBy(cube)
@@ -133,7 +131,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     AcumeCacheContextTrait.setInstaTempTable(tempTable)
     val timestamp = key.timestamp
     val parentRdd = acumeCacheContext.sqlContext.sql(s"select $timestamp as ts " + (if(!selectDimensions.isEmpty) s", $selectDimensions " else "") + (if(!selectMeasures.isEmpty) s", $selectMeasures" else "") + s" from $tempTable " + groupBy)
-    return new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(key, cube, parentRdd), acumeCacheContext)
+    return new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(key, cube, parentRdd, rdds), acumeCacheContext)
   }
   
   def mergeChildPoints(emptyRdd: SchemaRDD, rdds : Seq[SchemaRDD]) : SchemaRDD = {
