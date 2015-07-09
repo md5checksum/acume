@@ -221,7 +221,7 @@ class AcumeService(dataService: DataService) {
   }
   
   def  servAggregateQuery(queryRequest : QueryRequest) : AggregateResponse = {
-    servMultiple[AggregateResponse](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest))).get(0)
+    servMultiple[AggregateResponse](RequestDataType.Aggregate, new java.util.ArrayList(List(queryRequest))).get(0)
   }
   
   def servTimeseriesMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[TimeseriesResponse] = {
@@ -229,7 +229,7 @@ class AcumeService(dataService: DataService) {
   }
   
   def servTimeseriesQuery(queryRequest : QueryRequest) : TimeseriesResponse = {
-    servMultiple[TimeseriesResponse](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest))).get(0)
+    servMultiple[TimeseriesResponse](RequestDataType.TimeSeries, new java.util.ArrayList(List(queryRequest))).get(0)
   }
   
   def  servSqlQuery(queryRequest : String) : Serializable = {
