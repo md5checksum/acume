@@ -287,10 +287,6 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         new AggregateResponse(list, dimsNames, measuresNames, cacheResponse.metadata.totalRecords.toInt)
       }
     } catch {
-      case e: TimeoutException =>
-        logger.error("Cancelling Query " + sql + " with GroupId " + jobGroupId + " due to timeout.", e)
-        acumeContext.sc.cancelJobGroup(jobGroupId)
-        throw new AcumeException(AcumeExceptionConstants.TIMEOUT_EXCEPTION.name);
       case e: Throwable =>
         logger.error("Cancelling Query " + sql + " with GroupId " + jobGroupId, e)
         acumeContext.sc.cancelJobGroup(jobGroupId)
