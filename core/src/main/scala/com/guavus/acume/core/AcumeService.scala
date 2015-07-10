@@ -50,6 +50,7 @@ import scala.concurrent._
 import scala.concurrent.duration._
 import com.guavus.acume.cache.common.ConfConstants
 import ExecutionContext.Implicits.global
+import java.util.concurrent.TimeUnit
 
 /**
  * Main service of acume which serves the request from UI and rest services. It checks if the response is present in RR cache otherwise fire the query on OLAP cache.
@@ -91,59 +92,75 @@ class AcumeService(dataService: DataService) {
 
     val starttime = System.currentTimeMillis()
 
-    def runWithTimeout[T](f: => java.util.ArrayList[T]): java.util.ArrayList[T] = {
-      lazy val fut = future { f }
-      Await.result(fut, DurationInt(dataService.acumeContext.acumeConf.getInt(ConfConstants.queryTimeOut, 30)) second)
-    }
-
-    def run() = {
-
-      val futureResponses = new java.util.ArrayList[Future[T]]();
-      val threadPool = QueryExecutorThreads.getPool();
-      val isIDSet = false;
-
-      callableResponses foreach (callableResponse => {
-        futureResponses.add(threadPool.submit(callableResponse))
-      })
-
-      val responses = new java.util.ArrayList[T]()
-      var classificationIterator: Iterator[String] = null
-      var poolIterator: Iterator[String] = null
-      if (checkJobProperty) {
-        classificationIterator = classificationList.iterator
-        poolIterator = poolList.iterator
-      }
-      
+    def runWithTimeout[T](callable: Callable[java.util.ArrayList[T]]): java.util.ArrayList[T] = {
+      val response = QueryExecutorThreads.getPoolMultiple.submit(callable)
       try {
-        for (futureResponse <- futureResponses) {
-          try {
-            responses.add(futureResponse.get())
-            if (checkJobProperty && poolIterator.hasNext)
-              dataService.queryPoolUIPolicy.updateStats(poolIterator.next(), classificationIterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
-          } catch {
-            case e: ExecutionException => {
-              Utility.throwIfRubixException(e)
-              //TO DO print the exact query which throw exception
-              throw new RuntimeException("Exception encountered while getting response for ", e)
-            }
-            case e: InterruptedException => {
-              Utility.throwIfRubixException(e);
-              //TO DO print the exact query which throw exception
-              throw new RuntimeException("Exception encountered while getting response for ", e);
-            }
+        response.get(dataService.acumeContext.acumeConf.getLong(ConfConstants.queryTimeOut, 30l), TimeUnit.SECONDS)
+      } catch {
+        case e : Exception => {
+          if(!response.isDone()) {
+            response.cancel(true)
           }
-        }
-      } finally {
-        if (checkJobProperty) {
-          while (poolIterator.hasNext) {
-            dataService.queryPoolUIPolicy.updateStats(poolIterator.next(), classificationIterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
-          }
-          dataService.queryPoolUIPolicy.updateFinalStats(poolList.iterator.next(), classificationList.iterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+          throw e;
         }
       }
-      responses
     }
-    runWithTimeout[T](run())
+
+    val callable = new Callable[java.util.ArrayList[T]]() {
+      def call() = {
+
+        val futureResponses = new java.util.ArrayList[Future[T]]();
+        val threadPool = QueryExecutorThreads.getPool();
+        val isIDSet = false;
+
+        callableResponses foreach (callableResponse => {
+          futureResponses.add(threadPool.submit(callableResponse))
+        })
+
+        val responses = new java.util.ArrayList[T]()
+        var classificationIterator: Iterator[String] = null
+        var poolIterator: Iterator[String] = null
+        if (checkJobProperty) {
+          classificationIterator = classificationList.iterator
+          poolIterator = poolList.iterator
+        }
+
+        try {
+          for (futureResponse <- futureResponses) {
+            try {
+              responses.add(futureResponse.get())
+              if (checkJobProperty && poolIterator.hasNext)
+                dataService.queryPoolUIPolicy.updateStats(poolIterator.next(), classificationIterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+            } catch {
+              case e: ExecutionException => {
+                Utility.throwIfRubixException(e)
+                //TO DO print the exact query which throw exception
+                throw new RuntimeException("Exception encountered while getting response for ", e)
+              }
+              case e: InterruptedException => {
+                Utility.throwIfRubixException(e);
+                //TO DO print the exact query which throw exception
+                throw new RuntimeException("Exception encountered while getting response for ", e);
+              }
+            }
+          }
+        } finally {
+          for (futureResponse <- futureResponses) {
+            if (!futureResponse.isDone()) {
+              futureResponse.cancel(true)
+            }
+          }
+          if (checkJobProperty) {
+            while (poolIterator.hasNext) {
+              dataService.queryPoolUIPolicy.updateStats(poolIterator.next(), classificationIterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+            }
+            dataService.queryPoolUIPolicy.updateFinalStats(poolList.iterator.next(), classificationList.iterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+          }
+        }
+        responses
+      }
+    }
+    runWithTimeout[T](callable)
   }
   
   def checkJobPropertiesAndUpdateStats(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): (List[(String, HashMap[String, Any])], List[String]) = {

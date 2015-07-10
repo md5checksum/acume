@@ -46,8 +46,6 @@ abstract class QueryPoolPolicy(throttleMap : Map[String, Int], acumeContext: Acu
         var classificationStatAttribute = classificationStats.getStatsForClassification(classification)
         poolStatAttribute.currentRunningQries.addAndGet(1)
         classificationStatAttribute.currentRunningQries.addAndGet(1)
-        println("poolname : ", poolStatAttribute.currentRunningQries.get)
-        println("classificationStatAttribute : ", classificationStatAttribute.currentRunningQries.get)
       }
     })
   }
@@ -56,8 +54,6 @@ abstract class QueryPoolPolicy(throttleMap : Map[String, Int], acumeContext: Acu
     if (poolname != null && classificationname != null) {
       var poolStatAttribute = poolStats.getStatsForPool(poolname)
       var classificationStatAttribute = classificationStats.getStatsForClassification(classificationname)
-      println("poolname delete : ", poolStatAttribute.currentRunningQries.get)
-      println("classificationStatAttribute delete : ", classificationStatAttribute.currentRunningQries.get)
 
       var querytimeDifference = endtime - starttime
       setFinalStatAttribute(poolStatAttribute, querytimeDifference)
@@ -72,8 +68,6 @@ abstract class QueryPoolPolicy(throttleMap : Map[String, Int], acumeContext: Acu
     if (poolname != null && classificationname != null) {
       var poolStatAttribute = poolStats.getStatsForPool(poolname)
       var classificationStatAttribute = classificationStats.getStatsForClassification(classificationname)
-      println("poolname delete : ", poolStatAttribute.currentRunningQries.get)
-      println("classificationStatAttribute delete : ", classificationStatAttribute.currentRunningQries.get)
 
       var querytimeDifference = endtime - starttime
       setFinalStatAttribute(poolStatAttribute, querytimeDifference)
@@ -105,8 +99,6 @@ class MultipleQueryPoolPolicyImpl(throttleMap : Map[String, Int], acumeContext: 
         var classificationStatAttribute = classificationStats.getStatsForClassification(classificationList.get(0))
         poolStatAttribute.currentRunningQries.addAndGet(1)
         classificationStatAttribute.currentRunningQries.addAndGet(1)
-        println("poolname : ", poolStatAttribute.currentRunningQries.get)
-        println("classificationStatAttribute : ", classificationStatAttribute.currentRunningQries.get)
       }
   }
   

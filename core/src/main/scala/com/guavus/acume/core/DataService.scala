@@ -175,21 +175,15 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       }
       def run(sql: String, jobGroupId : String, jobDescription : String, conf : AcumeConf, localProperties : HashMap[String, Any]) = {
         
-        getSparkJobLocalProperties ++= localProperties
-        setSparkJobLocalProperties
-        try {
          AcumeConf.setConf(conf)
          acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
          val cacheResponse = execute(sql)
          val responseRdd = cacheResponse.rowRDD
          (cacheResponse, responseRdd.collect)
-        } finally {
-          unsetSparkJobLocalProperties
-        }
       }
       
       val localProperties = if (property == null) getSparkJobLocalProperties else property
-      val (cacheResponse, rows) = runWithTimeout(run(sql, jobGroupId, jobDescription, acumeContext.acumeConf, localProperties))
+      val (cacheResponse, rows) = run(sql, jobGroupId, jobDescription, acumeContext.acumeConf, localProperties)
       
       val fields = queryBuilderService.get(0).getQuerySchema(sql, cacheResponse.schemaRDD.schema.fieldNames) //schemaRdd.schemaschema.fieldNames
       
