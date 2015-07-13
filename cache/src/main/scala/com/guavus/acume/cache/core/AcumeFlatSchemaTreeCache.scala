@@ -100,6 +100,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
             var rdds = for (child <- cacheLevelPolicy.getChildrenIntervals(key.timestamp, key.level.localId)) yield {
               val _tableName = cube.cubeName + CacheLevel.getCacheLevel(cacheLevelPolicy.getLowerLevel(key.level.localId)) + child
               val childValue = tryGet(new LevelTimestamp(CacheLevel.getCacheLevel(cacheLevelPolicy.getLowerLevel(key.level.localId)), child, LoadType.DISK))
+              schema = childValue.getAcumeValue.measureSchemaRdd.schema
               childValue.getAcumeValue
             }
             if (schema != null) {
