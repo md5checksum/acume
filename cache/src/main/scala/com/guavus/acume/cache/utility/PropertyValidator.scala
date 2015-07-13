@@ -5,6 +5,8 @@ import scala.collection.mutable.HashMap
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import com.guavus.acume.cache.common.ConfConstants
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 case class PropertyValidator
 object PropertyValidator {
@@ -102,10 +104,17 @@ object PropertyValidator {
     
     // Check whether disPolicyMap is > than inMemoryPolicyMap
     for((inMemoryLevel,inMemoryPoints) <- inMemoryPolicyMap) {
+      
       val diskPolicyPoints = diskPolicyMap.get(inMemoryLevel).getOrElse({
         logger.error("DiskPolicyMap doesnt have all the levels configured in cachelevelPolicyMap")
         return false
       })
+      
+      val matches = diskPolicyMap.entrySet().filter(level => {level.getKey().level == inMemoryLevel.level && level.getKey().aggregationLevel >= inMemoryLevel.aggregationLevel}).size
+      if(matches == 0) {
+        logger.error("DiskPolicyMap aggregationPoints cannot be less than inMemorylevel aggregation points")
+        return false
+      }
 
       if(inMemoryPoints < 0) {
         logger.error("Number of points cannot be less than 0")

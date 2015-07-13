@@ -21,8 +21,6 @@ import com.guavus.acume.cache.core.AcumeCache
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.workflow.AcumeCacheContext
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
-import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
-import com.guavus.insta.BinPersistTimeInfoRequest
 import com.guavus.insta.BinPersistTimeInfoRequest
 import com.guavus.insta.Insta
 import com.guavus.insta.InstaCubeMetaInfo
