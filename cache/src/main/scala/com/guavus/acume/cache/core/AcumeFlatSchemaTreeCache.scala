@@ -8,6 +8,7 @@ import scala.collection.immutable.SortedMap
 import scala.collection.mutable.{Map => MutableMap}
 import scala.collection.mutable.MutableList
 
+import org.apache.spark.sql.catalyst.expressions.Row
 import org.apache.spark.sql.SchemaRDD
 import org.apache.spark.sql.types.StructType
 import org.slf4j.Logger
@@ -99,9 +100,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
             var rdds = for (child <- cacheLevelPolicy.getChildrenIntervals(key.timestamp, key.level.localId)) yield {
               val _tableName = cube.cubeName + CacheLevel.getCacheLevel(cacheLevelPolicy.getLowerLevel(key.level.localId)) + child
               val childValue = tryGet(new LevelTimestamp(CacheLevel.getCacheLevel(cacheLevelPolicy.getLowerLevel(key.level.localId)), child, LoadType.DISK))
-              val outputRdd = childValue.getAcumeValue.measureSchemaRdd
-              schema = outputRdd.schema
-              outputRdd
+              childValue.getAcumeValue
             }
             if (schema != null) {
               return populateParentPointFromChildren(key, rdds, schema)
@@ -118,14 +117,14 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
         }
       });
   
-  def populateParentPointFromChildren(key : LevelTimestamp, rdds : Seq[SchemaRDD], schema : StructType) : AcumeTreeCacheValue = {
+  def populateParentPointFromChildren(key : LevelTimestamp, rdds : Seq[AcumeValue], schema : StructType) : AcumeTreeCacheValue = {
 
     logger.info("Populating parent point from children for key " + key)
     val emptyRdd = Utility.getEmptySchemaRDD(sqlContext, schema)
 
     val _tableName = cube.getAbsoluteCubeName + key.level.toString + key.timestamp.toString
 
-    val value = mergeChildPoints(emptyRdd, rdds)
+    val value = mergeChildPoints(emptyRdd, rdds.map(_.measureSchemaRdd))
     
     //aggregate over measures after merging child points
     val (selectDimensions, selectMeasures, groupBy) = CubeUtil.getDimensionsAggregateMeasuresGroupBy(cube)
@@ -135,7 +134,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     AcumeCacheContextTrait.setInstaTempTable(tempTable)
     val timestamp = key.timestamp
     val parentRdd = acumeCacheContext.sqlContext.sql(s"select $timestamp as ts " + (if(!selectDimensions.isEmpty) s", $selectDimensions " else "") + (if(!selectMeasures.isEmpty) s", $selectMeasures" else "") + s" from $tempTable " + groupBy)
-    return new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(key, cube, parentRdd), acumeCacheContext)
+    return new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(key, cube, parentRdd, rdds), acumeCacheContext)
   }
   
   def mergeChildPoints(emptyRdd: SchemaRDD, rdds : Seq[SchemaRDD]) : SchemaRDD = {
@@ -210,7 +209,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
   }
 
   override def getDataFromBackend(levelTimestamp: LevelTimestamp): AcumeTreeCacheValue = {
-    val _tableName = cube.getAbsoluteCubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
+   // val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
     import acumeCacheContext.sqlContext._
     val cacheLevel = levelTimestamp.level
     val diskloaded = diskUtility.loadData(keyMap, cube, levelTimestamp)
@@ -255,11 +254,12 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     import scala.collection.JavaConversions._
     if (!levelTime.isEmpty) {
       val schemarddlist = levelTime.flatten
-      val dataloadedrdd = if(schemarddlist.size != 1) {
-    	mergePathRdds(schemarddlist)
-      } else {
-        val list = List(Utility.getEmptySchemaRDD(acumeCacheContext.sqlContext, cube)) ++ schemarddlist.toList
+      val dataloadedrdd = if(schemarddlist.size == 1) {
+        val emptyRdd = sqlContext.applySchema(sparkContext.emptyRDD[Row], schemarddlist.toList.get(0).schema)
+        val list = List(emptyRdd) ++ schemarddlist.toList
         mergePathRdds(list.map(_.asInstanceOf[SchemaRDD]).toIterable)
+      } else {
+        mergePathRdds(schemarddlist)
       }
       val baseMeasureSetTable = cube.cubeName + "MeasureSet" + getUniqueRandomeNo
       val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo

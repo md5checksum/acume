@@ -1734,7 +1734,7 @@ Please don't use the following reserved property names:
 			</target>
 		</targets>
 	</property>
-     </PropertiesPerApplication>
+    </PropertiesPerApplication>
 
     <PropertiesPerInstance>    
     </PropertiesPerInstance>

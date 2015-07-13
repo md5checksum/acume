@@ -5,30 +5,119 @@ import java.util.concurrent.atomic.AtomicLong
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions._
 import java.util.function.Function
+import acume.exception.AcumeException
+import com.guavus.acume.core.exceptions.AcumeExceptionConstants
+import scala.collection.mutable.HashMap
 
-abstract class QueryPoolPolicy(throttleMap : Map[String, Int]) {
+abstract class QueryPoolPolicy(throttleMap : Map[String, Int], acumeContext: AcumeContext) {
+  
+  def getQueriesClassification(queries : List[String], classificationStats : ClassificationStats) : List[(String, HashMap[String, Any])] = {
+    var classificationList: java.util.ArrayList[(String, HashMap[String, Any])] = new java.util.ArrayList()
+    queries foreach(query => {
+      val classification = getQueryClassification(query, classificationStats)
+      classificationList.add(new Tuple2(classification, acumeContext.ac.threadLocal.get()))
+      acumeContext.ac.threadLocal.remove()
+    })
+    classificationList.toList
+  }
+  
+  def getNumberOfQueries(classificationList: List[String]): Int = 1
   
   def getQueryClassification(query : String, classificationStats : ClassificationStats) : String = null
   
-  def checkForThrottle(classification : String, classificationStats : ClassificationStats) = throttleMap.get(classification).map(throttleValue => { 
-    if(classificationStats.getStatsForClassification(classification).currentRunningQries.get() >= throttleValue)
-    	throw new RuntimeException("Application Throttled. Queue Full.")
+  def checkForThrottle(classification : String, classificationStats : ClassificationStats, numberOfQueries: Int) = throttleMap.get(classification).map(throttleValue => { 
+    if(classificationStats.getStatsForClassification(classification).currentRunningQries.get() + numberOfQueries >= throttleValue)
+      throw new AcumeException(AcumeExceptionConstants.TOO_MANY_CONNECTION_EXCEPTION.name)
     else
       null
     }).getOrElse(null)
 
   def getPoolNameForClassification(classification : String, poolStats : PoolStats) : String = null
+  
+  def updateInitialStats(poolList: List[String], classificationList: List[String], poolStats: PoolStats, classificationStats: ClassificationStats) {
+    
+    var poolIterator = poolList.iterator
+    
+    classificationList foreach(classification => {
+      var poolname = poolIterator.next()
+      
+      if (classification != null && poolname != null) {
+        var poolStatAttribute = poolStats.getStatsForPool(poolname)
+        var classificationStatAttribute = classificationStats.getStatsForClassification(classification)
+        poolStatAttribute.currentRunningQries.addAndGet(1)
+        classificationStatAttribute.currentRunningQries.addAndGet(1)
+      }
+    })
+  }
+
+  def updateStats(poolname: String, classificationname: String, poolStats: PoolStats, classificationStats: ClassificationStats, starttime: Long, endtime: Long) {
+    if (poolname != null && classificationname != null) {
+      var poolStatAttribute = poolStats.getStatsForPool(poolname)
+      var classificationStatAttribute = classificationStats.getStatsForClassification(classificationname)
+
+      var querytimeDifference = endtime - starttime
+      setFinalStatAttribute(poolStatAttribute, querytimeDifference)
+      setFinalStatAttribute(classificationStatAttribute, querytimeDifference)
+
+      poolStats.setStatsForPool(poolname, poolStatAttribute)
+      classificationStats.setStatsForClassification(classificationname, classificationStatAttribute)
+    }
+  }
+
+  def updateFinalStats(poolname: String, classificationname: String, poolStats: PoolStats, classificationStats: ClassificationStats, starttime: Long, endtime: Long) {
+    if (poolname != null && classificationname != null) {
+      var poolStatAttribute = poolStats.getStatsForPool(poolname)
+      var classificationStatAttribute = classificationStats.getStatsForClassification(classificationname)
+
+      var querytimeDifference = endtime - starttime
+      setFinalStatAttribute(poolStatAttribute, querytimeDifference)
+      setFinalStatAttribute(classificationStatAttribute, querytimeDifference)
+
+      poolStats.setStatsForPool(poolname, poolStatAttribute)
+      classificationStats.setStatsForClassification(classificationname, classificationStatAttribute)
+    }
+  }
+  
+  def setFinalStatAttribute(statAttribute: StatAttributes, querytimeDifference: Long) {
+    statAttribute.currentRunningQries.decrementAndGet
+    statAttribute.totalNumQueries.addAndGet(1)
+    statAttribute.totalTimeDuration.addAndGet(querytimeDifference)
+  }
    
 }
 
-class QueryPoolPolicyImpl(throttleMap : Map[String, Int]) extends QueryPoolPolicy(throttleMap) {
+class MultipleQueryPoolPolicyImpl(throttleMap : Map[String, Int], acumeContext: AcumeContext) extends QueryPoolPolicy(throttleMap, acumeContext) {
   
   override def getQueryClassification(query : String, classificationStats : ClassificationStats) : String = "default"
 
   override def getPoolNameForClassification(classification : String, poolStats : PoolStats) : String = "default"
+  
+  override def updateInitialStats(poolList: List[String], classificationList: List[String], poolStats: PoolStats, classificationStats: ClassificationStats) {
+    
+      if (classificationList != null && !classificationList.isEmpty && poolList != null && !poolList.isEmpty) {
+        var poolStatAttribute = poolStats.getStatsForPool(poolList.get(0))
+        var classificationStatAttribute = classificationStats.getStatsForClassification(classificationList.get(0))
+        poolStatAttribute.currentRunningQries.addAndGet(1)
+        classificationStatAttribute.currentRunningQries.addAndGet(1)
+      }
+  }
+  
+  override def updateStats(poolname: String, classificationname: String, poolStats: PoolStats, classificationStats: ClassificationStats, starttime: Long, endtime: Long) = null
+  
 }
 
-class QueryPoolPolicySchedulerImpl() extends QueryPoolPolicy(Map.empty) {
+class QueryPoolPolicyImpl(throttleMap : Map[String, Int], acumeContext: AcumeContext) extends QueryPoolPolicy(throttleMap, acumeContext) {
+  
+  override def getQueryClassification(query : String, classificationStats : ClassificationStats) : String = "default"
+
+  override def getPoolNameForClassification(classification : String, poolStats : PoolStats) : String = "default"
+  
+  override def updateFinalStats(poolname: String, classificationname: String, poolStats: PoolStats, classificationStats: ClassificationStats, starttime: Long, endtime: Long) = null
+  
+  override def getNumberOfQueries(classificationList: List[String]): Int = classificationList.size
+}
+
+class QueryPoolPolicySchedulerImpl(acumeContext: AcumeContext) extends QueryPoolPolicy(Map.empty, acumeContext) {
   
   override def getQueryClassification(query : String, classificationStats : ClassificationStats) : String = "scheduler"
 

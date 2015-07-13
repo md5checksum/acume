@@ -43,6 +43,10 @@ object AcumeExceptionConstants extends Enumeration {
   val BIN_REPLAY_MOVE_IN_PROGRESS = new AcumeExceptionConstants("BIN_REPLAY_MOVE_IN_PROGRESS")
 
   val ADAPTIVE_EVICTION_IN_PROGRESS = new AcumeExceptionConstants("ADAPTIVE_EVICTION_IN_PROGRESS")
+  
+  val TOO_MANY_CONNECTION_EXCEPTION = new AcumeExceptionConstants("TOO_MANY_CONNECTION_EXCEPTION")
+  
+  val TIMEOUT_EXCEPTION = new AcumeExceptionConstants("TIMEOUT_EXCEPTION")
 
   case class AcumeExceptionConstants(val name: String) extends Val {
 
