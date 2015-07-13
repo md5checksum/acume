@@ -173,7 +173,6 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         Await.result(fut, DurationInt(acumeContext.acumeConf.getInt(ConfConstants.queryTimeOut, 30)) second)
       }
       def run(sql: String, jobGroupId : String, jobDescription : String, conf : AcumeConf, localProperties : HashMap[String, Any]) = {
-        
          AcumeConf.setConf(conf)
          acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
          val cacheResponse = execute(sql)
@@ -184,7 +183,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       val localProperties = if (property == null) getSparkJobLocalProperties else property
       val (cacheResponse, rows) = run(sql, jobGroupId, jobDescription, acumeContext.acumeConf, localProperties)
       
-      val fields = queryBuilderService.get(0).getQuerySchema(sql, cacheResponse.schemaRDD.schema.fieldNames) //schemaRdd.schemaschema.fieldNames
+      val fields = queryBuilderService.get(0).getQuerySchema(sql, cacheResponse.schemaRDD.schema.fieldNames.toList) //schemaRdd.schemaschema.fieldNames
       
       val acumeSchema: QueryBuilderSchema = queryBuilderService.get(0).getQueryBuilderSchema
       val dimsNames = new ArrayBuffer[String]()
