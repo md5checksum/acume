@@ -111,7 +111,7 @@ trait AcumeValue {
 
 }
 
-case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measureSchemaRdd: SchemaRDD) extends AcumeValue {
+case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measureSchemaRdd: SchemaRDD, parentPoints: Seq[AcumeValue] = Seq()) extends AcumeValue {
   val tempTables = AcumeCacheContextTrait.getInstaTempTable()
   val tableName = (cube.getAbsoluteCubeName + levelTimestamp.level + levelTimestamp.timestamp + "_temp_memory_only")
   registerAndCacheDataInMemory(tableName)
