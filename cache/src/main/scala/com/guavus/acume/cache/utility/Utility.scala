@@ -6,7 +6,6 @@ import java.util.Calendar
 import java.util.Date
 import java.util.StringTokenizer
 import java.util.TimeZone
-import scala.collection.JavaConversions.mutableSeqAsJavaList
 import scala.collection.mutable.{Map => MutableMap}
 import scala.collection.mutable.MutableList
 import org.apache.commons.configuration.PropertiesConfiguration
@@ -40,11 +39,11 @@ import java.io.File
 import java.io.BufferedInputStream
 import java.io.FileInputStream
 import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
 import com.guavus.acume.cache.common.AcumeCacheConf
 import scala.collection.mutable.ArrayBuffer
 import com.guavus.acume.cache.workflow.AcumeCacheContext
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
-import scala.collection.JavaConversions._
 import com.guavus.acume.cache.common.DataType
 import com.guavus.acume.cache.common.FieldType
 import com.guavus.acume.cache.common.ConfConstants
