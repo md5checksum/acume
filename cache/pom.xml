@@ -24,6 +24,7 @@
 		<hadoop.version>2.4.0</hadoop.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
+                <insta.version>platform5.0</insta.version>
 	</properties>
 	<dependencies>
 		<!--dependency> <groupId>com.google.guava</groupId> <artifactId>guava</artifactId> 
@@ -103,7 +104,7 @@
 		<dependency>
                         <groupId>com.guavus.insta</groupId>
                         <artifactId>insta-api</artifactId>
-			<version>platform5.0</version>
+                        <version>${insta.version}</version>
                 </dependency>
 		<dependency>
 			<groupId>org.apache.spark</groupId>
