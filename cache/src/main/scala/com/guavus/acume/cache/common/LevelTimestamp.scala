@@ -23,7 +23,7 @@ case class LevelTimestamp(level : CacheLevel, timestamp : Long, var aggregationL
     this.loadType = loadType
   }
   
-  override def toString = level.localId.toString + timestamp.toString + aggregationLevel.localId
+  override def toString = level.localId.toString + "_" + timestamp.toString + "_" + aggregationLevel.localId
 }
 
 object LoadType extends Enumeration { 

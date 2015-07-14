@@ -36,12 +36,16 @@ import net.sf.jsqlparser.schema.Column
 import net.sf.jsqlparser.statement.select.PlainSelect
 import net.sf.jsqlparser.statement.select.Select
 import scala.collection.mutable.ArrayBuffer
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
 
 /**
  * @author archit.thakur
  *
  */
 class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends AcumeCacheContextTrait {
+  
+  private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeCacheContext])
   
   private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
   val dataLoader: DataLoader = DataLoader.getDataLoader(this, conf, null)
@@ -87,7 +91,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     
     val originalparsedsql = AcumeCacheContext.parseSql(sql)
     
-    println("AcumeRequest obtained " + sql)
+    logger.info("AcumeRequest obtained " + sql)
     var correctsql = ISqlCorrector.getSQLCorrector(conf).correctSQL(this, sql, (originalparsedsql._1.toList, originalparsedsql._2))
     var updatedsql = correctsql._1._1
     val queryOptionalParams = correctsql._1._2

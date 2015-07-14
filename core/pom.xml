@@ -10,7 +10,6 @@
 	</parent>
 	<groupId>com.guavus.acume</groupId>
 	<artifactId>core</artifactId>
-	<version>0.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<repositories>
@@ -27,8 +26,9 @@
 		<hadoop.version>2.4.0</hadoop.version>
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
-		<tomcat.version>7.0.34</tomcat.version>
+		<tomcat.version>7.0.42</tomcat.version>
 		<jersey-version>1.8</jersey-version>
+		<aspectj.version>1.8.3</aspectj.version>
 		<org.springframework.version>4.1.4.RELEASE</org.springframework.version>
 	</properties>
 	<dependencies>
@@ -46,7 +46,7 @@
 		<dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>search</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>${pversion}</version>
 			<exclusions>
 				<exclusion>
 					<groupId>org.apache.hive</groupId>
@@ -93,31 +93,31 @@
 			<groupId>org.apache.tomcat.embed</groupId>
 			<artifactId>tomcat-embed-core</artifactId>
 			<version>${tomcat.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tomcat.embed</groupId>
 			<artifactId>tomcat-embed-logging-juli</artifactId>
 			<version>${tomcat.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tomcat.embed</groupId>
 			<artifactId>tomcat-embed-jasper</artifactId>
 			<version>${tomcat.version}</version>
+			<scope>provided</scope>
 		</dependency>
-		<!--dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>tomcat-jasper</artifactId>
-			<version>${tomcat.version}</version>
-		</dependency-->
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-jasper-el</artifactId>
 			<version>${tomcat.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-jsp-api</artifactId>
 			<version>${tomcat.version}</version>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -148,8 +148,16 @@
 				</exclusion>
 				<exclusion>
 					<groupId>ch.qos.logback</groupId>
-					<artifactId>logback-*</artifactId>
+					<artifactId>logback-access</artifactId>
 				</exclusion>
+				 <exclusion>
+                                      <groupId>ch.qos.logback</groupId>
+                                      <artifactId>logback-classic</artifactId>
+                              </exclusion>
+				 <exclusion>
+                                        <groupId>ch.qos.logback</groupId>
+                                        <artifactId>logback-core</artifactId>
+                                </exclusion>
 				<exclusion>
 					<groupId>org.apache.logging.log4j</groupId>
                         		<artifactId>log4j-core</artifactId>
@@ -157,16 +165,25 @@
 				<exclusion>
                         		<groupId>log4j</groupId>
                         		<artifactId>log4j</artifactId>
-                		</exclusion>
+                </exclusion>
+                <exclusion>
+                        <groupId>xerces</groupId>
+                        <artifactId>xercesImpl</artifactId>
+                 </exclusion>
+                 <exclusion>
+                        <groupId>xml-apis</groupId>
+                        <artifactId>xml-apis</artifactId>
+                 </exclusion>	
 			</exclusions>
 		</dependency>
+		<!-- Rest Service dependencies -->
+		<!-- Tomcat dependency end -->
 		<dependency>
 			<groupId>org.apache.tomcat</groupId>
 			<artifactId>tomcat-catalina-ha</artifactId>
 			<version>${tomcat.version}</version>
+			<scope>provided</scope>
 		</dependency>
-		<!-- Tomcat dependency end -->
-		<!-- Rest Service dependencies -->
 		<dependency>
 			<groupId>com.sun.jersey</groupId>
 			<artifactId>jersey-json</artifactId>
@@ -236,6 +253,18 @@
 			<scope>provided</scope>
 		</dependency>
 
+		<!-- AspectJ -->
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>${aspectj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjtools</artifactId>
+			<version>${aspectj.version}</version>
+		</dependency>
+
 		<!-- Spark dependencies end -->
 		<dependency>
 			<groupId>org.apache.spark</groupId>
@@ -251,7 +280,7 @@
 		<dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>crux2.0</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>${pversion}</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
@@ -264,11 +293,62 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-                <dependency>
+        
+	        <dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>attvaludf</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>${pudfversion}</version>
 		</dependency>
+
+		<!-- UI jars. Flex and blazeds -->
+		<dependency>
+			<groupId>com.adobe.blazeds</groupId>
+			<artifactId>blazeds-core</artifactId>
+			<version>3.2.0.3978</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.adobe.blazeds</groupId>
+			<artifactId>blazeds-custom-logging</artifactId>
+			<version>3.2.0.3978</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.adobe.blazeds</groupId>
+			<artifactId>flex-messaging-common</artifactId>
+			<version>3.2.0.3978</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>com.adobe.blazeds</groupId>
+			<artifactId>flex-messaging-core</artifactId>
+			<version>3.2.0.3978</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>com.adobe.blazeds</groupId>
+			<artifactId>flex-messaging-opt</artifactId>
+			<version>3.2.0.3978</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>com.adobe.blazeds</groupId>
+			<artifactId>flex-messaging-proxy</artifactId>
+			<version>3.2.0.3978</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>com.adobe.blazeds</groupId>
+			<artifactId>flex-messaging-remoting</artifactId>
+			<version>3.2.0.3978</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>com.adobe.blazeds</groupId>
+			<artifactId>flex-rds-server</artifactId>
+			<version>3.2.0.3978</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
@@ -399,6 +479,40 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>aspectj-maven-plugin</artifactId>
+				<version>1.4</version>
+				<configuration>
+					<source>1.8</source>
+					<target>1.8</target>
+					<showWeaveInfo>true</showWeaveInfo>
+					<aspectDirectory>src/main/aspect</aspectDirectory>
+					<weaveDirectories>
+                  		<weaveDirectory>${project.build.directory}/classes</weaveDirectory>
+             		 </weaveDirectories>
+					<aspectLibraries>
+						<aspectLibrary>
+							<groupId>org.apache.shiro</groupId>
+							<artifactId>shiro-aspectj</artifactId>
+						</aspectLibrary>
+					</aspectLibraries>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+                            <goal>compile</goal>       <!-- use this goal to weave all your main classes -->
+						</goals>
+					</execution>
+				</executions>
+				<dependencies>
+					<dependency>
+						<groupId>org.aspectj</groupId>
+						<artifactId>aspectjtools</artifactId>
+						<version>${aspectj.version}</version>
+					</dependency>
+				</dependencies>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

@@ -84,8 +84,8 @@ class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService
      binSourceToCacheAvailability = value
   }
 
-  def getBinClassToBinSourceToRubixAvailabiltyMapFromCoordinator() {
-   binSourceToCacheAvailability
+  def getBinClassToBinSourceToRubixAvailabiltyMapFromCoordinator() = {
+    binSourceToCacheAvailability
   }
 
   def startPrefetchScheduler() {

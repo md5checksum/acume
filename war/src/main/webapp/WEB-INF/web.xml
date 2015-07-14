@@ -2,7 +2,7 @@
 <!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
 <web-app>
 
-	<!-- <distributable/>
+	<distributable/>
 	<display-name>BlazeDS</display-name>
 	<description>BlazeDS Application</description>
 
@@ -45,7 +45,10 @@
 		<listener-class>flex.messaging.HttpFlexSession</listener-class>
 	</listener>
 
-
+	<context-param>
+    	<param-name>shiroEnvironmentClass</param-name>
+    	<param-value>com.guavus.rubix.user.shiro.StaticSecurityManagerIniWebEnvironment</param-value>
+	</context-param>
 
 	<servlet>
 		<servlet-name>MessageBrokerServlet</servlet-name>
@@ -89,7 +92,7 @@
 		<filter-name>CacheControlFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
- -->	<!-- servlet>
+	<!-- servlet>
 		<servlet-name>RGService</servlet-name>
 		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
 		<init-param>
@@ -137,6 +140,12 @@
     	<servlet-name>Aggregate</servlet-name>
     	<servlet-class>com.guavus.acume.core.servlet.AggregateRequestServlet</servlet-class>
   	</servlet>
+
+	<servlet>
+        <servlet-name>AggregateMultiple</servlet-name>
+        <servlet-class>com.guavus.acume.core.servlet.AggregateMultipleRequestServlet</servlet-class>
+        </servlet>
+
   	<servlet>
     	<servlet-name>Search</servlet-name>
     	<servlet-class>com.guavus.acume.core.servlet.SearchRequestServlet</servlet-class>
@@ -145,6 +154,12 @@
     	<servlet-name>TimeSeries</servlet-name>
     	<servlet-class>com.guavus.acume.core.servlet.TimeSeriesRequestServlet</servlet-class>
   	</servlet>
+
+	<servlet>
+        <servlet-name>TimeSeriesMultiple</servlet-name>
+        <servlet-class>com.guavus.acume.core.servlet.TimeSeriesMultipleRequestServlet</servlet-class>
+        </servlet>
+
   	<servlet>
     	<servlet-name>ValidateQuery</servlet-name>
     	<servlet-class>com.guavus.acume.core.servlet.ValidateQueryServlet</servlet-class>
@@ -174,6 +189,12 @@
     	<servlet-name>Aggregate</servlet-name>
 	<url-pattern>/queryresponse/aggregate</url-pattern>
   	</servlet-mapping>
+
+	<servlet-mapping>
+        <servlet-name>AggregateMultiple</servlet-name>
+        <url-pattern>/queryresponse/aggregatemultiple</url-pattern>
+        </servlet-mapping>
+
   	<servlet-mapping>
     	<servlet-name>Search</servlet-name>
 	<url-pattern>/queryresponse/search</url-pattern>
@@ -182,6 +203,12 @@
     	<servlet-name>TimeSeries</servlet-name>
 	<url-pattern>/queryresponse/timeseries</url-pattern>
   	</servlet-mapping>
+
+	<servlet-mapping>
+        <servlet-name>TimeSeriesMultiple</servlet-name>
+        <url-pattern>/queryresponse/timeseriesmultiple</url-pattern>
+        </servlet-mapping>
+
   	<servlet-mapping>
     	<servlet-name>ValidateQuery</servlet-name>
 	<url-pattern>/queryresponse/validQuery</url-pattern>
@@ -195,6 +222,9 @@
 	<url-pattern>/queryresponse/dataAvailability</url-pattern>
   	</servlet-mapping>
 
+	<session-config>
+       <session-timeout>60</session-timeout>
+    </session-config>
   	
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>

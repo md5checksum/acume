@@ -20,7 +20,6 @@ class NamedThreadPoolFactory(poolName: String) extends ThreadFactory {
   var priority: Int = Thread.NORM_PRIORITY
 
   val s = System.getSecurityManager
-
   def this(poolName: String, Priority: Int) {
     this(poolName)
     val s = System.getSecurityManager
@@ -35,4 +34,5 @@ class NamedThreadPoolFactory(poolName: String) extends ThreadFactory {
     t.setPriority(priority)
     t
   }
+
 }

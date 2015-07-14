@@ -1,0 +1,7 @@
+<aspectj>
+<aspects>
+<aspect name="com.guavus.acume.aspectj.Logger"/>
+<weaver options="-nowarn"/>
+</aspects>
+</aspectj>
+

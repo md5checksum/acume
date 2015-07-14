@@ -115,7 +115,7 @@ class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: Quer
       }
     }
     logger.info("Finished Combiner Task fetch: {}", this)
-    logger.info("BinReplay: scheduler availability after combiner task {}", map)
+    logger.info("BinReplay: scheduler availability after combiner task for binsource " + binSource + " : {}", map)
 //    var mergeMoveResult = true
 //    if (RubixProperties.BinReplay.getBooleanValue) {
 //      mergeMoveResult = executeMergeAndMove(binClass, binSource, isOlderTasks, map)

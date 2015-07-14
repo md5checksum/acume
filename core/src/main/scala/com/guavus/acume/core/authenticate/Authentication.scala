@@ -9,41 +9,69 @@ import com.sun.jersey.core.util.Base64
 import com.guavus.acume.core.webservice.HttpError
 import com.guavus.acume.core.webservice.BadRequestException
 import com.guavus.acume.core.exceptions.AcumeExceptionConstants
+import com.guavus.rubix.user.management.vo.LoginRequest
+import com.guavus.rubix.user.management.exceptions.HttpUMException
+import com.guavus.rubix.user.shiro.LoginRequestToken
+import com.guavus.rubix.user.management.utils.UserManagementUtils
+import org.apache.shiro.SecurityUtils
+import com.guavus.rubix.user.management.exceptions.RubixExceptionConstants
+import org.apache.shiro.subject.Subject
+import org.apache.shiro.session.Session
+import org.apache.shiro.authc.AuthenticationException
 
 object Authentication {
 
-  private var logger: Logger = LoggerFactory.getLogger(this.getClass())
-
   def authenticate(superParam: String, user: String, password: String) {
+    
+    var userNameToBeAuthenticated : String = null;
+    var passwordToBeAuthenticated : String = null;
+
+    //First check if the session if valid
+    try{
+      UserManagementUtils.getIWebUMService().validateSession(null)
+      return
+    } catch {
+      case ex : HttpUMException => //logger.warn("Invalid session. Trying to authenticate through rubix db")
+    }
+    
+    // Extract the userName and password from URL
     if (superParam != null) {
       try {
         val tempSuperParam = Base64.base64Decode(superParam)
         val superUser = tempSuperParam.substring(0, tempSuperParam.indexOf('@'))
         val superPassword = tempSuperParam.substring(tempSuperParam.indexOf('@') + 1, tempSuperParam.indexOf('/'))
-        val userName = tempSuperParam.substring(tempSuperParam.indexOf('/') + 1)
-        UserManagementServiceF.getInstance.authenticate(superUser, superPassword)
-        if (superUser == userName || UserManagementServiceF.getInstance.getUserByName(userName) != null) HttpUtils.setLoginInfo(userName)
+        userNameToBeAuthenticated = superUser
+        passwordToBeAuthenticated = superPassword
       } catch {
         case e: Exception => {
-          logger.error("Exception when decoding super user info from request parameters")
-          LoggerUtils.printStackTraceInError(logger, e)
           throw new BadRequestException(HttpError.UNAUTHORISED, AcumeExceptionConstants.INVALID_CREDENTIALS.name, "Authentication credentials bad or missing!", null)
         }
       }
+      
     } else if (user != null && password != null) {
-      try {
-        UserManagementServiceF.getInstance.authenticate(user, password)
-        HttpUtils.setLoginInfo(user)
-      } catch {
-        case e: Exception => {
-          logger.error("Authentication failed for user : " + user)
-          throw new BadRequestException(HttpError.UNAUTHORISED, AcumeExceptionConstants.INVALID_CREDENTIALS.name, "Authentication credentials bad!", null)
-        }
-      }
+      userNameToBeAuthenticated = user
+      passwordToBeAuthenticated = password
+      
     } else {
-      logger.error("Authentication failed for user")
-      throw new BadRequestException(HttpError.UNAUTHORISED, AcumeExceptionConstants.MISSING_CREDENTIALS.name, "Authentication credentials missing!", null)
+      throw new BadRequestException(HttpError.UNAUTHORISED, RubixExceptionConstants.MISSING_CREDENTIALS.name(),"Authentication credentials missing!", null);
     }
+    
+    val loginRequest : LoginRequest = new LoginRequest()
+    loginRequest.setUserName(userNameToBeAuthenticated)
+    loginRequest.setPassword(passwordToBeAuthenticated)  
+    val loginRequestToken : LoginRequestToken = new LoginRequestToken(loginRequest)
+    val currentUser: Subject = SecurityUtils.getSubject()
+    val currentSession: Session = currentUser.getSession(true)
+    currentSession.setAttribute("AuthenticateOnly", "true")
+    try {
+      SecurityUtils.getSecurityManager().authenticate(loginRequestToken); 
+      
+    } catch {
+      case ex : AuthenticationException => {
+    	  throw new BadRequestException(HttpError.UNAUTHORISED, RubixExceptionConstants.LOGIN_FAILED.name(),"Login failed. " + ex.getMessage(), null);
+      }
+    }
+
   }
 
 /*

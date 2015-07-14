@@ -7,8 +7,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.Failure
 import scala.util.Success
-import scala.util.control.Breaks.break
-import scala.util.control.Breaks.breakable
+import scala.util.control.Breaks._
 import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.SchemaRDD
 import org.slf4j.Logger
@@ -20,11 +19,14 @@ import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.LoadType
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import com.guavus.acume.cache.common.CacheLevel
+import com.guavus.acume.cache.utility.Utility
+import org.apache.spark.sql.SchemaRDD
+import org.apache.hadoop.fs.Path
+import com.guavus.acume.cache.common.LoadType
 import com.guavus.acume.cache.common.ConfConstants
 import org.apache.spark.sql.catalyst.expressions.Row
 import org.apache.spark.rdd.RDD
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.common.LevelTimestamp
 
 abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy)
   extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf, cube) {
@@ -65,6 +67,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       val presentLevels = directoryLevelValues.filter( x => {
         !(cube.diskLevelPolicyMap.entrySet().filter( level => {level.getKey().level == x._1.localId && level.getKey().aggregationLevel == x._2.localId}).size == 0)
       })
+      
       logger.info("Present levels are " + presentLevels.map(x=> x._1 + "-" + x._2).mkString(","))
       for (presentLevel <- presentLevels) {
         val levelDirectoryName = Utility.getlevelDirectoryName(presentLevel._1, presentLevel._2)
@@ -88,6 +91,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       val diskDirpath = new Path(diskDirectory)
 	    //Do previous run cleanup
 	    if (Utility.isPathExisting(diskDirpath, acumeCacheContext) && Utility.isDiskWriteComplete(diskDirectory, acumeCacheContext)) {
+        acumeCacheContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk cache reading " + diskDirectory, false)
         val rdd = acumeCacheContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
         return new AcumeFlatSchemaCacheValue(new AcumeDiskValue(levelTimestamp, cube, rdd), acumeCacheContext)
       }

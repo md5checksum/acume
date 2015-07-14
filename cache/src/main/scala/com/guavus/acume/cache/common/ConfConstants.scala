@@ -72,6 +72,7 @@ private [acume] object ConfConstants {
   val cacheDirectory = "acume.core.cache.directory"
   /* Insta Properties */
   val instaComboPoints = "acume.insta.comboPoints"
+  val queryThreadPoolSize = "acume.core.thread.pool.size"
 
   val defaultValueMap = Map[String, String]()
   defaultValueMap += businesscubexml -> "src/test/resources/cubedefinition1.xml"
@@ -79,6 +80,6 @@ private [acume] object ConfConstants {
   defaultValueMap += cacheTypeConfigClassName -> "com.guavus.acume.cache.core.AcumeCacheType"
   defaultValueMap += queryTimeOut -> "30"
   defaultValueMap += instaAvailabilityPollInterval -> "300"
-  
+  defaultValueMap += queryThreadPoolSize -> "16"
 
 }
