@@ -74,7 +74,7 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
       // Check if the point is outside the diskLevelPolicyMap
       val levelTimeStamp = acumeValue.levelTimestamp
       val cube = acumeValue.cube
-      val priority = 0//Utility.getPriority(levelTimeStamp.timestamp, levelTimeStamp.level.localId, cube.diskLevelPolicyMap, acumeContext.getLastBinPersistedTime(cube.binsource))
+      val priority = Utility.getPriority(levelTimeStamp.timestamp, levelTimeStamp.level.localId, levelTimeStamp.aggregationLevel.localId, cube.diskLevelPolicyMap, acumeContext.getLastBinPersistedTime(cube.binsource))
       
       // if the timestamp lies in the disk cache range then only write it to disk. Else not.
       if(priority != 0) {
