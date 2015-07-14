@@ -38,7 +38,7 @@ object AcumeMain {
     SessionFactory.getInstance(SessionContext.DISTRIBUTED)
     InitDatabase.initializeDatabaseTables(ArrayBuffer[IDML]())
     UMProperties.setGlobalTimeZone(acumeContext.acumeConf.getAcumeTimeZone)
-    println("Called AcumeMain on " + sqlQueryEngine)
+    logger.info("Called AcumeMain on " + sqlQueryEngine)
     
     val startTime = System.currentTimeMillis()
     //start Prefetch Scheduler
