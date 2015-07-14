@@ -151,9 +151,9 @@
 					<artifactId>logback-access</artifactId>
 				</exclusion>
 				 <exclusion>
-                                        <groupId>ch.qos.logback</groupId>
-                                        <artifactId>logback-classic</artifactId>
-                                </exclusion>
+                                      <groupId>ch.qos.logback</groupId>
+                                      <artifactId>logback-classic</artifactId>
+                              </exclusion>
 				 <exclusion>
                                         <groupId>ch.qos.logback</groupId>
                                         <artifactId>logback-core</artifactId>
@@ -293,11 +293,62 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-                <dependency>
+        
+	        <dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>attvaludf</artifactId>
 			<version>${pudfversion}</version>
 		</dependency>
+
+		<!-- UI jars. Flex and blazeds -->
+		<dependency>
+			<groupId>com.adobe.blazeds</groupId>
+			<artifactId>blazeds-core</artifactId>
+			<version>3.2.0.3978</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.adobe.blazeds</groupId>
+			<artifactId>blazeds-custom-logging</artifactId>
+			<version>3.2.0.3978</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.adobe.blazeds</groupId>
+			<artifactId>flex-messaging-common</artifactId>
+			<version>3.2.0.3978</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>com.adobe.blazeds</groupId>
+			<artifactId>flex-messaging-core</artifactId>
+			<version>3.2.0.3978</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>com.adobe.blazeds</groupId>
+			<artifactId>flex-messaging-opt</artifactId>
+			<version>3.2.0.3978</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>com.adobe.blazeds</groupId>
+			<artifactId>flex-messaging-proxy</artifactId>
+			<version>3.2.0.3978</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>com.adobe.blazeds</groupId>
+			<artifactId>flex-messaging-remoting</artifactId>
+			<version>3.2.0.3978</version>
+		</dependency>
+	
+		<dependency>
+			<groupId>com.adobe.blazeds</groupId>
+			<artifactId>flex-rds-server</artifactId>
+			<version>3.2.0.3978</version>
+		</dependency>
+
 	</dependencies>
 
 	<build>
