@@ -109,7 +109,7 @@ object PropertyValidator {
         return false
       })
       
-      val matches = diskPolicyMap.entrySet().filter(level => {level.getKey().level == inMemoryLevel.level && level.getKey().aggregationLevel >= inMemoryLevel.aggregationLevel}).size
+      val matches = diskPolicyMap.entrySet().filter(level => {level.getKey().level == inMemoryLevel.level && level.getKey().aggregationLevel == inMemoryLevel.aggregationLevel}).size
       if(matches == 0) {
         logger.error("DiskPolicyMap aggregationPoints cannot be less than inMemorylevel aggregation points")
         return false
