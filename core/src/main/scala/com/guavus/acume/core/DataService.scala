@@ -57,6 +57,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
   })
   val queryPoolUIPolicy: QueryPoolPolicy = Class.forName(policyclass).getConstructors()(0).newInstance(throttleMap.toMap, acumeContext).asInstanceOf[QueryPoolPolicy]
   val queryPoolSchedulerPolicy: QueryPoolPolicy = Class.forName(ConfConstants.queryPoolSchedPolicyClass).getConstructors()(0).newInstance(acumeContext).asInstanceOf[QueryPoolPolicy]
+  var queryPoolPolicy: QueryPoolPolicy = null
 
   /**
    * Takes QueryRequest i.e. Rubix query and return aggregate Response.
@@ -129,8 +130,6 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
   def checkJobLevelProperties(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): (List[(String, HashMap[String, Any])], List[String]) = {
     this.synchronized {
 
-      val queryPoolPolicy = queryPoolUIPolicy
-      
       var sqlList: java.util.ArrayList[String] = new java.util.ArrayList()
       requests foreach (request => {
         requestDataType match {
@@ -141,6 +140,8 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         }
       })
       
+      val isSchedulerQuery = queryBuilderService.get(0).isSchedulerQuery(sqlList.get(0))
+      queryPoolPolicy = if (isSchedulerQuery) queryPoolSchedulerPolicy else queryPoolUIPolicy
       
       var classificationDetails = queryPoolPolicy.getQueriesClassification(sqlList.toList, classificationStats)
       var poolList: java.util.ArrayList[String] = new java.util.ArrayList()
@@ -173,13 +174,19 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         lazy val fut = future { f }
         Await.result(fut, DurationInt(acumeContext.acumeConf.getInt(ConfConstants.queryTimeOut, 30)) second)
       }
-      def run(sql: String, jobGroupId : String, jobDescription : String, conf : AcumeConf, localProperties : HashMap[String, Any]) = {
-        
-         AcumeConf.setConf(conf)
-         acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
-         val cacheResponse = execute(sql)
-         val responseRdd = cacheResponse.rowRDD
-         (cacheResponse, responseRdd.collect)
+      def run(sql: String, jobGroupId: String, jobDescription: String, conf: AcumeConf, localProperties: HashMap[String, Any]) = {
+
+        getSparkJobLocalProperties ++= localProperties
+        setSparkJobLocalProperties
+        try {
+          AcumeConf.setConf(conf)
+          acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
+          val cacheResponse = execute(sql)
+          val responseRdd = cacheResponse.rowRDD
+          (cacheResponse, responseRdd.collect)
+        } finally {
+          unsetSparkJobLocalProperties
+        }
       }
       
       val localProperties = if (property == null) getSparkJobLocalProperties else property

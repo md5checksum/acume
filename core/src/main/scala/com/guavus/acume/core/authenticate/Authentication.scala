@@ -53,7 +53,7 @@ object Authentication {
       passwordToBeAuthenticated = password
       
     } else {
-      throw new BadRequestException(HttpError.UNAUTHORISED, RubixExceptionConstants.MISSING_CREDENTIALS.name(),"Authentication credentials missing!", null);
+      //throw new BadRequestException(HttpError.UNAUTHORISED, RubixExceptionConstants.MISSING_CREDENTIALS.name(),"Authentication credentials missing!", null);
     }
     
     val loginRequest : LoginRequest = new LoginRequest()
