@@ -55,7 +55,17 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
   private def getUpdatedBinSourceToIntervalMap() = {
     val persistTime = insta.getAllBinPersistedTimes
     println(persistTime)
-    val updatedBinSourceToIntervalMap = persistTime.map(binSourceToGranToAvailability => {
+    
+    //Filtering out the intervals where starttime and endtime are 0
+    var filteredPersistTime = Map[String, Map[Long, (Long, Long)]]()
+    persistTime.map(binSrcToGranToAvailability => {
+      val granToAvailability = binSrcToGranToAvailability._2
+      //Filtering out the intervals where starttime and endtime are 0
+      val filteredGranToAvailability : Map[Long, (Long, Long)] = granToAvailability.filter(x => x._2._1 != 0 || x._2._2 != 0)
+      filteredPersistTime += (binSrcToGranToAvailability._1 -> filteredGranToAvailability)
+    })
+
+    val updatedBinSourceToIntervalMap = filteredPersistTime.map(binSourceToGranToAvailability => {
       val minGran = binSourceToGranToAvailability._2.filter(_._1 != -1).keys.min
       val granularityToAvailability = binSourceToGranToAvailability._2.map(granToAvailability => {
         if (granToAvailability._1 == -1) {
@@ -229,8 +239,8 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
   
   override def getAllBinSourceToIntervalMap() : Map[String, Map[Long, (Long,Long)]] =  {
     if(binSourceToIntervalMap.isEmpty) {
+    	// This means its happening for the first time
       synchronizedGetAndUpdateMap
-      // This means its happening for the first time
     }
     binSourceToIntervalMap
   }
