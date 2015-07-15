@@ -231,7 +231,7 @@ public class Logger {
                 Object object = thisJoinPoint.proceed();
                 if (logResponse)
                     logger.info(getRequestID() +"[{}-{}] --{}=={}:{}", new Object[] {HttpUtils.getLoginInfo(true),sessionId,indent,
-                        sign.getName(), object });
+                        sign.getName(), "Some Result is returned by the query" });
                 return object;
             } catch (Throwable t) {
                 if (logException) {
