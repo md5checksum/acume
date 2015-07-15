@@ -98,7 +98,7 @@
 		<dependency>
                         <groupId>ps</groupId>
                         <artifactId>CubeXMLManager</artifactId>
-			<version>platform5.0</version>
+			<version>${pinstaversion}</version>
                 </dependency>
 		<dependency>
                         <groupId>com.guavus.insta</groupId>
