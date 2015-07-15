@@ -146,7 +146,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
   }
 
   /* Method to combine child points to aggregated parent point */
-  def mergeChildPoints(rdds: Seq[SchemaRDD]): SchemaRDD = rdds.reduce(_.unionAll(_))
+  def mergeChildPoints(emptyRdd: SchemaRDD, rdds: Seq[SchemaRDD]): SchemaRDD = rdds.reduce(_.unionAll(_))
 
   /* Method to combine child points to a single zipped point containing data of all the points*/
   def zipChildPoints(rdds : Seq[SchemaRDD]): SchemaRDD = {

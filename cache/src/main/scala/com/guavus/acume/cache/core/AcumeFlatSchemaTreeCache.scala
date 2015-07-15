@@ -166,7 +166,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
 
     val _tableName = cube.cubeName + key.level.toString + key.timestamp.toString
 
-    val value = mergeChildPoints(acumeValRdds.map(x => x._2))
+    val value = mergeChildPoints(emptyRdd, acumeValRdds.map(x => x._2))
     
     //aggregate over measures after merging child points
     val (selectDimensions, selectMeasures, groupBy) = CubeUtil.getDimensionsAggregateMeasuresGroupBy(cube)
@@ -179,7 +179,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     return new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(key, cube, parentRdd, acumeValRdds), acumeCacheContext)
   }
   
-  override def mergeChildPoints(rdds : Seq[SchemaRDD]) : SchemaRDD = {
+  override def mergeChildPoints(emptyRdd : SchemaRDD, rdds : Seq[SchemaRDD]) : SchemaRDD = {
     rdds.reduce(_.unionAll(_))
   }
 

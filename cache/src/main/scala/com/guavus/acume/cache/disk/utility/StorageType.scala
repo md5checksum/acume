@@ -27,4 +27,5 @@ object StorageType extends Enumeration {
   class StorageType(val strid: String, val dataClass: String, val metaDataClass: String) extends Val
 
   implicit def convertValue(v: Value): StorageType = v.asInstanceOf[StorageType]
+  
 }
