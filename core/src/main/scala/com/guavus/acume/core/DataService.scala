@@ -38,6 +38,7 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import acume.exception.AcumeException
 import com.guavus.acume.core.exceptions.AcumeExceptionConstants
 import com.guavus.acume.workflow.RequestDataType
+import com.guavus.acume.cache.common.AcumeConstants
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -96,6 +97,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       var propValue: String = if (value != null) value.toString else null
       acumeContext.ac.cacheSqlContext.sparkContext.setLocalProperty(key, propValue)
     }
+    AcumeCacheContextTrait.setSparkSqlShufflePartitions(acumeContext.ac.cacheSqlContext.getConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS))
   }
   
   private def getSparkJobLocalProperties() = {
@@ -109,7 +111,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     for ((key, value) <- acumeContext.ac.threadLocal.get()) {
       acumeContext.ac.cacheSqlContext.sparkContext.setLocalProperty(key, null)
     }
-    
+    acumeContext.ac.cacheSqlContext.setConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS, AcumeCacheContextTrait.getSparkSqlShufflePartitions)
     try{
     	AcumeCacheContextTrait.unsetAll(acumeContext.ac)      
     } catch {
