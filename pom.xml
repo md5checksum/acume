@@ -16,6 +16,7 @@
         <properties>
         <pversion>0.1-SNAPSHOT</pversion>
         <pudfversion>0.0.1-SNAPSHOT</pudfversion>
+        <pinstaversion>platform5.0</pinstaversion>
         </properties>
         </profile>
         </profiles>
