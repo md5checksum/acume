@@ -3,7 +3,7 @@ package com.guavus.acume.cache.core
 import java.io.File
 import java.util.concurrent.Executors
 import scala.collection.JavaConversions._
-import scala.concurrent.ExecutionContext
+import scala.concurrent._
 import scala.concurrent.Future
 import scala.util.Failure
 import scala.util.Success
@@ -27,6 +27,12 @@ import com.guavus.acume.cache.common.LoadType
 import com.guavus.acume.cache.common.ConfConstants
 import org.apache.spark.sql.catalyst.expressions.Row
 import org.apache.spark.rdd.RDD
+
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
+
+import com.guavus.acume.threads.NamedThreadPoolFactory
 
 abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy)
   extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf, cube) {
@@ -188,10 +194,11 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       }
       if (shouldCombine) {
         var isSuccessCombiningPoint = true
-        val context = AcumeTreeCache.context
+        val context = AcumeTreeCache.getContext(acumeCacheContext.cacheConf.getInt(ConfConstants.threadPoolSize))
         val f: Future[Option[AcumeFlatSchemaCacheValue]] = Future({
           if (tryGet(aggregatedTimestamp) == null) {
         	  logger.info("Finally Combining level {} to aggregationlevel " + aggregationLevel + " and levelTimeStamp {} ", childlevel, aggregatedTimestamp)
+            acumeCacheContext.cacheSqlContext.sparkContext.setJobGroup("compaction_acume" + Thread.currentThread().getId(), "combining childLevel " + childlevel + "to aggregationlevel " + aggregationLevel, false)
         	  val cachevalue = new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(aggregatedTimestamp, cube, zipChildPoints(childrenData.map(_.measureSchemaRdd))), acumeCacheContext)
         	  cachePointToTable.put(aggregatedTimestamp, cachevalue)
         	  notifyObserverList
@@ -234,10 +241,23 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
 }
 
 object AcumeTreeCache {
+
   @transient
-  val executorService = Executors.newFixedThreadPool(1)
-  @transient
-  val context = ExecutionContext.fromExecutorService(AcumeTreeCache.executorService)
+  private var context: ExecutionContextExecutorService = null
+  
+  def getContext(queueSize: Int) = {
+    if(context == null) {
+      synchronized {
+        if(context == null) {
+          val executorService = new ThreadPoolExecutor(1, 1,
+                                        0L, TimeUnit.MILLISECONDS,
+                                        new LimitedQueue[Runnable](queueSize),new NamedThreadPoolFactory("CompactionWriter"));
+          context = ExecutionContext.fromExecutorService(executorService)
+        }
+      }
+    }
+    context
+  }
 
 }
 
@@ -246,6 +266,3 @@ object AcumeCombineUtil {
     itr.zip(other).flatMap(x => Seq(x._1, x._2))
   }
 }
-
-
-

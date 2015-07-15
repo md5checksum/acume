@@ -183,6 +183,7 @@ object AcumeTreeCacheValue {
 	val logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCacheValue])
   val DISK_CACHE_WRITER_THREADS = 2
   
+  @transient
   private var context: ExecutionContextExecutorService = null
   
   def getContext(queueSize: Int) = {
