@@ -198,7 +198,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         val f: Future[Option[AcumeFlatSchemaCacheValue]] = Future({
           if (tryGet(aggregatedTimestamp) == null) {
         	  logger.info("Finally Combining level {} to aggregationlevel " + aggregationLevel + " and levelTimeStamp {} ", childlevel, aggregatedTimestamp)
-            acumeCacheContext.cacheSqlContext.sparkContext.setJobGroup("compaction_acume" + Thread.currentThread().getId(), "combining childLevel " + childlevel + "to aggregationlevel " + aggregationLevel, false)
+            acumeCacheContext.cacheSqlContext.sparkContext.setJobGroup(Thread.currentThread().getName + "-" + Thread.currentThread().getId(), "Combining childLevel " + childlevel + " to aggregationlevel " + aggregationLevel, false)
         	  val cachevalue = new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(aggregatedTimestamp, cube, zipChildPoints(childrenData.map(_.measureSchemaRdd))), acumeCacheContext)
         	  cachePointToTable.put(aggregatedTimestamp, cachevalue)
         	  notifyObserverList
