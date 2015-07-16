@@ -124,22 +124,13 @@ object PropertyValidator {
         logger.error("DiskPolicyMap cannot be less than inMemorylevelPolicyMap")
         return false
       }
-      
-      if((inMemoryLevel.level != inMemoryLevel.aggregationLevel) && (inMemoryPoints == 0)) {
-        logger.error("Combining interval is redundant as the number of points are 0")
-        return false
-      }
-      
-      if((inMemoryLevel.level*inMemoryPoints) < inMemoryLevel.aggregationLevel) {
-        logger.error("Combining interval is redundant.")
-        return false
-      }
     
       val fraction = inMemoryLevel.aggregationLevel/inMemoryLevel.level
       if(Math.ceil(fraction).toLong != fraction) {
         logger.error("Combining level is not a multiple of base level")
        return false
       }
+      
     }
     true
   }
