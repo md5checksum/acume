@@ -1,6 +1,6 @@
 #!/bin/sh
 
-############
+#############
 #The default values of the arguments in case args not provided
 ############
 ARG_MASTER_MODE=" --master yarn-client"
