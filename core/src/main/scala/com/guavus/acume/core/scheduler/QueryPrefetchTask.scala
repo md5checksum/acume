@@ -12,6 +12,7 @@ import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.core.AcumeConf
 import com.guavus.acume.core.AcumeConf
 import com.guavus.acume.core.DataService
+import com.guavus.acume.core.AcumeService
 import scala.util.control.Breaks._
 import QueryPrefetchTask._
 import com.guavus.acume.workflow.RequestDataType
@@ -27,7 +28,7 @@ object QueryPrefetchTask {
 
 }
 
-class QueryPrefetchTask(private var dataService: DataService, @BeanProperty var request: PrefetchTaskRequest, version : Int, taskManager : QueryRequestPrefetchTaskManager, acumeContext : AcumeContextTrait) extends Runnable with Comparable[QueryPrefetchTask] {
+class QueryPrefetchTask(private var acumeService: AcumeService, @BeanProperty var request: PrefetchTaskRequest, version : Int, taskManager : QueryRequestPrefetchTaskManager, acumeContext : AcumeContextTrait) extends Runnable with Comparable[QueryPrefetchTask] {
 
   private val RETRY_INTERVAL_IN_MILLIS = acumeContext.acumeConf.getQueryPrefetchTaskRetryIntervalInMillis
 
@@ -51,7 +52,7 @@ class QueryPrefetchTask(private var dataService: DataService, @BeanProperty var 
         reTryCount += 1
         try {
           HttpUtils.setLoginInfo(acumeContext.acumeConf.getSuperUser)
-          logger.info(dataService.servRequest(request.toSql("ts")).toString)
+          logger.info(acumeService.servSqlQuery(request.toSql("ts")).toString)
           success = true
         } catch {
           case t: Throwable => {

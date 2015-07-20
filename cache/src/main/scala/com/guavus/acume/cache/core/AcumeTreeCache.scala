@@ -23,7 +23,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
   deleteExtraDataFromDiskAtStartUp
   
   def deleteExtraDataFromDiskAtStartUp() {
-    println("Starting deleting file")
+    logger.info("Starting deleting file")
     try {
       val cacheDirectory = acumeCacheContext.cacheConf.get(ConfConstants.cacheBaseDirectory) + File.separator + acumeCacheContext.cacheSqlContext.sparkContext.getConf.get("spark.app.name") + "-" + acumeCacheContext.cacheConf.get(ConfConstants.cacheDirectory) + File.separator + cube.binsource + File.separator + cube.cubeName
       val path = new Path(cacheDirectory)
@@ -37,7 +37,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         AcumeTreeCacheValue.deleteDirectory(cacheDirectory + File.separator + CacheLevel.getCacheLevel(notPresent), acumeCacheContext)
       }
       val presentLevels = directories.filter(cube.diskLevelPolicyMap.contains(_))
-      println(presentLevels.mkString(","))
+      logger.info(presentLevels.mkString(","))
       for (presentLevel <- presentLevels) {
         val timestamps = fs.listStatus(new Path(cacheDirectory + File.separator + CacheLevel.getCacheLevel(presentLevel))).map(_.getPath().getName().toLong)
         for (timestamp <- timestamps)

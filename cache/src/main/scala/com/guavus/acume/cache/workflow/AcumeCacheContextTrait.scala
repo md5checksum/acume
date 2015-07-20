@@ -14,6 +14,7 @@ import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
 import com.guavus.acume.cache.core.AcumeTreeCacheValue
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
+import com.guavus.acume.cache.common.AcumeConstants
  
 /**
  * @author archit.thakur
@@ -171,6 +172,14 @@ object AcumeCacheContextTrait {
     threadLocal.get().put("InstaTempTable", list)
   }
   
+  def setSparkSqlShufflePartitions(numPartitions: String) {
+    threadLocal.get.put(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS, numPartitions)
+  }
+  
+  def getSparkSqlShufflePartitions(): String = {
+    threadLocal.get.get(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS).get.asInstanceOf[String]
+  }
+
   def unsetAcumeTreeCacheValue() {
     threadLocal.get.remove("AcumeTreeCacheValue")
   }
@@ -189,6 +198,5 @@ object AcumeCacheContextTrait {
     unsetQueryTable(cacheContext)
     getInstaTempTable
     unsetAcumeTreeCacheValue
-    
   }
 }

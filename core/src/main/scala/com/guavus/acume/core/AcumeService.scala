@@ -130,7 +130,7 @@ class AcumeService(dataService: DataService) {
             try {
               responses.add(futureResponse.get())
               if (checkJobProperty && poolIterator.hasNext)
-                dataService.queryPoolUIPolicy.updateStats(poolIterator.next(), classificationIterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+                dataService.queryPoolPolicy.updateStats(poolIterator.next(), classificationIterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
             } catch {
               case e: ExecutionException => {
                 Utility.throwIfRubixException(e)
@@ -152,9 +152,9 @@ class AcumeService(dataService: DataService) {
           }
           if (checkJobProperty) {
             while (poolIterator.hasNext) {
-              dataService.queryPoolUIPolicy.updateStats(poolIterator.next(), classificationIterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+              dataService.queryPoolPolicy.updateStats(poolIterator.next(), classificationIterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
             }
-            dataService.queryPoolUIPolicy.updateFinalStats(poolList.iterator.next(), classificationList.iterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+            dataService.queryPoolPolicy.updateFinalStats(poolList.iterator.next(), classificationList.iterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
           }
         }
         responses
@@ -168,7 +168,7 @@ class AcumeService(dataService: DataService) {
     var classificationname: String = null
     this.synchronized {
       var classificationandpool = dataService.checkJobLevelProperties(requests, requestDataType)
-      dataService.queryPoolUIPolicy.updateInitialStats(classificationandpool._2, classificationandpool._1.map(x => x._1), dataService.poolStats, dataService.classificationStats)
+      dataService.queryPoolPolicy.updateInitialStats(classificationandpool._2, classificationandpool._1.map(x => x._1), dataService.poolStats, dataService.classificationStats)
       classificationandpool
     }
   }
@@ -194,11 +194,18 @@ class AcumeService(dataService: DataService) {
       val isIDSet = false;
       val itr = requests.iterator
       val classificationIterator = if (classificationList != null) classificationList.iterator else null
+      val poolIterator = if (poolList != null) poolList.iterator else null
       while (itr.hasNext()) {
         val key = itr.next()
         var classificationDetail: (String, HashMap[String, Any]) = (null, null)
-        if (classificationIterator != null) {
+        var poolName: String = null
+        if (poolIterator != null && poolIterator.hasNext) {
+          poolName = poolIterator.next()
+        }
+        
+        if (classificationIterator != null && classificationIterator.hasNext) {
           classificationDetail = classificationIterator.next()
+          classificationDetail._2.put("spark.scheduler.pool", poolName)
         }
         
         if (!isIDSet) {

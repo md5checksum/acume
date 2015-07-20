@@ -1007,6 +1007,20 @@
             <Property_Type>read-write</Property_Type>
             <Property_DataType>integer</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.acumeCoreThreadPoolSize</Property_OriginalName>
+       </Property>
+	   <Property>
+            <Property_Name>application.${acumeApp}.maxNumberOfDays</Property_Name>
+            <Property_Value>30</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.maxNumberOfDays</Property_OriginalName>
+        </Property>
+        <Property>
+            <Property_Name>application.${acumeApp}.compressBackups</Property_Name>
+            <Property_Value>TRUE</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.compressBackups</Property_OriginalName>
         </Property>
     </Properties>
     <SubProfiles />

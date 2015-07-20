@@ -26,6 +26,8 @@ import javax.xml.bind.JAXBContext
  */
 abstract class AcumeContextTrait {
   
+  private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeContextTrait])
+  
   val acumeConfiguration: AcumeConf
   
   val sparkContext : SparkContext
@@ -54,7 +56,7 @@ abstract class AcumeContextTrait {
 	  //Do previous run cleanup
 	  fs.delete(path)
 	  sparkContext.setCheckpointDir(checkpointDirectory)
-	  println(s"setting checkpoint directory as $checkpointDirectory")
+	  logger.info(s"setting checkpoint directory as $checkpointDirectory")
 	  cacheDirectory
   } 
 

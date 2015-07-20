@@ -1439,6 +1439,30 @@ Please don't use the following reserved property names:
 		</targets>
 	</property>
 	
+	<property>
+		<name>maxNumberOfDays</name>
+		<help><![CDATA[ - Driver Logs Backups]]></help>
+		<default><![CDATA[30]]></default>
+		<targets>
+			<target>
+				<file><![CDATA[log4j.xml]]></file>
+				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+			</target>
+		</targets>
+	</property>
+
+	<property>
+		<name>compressBackups</name>
+		<help><![CDATA[ - Compress Driver logs]]></help>
+		<default><![CDATA[TRUE]]></default>
+		<targets>
+			<target>
+				<file><![CDATA[log4j.xml]]></file>
+				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+			</target>
+		</targets>
+	</property>
+	
         <!-- Mailing properties -->
 
         <property>

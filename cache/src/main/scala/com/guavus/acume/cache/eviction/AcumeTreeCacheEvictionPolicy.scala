@@ -13,6 +13,8 @@ import scala.collection.mutable.MutableList
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import java.util.concurrent.ConcurrentMap
 import com.guavus.acume.cache.core.AcumeTreeCacheValue
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
 
 /**
  * @author archit.thakur
@@ -57,6 +59,8 @@ object AcumeTreeCacheEvictionPolicy {
 
 class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextTrait) extends EvictionPolicy(cube, cacheContext) {
 
+  private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCacheEvictionPolicy])
+  
   def getMemoryEvictableCandidate(list: Map[LevelTimestamp, AcumeTreeCacheValue]): Option[LevelTimestamp] = {
     getEvictableCandidate(list.filter(_._2.isInMemory), cube.levelPolicyMap)
   }
@@ -79,7 +83,7 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextT
       }
     }
     if(count > 1)
-      println("WARNING: More than one evictable candidate found.")
+      logger.warn("WARNING: More than one evictable candidate found.")
     _$evictableCandidate
   }
   
