@@ -36,5 +36,6 @@ object AcumeConstants {
   val DELIMITED_TAB = "\t"
   val LINE_DELIMITED = "\\|"
   val LINE = "|"
+  val SPARK_SQL_SHUFFLE_PARTITIONS = "spark.sql.shuffle.partitions"
   
 }

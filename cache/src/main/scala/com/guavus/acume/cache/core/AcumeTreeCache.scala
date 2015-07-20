@@ -42,7 +42,6 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
   deleteExtraDataFromDiskAtStartUp
   
   def deleteExtraDataFromDiskAtStartUp() {
-    
     logger.info("Starting deleting file")
     try {
       val cacheBaseDirectory = Utility.getCubeBaseDirectory(acumeCacheContext, cube)
@@ -69,12 +68,12 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         Utility.deleteDirectory(basedir + File.separator + directoryToBeDeleted, acumeCacheContext)
       }
       
-      // Evict the evictable timestamps of the levels present in diskLevelPolicyMap
+      //>> Evict the evictable timestamps of the levels present in diskLevelPolicyMap
       val presentLevels = directoryLevelValues.filter( x => {
         !(cube.diskLevelPolicyMap.entrySet().filter( level => {level.getKey().level == x._1.localId && level.getKey().aggregationLevel == x._2.localId}).size == 0)
       })
-      
       logger.info("Present levels are " + presentLevels.map(x=> x._1 + "-" + x._2).mkString(","))
+      
       for (presentLevel <- presentLevels) {
         val levelDirectoryName = Utility.getlevelDirectoryName(presentLevel._1, presentLevel._2)
         val timestamps = fs.listStatus(new Path(cacheBaseDirectory + File.separator + levelDirectoryName)).map(_.getPath().getName().toLong)

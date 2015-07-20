@@ -23,6 +23,8 @@ import com.guavus.acume.cache.utility.Utility
  */
 abstract class AcumeContextTrait {
   
+  private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeContextTrait])
+  
   val acumeConfiguration: AcumeConf
   
   val sparkContext : SparkContext

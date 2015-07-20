@@ -15,6 +15,9 @@ abstract class QueryPoolPolicy(throttleMap : Map[String, Int], acumeContext: Acu
     var classificationList: java.util.ArrayList[(String, HashMap[String, Any])] = new java.util.ArrayList()
     queries foreach(query => {
       val classification = getQueryClassification(query, classificationStats)
+      if(acumeContext.ac.threadLocal.get() == null) {
+        acumeContext.ac.threadLocal.set(HashMap[String, Any]())
+      }
       classificationList.add(new Tuple2(classification, acumeContext.ac.threadLocal.get()))
       acumeContext.ac.threadLocal.remove()
     })
@@ -124,7 +127,9 @@ class QueryPoolPolicySchedulerImpl(acumeContext: AcumeContext) extends QueryPool
   override def getQueryClassification(query : String, classificationStats : ClassificationStats) : String = "scheduler"
 
   override def getPoolNameForClassification(classification : String, poolStats : PoolStats) : String = "scheduler"
-
+  
+  override def updateStats(poolname: String, classificationname: String, poolStats: PoolStats, classificationStats: ClassificationStats, starttime: Long, endtime: Long) = null
+  
 }
 
 class PoolStats

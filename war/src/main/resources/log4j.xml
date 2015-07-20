@@ -5,8 +5,8 @@
 	<appender name="FILE_LOG" class="com.guavus.logging.CustomDailyRollingFileAppender">
 		<param name="File" value="${catalina.base}/logs/acume.log" />
 		<param name="DatePattern" value="'.'yyyy-MM-dd" />
-		<param name="compressBackups" value="TRUE" />
-		<param name="maxNumberOfDays" value="30" />
+		<param name="compressBackups" value="$CLI_REPLACE_COMPRESSBACKUPS$" />
+		<param name="maxNumberOfDays" value="$CLI_REPLACE_MAXNUMBEROFDAYS$" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d [%t] %-5p %c - %m%n" />
 		</layout>
@@ -16,8 +16,8 @@
 	<appender name="BLAZEDS" class="com.guavus.logging.CustomDailyRollingFileAppender">
 		<param name="File" value="${catalina.base}/logs/blazeds.log" />
 		<param name="DatePattern" value="'.'yyyy-MM-dd" />
-		<param name="compressBackups" value="TRUE" />
-		<param name="maxNumberOfDays" value="30" />
+		<param name="compressBackups" value="$CLI_REPLACE_COMPRESSBACKUPS$" />
+		<param name="maxNumberOfDays" value="$CLI_REPLACE_MAXNUMBEROFDAYS$" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%m%n" />
 		</layout>
@@ -26,8 +26,8 @@
 	<appender name="FLEX" class="com.guavus.logging.CustomDailyRollingFileAppender">
 		<param name="File" value="${catalina.base}/logs/flex.log" />
 		<param name="DatePattern" value="'.'yyyy-MM-dd" />
-		<param name="compressBackups" value="TRUE" />
-		<param name="maxNumberOfDays" value="30" />
+		<param name="compressBackups" value="$CLI_REPLACE_COMPRESSBACKUPS$" />
+		<param name="maxNumberOfDays" value="$CLI_REPLACE_MAXNUMBEROFDAYS$" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%m%n" />
 		</layout>
@@ -37,8 +37,8 @@
 	<appender name="FILE_REQ_RES_LOG" class="com.guavus.logging.CustomDailyRollingFileAppender">
 		<param name="File" value="${catalina.base}/logs/acume-req-res.log" />
 		<param name="DatePattern" value="'.'yyyy-MM-dd" />
-		<param name="compressBackups" value="TRUE" />
-		<param name="maxNumberOfDays" value="30" />
+		<param name="compressBackups" value="$CLI_REPLACE_COMPRESSBACKUPS$" />
+		<param name="maxNumberOfDays" value="$CLI_REPLACE_MAXNUMBEROFDAYS$" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d [%t] %-5p %c - %m%n" />
 		</layout>
@@ -47,8 +47,8 @@
 	<appender name="CATALINA" class="com.guavus.logging.CustomDailyRollingFileAppender">
 		<param name="File" value="${catalina.base}/logs/catalina.out" />
 		<param name="DatePattern" value="'.'yyyy-MM-dd" />
-		<param name="compressBackups" value="TRUE" />
-		<param name="maxNumberOfDays" value="30" />
+		<param name="compressBackups" value="$CLI_REPLACE_COMPRESSBACKUPS$" />
+		<param name="maxNumberOfDays" value="$CLI_REPLACE_MAXNUMBEROFDAYS$" />
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="%d [%t] %-5p %c - %m%n" />
 		</layout>

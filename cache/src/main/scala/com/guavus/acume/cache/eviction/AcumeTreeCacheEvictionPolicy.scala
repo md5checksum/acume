@@ -14,8 +14,8 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import com.guavus.acume.cache.core.Level
 import java.util.concurrent.ConcurrentMap
 import com.guavus.acume.cache.core.AcumeTreeCacheValue
-import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import org.slf4j.Logger
 
 /**
  * @author archit.thakur
@@ -26,6 +26,8 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextT
   
   private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCacheEvictionPolicy])
 
+  private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCacheEvictionPolicy])
+  
   def getMemoryEvictableCandidate(list: Map[LevelTimestamp, AcumeTreeCacheValue]): Option[LevelTimestamp] = {
     getEvictableCandidate(list.filter(_._2.isInMemory), cube.levelPolicyMap)
   }
@@ -48,7 +50,6 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextT
     }
     if(count > 1)
       logger.warn("WARNING: More than one evictable candidate found.")
-    //logger.info("Evicting {}", _$evictableCandidate.get.toString())
     _$evictableCandidate
   }
   

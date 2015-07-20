@@ -222,9 +222,9 @@ class QueryPrefetchTaskProducer(acumeContext: AcumeContextTrait, schemas: List[Q
                           if (taskRequest.getQueryRequest.getStartTime >= startTime) {
                             val set = map.get(startTime)
                             if (set != null) {
-                              set.getQueryPrefetchTasks.add(new QueryPrefetchTask(dataService, taskRequest, version, taskManager, acumeContext))
+                              set.getQueryPrefetchTasks.add(new QueryPrefetchTask(acumeService, taskRequest, version, taskManager, acumeContext))
                             } else {
-                              combiner.getQueryPrefetchTasks.add(new QueryPrefetchTask(dataService, taskRequest, version, taskManager, acumeContext))
+                              combiner.getQueryPrefetchTasks.add(new QueryPrefetchTask(acumeService, taskRequest, version, taskManager, acumeContext))
                               map.put(startTime, combiner)
                             }
                           } else {
@@ -233,10 +233,10 @@ class QueryPrefetchTaskProducer(acumeContext: AcumeContextTrait, schemas: List[Q
                             if (otherCombiner.getGranToIntervalMap.get(eachInterval.getGranularity).get < eachInterval.getEndTime) {
                               otherCombiner.getGranToIntervalMap.put(eachInterval.getGranularity, eachInterval.getEndTime)
                             }
-                            otherCombiner.getQueryPrefetchTasks.add(new QueryPrefetchTask(dataService, taskRequest, version, taskManager, acumeContext))
+                            otherCombiner.getQueryPrefetchTasks.add(new QueryPrefetchTask(acumeService, taskRequest, version, taskManager, acumeContext))
                           }
                         } else {
-                          combiner.getQueryPrefetchTasks.add(new QueryPrefetchTask(dataService, taskRequest, version, taskManager, acumeContext))
+                          combiner.getQueryPrefetchTasks.add(new QueryPrefetchTask(acumeService, taskRequest, version, taskManager, acumeContext))
                         }
                       } else {
                         requestLists.add(taskRequest)

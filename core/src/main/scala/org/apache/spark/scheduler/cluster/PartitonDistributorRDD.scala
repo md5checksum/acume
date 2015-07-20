@@ -4,15 +4,18 @@ import scala.collection.Iterator
 import scala.collection.immutable.TreeMap
 import scala.collection.mutable.HashMap
 import scala.reflect.ClassTag
-
 import org.apache.spark.Partition
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.TaskContext
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.hive.HiveContext
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
 
 class PartitonDistributorRDD[T: ClassTag](@transient sc: SparkContext, numPartitions : Int) extends RDD[T](sc.emptyRDD) {
+  
+  private var logger: Logger = LoggerFactory.getLogger(classOf[PartitonDistributorRDD[T]])
   
   var partitions1 : Array[Partition] = _
   var partitionToExecutorMapping : TreeMap[Int, Int] = new TreeMap[Int, Int]() 
@@ -27,7 +30,7 @@ class PartitonDistributorRDD[T: ClassTag](@transient sc: SparkContext, numPartit
      maxExecutorId += 1
      return maxExecutorId
    }
-   println("No new executor added. Using existing executors")
+   logger.info("No new executor added. Using existing executors")
    -1
   }
   
@@ -109,7 +112,7 @@ class PartitonDistributorRDD[T: ClassTag](@transient sc: SparkContext, numPartit
   }
   
   private def printExecutorData(executorData : TreeMap[Int, String]) {
-    executorData.foreach(x => println(x._1 + " " + x._2))
+    executorData.foreach(x => logger.info(x._1 + " " + x._2))
   }
   
 }

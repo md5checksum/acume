@@ -86,7 +86,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
 //        	  return new AcumeStarTreeCacheValue(new AcumeInMemoryValue(key, cube, ), output.measuretableName, output.measureschemardd)
             output
           } else {
-            println(s"Getting data from Insta for $key as it was never calculated")
+            logger.info(s"Getting data from Insta for $key as it was never calculated")
           }
           //First check if point can be populated through children
           var schema: StructType = null
@@ -101,7 +101,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
               return populateParentPointFromChildren(key, rdds, schema)
             }
           } catch {
-            case _: Exception => println(s"Getting data from Insta for $key as all children are not present")
+            case _: Exception => logger.info(s"Getting data from Insta for $key as all children are not present")
           }
           if (key.loadType == LoadType.Insta)
             return getDataFromBackend(key);
@@ -216,7 +216,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
       val metaData = diskUtility.getOrElseInsert(cube, new DataLoadedMetadata(Map[String, String](DataLoadedMetadata.dimensionSetStartTime -> "0", DataLoadedMetadata.dimensionSetEndTime -> "0")))
       val dimensionSetLoadedEndTime = metaData.get(DataLoadedMetadata.dimensionSetEndTime)
       if (dimensionSetLoadedEndTime.toLong >= endTime) {
-        println(s"Not loading dimension set from insta as dimensionSet is already loaded till $dimensionSetLoadedEndTime")
+        logger.info(s"Not loading dimension set from insta as dimensionSet is already loaded till $dimensionSetLoadedEndTime")
       } else {
         val dimensionSetRdd = diskUtility.loadDimensionSet(keyMap, businessCube, Utility.floorFromGranularity(dimensionSetLoadedEndTime.toLong, businessCube.baseGran.getGranularity), endTime)
         val fullRdd = AcumeStarSchemaTreeCache.generateId(dimensionSetRdd, dTableName, acumeCacheContext.cacheSqlContext, latestschema)

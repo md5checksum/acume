@@ -38,6 +38,7 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import acume.exception.AcumeException
 import com.guavus.acume.core.exceptions.AcumeExceptionConstants
 import com.guavus.acume.workflow.RequestDataType
+import com.guavus.acume.cache.common.AcumeConstants
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -57,6 +58,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
   })
   val queryPoolUIPolicy: QueryPoolPolicy = Class.forName(policyclass).getConstructors()(0).newInstance(throttleMap.toMap, acumeContext).asInstanceOf[QueryPoolPolicy]
   val queryPoolSchedulerPolicy: QueryPoolPolicy = Class.forName(ConfConstants.queryPoolSchedPolicyClass).getConstructors()(0).newInstance(acumeContext).asInstanceOf[QueryPoolPolicy]
+  var queryPoolPolicy: QueryPoolPolicy = null
 
   /**
    * Takes QueryRequest i.e. Rubix query and return aggregate Response.
@@ -95,6 +97,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       var propValue: String = if (value != null) value.toString else null
       acumeContext.ac.cacheSqlContext.sparkContext.setLocalProperty(key, propValue)
     }
+    AcumeCacheContextTrait.setSparkSqlShufflePartitions(acumeContext.ac.cacheSqlContext.getConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS))
   }
   
   private def getSparkJobLocalProperties() = {
@@ -108,7 +111,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     for ((key, value) <- acumeContext.ac.threadLocal.get()) {
       acumeContext.ac.cacheSqlContext.sparkContext.setLocalProperty(key, null)
     }
-    
+    acumeContext.ac.cacheSqlContext.setConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS, AcumeCacheContextTrait.getSparkSqlShufflePartitions)
     try{
     	AcumeCacheContextTrait.unsetAll(acumeContext.ac)      
     } catch {
@@ -129,8 +132,6 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
   def checkJobLevelProperties(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): (List[(String, HashMap[String, Any])], List[String]) = {
     this.synchronized {
 
-      val queryPoolPolicy = queryPoolUIPolicy
-      
       var sqlList: java.util.ArrayList[String] = new java.util.ArrayList()
       requests foreach (request => {
         requestDataType match {
@@ -141,6 +142,8 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         }
       })
       
+      val isSchedulerQuery = queryBuilderService.get(0).isSchedulerQuery(sqlList.get(0))
+      queryPoolPolicy = if (isSchedulerQuery) queryPoolSchedulerPolicy else queryPoolUIPolicy
       
       var classificationDetails = queryPoolPolicy.getQueriesClassification(sqlList.toList, classificationStats)
       var poolList: java.util.ArrayList[String] = new java.util.ArrayList()
@@ -173,13 +176,19 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         lazy val fut = future { f }
         Await.result(fut, DurationInt(acumeContext.acumeConf.getInt(ConfConstants.queryTimeOut, 30)) second)
       }
-      def run(sql: String, jobGroupId : String, jobDescription : String, conf : AcumeConf, localProperties : HashMap[String, Any]) = {
-        
-         AcumeConf.setConf(conf)
-         acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
-         val cacheResponse = execute(sql)
-         val responseRdd = cacheResponse.rowRDD
-         (cacheResponse, responseRdd.collect)
+      def run(sql: String, jobGroupId: String, jobDescription: String, conf: AcumeConf, localProperties: HashMap[String, Any]) = {
+
+        getSparkJobLocalProperties ++= localProperties
+        setSparkJobLocalProperties
+        try {
+          AcumeConf.setConf(conf)
+          acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
+          val cacheResponse = execute(sql)
+          val responseRdd = cacheResponse.rowRDD
+          (cacheResponse, responseRdd.collect)
+        } finally {
+          unsetSparkJobLocalProperties
+        }
       }
       
       val localProperties = if (property == null) getSparkJobLocalProperties else property
