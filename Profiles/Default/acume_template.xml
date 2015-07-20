@@ -1002,11 +1002,11 @@
               <Property_OriginalName>application.${acumeApp}.JMXPORT</Property_OriginalName>
        </Property>
 	   <Property>
-            <Property_Name>application.${rubixApp}.acumeCoreThreadPoolSize</Property_Name>
+            <Property_Name>application.${acumeApp}.acumeCoreThreadPoolSize</Property_Name>
             <Property_Value>25</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>integer</Property_DataType>
-            <Property_OriginalName>application.${rubixApp}.acumeCoreThreadPoolSize</Property_OriginalName>
+            <Property_OriginalName>application.${acumeApp}.acumeCoreThreadPoolSize</Property_OriginalName>
         </Property>
 	<Property>
             <Property_Name>application.${acumeApp}.maxNumberOfDays</Property_Name>
