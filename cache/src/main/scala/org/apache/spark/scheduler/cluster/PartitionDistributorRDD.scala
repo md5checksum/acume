@@ -15,7 +15,7 @@ import org.slf4j.Logger
 
 class PartitionDistributorRDD[T: ClassTag](@transient sc: SparkContext, numPartitions : Int) extends RDD[T](sc.emptyRDD) {
   
-  private var logger: Logger = LoggerFactory.getLogger(classOf[PartitonDistributorRDD[T]])
+  private var logger: Logger = LoggerFactory.getLogger(classOf[PartitionDistributorRDD[T]])
   
   var partitions1 : Array[Partition] = _
   var partitionToExecutorMapping : TreeMap[Int, Int] = new TreeMap[Int, Int]() 
