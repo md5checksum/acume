@@ -23,8 +23,6 @@ import org.slf4j.Logger
  */
 
 class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextTrait) extends EvictionPolicy(cube, cacheContext) {
-  
-  private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCacheEvictionPolicy])
 
   private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCacheEvictionPolicy])
   
