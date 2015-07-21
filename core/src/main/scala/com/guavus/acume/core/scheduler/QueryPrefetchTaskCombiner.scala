@@ -20,6 +20,7 @@ import java.util.Collections
 import scala.util.control.Breaks._
 import com.guavus.acume.core.AcumeContext
 import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.cache.core.Level
 
 object QueryPrefetchTaskCombiner {
 
@@ -71,7 +72,7 @@ class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: Quer
         var interval = map.get(key)
         val ceil = Utility.ceilingFromGranularity(getStartTime, key)
         val floor = Utility.floorFromGranularity(getEndTime, key)
-        val fromLevel = Math.max(Utility.getStartTimeFromLevel(Math.max(Math.max(value, if ((interval == null)) 0 else interval.getEndTime), floor), key, levelPointMap.get(key).get), controller.getFirstBinPersistedTime(binSource))
+        val fromLevel = Math.max(Utility.getStartTimeFromLevel(Math.max(Math.max(value, if ((interval == null)) 0 else interval.getEndTime), floor), key, levelPointMap.get(new Level(key)).get), controller.getFirstBinPersistedTime(binSource))
         var startTime = Utility.ceilingFromGranularity(fromLevel, key)
         val flag = if (getIsOlderTask) {
           if (ceil >= value) {

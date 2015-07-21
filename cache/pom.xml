@@ -36,7 +36,7 @@
 		<dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>crux2.0</artifactId>
-			<version>${pversion}</version>
+			<version>${pinstaversion}</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>

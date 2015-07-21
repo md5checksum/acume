@@ -3,10 +3,8 @@ package com.guavus.acume.core
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
-
 import scala.collection.JavaConversions._
 import scala.collection.mutable.LinkedHashMap
-
 import org.apache.hadoop.fs.Path
 import org.apache.spark.Accumulator
 import org.apache.spark.SparkContext
@@ -14,12 +12,11 @@ import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import com.guavus.acume.core.gen.AcumeUdfs
-
 import javax.xml.bind.JAXBContext
+import com.guavus.acume.cache.utility.Utility
 
 /*
  * @author kashish.jain
@@ -33,13 +30,12 @@ abstract class AcumeContextTrait {
   val sparkContext : SparkContext
 
   val acumeContext: AcumeCacheContextTrait = null
-
   
   def sc(): SparkContext = sparkContext
   
   def ac(): AcumeCacheContextTrait = null
   
-  lazy val cacheBaseDirectory : String = getCacheDirectory
+  lazy val cacheBaseDirectory : String = getCacheBaseDirectory
   
   def init() {
     //initialize anything
@@ -47,17 +43,14 @@ abstract class AcumeContextTrait {
     cacheBaseDirectory
   }
   
-  def getCacheDirectory() = {
-	  val cacheDirectory = acumeConf.getCacheBaseDirectory() + File.separator + sparkContext.getConf.get("spark.app.name") + "-" + acumeConf.get(ConfConstants.cacheDirectory)
+  protected def getCacheBaseDirectory() = {
+	  val diskBaseDirectory = Utility.getDiskBaseDirectory(acumeContext)
 			  
-	  val checkpointDirectory = cacheDirectory + File.separator + "checkpoint"
-	  val path = new Path(checkpointDirectory)
-	  val fs = path.getFileSystem(sparkContext.hadoopConfiguration)
-	  //Do previous run cleanup
-	  fs.delete(path)
+	  val checkpointDirectory = diskBaseDirectory + File.separator + "checkpoint"
+	  Utility.deleteDirectory(checkpointDirectory, acumeContext)
 	  sparkContext.setCheckpointDir(checkpointDirectory)
-	  logger.info(s"setting checkpoint directory as $checkpointDirectory")
-	  cacheDirectory
+	  println(s"setting checkpoint directory as $checkpointDirectory")
+	  diskBaseDirectory
   } 
 
   def acumeConf(): AcumeConf = AcumeConf.acumeConf

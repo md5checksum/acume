@@ -4,14 +4,16 @@ import scala.collection.mutable.MutableList
 import scala.collection.JavaConversions._
 import com.guavus.acume.cache.utility.Utility
 import scala.math.Ordering.Implicits._
+import com.guavus.acume.cache.common.CacheLevel
 
 @SerialVersionUID(1L)
-/**
+/*
  * @author archit.thakur
  *
  */
-class FixedLevelPolicy(var levels: Array[Long], baseLevel: Long) extends AbstractCacheLevelPolicy(baseLevel) {
+class FixedLevelPolicy(var levels: Array[Level], baseLevel: Long) extends AbstractCacheLevelPolicy(baseLevel) {
 
+  implicit def convertToLong(level : Level) = level.level
   val levelIndex: Map[Long, Int] = Map[Long, Int]()
   val childParentsMap: Map[Long, MutableList[Long]] = Map[Long, MutableList[Long]]()
   val parentChildMap: Map[Long, Long] = Map[Long, Long]()
@@ -28,13 +30,13 @@ class FixedLevelPolicy(var levels: Array[Long], baseLevel: Long) extends Abstrac
   while (i >= 0) {
     val currentLevel = allLevel(i)
     var child = -1L
-    if (currentLevel == TimeGranularity.MONTH.getGranularity) {
+    if (currentLevel.level == TimeGranularity.MONTH.getGranularity) {
       var j = i - 1
       var breakCondition = false
       while (j >= 0 
           && !breakCondition) {
         val candidateChild = allLevel(j)
-        if (candidateChild <= TimeGranularity.DAY.getGranularity) {
+        if (candidateChild.level <= TimeGranularity.DAY.getGranularity) {
           child = candidateChild
           breakCondition = true
         }
@@ -105,12 +107,16 @@ class FixedLevelPolicy(var levels: Array[Long], baseLevel: Long) extends Abstrac
     }
     resultMap
   }
-
+  
   private def getAllParentsLevel(currentLevel: Long): MutableList[Long] = {
     childParentsMap.get(currentLevel) match{
       case Some(list) => list
       case None => MutableList[Long]()
     }
+  }
+
+  override def getAggregationLevel(currentLevel: Long): (Long/*level*/) = {
+    levels.filter(_.level == currentLevel)(0).aggregationLevel
   }
 
   def getParentHierarchy(currentLevel: Long): MutableList[Long] = {
@@ -122,4 +128,60 @@ class FixedLevelPolicy(var levels: Array[Long], baseLevel: Long) extends Abstrac
     }
     parentHierarchyLevels
   }
+}
+
+
+case class Level(var level: Long) extends Comparable[Level] {
+  
+  var aggregationLevel = level
+  
+//  if(aggregationLevel == 0) {
+//    aggregationLevel == level
+//  }
+  
+  def this(level : Long, aggregationLevel : Long) {
+    this(level)
+    this.aggregationLevel = aggregationLevel
+  }
+  
+  def this(levelString : String) {
+    //Initialize the level from the directoryName
+    this(1)
+    val cacheLevels = levelString.split("-")
+    if(cacheLevels.size == 2){
+    	// This is a combined level directory
+      this.level = cacheLevels(0).toLong
+      this.aggregationLevel = cacheLevels(1).toLong
+    } else {
+    	// This is a non-combined level directory
+      this.level = cacheLevels(0).toLong
+      this.aggregationLevel = cacheLevels(0).toLong 
+    }
+  }
+  
+  def toDirectoryName : String = {
+    if(level == aggregationLevel)
+      CacheLevel.getCacheLevel(level).toString()
+    else
+      CacheLevel.getCacheLevel(level) + "-" + CacheLevel.getCacheLevel(aggregationLevel)
+  }
+  
+  override def compareTo(level : Level) = {
+    // val aggregationCompare = this.aggregationLevel.compare(level.aggregationLevel)
+    // val levelCompare = 
+    this.level.compare(level.level)
+    /*
+    if(levelCompare != 0) {
+      // In case of >,> | >,= | >,< |  <,> | <,= | <,<
+      levelCompare
+    } else {
+      // In case of =,= | =,> | =,< 
+      aggregationCompare
+    }
+    */
+  }
+  
+  override def toString() = {
+    "[" + level + "-" + aggregationLevel + "]"
+  } 
 }

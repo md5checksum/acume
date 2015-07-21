@@ -28,7 +28,6 @@ import scala.collection.immutable.IntMap.Bin
 import com.guavus.acume.cache.core.EvictionDetails
 import com.guavus.acume.cache.core.Interval
 import com.guavus.acume.cache.core.TimeGranularity
-import com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.core.AcumeConf
 import com.guavus.acume.core.AcumeService
@@ -49,6 +48,7 @@ import com.guavus.rubix.query.remote.flex.QueryRequest
 import QueryPrefetchTaskProducer._
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.cache.core.Level
 
 object QueryPrefetchTaskProducer {
 
@@ -336,9 +336,9 @@ class QueryPrefetchTaskProducer(acumeContext: AcumeContextTrait, schemas: List[Q
       	} else {
       	  Utility.getLevelPointMap(levelpolicymap(1))
       	}
-    if (diskLevelPolicyMap.containsKey(level)) {
-      val numPoints = diskLevelPolicyMap.get(level).get
-      val rangeStartTime = AcumeTreeCacheEvictionPolicy.getRangeStartTime(lastBinEndtime, level, numPoints)
+    if (diskLevelPolicyMap.containsKey(new Level(level))) {
+      val numPoints = diskLevelPolicyMap.get(new Level(level)).get
+      val rangeStartTime = Utility.getRangeStartTime(lastBinEndtime, level, numPoints)
       if (endTime <= rangeStartTime) {
         return false;
       }

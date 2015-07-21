@@ -11,6 +11,7 @@ import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.common.Cube
 import scala.collection.mutable.MutableList
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import com.guavus.acume.cache.core.Level
 import java.util.concurrent.ConcurrentMap
 import com.guavus.acume.cache.core.AcumeTreeCacheValue
 import org.slf4j.LoggerFactory
@@ -21,46 +22,10 @@ import org.slf4j.Logger
  *
  */
 
-object AcumeTreeCacheEvictionPolicy {
-
-  def getRangeStartTime(lastBinTimeStamp: Long, level: Long, numPoints: Int): Long = {
-    val rangeEndTime = Utility.floorFromGranularity(lastBinTimeStamp, level)
-    val rangeStartTime = 
-    if (level == TimeGranularity.MONTH.getGranularity) {
-      val cal = Utility.newCalendar()
-      cal.setTimeInMillis(rangeEndTime * 1000)
-      cal.add(Calendar.MONTH, -1 * numPoints)
-      cal.getTimeInMillis / 1000
-    } else if (level == TimeGranularity.DAY.getGranularity) {
-      val cal = Utility.newCalendar()
-      cal.setTimeInMillis(rangeEndTime * 1000)
-      cal.add(Calendar.DAY_OF_MONTH, -1 * numPoints)
-      cal.getTimeInMillis / 1000
-    } else if (level == TimeGranularity.WEEK.getGranularity) {
-      val cal = Utility.newCalendar()
-      cal.setTimeInMillis(rangeEndTime * 1000)
-      cal.add(Calendar.DAY_OF_MONTH, -1 * numPoints * 7)
-      cal.getTimeInMillis / 1000
-    } else if ((level == TimeGranularity.THREE_HOUR.getGranularity) || 
-      (level == TimeGranularity.FOUR_HOUR.getGranularity)) {
-      val cal = Utility.newCalendar()
-      cal.setTimeInMillis(rangeEndTime * 1000)
-      val endOffset = cal.getTimeZone.getOffset(cal.getTimeInMillis) / 1000
-      val tempRangeStartTime = rangeEndTime - numPoints * level
-      cal.setTimeInMillis(tempRangeStartTime * 1000)
-      val startOffset = cal.getTimeZone.getOffset(cal.getTimeInMillis) / 1000
-      tempRangeStartTime + (endOffset - startOffset)
-    } else {
-      rangeEndTime - numPoints * level
-    }
-    rangeStartTime
-  }
-}
-
 class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextTrait) extends EvictionPolicy(cube, cacheContext) {
-
-  private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCacheEvictionPolicy])
   
+  private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeTreeCacheEvictionPolicy])
+
   def getMemoryEvictableCandidate(list: Map[LevelTimestamp, AcumeTreeCacheValue]): Option[LevelTimestamp] = {
     getEvictableCandidate(list.filter(_._2.isInMemory), cube.levelPolicyMap)
   }
@@ -69,8 +34,7 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextT
     getEvictableCandidate(list, cube.diskLevelPolicyMap)
   }
   
-  def getEvictableCandidate(list: Map[LevelTimestamp, AcumeTreeCacheValue], variableretentionmap : Map[Long, Int]): Option[LevelTimestamp] = {
-    
+  def getEvictableCandidate(list: Map[LevelTimestamp, AcumeTreeCacheValue], variableretentionmap : Map[Level, Int]): Option[LevelTimestamp] = {
     
     var count = 0
     var _$evictableCandidate: Option[LevelTimestamp] = None
@@ -87,9 +51,8 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextT
     _$evictableCandidate
   }
   
-
-  private def isEvictiable(levelTimestamp: LevelTimestamp, variableRetentionMap: Map[Long, Int]): Boolean = {
-    if (Utility.getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, variableRetentionMap, cacheContext.getLastBinPersistedTime(cube.binsource)) == 0) true else false
+  private def isEvictiable(levelTimestamp: LevelTimestamp, variableRetentionMap: Map[Level, Int]): Boolean = {
+    if (Utility.getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, levelTimestamp.aggregationLevel.localId, variableRetentionMap, cacheContext.getLastBinPersistedTime(cube.binsource)) == 0) true else false
   }
 
   private def intializeMetaData(variableRetentionMap: Map[Long, Int]): HashMap[Long, Long] = {
@@ -98,7 +61,7 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextT
     val map = HashMap[Long, Long]()
     for ((key, value) <- variableRetentionMap) {
       val numPoints = value
-      map.put(key, AcumeTreeCacheEvictionPolicy.getRangeStartTime(lastBinTime, key, numPoints))
+      map.put(key, Utility.getRangeStartTime(lastBinTime, key, numPoints))
     }
     map
   }

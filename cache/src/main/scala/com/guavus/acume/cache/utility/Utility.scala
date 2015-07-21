@@ -6,7 +6,6 @@ import java.util.Calendar
 import java.util.Date
 import java.util.StringTokenizer
 import java.util.TimeZone
-import scala.collection.JavaConversions.mutableSeqAsJavaList
 import scala.collection.mutable.{Map => MutableMap}
 import scala.collection.mutable.MutableList
 import org.apache.commons.configuration.PropertiesConfiguration
@@ -21,6 +20,7 @@ import org.apache.spark.sql.types.StructField
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.ConversionToSpark
 import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.core.EvictionDetails
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.core.TimeGranularity._
@@ -39,10 +39,11 @@ import java.io.File
 import java.io.BufferedInputStream
 import java.io.FileInputStream
 import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
 import com.guavus.acume.cache.common.AcumeCacheConf
 import scala.collection.mutable.ArrayBuffer
 import com.guavus.acume.cache.workflow.AcumeCacheContext
-import scala.collection.JavaConversions._
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import com.guavus.acume.cache.common.DataType
 import com.guavus.acume.cache.common.FieldType
 import com.guavus.acume.cache.common.ConfConstants
@@ -51,12 +52,15 @@ import com.guavus.acume.cache.common.DimensionSet
 import com.guavus.acume.cache.eviction.EvictionPolicy
 import com.guavus.acume.cache.core.AcumeCacheType
 import com.guavus.rubix.query.remote.flex.TimeZoneInfo
+import com.guavus.acume.cache.core.Level
 import org.apache.spark.SparkContext
-//import com.guavus.acume.cache.core.Level
 import java.io.OutputStream
 import java.io.InputStream
 import java.util.Collection
 import java.io.Closeable
+import org.apache.hadoop.fs.Path
+import com.guavus.acume.cache.common.CacheLevel
+import CacheLevel._
 import com.google.common.collect.Iterables
 import acume.exception.AcumeException
 
@@ -64,6 +68,7 @@ import acume.exception.AcumeException
  * @author archit.thakur
  *
  */
+
 object Utility extends Logging {
   
   val SHORT_FORM = "callSite.short"
@@ -155,69 +160,7 @@ object Utility extends Logging {
     sqlContext.table(tbl).unionAll(newrdd).registerTempTable(newtbl)
   }
   
-  def createEvictionDetailsMapFromFile(): MutableMap[String, EvictionDetails] = {
-    val evictionDetailsMap = MutableMap[String, EvictionDetails]()
-    try {
-      val properties: PropertiesConfiguration = new PropertiesConfiguration()
-      properties.setDelimiterParsingDisabled(true)
-      properties.load("evictiondetails.properties")
-      
-      val keySet = properties.getKeys
-      while (keySet.hasNext) {
-        val key = keySet.next().asInstanceOf[String]
-        val value = Option(properties.getString(key))
-        value match{
-          case None => 
-          case Some(value) => {
-            
-          val valuesArr = value.split(AcumeConstants.LINE_DELIMITED)
-          if (valuesArr.length == 1 && !value.contains(AcumeConstants.LINE)) {
-            try {
-              val memoryEvictionCount = Integer.parseInt(valuesArr(0))
-              val evictionDetails = new EvictionDetails()
-              evictionDetails.setMemoryEvictionThresholdCount(memoryEvictionCount)
-              evictionDetailsMap += key -> evictionDetails
-            } catch {
-              case e: Exception => {
-                logError("Error " + e + " in parseEvictionDetailsMapFromFile while parsing " + key)
-              }
-            }
-          } else if (valuesArr.length > 1 || (valuesArr.length == 1 && value.contains("|"))) {
-            val policyName = valuesArr(0)
-            val retentionMapString = 
-              if (valuesArr.length > 1) {
-                valuesArr(1)
-              } else ""
-            try {
-              val evictionDetails = new EvictionDetails()
-              if (StringUtils.isNotBlank(policyName)) {
-                Class.forName(policyName)
-                evictionDetails.setEvictionPolicyName(policyName)
-              }
-              if (StringUtils.isNotBlank(retentionMapString)) {
-                val retentionMap = getLevelPointMap(retentionMapString)
-                evictionDetails.setVariableRetentionMap(retentionMap)
-              }
-              
-              evictionDetailsMap.put(key, evictionDetails)
-            } catch {
-              case e: Exception => {
-                logError("Error " + e + " in parseEvictionDetailsMapFromFile while parsing " + key)
-              }
-            }
-          } else {
-            logError("Error in parseEvictionDetailsMapFromFile while parsing " + key)
-          } } 	
-        }
-      }  
-    } catch {
-      case e: Throwable => {
-        logError("Error " + e + " in parseEvictionDetailsMapFromFile...")
-        e.printStackTrace()
-      }
-    }
-    evictionDetailsMap
-  }
+//  def createEvictionDetailsMapFromFile(): MutableMap[String, EvictionDetails] = { }
   
   def getTimeZone(id: String): TimeZone = {
     val tz: TimeZone = 
@@ -446,18 +389,18 @@ object Utility extends Logging {
         val levelpolicymap = levelPolicyString.split("\\|")
         val inMemoryPolicyMap = Utility.getLevelPointMap(levelpolicymap(0))
         val diskLevelPolicyMap = 
-        if(levelpolicymap.size == 1) {
-        	inMemoryPolicyMap
-      	} else {
-      	  Utility.getLevelPointMap(levelpolicymap(1))
-      	}
-
-        val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.timeserieslevelpolicymap, ConfConstants.acumecoretimeserieslevelmap, conf, cubeName))
+          if(levelpolicymap.size == 1) {
+          	inMemoryPolicyMap
+        	} else {
+        	  Utility.getLevelPointMap(levelpolicymap(1))
+        	}
+        // val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.timeserieslevelpolicymap, ConfConstants.acumecoretimeserieslevelmap, conf, cubeName))
         
         if(!PropertyValidator.validateRetentionMap(Some(levelPolicyString), ConfConstants.acumecorelevelmap)) {
           throw new RuntimeException(ConfConstants.acumecorelevelmap + " is not configured correctly")
         }
-        
+        val timeserieslevelpolicymap = Utility.getLevelPointMap(getProperty(propertyMap, ConfConstants.timeserieslevelpolicymap, ConfConstants.acumecoretimeserieslevelmap, conf, cubeName)).map(x =>x._1.level -> x._2)
+
         val Gnx = getProperty(propertyMap, ConfConstants.basegranularity, ConfConstants.acumeglobalbasegranularity, conf, cubeName)
         val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
         val _$eviction = Class.forName(getProperty(propertyMap, ConfConstants.evictionpolicyforcube, ConfConstants.acumeglobalevictionpolicycube, conf, cubeName)).asSubclass(classOf[EvictionPolicy])
@@ -491,15 +434,20 @@ object Utility extends Logging {
 //    }
 //    result
 //  }
-  
-   
-   def getPriority(timeStamp: Long, level: Long, variableRetentionMap: Map[Long, Int], lastBinTime : Long): Int = {
-    if (!variableRetentionMap.contains(level)) return 0
-    val numPoints = variableRetentionMap.get(level).getOrElse(throw new RuntimeException("Level not in VariableRetentionMap."))
-        //.getName, BinSource.getDefault.name(), Controller.RETRY_COUNT)
-      if (timeStamp >= getRangeStartTime(lastBinTime, level, numPoints)) 1 else 0
+
+  def getPriority(timeStamp: Long, level: Long, aggregationLevel: Long, variableRetentionMap: Map[Level, Int], lastBinTime : Long): Int = {
+    if (!variableRetentionMap.contains(new Level(level))) return 0
+    val numPoints = variableRetentionMap.get(new Level(level)).getOrElse(throw new RuntimeException("Level not in VariableRetentionMap."))
+    val rangeStarTime = getRangeStartTime(lastBinTime, level, numPoints)
+    var timeStampTobeChecked = timeStamp
+    if(aggregationLevel != level) {
+      // This is a combined point
+      // Check if the last child of this combined point is evictable or not
+      timeStampTobeChecked = Utility.getPreviousTimeForGranularity(Utility.getNextTimeFromGranularity(timeStamp, aggregationLevel, Utility.newCalendar()), level, Utility.newCalendar())
+    }
+    if(timeStampTobeChecked >= rangeStarTime) 1 else 0
   }
-  
+
   def getRangeStartTime(lastBinTimeStamp: Long, level: Long, numPoints: Int): Long = {
     val rangeEndTime = Utility.floorFromGranularity(lastBinTimeStamp, level)
     val rangeStartTime = 
@@ -532,22 +480,33 @@ object Utility extends Logging {
     }
     rangeStartTime
   }
-
-  def getLevelPointMap(mapString: String): Map[Long, Int] = {
-    val result = MutableMap[Long, Int]()
+  
+  def getLevelPointMap(mapString: String): Map[Level, Int] = {
+    val result = MutableMap[Level, Int]()
     val tok = new StringTokenizer(mapString, ";")
     while (tok.hasMoreTokens()) {
       val currentMapElement = tok.nextToken()
       val token = currentMapElement.split(":")
       val gran: String = token(0)
+      val aggregationGran = if(token.length == 3) {
+    	  token(2)
+      } else {
+        token(0)
+      }
       val nmx = token(1).toInt
       val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(gran) match{
         case None => throw new IllegalArgumentException("Unsupported Granularity  " + gran)
         case Some(value) => value
       }
+      
+      val aggregationGranularity = TimeGranularity.getTimeGranularityForVariableRetentionName(aggregationGran) match{
+        case None => throw new IllegalArgumentException("Unsupported Granularity  " + aggregationGran)
+        case Some(value) => value
+      } 
       val level = granularity.getGranularity
-      result.put(level, nmx)
+      result.put(new Level(level, aggregationGranularity.getGranularity), nmx)
     }
+    print(result)
     result.toMap
   }
   
@@ -904,5 +863,44 @@ object Utility extends Logging {
   def isNullOrEmpty[K, V](map: Map[K, V]): Boolean = map == null || map.isEmpty
 
   def isNullOrEmpty(array: Array[Long]): Boolean = array == null || (array.length == 0)
+  
+  def deleteDirectory(dir : String, acumeContext : AcumeCacheContextTrait) {
+    logDebug("Deleting directory " + dir)
+    val path = new Path(dir)
+    val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
+    fs.delete(path, true)
+  }
+
+  def isPathExisting(path : Path, acumeContext : AcumeCacheContextTrait) : Boolean = {
+    logDebug("Checking if path exists => " + path)
+    val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
+    return fs.exists(path)
+  }
+  
+  def isDiskWriteComplete(diskDirectory : String, acumeContext : AcumeCacheContextTrait) : Boolean = {
+    val path =  new Path(diskDirectory + File.separator + "_SUCCESS")
+    isPathExisting(path, acumeContext)
+  }
+  
+  def getDiskBaseDirectory(acumeContext : AcumeCacheContextTrait) = {
+    var diskBaseDirectory = acumeContext.cacheConf.get(ConfConstants.cacheBaseDirectory) + File.separator + acumeContext.cacheSqlContext.sparkContext.getConf.get("spark.app.name") 
+    diskBaseDirectory = diskBaseDirectory + "-" + acumeContext.cacheConf.get(ConfConstants.cacheDirectory)
+    diskBaseDirectory
+  }
+  def getCubeBaseDirectory(acumeContext : AcumeCacheContextTrait, cube : Cube) : String = {
+    var cubeBaseDirectory = getDiskBaseDirectory(acumeContext) + File.separator + cube.binsource + File.separator + cube.cubeName
+    cubeBaseDirectory
+  }
+
+  def getlevelDirectoryName(level: CacheLevel, aggregationLevel: CacheLevel) : String = {
+    new Level(level.localId, aggregationLevel.localId).toDirectoryName
+  }
+  
+  def getDiskDirectoryForPoint(acumeContext : AcumeCacheContextTrait, cube : Cube, levelTimestamp : LevelTimestamp) : String = {
+    var diskDirectoryForPoints = getCubeBaseDirectory(acumeContext, cube)
+    diskDirectoryForPoints = diskDirectoryForPoints + File.separator + getlevelDirectoryName(levelTimestamp.level, levelTimestamp.aggregationLevel)
+    diskDirectoryForPoints = diskDirectoryForPoints + File.separator + levelTimestamp.timestamp
+    diskDirectoryForPoints
+  }
   
 }

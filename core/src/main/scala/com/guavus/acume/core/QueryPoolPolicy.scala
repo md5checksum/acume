@@ -105,7 +105,8 @@ class MultipleQueryPoolPolicyImpl(throttleMap : Map[String, Int], acumeContext: 
       }
   }
   
-  override def updateStats(poolname: String, classificationname: String, poolStats: PoolStats, classificationStats: ClassificationStats, starttime: Long, endtime: Long) = null
+  override def updateStats(poolname: String, classificationname: String, poolStats: PoolStats, classificationStats: ClassificationStats, starttime: Long, endtime: Long) {
+  }
   
 }
 
@@ -115,7 +116,8 @@ class QueryPoolPolicyImpl(throttleMap : Map[String, Int], acumeContext: AcumeCon
 
   override def getPoolNameForClassification(classification : String, poolStats : PoolStats) : String = "default"
   
-  override def updateFinalStats(poolname: String, classificationname: String, poolStats: PoolStats, classificationStats: ClassificationStats, starttime: Long, endtime: Long) = null
+  override def updateFinalStats(poolname: String, classificationname: String, poolStats: PoolStats, classificationStats: ClassificationStats, starttime: Long, endtime: Long) {
+  }
   
   override def getNumberOfQueries(classificationList: List[String]): Int = classificationList.size
 }

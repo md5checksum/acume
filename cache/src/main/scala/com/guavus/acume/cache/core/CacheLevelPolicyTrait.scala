@@ -10,8 +10,9 @@ import scala.collection.JavaConversions._
  *
  */
 trait CacheLevelPolicyTrait extends Serializable {
-  var levels : Array[Long]
+  var levels : Array[Level]
   def getRequiredIntervals(startTime: Long, endTime: Long): Map[Long, MutableList[Long]]
+  def getRequiredIntervals1(startTime: Long, endTime: Long): Map[Long, MutableList[(Long, Long)]]
   def getParentInterval(time: Long, level: Long): Long
   def getChildrenIntervals(startTime: Long, level: Long): MutableList[Long]
   def getBaseLevel(): Long
@@ -22,4 +23,7 @@ trait CacheLevelPolicyTrait extends Serializable {
   def getCeilingToLevel(time: Long, level: Long): Long
   def getParentSiblingMap(level: Long, time: Long): Map[Long, MutableList[Long]]
   def getParentHierarchy(currentLevel: Long): MutableList[Long]
+  def getAggregationLevel(currentLevel: Long): (Long/*level*/)
+  def getCombinableIntervals(startTime: Long, level: Long, childrenLevel : Long): MutableList[Long]
+  
 }

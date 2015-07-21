@@ -5,6 +5,8 @@ import scala.collection.mutable.HashMap
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import com.guavus.acume.cache.common.ConfConstants
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
 
 case class PropertyValidator
 object PropertyValidator {
@@ -14,7 +16,7 @@ object PropertyValidator {
   def validate(settings : HashMap[String, String]) = {
     if (validateRetentionMap(settings.get(ConfConstants.schedulerVariableRetentionMap), ConfConstants.schedulerVariableRetentionMap)
         && validateRetentionMap(settings.get(ConfConstants.acumecorelevelmap), ConfConstants.acumecorelevelmap)
-        && validateRetentionMap(settings.get(ConfConstants.acumecoretimeserieslevelmap), ConfConstants.acumecoretimeserieslevelmap)
+        && validateTimeSeriesRetentionMap(settings.get(ConfConstants.acumecoretimeserieslevelmap), ConfConstants.acumecoretimeserieslevelmap)
         && isNumber(settings.get(ConfConstants.rrcacheconcurrenylevel), ConfConstants.rrcacheconcurrenylevel)
 	    && isNumber(settings.get(ConfConstants.rrsize._1), ConfConstants.rrsize._1)
 	    && isNumber(settings.get(ConfConstants.prefetchTaskRetryIntervalInMillis), ConfConstants.prefetchTaskRetryIntervalInMillis)
@@ -58,8 +60,27 @@ object PropertyValidator {
     true
   }
   
+  def validateTimeSeriesRetentionMap(value : Option[String], key : String = "Key") : Boolean = {
+    if(value == None) {
+      logger.error(key + " is not configured in acume conf")
+      return false
+    }
+    val entries = value.get.split(";")
+    if(entries.length == 0) {
+      logger.error("Length of " + key + " is invalid...")
+      return false
+    }
+    entries.foreach(entry => {
+      val subentry = entry.split(":")
+      if(subentry.length != 2 || !isNumber(Some(subentry(1)), key)) {
+        logger.error("Format of " + key + " is invalid...")
+        return false
+      }
+    })
+    true
+  }
+  
   def validateRetentionMap(levelPolicy : Option[String], key : String = "Key") : Boolean = {
-    
     if(levelPolicy == None || levelPolicy.get.trim == "") {
       logger.error(key + " is not configured in acume conf")
       return false
@@ -87,22 +108,29 @@ object PropertyValidator {
         logger.error("DiskPolicyMap doesnt have all the levels configured in cachelevelPolicyMap")
         return false
       })
+      
+      val matches = diskPolicyMap.entrySet().filter(level => {level.getKey().level == inMemoryLevel.level && level.getKey().aggregationLevel == inMemoryLevel.aggregationLevel}).size
+      if(matches == 0) {
+        logger.error("DiskPolicyMap aggregationPoints cannot be less than inMemorylevel aggregation points")
+        return false
+      }
 
+      if(inMemoryPoints < 0) {
+        logger.error("Number of points cannot be less than 0")
+        return false
+      }
+      
       if(diskPolicyPoints < inMemoryPoints) {
         logger.error("DiskPolicyMap cannot be less than inMemorylevelPolicyMap")
         return false
       }
+    
+      val fraction = inMemoryLevel.aggregationLevel/inMemoryLevel.level
+      if(Math.ceil(fraction).toLong != fraction) {
+        logger.error("Combining level is not a multiple of base level")
+       return false
+      }
       
-//      if((inMemoryLevel.level*inMemoryPoints) < inMemoryLevel.aggregationLevel) {
-//        logger.error("Combining interval is redundant.")
-//        return false
-//      }
-
-//      val fraction = inMemoryLevel.aggregationLevel/inMemoryLevel.level
-//      if(Math.ceil(fraction).toLong != fraction) {
-//        logger.error("Combining level is not a multiple of base level")
-//        return false
-//      }
     }
     true
   }

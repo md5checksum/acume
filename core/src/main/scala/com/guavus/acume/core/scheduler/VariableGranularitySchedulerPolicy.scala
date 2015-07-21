@@ -68,7 +68,7 @@ object VariableGranularitySchedulerPolicy {
 
 class VariableGranularitySchedulerPolicy(acumeConf : AcumeConf) extends ISchedulerPolicy(acumeConf) {
 
-  val schedulerVariableRetentionMap: Map[Long, Int] = Utility.getLevelPointMap(acumeConf.getSchedulerVariableRetentionMap)
+  val schedulerVariableRetentionMap: Map[Long, Int] = Utility.getLevelPointMap(acumeConf.getSchedulerVariableRetentionMap).map(x=> x._1.level -> x._2)
 
   val cachePopulationMap: HashMap[PrefetchCubeConfiguration, HashMap[String, HashMap[Long, Long]]] = new HashMap[PrefetchCubeConfiguration, HashMap[String, HashMap[Long, Long]]]()
 

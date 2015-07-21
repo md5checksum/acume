@@ -45,6 +45,37 @@ abstract class AbstractCacheLevelPolicy(protected var baseLevel: Long) extends C
     intervals
   }
 
+  override def getRequiredIntervals1(startTime: Long, endTime: Long): Map[Long, MutableList[(Long, Long)]] = {
+    val result = Map[Long, MutableList[(Long, Long)]]()
+    val maxInterval = findMaxInterval(startTime, endTime)
+    addIntervals1(result, startTime, endTime, maxInterval)
+    result
+  }
+
+  private def addIntervals1(intervals: Map[Long, MutableList[(Long, Long)]], startTime: Long, endTime: Long, level: Long): Map[Long, MutableList[(Long, Long)]] = {
+    val startTimeCeiling = Utility.ceilingFromGranularity(startTime, level)
+    val endTimeFloor = Utility.floorFromGranularity(endTime, level)
+    if (endTimeFloor > startTimeCeiling) {
+      var currentLevels = intervals.get(level)
+      currentLevels match{
+        case None => currentLevels = Some(MutableList[(Long, Long)]())
+        intervals += (level-> new MutableList[(Long, Long)]())
+        case _ => 
+      }
+      intervals.get(level).get.++=(MutableList((startTimeCeiling, endTimeFloor)))
+      if (startTimeCeiling > startTime) {
+        addIntervals1(intervals, startTime, startTimeCeiling, getLowerLevel(level))
+      }
+      if (endTime > endTimeFloor) {
+        addIntervals1(intervals, endTimeFloor, endTime, getLowerLevel(level))
+      }
+    } else {
+      addIntervals1(intervals, startTime, endTime, getLowerLevel(level))
+    }
+    intervals
+  }
+
+  
   private def addForwardIntervals(intervals: Map[Long, MutableList[Long]], startTime: Long, endTime: Long, level: Long): Map[Long, MutableList[Long]] = {
     var time = startTime
     var stepSize = level
@@ -131,6 +162,15 @@ abstract class AbstractCacheLevelPolicy(protected var baseLevel: Long) extends C
     Utility.ceilingFromGranularity(time, level)
   }
 
+  override def getCombinableIntervals(startTime: Long, level: Long, childrenLevel : Long): MutableList[Long] = {
+    val children = MutableList[Long]()
+    if (childrenLevel != -1){
+      val endTime = Utility.getNextTimeFromGranularity(startTime, level, Utility.newCalendar())
+      children ++= (Utility.getAllIntervals(startTime, endTime, childrenLevel))
+    }
+    children 	
+  }
+  
   override def getChildrenIntervals(startTime: Long, level: Long): MutableList[Long] = {
     val children = MutableList[Long]()
     val childrenLevel = getChildrenLevel(level)
