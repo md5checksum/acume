@@ -54,10 +54,10 @@ object AcumeCacheSQLCorrector {
     })
   }
 }
+
 case class AcumeCacheCorrectorExpression(var expression: Expression)
+
 class AcumeCacheSQLCorrector(val conf: AcumeCacheConf) extends ISqlCorrector {
-  
-  
 
   override def correctSQL(acumeCacheContextTrait: AcumeCacheContextTrait, unparsedsql: String, parsedsql: Tuple2[List[Tuple], RequestType]): ((String, QueryOptionalParam), (List[Tuple], RequestType)) = {
 	  val queryoptionalParams = new QueryOptionalParam()

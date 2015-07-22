@@ -412,16 +412,14 @@ object AcumeCacheContext{
   private[cache] def ACQL(qltype: QLType, sqlContext: SQLContext) = { 
     
     if(sqlContext.isInstanceOf[HiveContext]){
-    
       qltype match{
-      case QLType.hql => sqlContext.asInstanceOf[HiveContext].sql(_)
-      case QLType.sql => sqlContext.sql(_)
+        case QLType.hql => sqlContext.asInstanceOf[HiveContext].sql(_)
+        case QLType.sql => sqlContext.sql(_)
       }
     }
     else if(sqlContext.isInstanceOf[SQLContext]) { 
-      
       qltype match{
-      case QLType.sql => sqlContext.sql(_)
+        case QLType.sql => sqlContext.sql(_)
       }
     }
     else sqlContext.sql(_)

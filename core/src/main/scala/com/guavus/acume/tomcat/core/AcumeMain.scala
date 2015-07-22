@@ -26,7 +26,6 @@ object AcumeMain {
   def startAcumeComponents(sqlQueryEngine:String) = {
     System.setProperty("queryEngine", sqlQueryEngine)
     val acumeContext = ConfigFactory.getInstance.getBean(classOf[AcumeContextTrait])
-	acumeContext.acumeConf.setSqlQueryEngine(sqlQueryEngine)
 	acumeContext.registerUserDefinedFunctions
 	
 	var enableJDBC = acumeContext.acumeConf.getEnableJDBCServer

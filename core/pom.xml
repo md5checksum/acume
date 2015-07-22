@@ -293,8 +293,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-        
-	        <dependency>
+        <dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>attvaludf</artifactId>
 			<version>${pudfversion}</version>

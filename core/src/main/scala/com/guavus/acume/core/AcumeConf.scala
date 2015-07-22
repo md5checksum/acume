@@ -255,14 +255,6 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
     set(ConfConstants.appConfig, appConfig)
   }
   
-  def getSqlQueryEngine(): String = {
-    get(ConfConstants.sqlQueryEngine, "acume")
-  }
-  
-  def setSqlQueryEngine(sqlQueryEngine: String): AcumeConf = {
-    set(ConfConstants.sqlQueryEngine, sqlQueryEngine)
-  }
-  
   def getUdfConfigurationxml() :  String = {
     get(ConfConstants.udfConfigXml, "udfConfiguration.xml")
   }

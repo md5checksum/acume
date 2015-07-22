@@ -733,16 +733,16 @@ Please don't use the following reserved property names:
             </targets>
         </property>
 
-	<property>
-	    <name>PERMSIZE</name>
-	    <type>basic</type>
-	    <help><![CDATA[ - perm space size]]></help>
+    	<property>
+    	    <name>PERMSIZE</name>
+    	    <type>basic</type>
+    	    <help><![CDATA[ - perm space size]]></help>
             <default><![CDATA[512m]]></default>
             <targets>
-                    <target>
+                <target>
                     <file><![CDATA[setenv.sh]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
-                    </target>
+                </target>
             </targets>
         </property>
 
@@ -771,8 +771,9 @@ Please don't use the following reserved property names:
             </targets>
         </property>
 
-         <property>
-            <name>acumeSuperUser</name>
+        <!-- Acume Global properties -->
+        <property>
+            <name>ACUMESUPERUSER</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[admin]]></default>
@@ -785,7 +786,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>acumeSpringResolver</name>
+            <name>ACUMESPRINGRESOLVER</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[com.guavus.acume.core.spring.AcumeResolver]]></default>
@@ -798,7 +799,7 @@ Please don't use the following reserved property names:
         </property>
 
          <property>
-            <name>acumeMaxQueryLogRecord</name>
+            <name>ACUMEMAXQUERYLOGRECORD</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[10]]></default>
@@ -811,7 +812,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>cacheBaselayerBusinessCubeXml</name>
+            <name>ACUMEBUSINESSCUBEXML</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[cubedefinition.xml]]></default>
@@ -822,23 +823,9 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
-        
-        <property>
-            <name>cacheBaselayerStorageType</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[insta]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
 
         <property>
-            <name>cacheBaselayerCubedefinitionXml</name>
+            <name>ACUMECUBEDEFINITIONXML</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[cubexml.xml]]></default>
@@ -851,86 +838,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>cacheExecuteQLtype</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[sql]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
-            <name>cacheRRCacheLoader</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[com.guavus.acume.cache.workflow.RequestResponseCache]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
-            <name>cacheCoreRRCacheConcurrenyLevel</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[16]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
-            <name>cacheCoreRRCacheSize</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[1000]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-         <property>
-            <name>cachedbname</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[default]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
-            <name>acumeDefaultCacheType</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[AcumeFlatSchemaTreeCache]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-
-        <property>
-            <name>timezonedbpath</name>
+            <name>ACUMETIMEZONEDBPATH</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[/opt/tms/rubix/zoneinfo]]></default>
@@ -943,60 +851,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>sqlcorrector</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[com.guavus.acume.cache.sql.AcumeCacheSQLCorrector]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
-            <name>sqlparser</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[com.guavus.acume.cache.sql.AcumeCacheSQLParser]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
-            <name>singleentitycachesize</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[50]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
-            <name>cachetypeconfigclass</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[com.guavus.acume.cache.core.AcumeCacheType]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-
-        <property>
-            <name>cacheCoreTimezone</name>
+            <name>ACUMETIMEZONE</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[GMT]]></default>
@@ -1009,7 +864,20 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>coreEnableJDBCServer</name>
+            <name>ACUMEDBNAME</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[default]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>ACUMEENABLEJDBCSERVER</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[false]]></default>
@@ -1022,7 +890,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>acumeCoreAppConfig</name>
+            <name>ACUMEAPPCONFIG</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[com.guavus.acume.core.configuration.AcumeAppConfig]]></default>
@@ -1035,20 +903,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>cacheschedulerpolicy</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[com.guavus.acume.core.scheduler.VariableGranularitySchedulerPolicy]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
-            <name>acumebinsource</name>
+            <name>ACUMEBINSOURCE</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[__DEFAULT_BINSRC__]]></default>
@@ -1061,20 +916,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>corequeryengine</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[acume]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
-            <name>coreudfconfigurationxml</name>
+            <name>ACUMEUDFCONFIGURATIONXML</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[udfConfiguration.xml]]></default>
@@ -1087,46 +929,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>schedulerpolicyclass</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[com.guavus.acume.core.QueryPoolPolicyImpl]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
-            <name>levelpolicymap</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[1h:720]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
-            <name>timeserieslevelpolicymap</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[1h:24]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
-            <name>basegranularity</name>
+            <name>ACUMEBASEGRANULARITY</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[1h]]></default>
@@ -1139,10 +942,10 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>evictionpolicyclass</name>
+            <name>ACUMEQUERYTIMEOUT</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
-            <default><![CDATA[com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy]]></default>
+            <default><![CDATA[7200]]></default>
             <targets>
                 <target>
                     <file><![CDATA[acume.conf]]></file>
@@ -1152,10 +955,10 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>disabletotalquery</name>
+            <name>MAXALLOWEACUMECLASSIFICATIONMAXALLOWEDQUERIES</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
-            <default><![CDATA[false]]></default>
+            <default><![CDATA[default:25]]></default>
             <targets>
                 <target>
                     <file><![CDATA[acume.conf]]></file>
@@ -1165,7 +968,33 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>schedulerPrefetchTaskRetryInterval</name>
+            <name>ACUMESCHEDULERQUERYPOOLPOLICYCLASS</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.acume.core.QueryPoolPolicyImpl]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>ACUMESCHEDULERPOLICYCLASS</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.acume.core.scheduler.VariableGranularitySchedulerPolicy]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+          <property>
+            <name>ACUMESCHEDULERPREFETCHTASKRETRYINTERVAL</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[300000]]></default>
@@ -1178,7 +1007,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>schedulerThreadPoolSize</name>
+            <name>ACUMESCHEDULERTHREADPOOLSIZE</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[2]]></default>
@@ -1191,7 +1020,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>schedulerEnable</name>
+            <name>ACUMESCHEDULERENABLE</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[true]]></default>
@@ -1204,7 +1033,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>schedulerVariableRetentionMap</name>
+            <name>ACUMESCHEDULERVARIABLERETENTIONMAP</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[1h:24]]></default>
@@ -1215,9 +1044,9 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
-        
+
         <property>
-            <name>schedulerVariableRetentionCombinePoints</name>
+            <name>ACUMESCHEDULERVARIABLERETENTIONCOMBINEPOINTS</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[1]]></default>
@@ -1228,9 +1057,9 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
-        
+
         <property>
-            <name>schedulerQueryPrefetchTaskNumRetries</name>
+            <name>ACUMESCHEDULERQUERYPREFETCHTASKNUMRETRIES</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[3]]></default>
@@ -1241,9 +1070,9 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
-        
+
         <property>
-            <name>schedulerMaxSegmentDuration</name>
+            <name>ACUMESCHEDULERMAXSEGMENTDURATION</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[86400]]></default>
@@ -1256,7 +1085,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>schedulerCheckInterval</name>
+            <name>ACUMESCHEDULERCHECKINTERVAL</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[300]]></default>
@@ -1268,8 +1097,21 @@ Please don't use the following reserved property names:
             </targets>
         </property>
 
+        <property>
+            <name>ACUMESCHEDULERQUERYTIMEOUT</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[7200]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
          <property>
-            <name>instaComboPoints</name>
+            <name>ACUMEINSTACOMBOPOINTS</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[24]]></default>
@@ -1280,8 +1122,8 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
-	<property>
-            <name>instaAvailabilityPollInterval</name>
+        <property>
+            <name>ACUMEINSTAAVAILABILITYPOLLINTERVAL</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[300]]></default>
@@ -1292,11 +1134,12 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
-	<property>
-            <name>queryTimeOut</name>
+
+        <property>
+            <name>ACUMECACHEBASEDIRECTORY</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
-            <default><![CDATA[7200]]></default>
+            <default><![CDATA[/data/acume]]></default>
             <targets>
                 <target>
                     <file><![CDATA[acume.conf]]></file>
@@ -1304,11 +1147,23 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
-	<property>
-            <name>schedulerQueryTimeOut</name>
+        <property>
+            <name>ACUMECACHEDIRECTORY</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
-            <default><![CDATA[7200]]></default>
+            <default><![CDATA[]]></default>
+            <targets>
+                <target>
+            <file><![CDATA[acume.conf]]></file>
+                        <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        <property>
+            <name>ACUMETHREADPOOLSIZE</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[25]]></default>
             <targets>
                 <target>
                     <file><![CDATA[acume.conf]]></file>
@@ -1316,11 +1171,14 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
-	<property>
-            <name>classificationMaxAllowedQueries</name>
+
+
+        <!-- Acume Cache configs -->
+        <property>
+            <name>CACHETIMESERIESLEVELPOLICYMAP</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
-            <default><![CDATA[default:25]]></default>
+            <default><![CDATA[1h:24]]></default>
             <targets>
                 <target>
                     <file><![CDATA[acume.conf]]></file>
@@ -1328,143 +1186,447 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
-        
-     <!-- Logging properties -->
 
-	<property>
-		<name>requestResponseLoggingLevel</name>
-		<help><![CDATA[ - Logging level for Request-Response logs]]></help>
-		<default><![CDATA[INFO]]></default>
-		<targets>
-			<target>
-				<file><![CDATA[log4j.xml]]></file>
-				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-			</target>
-		</targets>
-	</property>
+        <property>
+            <name>CACHEDISABLETOTALQUERY</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[false]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
 
-	<property>
-		<name>flexLoggingLevel</name>
-		<help><![CDATA[ - Logging level for Flex]]></help>
-		<default><![CDATA[INFO]]></default>
-		<targets>
-			<target>
-				<file><![CDATA[log4j.xml]]></file>
-				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-			</target>
-		</targets>
-	</property>
+         <property>
+            <name>CACHERRCACHELOADER</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.acume.cache.workflow.RequestResponseCache]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
 
-	<property>
-		<name>blazedsLoggingLevel</name>
-		<help><![CDATA[ - Logging level for BlazeDS]]></help>
-		<default><![CDATA[DEBUG]]></default>
-		<targets>
-			<target>
-				<file><![CDATA[log4j.xml]]></file>
-				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-			</target>
-		</targets>
-	</property>
+        <property>
+            <name>CACHERRCACHECONCURRENYLEVEL</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[16]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
 
-	<property>
-		<name>c3p0LoggingLevel</name>
-		<help><![CDATA[ - Logging level for C3P0]]></help>
-		<default><![CDATA[INFO]]></default>
-		<targets>
-			<target>
-				<file><![CDATA[log4j.xml]]></file>
-				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-			</target>
-		</targets>
-	</property>
+        <property>
+            <name>CACHERRCACHESIZE</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[1000]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
 
-	<property>
-		<name>jgroupsLoggingLevel</name>
-		<help><![CDATA[ - Logging level for JGroups]]></help>
-		<default><![CDATA[ERROR]]></default>
-		<targets>
-			<target>
-				<file><![CDATA[log4j.xml]]></file>
-				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-			</target>
-		</targets>
-	</property>
+        <property>
+            <name>CACHEBASELAYERSTORAGETYPE</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[insta]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
 
-	<property>
-		<name>rootLoggingLevel</name>
-		<help><![CDATA[ - Root Logging level]]></help>
-		<default><![CDATA[info]]></default>
-		<targets>
-			<target>
-				<file><![CDATA[log4j.xml]]></file>
-				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-			</target>
-		</targets>
-	</property>
-	
-	<property>
-		<name>executorLoggingLevel</name>
-		<help><![CDATA[ - Logging level for Executor logs]]></help>
-		<default><![CDATA[INFO]]></default>
-		<targets>
-			<target>
-				<file><![CDATA[log4j-executor.properties]]></file>
-				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-			</target>
-		</targets>
-	</property>
-	
-	<property>
-		<name>executorLogFileSize</name>
-		<help><![CDATA[ - Executor Log file size(in bytes)]]></help>
-		<default><![CDATA[1000000000]]></default>
-		<targets>
-			<target>
-				<file><![CDATA[log4j-executor.properties]]></file>
-				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-			</target>
-		</targets>
-	</property>
-	
-	<property>
-		<name>executorLogBackups</name>
-		<help><![CDATA[ - Executor Log Backups]]></help>
-		<default><![CDATA[10]]></default>
-		<targets>
-			<target>
-				<file><![CDATA[log4j-executor.properties]]></file>
-				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-			</target>
-		</targets>
-	</property>
-	
-	<property>
-		<name>maxNumberOfDays</name>
-		<help><![CDATA[ - Driver Logs Backups]]></help>
-		<default><![CDATA[30]]></default>
-		<targets>
-			<target>
-				<file><![CDATA[log4j.xml]]></file>
-				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-			</target>
-		</targets>
-	</property>
+        <property>
+            <name>CACHEEXECUTEQLTYPE</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[sql]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
 
-	<property>
-		<name>compressBackups</name>
-		<help><![CDATA[ - Compress Driver logs]]></help>
-		<default><![CDATA[TRUE]]></default>
-		<targets>
-			<target>
-				<file><![CDATA[log4j.xml]]></file>
-				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-			</target>
-		</targets>
-	</property>
-	
+        <property>
+            <name>CACHEDEFAULTCACHETYPE</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[AcumeFlatSchemaTreeCache]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>CACHESQLCORRECTOR</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.acume.cache.sql.AcumeCacheSQLCorrector]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>CACHESQLPARSER</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.acume.cache.sql.AcumeCacheSQLParser]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>CACHESINGLEENTITYCACHESIZE</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[50]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>CACHECACHETYPECONFIGCLASS</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.acume.cache.core.AcumeCacheType]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>CACHELEVELPOLICYMAP</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[1h:720]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>CACHEEVICTIONPOLICYCLASS</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+
+        <!-- Thinclient related configs -->
+
+        <property>
+            <name>THINCLIENTTIMESERIESLEVELPOLICYMAP</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[1h:24]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>THINCLIENTDISABLETOTALQUERY</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[false]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+         <property>
+            <name>THINCLIENTUSEINSTA</name>
+            <help><![CDATA[ - If Insta is to be used for Hive Queries]]></help>
+            <default><![CDATA[false]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+         <property>
+            <name>THINCLIENTRRCACHELOADER</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.acume.cache.workflow.RequestResponseCache]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>THINCLIENTRRCACHECONCURRENYLEVEL</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[16]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>THINCLIENTRRCACHESIZE</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[1000]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>THINCLIENTBASELAYERSTORAGETYPE</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[insta]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>THINCLIENTEXECUTEQLTYPE</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[sql]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>THINCLIENTCACHEDELETEFIRSTBINPERSISTEDTIME</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>THINCLIENTCACHEDELETELASTBINPERSISTEDTIME</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.conf]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <!-- HBASE configs -->
+
+    	
+            
+        <!-- Logging properties -->
+
+    	<property>
+    		<name>requestResponseLoggingLevel</name>
+    		<help><![CDATA[ - Logging level for Request-Response logs]]></help>
+    		<default><![CDATA[INFO]]></default>
+    		<targets>
+    			<target>
+    				<file><![CDATA[log4j.xml]]></file>
+    				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+    			</target>
+    		</targets>
+    	</property>
+
+    	<property>
+    		<name>flexLoggingLevel</name>
+    		<help><![CDATA[ - Logging level for Flex]]></help>
+    		<default><![CDATA[INFO]]></default>
+    		<targets>
+    			<target>
+    				<file><![CDATA[log4j.xml]]></file>
+    				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+    			</target>
+    		</targets>
+    	</property>
+
+    	<property>
+    		<name>blazedsLoggingLevel</name>
+    		<help><![CDATA[ - Logging level for BlazeDS]]></help>
+    		<default><![CDATA[DEBUG]]></default>
+    		<targets>
+    			<target>
+    				<file><![CDATA[log4j.xml]]></file>
+    				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+    			</target>
+    		</targets>
+    	</property>
+
+    	<property>
+    		<name>c3p0LoggingLevel</name>
+    		<help><![CDATA[ - Logging level for C3P0]]></help>
+    		<default><![CDATA[INFO]]></default>
+    		<targets>
+    			<target>
+    				<file><![CDATA[log4j.xml]]></file>
+    				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+    			</target>
+    		</targets>
+    	</property>
+
+    	<property>
+    		<name>jgroupsLoggingLevel</name>
+    		<help><![CDATA[ - Logging level for JGroups]]></help>
+    		<default><![CDATA[ERROR]]></default>
+    		<targets>
+    			<target>
+    				<file><![CDATA[log4j.xml]]></file>
+    				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+    			</target>
+    		</targets>
+    	</property>
+
+    	<property>
+    		<name>rootLoggingLevel</name>
+    		<help><![CDATA[ - Root Logging level]]></help>
+    		<default><![CDATA[info]]></default>
+    		<targets>
+    			<target>
+    				<file><![CDATA[log4j.xml]]></file>
+    				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+    			</target>
+    		</targets>
+    	</property>
+    	
+    	<property>
+    		<name>executorLoggingLevel</name>
+    		<help><![CDATA[ - Logging level for Executor logs]]></help>
+    		<default><![CDATA[INFO]]></default>
+    		<targets>
+    			<target>
+    				<file><![CDATA[log4j-executor.properties]]></file>
+    				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+    			</target>
+    		</targets>
+    	</property>
+    	
+    	<property>
+    		<name>executorLogFileSize</name>
+    		<help><![CDATA[ - Executor Log file size(in bytes)]]></help>
+    		<default><![CDATA[1000000000]]></default>
+    		<targets>
+    			<target>
+    				<file><![CDATA[log4j-executor.properties]]></file>
+    				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+    			</target>
+    		</targets>
+    	</property>
+    	
+    	<property>
+    		<name>executorLogBackups</name>
+    		<help><![CDATA[ - Executor Log Backups]]></help>
+    		<default><![CDATA[10]]></default>
+    		<targets>
+    			<target>
+    				<file><![CDATA[log4j-executor.properties]]></file>
+    				<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+    			</target>
+    		</targets>
+    	</property>
+    
+        <property>
+            <name>maxNumberOfDays</name>
+            <help><![CDATA[ - Driver Logs Backups]]></help>
+            <default><![CDATA[30]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[log4j.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>compressBackups</name>
+            <help><![CDATA[ - Compress Driver logs]]></help>
+            <default><![CDATA[TRUE]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[log4j.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+    	
         <!-- Mailing properties -->
-
         <property>
             <name>mailHost</name>
             <type>advance_sensitive</type>
@@ -1554,42 +1716,7 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
-	<property>
-            <name>cacheBaseDirectory</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[/data/acume]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-	<property>
-            <name>cacheDirectory</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[]]></default>
-            <targets>
-                <target>
-			<file><![CDATA[acume.conf]]></file>
-                    	<path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-	<property>
-            <name>acumeCoreThreadPoolSize</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[25]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
+	
         <property>
             <name>connectionTimeout</name>
             <type>basic</type>
@@ -1733,33 +1860,35 @@ Please don't use the following reserved property names:
 			</targets>
 		</property>
 
-	<property>
-		<name>JMXAUTHENTICATE</name>
-		<type>basic</type>
-		<help><![CDATA[ - ]]></help>
-		<default><![CDATA[false]]></default>
-		<targets>
-			<target>
-				<file><![CDATA[setenv.sh]]></file>
-				<path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
-			</target>
-		</targets>
-	</property>
+    	<property>
+    		<name>JMXAUTHENTICATE</name>
+    		<type>basic</type>
+    		<help><![CDATA[ - ]]></help>
+    		<default><![CDATA[false]]></default>
+    		<targets>
+    			<target>
+    				<file><![CDATA[setenv.sh]]></file>
+    				<path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+    			</target>
+    		</targets>
+    	</property>
 
-	<property>
-		<name>JMXSSL</name>
-		<type>basic</type>
-		<help><![CDATA[ - ]]></help>
-		<default><![CDATA[false]]></default>
-		<targets>
-			<target>
-				<file><![CDATA[setenv.sh]]></file>
-				<path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
-			</target>
-		</targets>
-	</property>
+    	<property>
+    		<name>JMXSSL</name>
+    		<type>basic</type>
+    		<help><![CDATA[ - ]]></help>
+    		<default><![CDATA[false]]></default>
+    		<targets>
+    			<target>
+    				<file><![CDATA[setenv.sh]]></file>
+    				<path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+    			</target>
+    		</targets>
+    	</property>
+
     </PropertiesPerApplication>
 
     <PropertiesPerInstance>    
     </PropertiesPerInstance>
+    
 </RubixConfigurations>

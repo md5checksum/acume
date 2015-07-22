@@ -14,7 +14,7 @@
            <activeByDefault>true</activeByDefault>
         </activation>
         <properties>
-        <pversion>0.1-SNAPSHOT</pversion>
+        <pversion>platform5.2</pversion>
         <pudfversion>0.0.1-SNAPSHOT</pudfversion>
         <pinstaversion>platform5.2</pinstaversion>
         </properties>
