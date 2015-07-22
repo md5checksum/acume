@@ -8,7 +8,8 @@ import com.guavus.acume.cache.common.ConfConstants
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
-case class PropertyValidator
+case class PropertyValidator()
+
 object PropertyValidator {
   
   private var logger: Logger = LoggerFactory.getLogger(classOf[PropertyValidator])
@@ -20,7 +21,7 @@ object PropertyValidator {
         && isNumber(settings.get(ConfConstants.rrcacheconcurrenylevel), ConfConstants.rrcacheconcurrenylevel)
 	    && isNumber(settings.get(ConfConstants.rrsize._1), ConfConstants.rrsize._1)
 	    && isNumber(settings.get(ConfConstants.prefetchTaskRetryIntervalInMillis), ConfConstants.prefetchTaskRetryIntervalInMillis)
-	    && isNumber(settings.get(ConfConstants.threadPoolSize), ConfConstants.threadPoolSize)
+	    && isNumber(settings.get(ConfConstants.schedulerThreadPoolSize), ConfConstants.schedulerThreadPoolSize)
 	    && isNumber(settings.get(ConfConstants.instaComboPoints), ConfConstants.instaComboPoints)
 	    && isNumber(settings.get(ConfConstants.variableRetentionCombinePoints), ConfConstants.variableRetentionCombinePoints)
 	    && isNumber(settings.get(ConfConstants.queryPrefetchTaskNoOfRetries), ConfConstants.queryPrefetchTaskNoOfRetries)

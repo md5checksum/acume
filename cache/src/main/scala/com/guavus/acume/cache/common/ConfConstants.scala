@@ -5,26 +5,65 @@ import scala.collection.mutable.Map
 import com.guavus.acume.cache.core.AcumeCacheType
 
 /**
- * @author archit.thakur
+ * @author kashish.jain
  *
  */
 
 private [acume] object ConfConstants {
 
-  /* Acume cache properties */ 
-  val businesscubexml = "acume.cache.baselayer.businesscubexml"
-  val storagetype = "acume.cache.baselayer.storagetype"
-  val timezonedbPath = "acume.cache.core.timezonedbPath"
+  /* Acume global properties */
+  val superUser = "acume.global.super.user"
+  val springResolver = "acume.global.resolver"
+  val maxQueryLogRecords = "acume.global.max.query.log.record"
+  val businesscubexml = "acume.global.baselayer.businesscubexml"
+  val cubedefinitionxml = "acume.global.baselayer.cubedefinitionxml"
+  val timezonedbPath = "acume.global.timezonedbPath"
+  val timezone = "acume.global.timezone"
+  val backendDbName = "acume.global.backend.dbname"
+  val enableJDBCServer = "acume.global.enableJDBCServer"
+  val appConfig = "acume.global.app.config"
+  val acumecorebinsource = "acume.global.binsource"
+  val udfConfigXml = "acume.global.udf.configurationxml"
+  val acumeglobalbasegranularity = "acume.global.basegranularity"
+  val queryTimeOut = "acume.global.query.timeout"
+  val maxAllowedQueriesPerClassification = "acume.global.classification.max.allowedQueries"
+  val queryPoolPolicyClass = "acume.global.scheduler.querypoolpolicyclass"
+  val schedulerPolicyClass = "acume.global.scheduler.schedulerpolicyclass"
+  val prefetchTaskRetryIntervalInMillis = "acume.global.scheduler.prefetchTaskRetryIntervalInMillis"
+  val schedulerThreadPoolSize = "acume.global.scheduler.threadPoolSize"
+  val enableScheduler ="acume.global.scheduler.enable"
+  val schedulerVariableRetentionMap = "acume.global.scheduler.variableRetentionMap"
+  val variableRetentionCombinePoints = "acume.global.scheduler.variableRetentionCombinePoints"
+  val queryPrefetchTaskNoOfRetries = "acume.global.scheduler.queryPrefetchTaskNoOfRetries"
+  val maxSegmentDuration = "acume.global.scheduler.maxSegmentDuration"
+  val schedulerCheckInterval = "acume.global.scheduler.checkInterval"
+  val schedulerQueryTimeOut = "acume.global.scheduler.query.timeout"
+  val instaComboPoints = "acume.global.insta.comboPoints"
+  val instaAvailabilityPollInterval = "acume.global.insta.availability.poll.interval"
+  val cacheBaseDirectory = "acume.global.cache.base.directory"
+  val cacheDirectory = "acume.global.cache.directory"
+  val queryThreadPoolSize = "acume.global.thread.pool.size"
+
+  /* Cache properties */
+  val acumecoretimeserieslevelmap  = "acume.core.global.timeserieslevelpolicymap"
+  val disableTotalForAggregate = "acume.core.disable.total.query"
   val rrloader = "acume.cache.rrcache.loader"
-  val rrcacheconcurrenylevel = "acume.cache.core.rrcacheconcurrenylevel"
-  val rrsize = ("acume.cache.core.rrcachesize", 3)
-  val cubedefinitionxml = "acume.cache.baselayer.cubedefinitionxml"
+  val rrcacheconcurrenylevel = "acume.cache.rrcacheconcurrenylevel"
+  val rrsize = ("acume.cache.rrcachesize", 3)
+  val storagetype ="acume.cache.baselayer.storagetype"
   val qltype = "acume.cache.execute.qltype"
+  val acumeCacheDefaultType = "acume.cache.default.cache.type"
   val acumecachesqlcorrector = "acume.cache.sql.corrector"
   val acumecachesqlparser = "acume.cache.sql.parser"
-  val backendDbName = "acume.cache.backend.dbname"
-  val acumeCacheDefaultType = "acume.cache.default.cache.type"
   val acumeCacheSingleEntityCacheSize = "acume.cache.singleentity.cache.size"
+  val cacheTypeConfigClassName = "acume.cache.type.config.classname"
+  val acumecorelevelmap = "acume.cache.global.levelpolicymap"
+  val acumeEvictionPolicyClass = "acume.cache.global.evictionpolicyclass"
+
+  /* Thin client properties */
+  val useInsta = "acume.core.use.insta"
+  val firstBinPersistedTime = "acume.cache.delete.firstbinpersistedtime"
+  val lastBinPersistedTime = "acume.cache.delete.lastbinpersistedtime"
   
   val levelpolicymap = "levelpolicymap"
   val basegranularity = "basegranularity"
@@ -33,49 +72,11 @@ private [acume] object ConfConstants {
   val indexDimension = "indexdimension"
   val numberOfPartitions = "numberofpartitions"
 
-  /* Common Properties */
-  val superUser = "acume.super.user"
-  val springResolver = "acume.resolver"
-  val maxQueryLogRecords = "acume.max.query.log.record"
-    
-  /* Acume core properties */
-  val timezone = "acume.core.global.timezone"
-  val acumecorebinsource = "acume.core.global.binsource"
-  val acumecorelevelmap = "acume.core.global.levelpolicymap"
-  val acumecoretimeserieslevelmap = "acume.core.global.timeserieslevelpolicymap"
-  val acumeglobalbasegranularity = "acume.core.global.basegranularity"
-  val acumeglobalevictionpolicycube = "acume.core.global.evictionpolicyclass"
-  val appConfig = "acume.core.app.config"                  
-  val udfConfigXml = "acume.core.udf.configurationxml"
-  val enableJDBCServer = "acume.core.enableJDBCServer"
-  val queryPoolPolicyClass = "acume.core.querypoolpolicyclass"
   val queryPoolSchedPolicyClass = "com.guavus.acume.core.QueryPoolPolicySchedulerImpl"
-  val disableTotalForAggregate = "acume.core.disable.total.query"
-  val cacheTypeConfigClassName = "acume.cache.type.config.classname"
   
-  /* Acume Scheduler properties */  
-  val prefetchTaskRetryIntervalInMillis = "acume.scheduler.prefetchTaskRetryIntervalInMillis"
-  val enableScheduler = "acume.scheduler.enable"
-  val schedulerPolicyClass = "acume.core.scheduler.schedulerpolicyclass"
-  val schedulerVariableRetentionMap = "acume.scheduler.variableRetentionMap"
-  val variableRetentionCombinePoints = "acume.scheduler.variableRetentionCombinePoints"
-  val queryPrefetchTaskNoOfRetries = "acume.scheduler.queryPrefetchTaskNoOfRetries"
-  val maxSegmentDuration = "acume.scheduler.maxSegmentDuration"
-  val schedulerCheckInterval = "acume.scheduler.checkInterval"   
-  val threadPoolSize = "acume.scheduler.threadPoolSize"
-  val queryTimeOut = "acume.core.query.timeout"
-  val schedulerQueryTimeOut = "acume.scheduler.query.timeout"  
-  val maxAllowedQueriesPerClassification = "acume.core.classification.max.allowedQueries" 
-  val instaAvailabilityPollInterval = "acume.insta.availability.poll.interval" 
-  val cacheBaseDirectory = "acume.core.cache.base.directory"
-  val cacheDirectory = "acume.core.cache.directory"
-  /* Insta Properties */
-  val instaComboPoints = "acume.insta.comboPoints"
-  val queryThreadPoolSize = "acume.core.thread.pool.size"
-
   val defaultValueMap = Map[String, String]()
   defaultValueMap += businesscubexml -> "src/test/resources/cubedefinition1.xml"
-  defaultValueMap += acumeCacheDefaultType -> AcumeCacheType.acumeStarSchemaTreeCache.name
+  defaultValueMap += acumeCacheDefaultType -> AcumeCacheType.acumeFlatSchemaTreeCache.name
   defaultValueMap += cacheTypeConfigClassName -> "com.guavus.acume.cache.core.AcumeCacheType"
   defaultValueMap += queryTimeOut -> "30"
   defaultValueMap += instaAvailabilityPollInterval -> "300"

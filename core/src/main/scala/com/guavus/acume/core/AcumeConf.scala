@@ -107,11 +107,11 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
    * Default Super User in system
    */
   def setSchedulerThreadPoolSize(schedulerThreadPoolSize : Int): AcumeConf = {
-    set(ConfConstants.threadPoolSize, String.valueOf(schedulerThreadPoolSize))
+    set(ConfConstants.schedulerThreadPoolSize, String.valueOf(schedulerThreadPoolSize))
   }
   
   def getSchedulerThreadPoolSize() : Int = {
-    getInt(ConfConstants.threadPoolSize, 2)
+    getInt(ConfConstants.schedulerThreadPoolSize, 2)
   }
   
   /**
