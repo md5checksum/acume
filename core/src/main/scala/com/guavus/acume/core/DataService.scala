@@ -22,7 +22,6 @@ import scala.collection.JavaConversions._
 import com.guavus.rubix.query.remote.flex.SearchRequest
 import com.guavus.acume.cache.workflow.AcumeCacheResponse
 import com.guavus.qb.services.IQueryBuilderService
-import com.guavus.acume.cache.common.QLType
 import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.rubix.user.management.utils.HttpUtils

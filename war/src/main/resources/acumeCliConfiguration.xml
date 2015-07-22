@@ -1253,19 +1253,6 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>CACHEEXECUTEQLTYPE</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[sql]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
             <name>CACHEDEFAULTCACHETYPE</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
@@ -1441,19 +1428,6 @@ Please don't use the following reserved property names:
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[insta]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.conf]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
-            <name>THINCLIENTEXECUTEQLTYPE</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[sql]]></default>
             <targets>
                 <target>
                     <file><![CDATA[acume.conf]]></file>

@@ -51,7 +51,6 @@ private [acume] object ConfConstants {
   val rrcacheconcurrenylevel = "acume.cache.rrcacheconcurrenylevel"
   val rrsize = ("acume.cache.rrcachesize", 3)
   val storagetype ="acume.cache.baselayer.storagetype"
-  val qltype = "acume.cache.execute.qltype"
   val acumeCacheDefaultType = "acume.cache.default.cache.type"
   val acumecachesqlcorrector = "acume.cache.sql.corrector"
   val acumecachesqlparser = "acume.cache.sql.parser"

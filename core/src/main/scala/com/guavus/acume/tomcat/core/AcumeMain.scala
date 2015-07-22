@@ -26,14 +26,14 @@ object AcumeMain {
   def startAcumeComponents(sqlQueryEngine:String) = {
     System.setProperty("queryEngine", sqlQueryEngine)
     val acumeContext = ConfigFactory.getInstance.getBean(classOf[AcumeContextTrait])
-	acumeContext.registerUserDefinedFunctions
+	  acumeContext.registerUserDefinedFunctions
 	
-	var enableJDBC = acumeContext.acumeConf.getEnableJDBCServer
+	  var enableJDBC = acumeContext.acumeConf.getEnableJDBCServer
 	 
-	if(enableJDBC.toBoolean)
-		AcumeThriftServer.main(Array[String]())
+	  if(enableJDBC.toBoolean)
+		  AcumeThriftServer.main(Array[String]())
 	
-	//Initiate the session Factory for user management db
+	  //Initiate the session Factory for user management db
     SessionFactory.getInstance(SessionContext.DISTRIBUTED)
     InitDatabase.initializeDatabaseTables(ArrayBuffer[IDML]())
     UMProperties.setGlobalTimeZone(acumeContext.acumeConf.getAcumeTimeZone)

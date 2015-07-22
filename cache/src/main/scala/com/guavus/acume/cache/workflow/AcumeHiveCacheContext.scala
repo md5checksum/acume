@@ -6,7 +6,6 @@ import org.apache.spark.sql.hive.HiveContext
 
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
-import com.guavus.acume.cache.common.QLType
 import com.guavus.acume.cache.utility.Utility
 
 /**
@@ -29,7 +28,7 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
   
   private [acume] def getCubeMap = throw new RuntimeException("Operation not supported")
   
-  private [acume] def executeQuery(sql: String, qltype: QLType.QLType) = {
+  override private [acume] def executeQuery(sql: String) = {
     val resultSchemaRDD = sqlContext.sql(sql)
     new AcumeCacheResponse(resultSchemaRDD, resultSchemaRDD.rdd, MetaData(-1, Nil))
   }
@@ -49,7 +48,6 @@ object AcumeHiveCacheContext{
     conf.set("acume.cache.core.timezone", "GMT")
     conf.set("acume.cache.baselayer.instabase","instabase")
     conf.set("acume.cache.baselayer.cubedefinitionxml", "cubexml")
-    conf.set("acume.cache.execute.qltype", "sql")
     conf.set("acume.core.enableJDBCServer", "true")
     conf.set("acume.core.app.config", "com.guavus.acume.core.configuration.AcumeAppConfig")
     conf.set("acume.core.sql.query.engine", "acume")

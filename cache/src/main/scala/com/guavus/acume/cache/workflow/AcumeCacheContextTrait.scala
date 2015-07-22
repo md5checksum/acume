@@ -8,7 +8,6 @@ import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.Dimension
 import com.guavus.acume.cache.common.Measure
-import com.guavus.acume.cache.common.QLType
 import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
 import com.guavus.acume.cache.core.AcumeTreeCacheValue
@@ -27,27 +26,15 @@ trait AcumeCacheContextTrait extends Serializable {
   private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
   private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
   private [cache] val poolThreadLocal = new InheritableThreadLocal[HashMap[String, Any]]()
-  
-  def acql(sql: String): AcumeCacheResponse = {
-    acql(sql, null)
-  }
 
-  def acql(sql: String, qltype: String): AcumeCacheResponse = {
+  def acql(sql: String): AcumeCacheResponse = {
     setQuery(sql)
     try {
-      val ql: QLType.QLType = if (qltype == null)
-        QLType.getQLType(cacheConf.get(ConfConstants.qltype))
-      else
-        QLType.getQLType(qltype)
-
-      validateQLType(ql)
-
       if (cacheConf.getInt(ConfConstants.rrsize._1) == 0) {
-        executeQuery(sql, ql)
+        executeQuery(sql)
       } else {
-        rrCacheLoader.getRdd((sql, ql))
+        rrCacheLoader.getRdd((sql))
       }
-
     } finally {
       unsetQuery()
     }
@@ -55,26 +42,6 @@ trait AcumeCacheContextTrait extends Serializable {
   
   def threadLocal: InheritableThreadLocal[HashMap[String, Any]] = poolThreadLocal
     
-  private [cache] def validateQLType(qltype: QLType.QLType) = {
-    if (!checkQLValidation(cacheSqlContext, qltype))
-      throw new RuntimeException(s"ql not supported with ${cacheSqlContext}");
-  }
-  
-  private [cache] def checkQLValidation(sqlContext: SQLContext, qltype: QLType.QLType) = { 
-    sqlContext match{
-      case hiveContext: HiveContext =>
-        qltype match {
-          case QLType.hql | QLType.sql => true
-          case rest => false
-        }
-      case sqlContext: SQLContext => 
-        qltype match {
-          case QLType.sql => true
-          case rest => false
-        }
-    }
-  }
-  
   def isDimension(name: String) : Boolean =  {
     if(dimensionMap.contains(name)) {
       true 
@@ -94,7 +61,7 @@ trait AcumeCacheContextTrait extends Serializable {
   
   private [acume] def getCubeMap: Map[CubeKey, Cube]
   
-  private [acume] def executeQuery(sql : String, qltype : QLType.QLType) : AcumeCacheResponse
+  private [acume] def executeQuery(sql : String) : AcumeCacheResponse
   
   private [acume] def cacheConf : AcumeCacheConf
   

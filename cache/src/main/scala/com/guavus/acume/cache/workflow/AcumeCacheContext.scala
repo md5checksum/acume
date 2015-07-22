@@ -17,8 +17,6 @@ import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.Dimension
 import com.guavus.acume.cache.common.Measure
-import com.guavus.acume.cache.common.QLType
-import com.guavus.acume.cache.common.QLType.QLType
 import com.guavus.acume.cache.core.AcumeCacheFactory
 import com.guavus.acume.cache.core.CacheIdentifier
 import com.guavus.acume.cache.disk.utility.DataLoader
@@ -87,7 +85,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   override private [acume] def getCubeList = cubeList.toList
    
-  private [acume] def executeQuery(sql: String, qltype: QLType.QLType) = {
+  override private [acume] def executeQuery(sql: String) = {
     
     val originalparsedsql = AcumeCacheContext.parseSql(sql)
     
@@ -133,7 +131,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     }
     
     val klist = list.flatMap(_.timestamps).toList
-    val kfg = execute(qltype, cubes.toList, updatedsql)
+    val kfg = execute(cubes.toList, updatedsql)
     AcumeCacheResponse(kfg, kfg.rdd, MetaData(-1, klist))
   }
   
@@ -143,8 +141,8 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     }
   }
   
-  private [acume] def execute(qltype: QLType, cubes :List[Cube], updatedsql: String) = {
-    AcumeCacheContext.ACQL(qltype, sqlContext)(updatedsql)
+  private [acume] def execute(cubes :List[Cube], updatedsql: String) = {
+    AcumeCacheContext.ACQL(sqlContext)(updatedsql)
   }
   
   override private [acume] def getFieldsForCube(name: String, binsource: String) = {
@@ -365,10 +363,6 @@ object AcumeCacheContext{
     
   }
   
-//  def main(args: Array[String]) = {
-//    
-//  }
-  
   private [cache] def getTable(cube: String) = cube + "_" + getUniqueRandomNo 	
   
   private [cache] def getUniqueRandomNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt())
@@ -382,23 +376,6 @@ object AcumeCacheContext{
     val statement = sql1.parse(new StringReader(sql));
     edit(null, statement.asInstanceOf[Select].getSelectBody.asInstanceOf[PlainSelect].getWhere)
     
-//    
-//    val sqlContext = new SQLContext(new SparkContext)
-//    val conf = new AcumeCacheConf
-//    conf.set(ConfConstants.businesscubexml, "/Users/archit.thakur/Documents/Code_Acume_Scala/cache/src/test/resources/cubdefinition.xml")
-//    conf.set("acume.cache.core.variableretentionmap", "1h:720")
-//    conf.set("acume.cache.baselayer.instainstanceid","0")
-//    conf.set("acume.cache.baselayer.storagetype", "orc")
-//    conf.set("acume.cache.core.timezone", "GMT")
-//    conf.set("acume.cache.baselayer.instabase","instabase")
-//    conf.set("acume.cache.baselayer.cubedefinitionxml", "cubexml")
-//    conf.set("acume.cache.execute.qltype", "sql")
-//    conf.set("acume.core.enableJDBCServer", "true")
-//    conf.set("acume.core.app.config", "com.guavus.acume.core.configuration.AcumeAppConfig")
-//    conf.set("acume.core.sql.query.engine", "acume")
-//    
-//    val cntxt = new AcumeCacheContext(sqlContext, conf)
-//    cntxt.acql("select * from searchEgressPeerCube_12345")
   }
   
   private [workflow] def parseSql(sql: String) = { 
@@ -409,19 +386,7 @@ object AcumeCacheContext{
     (list, RequestType.getRequestType(requestType))
   }
   
-  private[cache] def ACQL(qltype: QLType, sqlContext: SQLContext) = { 
-    
-    if(sqlContext.isInstanceOf[HiveContext]){
-      qltype match{
-        case QLType.hql => sqlContext.asInstanceOf[HiveContext].sql(_)
-        case QLType.sql => sqlContext.sql(_)
-      }
-    }
-    else if(sqlContext.isInstanceOf[SQLContext]) { 
-      qltype match{
-        case QLType.sql => sqlContext.sql(_)
-      }
-    }
-    else sqlContext.sql(_)
+  private[cache] def ACQL(sqlContext: SQLContext) = { 
+    sqlContext.sql(_)
   }
 }
