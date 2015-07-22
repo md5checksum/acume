@@ -8,7 +8,8 @@ import com.guavus.acume.cache.common.ConfConstants
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
-case class PropertyValidator
+case class PropertyValidator()
+
 object PropertyValidator {
   
   private var logger: Logger = LoggerFactory.getLogger(classOf[PropertyValidator])
