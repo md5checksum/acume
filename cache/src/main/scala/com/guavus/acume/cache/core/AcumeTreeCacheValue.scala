@@ -85,7 +85,7 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
         val rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
         value = new AcumeDiskValue(acumeValue.levelTimestamp, acumeValue.cube, rdd)
         value.acumeContext = acumeContext
-        logger.info("Disk write complete for {}" + acumeValue.levelTimestamp.toString())
+        logger.info("Disk write complete for {}" + acumeValue.levelTimestamp.toString() + " for cube " + cube.getAbsoluteCubeName)
         this.acumeValue = value
         if (!shouldCache) {
           acumeValue.evictFromMemory
@@ -137,7 +137,7 @@ case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measur
   
   override protected def finalize() {
     try {
-      logger.info("Unpersisting Data object {} for temp_memory_only ", levelTimestamp)
+      logger.info("Unpersisting Data object {} for temp_memory_only for cube " + cube.getAbsoluteCubeName, levelTimestamp)
       logger.info("Dropping temp tables {}", tempTables.mkString(","))
       evictFromMemory
       tempTables.get.asInstanceOf[scala.collection.mutable.ArrayBuffer[String]].map(x => measureSchemaRdd.sqlContext.dropTempTable(x))
