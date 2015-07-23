@@ -1,6 +1,5 @@
 package com.guavus.acume.core.scheduler
 
-import VariableGranularitySchedulerPolicy._
 import scala.collection.JavaConversions._
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.core.Interval
@@ -13,58 +12,6 @@ import com.guavus.acume.core.AcumeContextTrait
 import java.lang.IllegalArgumentException
 import com.guavus.acume.core.AcumeService
 import com.guavus.acume.core.DataService
-//import com.guavus.acume.core.DummyContext
-//import com.guavus.acume.core.cube.cube_APN_SUBCR_TT_APP
-//import com.guavus.acume.core.cube.cube_RAT_DEV_URL
-//import com.guavus.acume.core.cube.cube_RAT_SEG_DEV_URL
-
-object VariableGranularitySchedulerPolicy {
-
-//  def main(args: Array[String]) {
-////    RubixProperties.SchedulerVariableGranularityMap.setValue("1h:720")
-//    val startTime = 1361941200
-//    val endTime = 1365120000
-//    val variableGranularitySchedulerPolicy = new VariableGranularitySchedulerPolicy(new AcumeConf)
-//    val binMap = new scala.collection.mutable.HashMap[String, Any]()
-//    binMap.put(QueryPrefetchTaskProducer.BIN_SOURCE, "SE")
-//    binMap.put(QueryPrefetchTaskProducer.VERSION, 0)
-//    binMap.put(QueryPrefetchTaskProducer.LAST_BIN_TIME, new Interval(startTime, endTime))
-////    new AcumeConf.setTimeZone.setValue("GMT")
-//    var intervals: scala.collection.mutable.HashSet[Interval] = null
-//    val cube = new cube_APN_SUBCR_TT_APP
-//    val cube2 = new cube_RAT_DEV_URL
-//    val cube_ = new cube_RAT_SEG_DEV_URL
-//    val cubeConfig = new PrefetchCubeConfiguration()
-//    cubeConfig.setTopCube(cube)
-//    
-//    val querybuilderservice = new DummyQueryBuilderService
-//    val acumeContext: AcumeContextTrait = new DummyContext
-//    val dataservice = new DataService(List(querybuilderservice), acumeContext)
-//    
-//    val querybuilder = new DummyQueryBuilderSchema
-//    
-//    val acumeconf = new AcumeConf(true, this.getClass.getResourceAsStream("/acume.conf"))
-////    acumeconf.set
-//    
-//    val acumeservice = new AcumeService(dataservice);
-//    
-//    val schedulerpolicy = new VariableGranularitySchedulerPolicy(acumeconf)
-//    
-//    val x = new QueryRequestPrefetchTaskManager(dataservice, List(querybuilder), acumeconf, acumeservice, schedulerpolicy)
-////    x.startPrefetchScheduler
-//    
-//    println(intervals)
-//    var start = startTime
-//    while (start <= endTime) {
-//      println(Utility.humanReadableTimeStamp(start))
-//      intervals = variableGranularitySchedulerPolicy.getIntervalsAndLastUpdateTime(start, start + 86400, cubeConfig, true, binMap, x).getIntervals
-//      println(intervals)
-//      start += 86400
-//    }
-//    binMap.put(QueryPrefetchTaskProducer.BIN_SOURCE, "SE1")
-//    System.exit(0)
-//  }
-}
 
 class VariableGranularitySchedulerPolicy(acumeConf : AcumeConf) extends ISchedulerPolicy(acumeConf) {
 

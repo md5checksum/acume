@@ -59,7 +59,7 @@ private [acume] object ConfConstants {
   val acumecorelevelmap = "acume.cache.global.levelpolicymap"
   val acumeEvictionPolicyClass = "acume.cache.global.evictionpolicyclass"
 
-  /* Thin client properties */
+  /* For HIVE. Thin client properties */
   val useInsta = "acume.core.use.insta"
   val firstBinPersistedTime = "acume.cache.delete.firstbinpersistedtime"
   val lastBinPersistedTime = "acume.cache.delete.lastbinpersistedtime"

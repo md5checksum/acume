@@ -31,32 +31,6 @@ object QueryRequestPrefetchTaskManager {
 
   val logger = LoggerFactory.getLogger(classOf[QueryRequestPrefetchTaskManager])
 
-//  def getInstance(): QueryRequestPrefetchTaskManager = {
-//    ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager])
-//  }
-  
-//  def main(args: Array[String]) {
-//    
-//	  val querybuilder = new DummyQueryBuilderSchema
-//    val querybuilderservice = new QueryBuilderService(querybuilder, new QBConf)
-//    val acumeContext: AcumeContextTrait = new DummyContext
-//    val dataservice = new DataService(List(querybuilderservice), acumeContext)
-//    
-//    
-//    val acumeconf = new AcumeConf(true, this.getClass.getResourceAsStream("/acume.conf"))
-//	  acumeconf.set("acume.core.global.timezone", "GMT")
-////    acumeconf.set
-//    
-//    val acumeservice = new AcumeService(dataservice);
-//    
-//    val schedulerpolicy = new VariableGranularitySchedulerPolicy(acumeconf)
-//    
-//    val x = new QueryRequestPrefetchTaskManager(dataservice, List(querybuilder), acumeconf, acumeservice, schedulerpolicy)
-//    x.startPrefetchScheduler
-//    
-//    while(true){;}
-//  
-//  }
 }
 
 class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService, @BeanProperty schemas: List[QueryBuilderSchema], acumeContext : AcumeContextTrait, acumeService : AcumeService, schedulerPolicy : ISchedulerPolicy, controller : Controller) {

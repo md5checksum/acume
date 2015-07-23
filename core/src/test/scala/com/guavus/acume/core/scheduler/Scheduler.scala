@@ -25,26 +25,26 @@ class Scheduler extends FlatSpec with Matchers {
 //    deleteOutFile("src/test/resources/CloneXmlTest/test-clone/out", false)
 //  }
   
-  "Scheduler " should " start without Exception " in {
-    val querybuilderservice = new DummyQueryBuilderService
-    val acumeContext: AcumeContextTrait = new DummyContext
-    val dataservice = new DataService(List(querybuilderservice), acumeContext)
-    
-    val querybuilder = new DummyQueryBuilderSchema
-    
-    val acumeconf = new AcumeConf(true, this.getClass.getResourceAsStream("/acume.conf"))
-//    acumeconf.set
-    
-    val acumeservice = new AcumeService(dataservice);
-    
-    val schedulerpolicy = new VariableGranularitySchedulerPolicy(acumeconf)
-    
-    val x = new QueryRequestPrefetchTaskManager(dataservice, List(querybuilder), acumeContext, acumeservice, schedulerpolicy, new Controller(acumeContext.acumeContext))
-    x.startPrefetchScheduler
-    this.synchronized {
-    	this.wait()
-    }
-  }
+//  "Scheduler " should " start without Exception " in {
+//    val querybuilderservice = new DummyQueryBuilderService
+//    val acumeContext: AcumeContextTrait = new DummyContext
+//    val dataservice = new DataService(List(querybuilderservice), acumeContext)
+//    
+//    val querybuilder = new DummyQueryBuilderSchema
+//    
+//    val acumeconf = new AcumeConf(true, this.getClass.getResourceAsStream("/acume.conf"))
+////    acumeconf.set
+//    
+//    val acumeservice = new AcumeService(dataservice);
+//    
+//    val schedulerpolicy = new VariableGranularitySchedulerPolicy(acumeconf)
+//    
+//    val x = new QueryRequestPrefetchTaskManager(dataservice, List(querybuilder), acumeContext, acumeservice, schedulerpolicy, new Controller(acumeContext.acumeContext))
+//    x.startPrefetchScheduler
+//    this.synchronized {
+//    	this.wait()
+//    }
+//  }
   
 //  override def afterEach {
 //    deleteOutFile("src/test/resources/CloneXmlTest/test-clone/out",false)

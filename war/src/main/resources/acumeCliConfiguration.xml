@@ -1344,10 +1344,10 @@ Please don't use the following reserved property names:
         </property>
 
 
-        <!-- Thinclient related configs -->
+        <!-- HIVE related configs -->
 
         <property>
-            <name>THINCLIENTTIMESERIESLEVELPOLICYMAP</name>
+            <name>HIVETIMESERIESLEVELPOLICYMAP</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[1h:24]]></default>
@@ -1360,7 +1360,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>THINCLIENTDISABLETOTALQUERY</name>
+            <name>HIVEDISABLETOTALQUERY</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[false]]></default>
@@ -1373,7 +1373,7 @@ Please don't use the following reserved property names:
         </property>
 
          <property>
-            <name>THINCLIENTUSEINSTA</name>
+            <name>HIVEUSEINSTA</name>
             <help><![CDATA[ - If Insta is to be used for Hive Queries]]></help>
             <default><![CDATA[false]]></default>
             <targets>
@@ -1385,7 +1385,7 @@ Please don't use the following reserved property names:
         </property>
 
          <property>
-            <name>THINCLIENTRRCACHELOADER</name>
+            <name>HIVERRCACHELOADER</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[com.guavus.acume.cache.workflow.RequestResponseCache]]></default>
@@ -1398,7 +1398,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>THINCLIENTRRCACHECONCURRENYLEVEL</name>
+            <name>HIVERRCACHECONCURRENYLEVEL</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[16]]></default>
@@ -1411,7 +1411,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>THINCLIENTRRCACHESIZE</name>
+            <name>HIVERRCACHESIZE</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[1000]]></default>
@@ -1424,7 +1424,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>THINCLIENTBASELAYERSTORAGETYPE</name>
+            <name>HIVEBASELAYERSTORAGETYPE</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[insta]]></default>
@@ -1437,7 +1437,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>THINCLIENTCACHEDELETEFIRSTBINPERSISTEDTIME</name>
+            <name>HIVECACHEDELETEFIRSTBINPERSISTEDTIME</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[]]></default>
@@ -1450,7 +1450,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>THINCLIENTCACHEDELETELASTBINPERSISTEDTIME</name>
+            <name>HIVECACHEDELETELASTBINPERSISTEDTIME</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[]]></default>
