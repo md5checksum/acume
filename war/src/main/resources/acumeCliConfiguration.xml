@@ -1464,7 +1464,59 @@ Please don't use the following reserved property names:
 
         <!-- HBASE configs -->
 
-    	
+    	<property>
+            <name>HBASEDISABLETOTALQUERY</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[false]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.ini]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>HBASERRCACHELOADER</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.acume.cache.workflow.RequestResponseCache]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.ini]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>HBASERRCACHECONCURRENYLEVEL</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[16]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.ini]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>HBASERRCACHESIZE</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[1000]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.ini]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+
             
         <!-- Logging properties -->
 
