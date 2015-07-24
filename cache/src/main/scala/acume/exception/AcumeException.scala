@@ -1,5 +1,3 @@
-
-
 package acume.exception
 
 class AcumeException(code : String, cause: Throwable) extends RuntimeException(code, cause) {

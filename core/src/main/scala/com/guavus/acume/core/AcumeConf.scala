@@ -1,14 +1,12 @@
 package com.guavus.acume.core
 
-import java.io.InputStream
-import java.util.Properties
-
 import scala.Array.canBuildFrom
-import scala.collection.JavaConverters.propertiesAsScalaMapConverter
+import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
-
 import org.slf4j.LoggerFactory
-
+import org.apache.shiro.config.Ini
+import org.apache.shiro.config.Ini.Section
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.utility.PropertyValidator
 
@@ -30,45 +28,55 @@ import com.guavus.acume.cache.utility.PropertyValidator
  *
  * @param loadDefaults whether to also load values from Java system properties
  */
-class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable with Serializable {
+class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with Serializable {
   
-  val logger = LoggerFactory.getLogger(this.getClass())
+  private val logger = LoggerFactory.getLogger(this.getClass())
 
   def this(loadDefaults : Boolean) = this(true, null)
   
   /** Create a AcumeConf that loads defaults from system properties and the classpath */
   def this() = this(true)
-
+  
   private val settings = new HashMap[String, String]()
+  private var datasources = Array[String]()
+  
+  // Set the default values
   setDefault
 
+  // load the properties from the systemProperties
   if (loadDefaults) {
     // Load any Acume.* system properties
-    for ((k, v) <- System.getProperties.asScala if k.toLowerCase.startsWith("acume.") || k.toLowerCase.startsWith("qb.")) {
+    for ((k, v) <- System.getProperties.asScala if k.toLowerCase.contains("acume.") || k.toLowerCase.contains("qb.")) {
       settings(k.trim) = v.trim
     }
   }
   
+  // Read the acume.ini file. 
   if(fileName != null) {
-    // Load properties from file
-	val properties = new Properties()
-	properties.load(fileName)
-	for ((k, v) <- properties.asScala) {
-	  if(!v.trim.equals("")) {
-		settings(k.trim) = v.trim
-		System.setProperty(k.trim, v.trim)
-	  }
-	}
-	PropertyValidator.validate(settings)
-
+    val ini : Ini = Ini.fromResourcePath(fileName)
+    val sectionNames = ini.getSectionNames
+    
+    sectionNames.map(sectionName => {
+     val section : Section = ini.getSection(sectionName.trim)
+     section.entrySet.map(property => {
+       if(!property.getValue.trim.equals("")) {
+         datasources.+(sectionName.trim)
+         val key = AcumeConf.getKeyName(property.getKey, sectionName)
+         settings(key) = property.getValue.trim
+         System.setProperty(key, property.getValue.trim)
+       }
+     })
+    })
+    
+	  PropertyValidator.validate(settings)
   }
   
-  def setDefault = {
+  private def setDefault = {
     set(ConfConstants.schedulerPolicyClass,"com.guavus.acume.core.scheduler.VariableGranularitySchedulerPolicy")
   }
   
   /** Set a configuration variable. */
-  def set(key: String, value: String): AcumeConf = {
+  private def set(key: String, value: String): AcumeConf = {
     if (key == null) {
       throw new NullPointerException("null key")
     }
@@ -92,241 +100,128 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
     this
   }
   
-  /**
-   * Default Super User in system
-   */
-  def setQueryPrefetchTaskRetryIntervalInMillis(prefetchTaskRetryIntervalInMillis : String): AcumeConf = {
-    set(ConfConstants.prefetchTaskRetryIntervalInMillis, prefetchTaskRetryIntervalInMillis)
+  def getMaxAllowedQueriesPerClassification() : String = {
+    get(ConfConstants.maxAllowedQueriesPerClassification, "default:25")
   }
   
   def getQueryPrefetchTaskRetryIntervalInMillis() : Long = {
     getLong(ConfConstants.prefetchTaskRetryIntervalInMillis, 300000)
   }
   
-  /**
-   * Default Super User in system
-   */
-  def setSchedulerThreadPoolSize(schedulerThreadPoolSize : Int): AcumeConf = {
-    set(ConfConstants.schedulerThreadPoolSize, String.valueOf(schedulerThreadPoolSize))
-  }
-  
   def getSchedulerThreadPoolSize() : Int = {
     getInt(ConfConstants.schedulerThreadPoolSize, 2)
   }
   
-  /**
-   * Default Super User in system
-   */
-  def setSuperUser(superUser : String): AcumeConf = {
-    set(ConfConstants.superUser, superUser)
-  }
-  
   def getSuperUser() : String = {
-    get(ConfConstants.superUser, "admin")
-  }
-  
-  /**
-   * Sets the resolver to be used to start app.
-   */
-  def setResolver(resolver : String): AcumeConf = {
-    set(ConfConstants.springResolver, resolver)
+    get(AcumeConf.getKeyName(ConfConstants.superUser), "admin")
   }
   
   def getResolver() : String = {
-    get(ConfConstants.springResolver, "com.guavus.acume.core.spring.AcumeResolver")
-  }
-  
-  /**
-   * If true it will start scheduler on server startup 
-   */
-  def setEnableScheduler(enableScheduler : Boolean): AcumeConf = {
-    set(ConfConstants.enableScheduler, String.valueOf(enableScheduler))
+    get(AcumeConf.getKeyName(ConfConstants.springResolver), "com.guavus.acume.core.spring.AcumeResolver")
   }
   
   def getEnableScheduler() : Boolean = {
-    getBoolean(ConfConstants.enableScheduler, true)
+    getBoolean(AcumeConf.getKeyName(ConfConstants.enableScheduler), true)
   }
 
   /* Get the timezone of acume */
   def getAcumeTimeZone() : String = {
-    get(ConfConstants.timezone, "GMT")
-  }
-  /**
-   * Determines maximum duration query that insta can serve. 
-   */
-  def setInstaComboPoints(instaComboPoints : Int): AcumeConf = {
-    set(ConfConstants.instaComboPoints, String.valueOf(instaComboPoints))
+    get(AcumeConf.getKeyName(ConfConstants.timezone), "GMT")
   }
   
   def getInstaComboPoints() : Int = {
-    getInt(ConfConstants.instaComboPoints, 24)
-  }
-  
-  /**
-   * This tell for which granularity how back scheduler will run 
-   */
-  def setSchedulerVariableRetentionMap(schedulerVariableRetentionMap : String): AcumeConf = {
-    set(ConfConstants.schedulerVariableRetentionMap, schedulerVariableRetentionMap)
+    getInt(AcumeConf.getKeyName(ConfConstants.instaComboPoints), 24)
   }
   
   def getSchedulerVariableRetentionMap() : String = {
-    get(ConfConstants.schedulerVariableRetentionMap, "1h:24")
-  }
-  
-  /**
-   * This tells how long queries can be combined together. 
-   */
-  def setSchedulerVariableRetentionCombinePoints(schedulerVariableRetentionCombinePoints : String): AcumeConf = {
-    set(ConfConstants.variableRetentionCombinePoints, schedulerVariableRetentionCombinePoints)
+    get(AcumeConf.getKeyName(ConfConstants.schedulerVariableRetentionMap), "1h:24")
   }
   
   def getSchedulerVariableRetentionCombinePoints() : Int = {
-    getInt(ConfConstants.variableRetentionCombinePoints, 1)
-  }
-  
-  /**
-   * No of retries before this task mark as failed 
-   */
-  def setQueryPrefetchTaskNoOfRetries(queryPrefetchTaskNoOfRetries : Int): AcumeConf = {
-    set(ConfConstants.queryPrefetchTaskNoOfRetries, String.valueOf(queryPrefetchTaskNoOfRetries))
+    getInt(AcumeConf.getKeyName(ConfConstants.variableRetentionCombinePoints), 1)
   }
   
   def getQueryPrefetchTaskNoOfRetries() : Int = {
-    getInt(ConfConstants.queryPrefetchTaskNoOfRetries, 3)
-  }
-  
-  /**
-   * Scheduler segments which will executw together and increase acume availability 
-   */
-  def setSchedulerMaxSegmentDuration(schedulerMaxSegmentDuration : Int): AcumeConf = {
-    set(ConfConstants.maxSegmentDuration, String.valueOf(schedulerMaxSegmentDuration))
+    getInt(AcumeConf.getKeyName(ConfConstants.queryPrefetchTaskNoOfRetries), 3)
   }
   
   def getSchedulerMaxSegmentDurationCombinePoints() : Int = {
-    getInt(ConfConstants.maxSegmentDuration, 86400)
+    getInt(AcumeConf.getKeyName(ConfConstants.maxSegmentDuration), 86400)
   }
   
-  /**
-   * Sets the input paths for the cubes to be used. Format to use is CubeName1:path1;path2|CubeName2:path1;path2
-   */
-  def setMaxQueryLogRecords(maxQueryLogRecords : Int): AcumeConf = {
-    set(ConfConstants.maxQueryLogRecords, maxQueryLogRecords.toString)
-  }
-
   def getMaxQueryLogRecords(): Int = {
-    getInt(ConfConstants.maxQueryLogRecords, 10)
-  }
-  
-  /**
-   * Sets the outputcubes base path to be used.
-   */
-  def setSchedulerScheckInterval(schedulerCheckInterval : Int): AcumeConf = {
-    set(ConfConstants.schedulerCheckInterval, String.valueOf(schedulerCheckInterval))
+    getInt(AcumeConf.getKeyName(ConfConstants.maxQueryLogRecords), 10)
   }
   
   def getSchedulerCheckInterval(): Int = {
-    getInt(ConfConstants.schedulerCheckInterval, 300)
-  }
-  
-  /**
-   * Sets the outputcubes base path to be used.
-   */
-  def setDisableTotalForAggregateQueries(disableTotalQuery : Boolean): AcumeConf = {
-    set(ConfConstants.disableTotalForAggregate, String.valueOf(disableTotalQuery))
+    getInt(AcumeConf.getKeyName(ConfConstants.schedulerCheckInterval), 300)
   }
 
-  def getDisableTotalForAggregateQueries(): Boolean = {
-    getBoolean(ConfConstants.disableTotalForAggregate, false)
+  def getDisableTotalForAggregateQueries(datasourceInstance: String): Boolean = {
+    getBoolean(AcumeConf.getKeyName(ConfConstants.disableTotalForAggregate, datasourceInstance), false)
   }
 
-  def setEnableJDBCServer(enableJDBCFlag : String): AcumeConf = {
-    set(ConfConstants.enableJDBCServer, enableJDBCFlag)
-  }
-  
   def getEnableJDBCServer(): String = {
-    get(ConfConstants.enableJDBCServer, "false")
+    get(AcumeConf.getKeyName(ConfConstants.enableJDBCServer), "false")
   }
 
   def getAppConfig(): String = {
-    get(ConfConstants.appConfig, "com.guavus.acume.core.configuration.AcumeAppConfig")
-  }
-  
-  def setAppConfig(appConfig: String): AcumeConf = {
-    set(ConfConstants.appConfig, appConfig)
+    get(AcumeConf.getKeyName(ConfConstants.appConfig), "com.guavus.acume.core.configuration.AcumeAppConfig")
   }
   
   def getUdfConfigurationxml() :  String = {
-    get(ConfConstants.udfConfigXml, "udfConfiguration.xml")
+    get(AcumeConf.getKeyName(ConfConstants.udfConfigXml), "udfConfiguration.xml")
   }
   
   def getSchedulerPolicyClass() : String = {
-    get(ConfConstants.queryPoolPolicyClass, "com.guavus.acume.core.QueryPoolPolicyImpl")
+    get(AcumeConf.getKeyName(ConfConstants.queryPoolPolicyClass), "com.guavus.acume.core.QueryPoolPolicyImpl")
   }
   
-  def getCacheBaseDirectory() = {
+  def getCacheBaseDirectory(datasourceName : String, instanceName: String) = {
     get(ConfConstants.cacheBaseDirectory, "/data/acume")
-  }
-  
-  /** Set multiple parameters together */
-  def setAll(settings: Traversable[(String, String)]) = {
-    this.settings ++= settings
-    this
-  }
-
-  /** Set a parameter if it isn't already configured */
-  def setIfMissing(key: String, value: String): AcumeConf = {
-    if (!settings.contains(key)) {
-      settings(key) = value
-    }
-    this
-  }
-
-  /** Remove a parameter from the configuration */
-  def remove(key: String): AcumeConf = {
-    settings.remove(key)
-    this
   }
 
   /** Get a parameter; throws a NoSuchElementException if it's not set */
-  def get(key: String): String = {
-    settings.getOrElse(key, throw new NoSuchElementException(key))
-  }
-
-  /** Get a parameter, falling back to a default if not set */
-  def get(key: String, defaultValue: => String): String = {
-    settings.getOrElse(key, defaultValue)
+  def get(key: String , datasourceInstance : String = null): String = {
+    settings.getOrElse(AcumeConf.getKeyName(key, datasourceInstance), throw new NoSuchElementException(key))
   }
 
   /** Get a parameter as an Option */
-  def getOption(key: String): Option[String] = {
-    settings.get(key)
+  def getOption(key: String, datasourceInstance : String = null): Option[String] = {
+    settings.get(AcumeConf.getKeyName(key, datasourceInstance))
   }
 
   /** Get all parameters as a list of pairs */
-  def getAll: Array[(String, String)] = settings.clone().toArray
+  private def getAll: Array[(String, String)] = settings.clone().toArray
 
   /** Get a parameter as an integer, falling back to a default if not set */
-  def getInt(key: String, defaultValue: => Int): Int = {
-    getOption(key).map(_.toInt).getOrElse(defaultValue)
+  def getInt(key: String, defaultValue: => Int, datasourceInstance : String = null): Int = {
+    getOption(key, datasourceInstance).map(_.toInt).getOrElse(defaultValue)
   }
 
   /** Get a parameter as a long, falling back to a default if not set */
-  def getLong(key: String, defaultValue: => Long): Long = {
-    getOption(key).map(_.toLong).getOrElse(defaultValue)
+  def getLong(key: String, defaultValue: => Long, datasourceInstance : String = null): Long = {
+    getOption(key, datasourceInstance).map(_.toLong).getOrElse(defaultValue)
   }
 
   /** Get a parameter as a double, falling back to a default if not set */
-  def getDouble(key: String, defaultValue: => Double): Double = {
-    getOption(key).map(_.toDouble).getOrElse(defaultValue)
+  def getDouble(key: String, defaultValue: => Double, datasourceInstance : String = null): Double = {
+    getOption(key, datasourceInstance).map(_.toDouble).getOrElse(defaultValue)
   }
 
   /** Get a parameter as a boolean, falling back to a default if not set */
-  def getBoolean(key: String, defaultValue: => Boolean): Boolean = {
-    getOption(key).map(_.toBoolean).getOrElse(defaultValue)
+  def getBoolean(key: String, defaultValue: => Boolean, datasourceInstance : String = null): Boolean = {
+    getOption(key, datasourceInstance).map(_.toBoolean).getOrElse(defaultValue)
   }
 
   /** Does the configuration contain a given parameter? */
   def contains(key: String): Boolean = settings.contains(key)
+  
+  /** Set multiple parameters together */
+  private def setAll(settings: Traversable[(String, String)]) = {
+    this.settings ++= settings
+    this
+  }
 
   /** Copy this object */
   override def clone: AcumeConf = {
@@ -345,6 +240,10 @@ class AcumeConf(loadDefaults: Boolean, fileName : InputStream) extends Cloneable
   def toDebugString: String = {
     settings.toArray.sorted.map{case (k, v) => k + "=" + v}.mkString("\n")
   }
+  
+  def getDatasources : Array[String] = {
+    datasources
+  }
 }
 
 object AcumeConf {
@@ -355,9 +254,18 @@ object AcumeConf {
    }
    
    def acumeConf() = {
-    if(threadLocal.get() == null) {
+     if(threadLocal.get() == null) {
     	threadLocal.set(new AcumeConf())
     }
     threadLocal.get()
-  }
+   }
+   
+   
+   def getKeyName(key: String, dataSourceInstance : String = null): String = {
+     if(dataSourceInstance == "common" || dataSourceInstance == null)
+       key
+     else
+       dataSourceInstance.trim + "." + key.trim
+   }
+  
 }

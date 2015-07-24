@@ -19,7 +19,7 @@ class AcumeHiveContext(val acumeConfiguration: AcumeConf) extends AcumeContextTr
   val conf = new SparkConf()
     
   val sparkContext = new SparkContext(conf)
-  sparkContext.addSparkListener(new AcumeSparkListener )
+  sparkContext.addSparkListener(new AcumeSparkListener)
 
   val hc = new HiveContext(sparkContext)
 

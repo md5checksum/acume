@@ -50,7 +50,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
   var classificationStats: ClassificationStats = new ClassificationStats()
 
   val policyclass = acumeContext.acumeConf.getSchedulerPolicyClass
-  val throttleMap = acumeContext.acumeConf.get(ConfConstants.maxAllowedQueriesPerClassification, "default:25").split(",")map(x => {
+  val throttleMap = acumeContext.acumeConf.getMaxAllowedQueriesPerClassification.split(",")map(x => {
 	  val i = x.indexOf(":")
 			  (x.substring(0, i).trim, x.substring(i+1, x.length).trim.toInt)
   })
@@ -321,7 +321,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       if (!queryBuilderService.iterator.next.isSchedulerQuery(sql)) {
         logger.info(modifiedSql)
         val resp = acumeContext.ac.acql(modifiedSql)
-        if (!queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql) && !acumeContext.acumeConf.getDisableTotalForAggregateQueries) {
+        if (!queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql) && !acumeContext.acumeConf.getDisableTotalForAggregateQueries("")) {
           resp.metadata.totalRecords = acumeContext.ac.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getLong(0)
         }
         resp

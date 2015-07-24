@@ -15,21 +15,22 @@ object PropertyValidator {
   private var logger: Logger = LoggerFactory.getLogger(classOf[PropertyValidator])
   
   def validate(settings : HashMap[String, String]) = {
-    if (validateRetentionMap(settings.get(ConfConstants.schedulerVariableRetentionMap), ConfConstants.schedulerVariableRetentionMap)
-        && validateRetentionMap(settings.get(ConfConstants.acumecorelevelmap), ConfConstants.acumecorelevelmap)
-        && validateTimeSeriesRetentionMap(settings.get(ConfConstants.acumecoretimeserieslevelmap), ConfConstants.acumecoretimeserieslevelmap)
-        && isNumber(settings.get(ConfConstants.rrcacheconcurrenylevel), ConfConstants.rrcacheconcurrenylevel)
-	    && isNumber(settings.get(ConfConstants.rrsize._1), ConfConstants.rrsize._1)
-	    && isNumber(settings.get(ConfConstants.prefetchTaskRetryIntervalInMillis), ConfConstants.prefetchTaskRetryIntervalInMillis)
-	    && isNumber(settings.get(ConfConstants.schedulerThreadPoolSize), ConfConstants.schedulerThreadPoolSize)
-	    && isNumber(settings.get(ConfConstants.instaComboPoints), ConfConstants.instaComboPoints)
-	    && isNumber(settings.get(ConfConstants.variableRetentionCombinePoints), ConfConstants.variableRetentionCombinePoints)
-	    && isNumber(settings.get(ConfConstants.queryPrefetchTaskNoOfRetries), ConfConstants.queryPrefetchTaskNoOfRetries)
-	    && isNumber(settings.get(ConfConstants.maxSegmentDuration), ConfConstants.maxSegmentDuration)
-	    && isNumber(settings.get(ConfConstants.maxQueryLogRecords), ConfConstants.maxQueryLogRecords)
-	    && isNumber(settings.get(ConfConstants.schedulerCheckInterval), ConfConstants.schedulerCheckInterval)
-	    && isBoolean(settings.get(ConfConstants.enableJDBCServer), ConfConstants.enableJDBCServer)
-	    && isBoolean(settings.get(ConfConstants.enableScheduler), ConfConstants.enableScheduler))
+    if(settings.filter(property => property._1.contains(ConfConstants.schedulerVariableRetentionMap)).map(x => validateRetentionMap(Option(x._2), x._1)).filter(x => x==true).size != 0
+        && settings.filter(property => property._1.contains(ConfConstants.acumecorelevelmap)).map(x => validateRetentionMap(Option(x._2), x._1)).filter(x => x==true).size != 0
+        && settings.filter(property => property._1.contains(ConfConstants.acumecoretimeserieslevelmap)).map(x => validateRetentionMap(Option(x._2), x._1)).filter(x => x==true).size != 0
+        && settings.filter(property => property._1.contains(ConfConstants.rrcacheconcurrenylevel)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
+        && settings.filter(property => property._1.contains(ConfConstants.rrsize._1)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
+        && settings.filter(property => property._1.contains(ConfConstants.prefetchTaskRetryIntervalInMillis)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
+        && settings.filter(property => property._1.contains(ConfConstants.schedulerThreadPoolSize)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
+        && settings.filter(property => property._1.contains(ConfConstants.instaComboPoints)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
+        && settings.filter(property => property._1.contains(ConfConstants.variableRetentionCombinePoints)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
+        && settings.filter(property => property._1.contains(ConfConstants.queryPrefetchTaskNoOfRetries)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
+        && settings.filter(property => property._1.contains(ConfConstants.maxSegmentDuration)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
+        && settings.filter(property => property._1.contains(ConfConstants.maxQueryLogRecords)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
+        && settings.filter(property => property._1.contains(ConfConstants.schedulerCheckInterval)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
+        && settings.filter(property => property._1.contains(ConfConstants.enableJDBCServer)).map(x => isBoolean(Option(x._2), x._1)).filter(x => x==true).size != 0
+        && settings.filter(property => property._1.contains(ConfConstants.enableScheduler)).map(x => isBoolean(Option(x._2), x._1)).filter(x => x==true).size != 0
+      )
     {
       logger.info("Valid properties")
     } else {

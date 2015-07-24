@@ -88,7 +88,7 @@ object AcumeContextTrait {
   var acumeContext: Option[AcumeContextTrait] = None
   val accumulatorMap = new LinkedHashMap[String, Accumulator[Long]]
   
-  val acumeConf = new AcumeConf(true, this.getClass.getResourceAsStream("/acume.conf"))
+  val acumeConf = new AcumeConf(true, "/acume.ini")
 
   def init(queryEngineType : String):AcumeContextTrait = acumeContext.getOrElse({
     acumeContext = if(queryEngineType.equals("acume"))

@@ -779,7 +779,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[admin]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -792,7 +792,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[com.guavus.acume.core.spring.AcumeResolver]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -805,7 +805,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[10]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -818,7 +818,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[cubedefinition.xml]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -831,7 +831,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[cubexml.xml]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -844,7 +844,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[/opt/tms/rubix/zoneinfo]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -857,7 +857,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[GMT]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -870,7 +870,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[default]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -883,7 +883,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[false]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -896,7 +896,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[com.guavus.acume.core.configuration.AcumeAppConfig]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -909,7 +909,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[__DEFAULT_BINSRC__]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -922,7 +922,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[udfConfiguration.xml]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -935,7 +935,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[1h]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -948,7 +948,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[7200]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -961,7 +961,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[default:25]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -974,7 +974,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[com.guavus.acume.core.QueryPoolPolicyImpl]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -987,7 +987,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[com.guavus.acume.core.scheduler.VariableGranularitySchedulerPolicy]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1000,7 +1000,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[300000]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1013,7 +1013,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[2]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1026,7 +1026,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[true]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1039,7 +1039,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[1h:24]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1052,7 +1052,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[1]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1065,7 +1065,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[3]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1078,7 +1078,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[86400]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1091,7 +1091,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[300]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1104,7 +1104,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[7200]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1117,7 +1117,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[24]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1129,7 +1129,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[300]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1142,7 +1142,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[/data/acume]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1154,7 +1154,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[]]></default>
             <targets>
                 <target>
-            <file><![CDATA[acume.conf]]></file>
+            <file><![CDATA[acume.ini]]></file>
                         <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1166,7 +1166,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[25]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1181,7 +1181,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[1h:24]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1194,7 +1194,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[false]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1207,7 +1207,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[com.guavus.acume.cache.workflow.RequestResponseCache]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1220,7 +1220,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[16]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1233,7 +1233,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[1000]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1246,7 +1246,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[insta]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1259,7 +1259,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[AcumeFlatSchemaTreeCache]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1272,7 +1272,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[com.guavus.acume.cache.sql.AcumeCacheSQLCorrector]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1285,7 +1285,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[com.guavus.acume.cache.sql.AcumeCacheSQLParser]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1298,7 +1298,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[50]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1311,7 +1311,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[com.guavus.acume.cache.core.AcumeCacheType]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1324,7 +1324,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[1h:720]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1337,7 +1337,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1353,7 +1353,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[1h:24]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1366,7 +1366,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[false]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1378,7 +1378,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[false]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1391,7 +1391,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[com.guavus.acume.cache.workflow.RequestResponseCache]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1404,7 +1404,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[16]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1417,7 +1417,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[1000]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1430,7 +1430,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[insta]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1443,7 +1443,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
@@ -1456,7 +1456,7 @@ Please don't use the following reserved property names:
             <default><![CDATA[]]></default>
             <targets>
                 <target>
-                    <file><![CDATA[acume.conf]]></file>
+                    <file><![CDATA[acume.ini]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
                 </target>
             </targets>
