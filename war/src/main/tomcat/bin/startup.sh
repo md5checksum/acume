@@ -234,6 +234,17 @@ if [ ! -z $ACUME_UDFJARPATHS ]
 then  udfJarPath=,$udfJarPath
 fi
 
+################################
+# HBASE Jar for Spark Classpath
+################################
+SPARK_HBASE_JAR=$(ls -1 /opt/tms/java/hbase-spark/hbase-spark-*-bin-*.jar)
+if [[ ! -z $SPARK_HBASE_JAR ]];then
+    echo "Using HBASE Jar : $SPARK_HBASE_JAR" >> "$CATALINA_OUT"
+else
+    echo "No SPARK HBASE Jar found at :/opt/tms/java/hbase-spark/" >> "$CATALINA_OUT"
+fi
+
+
 ############
 # Set SPARK_JAVA_CLASSPATH
 ############
@@ -245,7 +256,7 @@ colonSepUdfJarPath=$ACUMECOLONSEP_UDFPATHS
 if [ ! -z $ACUMECOLONSEP_UDFPATHS ]
 then  colonSepUdfJarPath=":"$colonSepUdfJarPath
 fi
-export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:$spark_jars:$SCRIPT_DIR/../lib/*:$crux_jar:-Djava.io.tmpdir=$CATALINA_BASE:/opt/tms/java/attvaludf.jar:/opt/tms/java/attval.jar:/opt/tms/java/pcsaudf.jar$colonSepUdfJarPath"
+export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:$spark_jars:$SCRIPT_DIR/../lib/*:$crux_jar:-Djava.io.tmpdir=$CATALINA_BASE:/opt/tms/java/attvaludf.jar:/opt/tms/java/attval.jar:/opt/tms/java/pcsaudf.jar$colonSepUdfJarPath:$SPARK_HBASE_JAR"
 echo "SPARK_CLASSPATH = $SPARK_CLASSPATH" >> "$CATALINA_OUT"
 
 
