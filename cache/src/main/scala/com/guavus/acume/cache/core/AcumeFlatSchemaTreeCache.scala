@@ -44,7 +44,6 @@ import com.guavus.acume.cache.common.ConversionToSpark
 import org.apache.spark.sql.types.LongType
 import org.apache.spark.AccumulatorParam
 import java.util.Arrays
-import com.guavus.acume.cache.common.LevelTimestamp
 import scala.collection.mutable.LinkedList
 import scala.collection.mutable.HashMap
 import org.apache.spark.sql.catalyst.expressions.Expression
@@ -75,9 +74,9 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     }
   }
   
-  val concurrencyLevel = conf.get(ConfConstants.rrcacheconcurrenylevel).toInt
+  val concurrencyLevel = conf.getInt(ConfConstants.rrcacheconcurrenylevel).get
   val acumetreecachesize = concurrencyLevel + concurrencyLevel * (cube.diskLevelPolicyMap.map(_._2).reduce(_ + _))
-  cachePointToTable = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
+  cachePointToTable = CacheBuilder.newBuilder().concurrencyLevel(conf.getInt(ConfConstants.rrcacheconcurrenylevel).get)
     .maximumSize(acumetreecachesize).removalListener(new RemovalListener[LevelTimestamp, AcumeTreeCacheValue] {
       def onRemoval(notification: RemovalNotification[LevelTimestamp, AcumeTreeCacheValue]) {
         logger.info("Evicting timestamp {} from acume.", notification.getKey())

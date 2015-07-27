@@ -18,8 +18,8 @@ import net.sf.jsqlparser.statement.select.Select
  */
 class RequestResponseCache(acumeCacheContextTrait: AcumeCacheContextTrait, conf: AcumeCacheConf) extends RRCache {
 
-  val cache = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
-    .maximumSize(conf.getInt(ConfConstants.rrsize._1, ConfConstants.rrsize._2)).removalListener(new RemovalListener[RRCacheKey, AcumeCacheResponse] {
+  val cache = CacheBuilder.newBuilder().concurrencyLevel(conf.getInt(ConfConstants.rrcacheconcurrenylevel).get)
+    .maximumSize(conf.getInt(ConfConstants.rrsize._1).get).removalListener(new RemovalListener[RRCacheKey, AcumeCacheResponse] {
 	  def onRemoval(notification : RemovalNotification[RRCacheKey, AcumeCacheResponse]) {
 	    notification.getValue().rowRDD.unpersist(true)
 	  }

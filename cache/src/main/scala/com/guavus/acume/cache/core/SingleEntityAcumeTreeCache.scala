@@ -24,8 +24,8 @@ import scala.collection.mutable.HashMap
 
 class SingleEntityAcumeTreeCache(acumeCacheContext: AcumeCacheContext, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy) 
 extends AcumeCache[CacheIdentifier, AcumeCache[LevelTimestamp, AcumeTreeCacheValue]](acumeCacheContext, conf, cube) {
-  val cacheSize = conf.getInt(ConfConstants.acumeCacheSingleEntityCacheSize, throw new IllegalArgumentException("Property not set  : " + ConfConstants.acumeCacheSingleEntityCacheSize))
-  cachePointToTable = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
+  val cacheSize = conf.getInt(ConfConstants.acumeCacheSingleEntityCacheSize).getOrElse(throw new IllegalArgumentException("Property not set  : " + ConfConstants.acumeCacheSingleEntityCacheSize))
+  cachePointToTable = CacheBuilder.newBuilder().concurrencyLevel(conf.getInt(ConfConstants.rrcacheconcurrenylevel).get)
   .maximumSize(cacheSize).removalListener(new RemovalListener[CacheIdentifier, AcumeCache[LevelTimestamp, AcumeTreeCacheValue]] {
 	  def onRemoval(notification : RemovalNotification[CacheIdentifier, AcumeCache[LevelTimestamp, AcumeTreeCacheValue]]) {
 //	    clear all tables of the TreCache. for this create a method in tree cache which can remove all data from it.

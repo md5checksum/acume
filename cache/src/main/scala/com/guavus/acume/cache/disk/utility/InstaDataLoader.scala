@@ -49,7 +49,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
   };
   
   private val service : ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
-  service.scheduleAtFixedRate(runnable, 0, acumeCacheContext.cacheConf.getInt(ConfConstants.instaAvailabilityPollInterval), TimeUnit.SECONDS);
+  service.scheduleAtFixedRate(runnable, 0, acumeCacheContext.cacheConf.getInt(ConfConstants.instaAvailabilityPollInterval).get, TimeUnit.SECONDS);
 
   private def synchronizedGetAndUpdateMap() {
    lockObject.synchronized {

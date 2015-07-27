@@ -412,7 +412,7 @@ object Utility extends Logging {
   }
   
    private def getProperty(propertyMap: scala.collection.mutable.HashMap[String, String], name: String, globalname: String, conf: AcumeCacheConf, gnmCube: String) = {
-    propertyMap.getOrElseUpdate(name, conf.get(globalname, throw new RuntimeException(s"The configurtion $name should be done for cube $gnmCube")))
+       propertyMap.getOrElseUpdate(name, conf.getOption(globalname).getOrElse(throw new RuntimeException(s"The configurtion $name should be done for cube $gnmCube"))) 
   }
   
 //  def getLevelPointMap1(mapString: String): SortedMap[Long, Integer] = {

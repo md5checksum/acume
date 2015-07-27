@@ -8,7 +8,7 @@ import scala.concurrent.ExecutionContext
 
 object QueryExecutorThreads {
 
-  private var threadPool: ExecutorService = Executors.newFixedThreadPool(new AcumeConf().getInt(ConfConstants.queryThreadPoolSize, 16), new NamedThreadPoolFactory("QueryExecutorThread"))
+  private var threadPool: ExecutorService = Executors.newFixedThreadPool(new AcumeConf().getInt(ConfConstants.queryThreadPoolSize).getOrElse(16), new NamedThreadPoolFactory("QueryExecutorThread"))
 
   def getPool(): ExecutorService = threadPool
   
@@ -16,7 +16,7 @@ object QueryExecutorThreads {
   
   def getPoolMultiple(): ExecutorService = threadPoolMultiple
   
-  private var threadPoolMultiple: ExecutorService = Executors.newFixedThreadPool(new AcumeConf().getInt(ConfConstants.queryThreadPoolSize, 16), new NamedThreadPoolFactory("QueryExecutorThread-Multiple"))
+  private var threadPoolMultiple: ExecutorService = Executors.newFixedThreadPool(new AcumeConf().getInt(ConfConstants.queryThreadPoolSize).getOrElse(16), new NamedThreadPoolFactory("QueryExecutorThread-Multiple"))
   
   val executionContextMultiple = ExecutionContext.fromExecutorService(threadPoolMultiple)
 

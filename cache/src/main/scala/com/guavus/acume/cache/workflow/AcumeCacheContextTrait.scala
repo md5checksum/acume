@@ -30,7 +30,7 @@ trait AcumeCacheContextTrait extends Serializable {
   def acql(sql: String): AcumeCacheResponse = {
     setQuery(sql)
     try {
-      if (cacheConf.getInt(ConfConstants.rrsize._1) == 0) {
+      if (cacheConf.getInt(ConfConstants.rrsize._1).get == 0) {
         executeQuery(sql)
       } else {
         rrCacheLoader.getRdd((sql))
@@ -98,6 +98,7 @@ trait AcumeCacheContextTrait extends Serializable {
   def getAllBinSourceToIntervalMap() : Map[String, Map[Long, (Long,Long)]] =  {
     throw new NoSuchMethodException("Method not present")
   }
+  
 }
 
 

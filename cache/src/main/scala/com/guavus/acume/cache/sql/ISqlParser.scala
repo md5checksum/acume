@@ -25,7 +25,7 @@ object ISqlParser {
     val key = conf.get(ConfConstants.acumecachesqlparser)
     hashmap.get(key) match {
       case Some(sqlparser) => sqlparser
-      case None => val acumecachesqlparserclz = Class.forName(conf.get(ConfConstants.acumecachesqlparser))
+      case None => val acumecachesqlparserclz = Class.forName(key)
       val acumecachesqlparser = acumecachesqlparserclz.newInstance().asInstanceOf[ISqlParser]
       hashmap.put(key, acumecachesqlparser)
       acumecachesqlparser

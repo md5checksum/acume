@@ -172,7 +172,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       
       def runWithTimeout[T](f: => (AcumeCacheResponse, Array[Row])): (AcumeCacheResponse, Array[Row]) = {
         lazy val fut = future { f }
-        Await.result(fut, DurationInt(acumeContext.acumeConf.getInt(ConfConstants.queryTimeOut, 30)) second)
+        Await.result(fut, DurationInt(acumeContext.acumeConf.getInt(ConfConstants.queryTimeOut).getOrElse(30)) second)
       }
       def run(sql: String, jobGroupId : String, jobDescription : String, conf: AcumeConf, localProperties : HashMap[String, Any]) = {
 
@@ -305,7 +305,6 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
 
   def execute(sql: String): AcumeCacheResponse = {
 
-    //val modifiedSql: String = queryBuilderService.get(0).buildQuery(sql)
     var isFirst: Boolean = true
     val modifiedSql: String = queryBuilderService.foldLeft("") { (result, current) =>
 
@@ -321,7 +320,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       if (!queryBuilderService.iterator.next.isSchedulerQuery(sql)) {
         logger.info(modifiedSql)
         val resp = acumeContext.ac.acql(modifiedSql)
-        if (!queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql) && !acumeContext.acumeConf.getDisableTotalForAggregateQueries("")) {
+        if (!queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql) && !acumeContext.acumeConf.getDisableTotalForAggregateQueries()) {
           resp.metadata.totalRecords = acumeContext.ac.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getLong(0)
         }
         resp

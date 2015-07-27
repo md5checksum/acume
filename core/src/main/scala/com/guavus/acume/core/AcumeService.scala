@@ -95,7 +95,7 @@ class AcumeService(dataService: DataService) {
     def runWithTimeout[T](callable: Callable[java.util.ArrayList[T]]): java.util.ArrayList[T] = {
       val response = QueryExecutorThreads.getPoolMultiple.submit(callable)
       try {
-        response.get(dataService.acumeContext.acumeConf.getLong(ConfConstants.queryTimeOut, 30l), TimeUnit.SECONDS)
+        response.get(dataService.acumeContext.acumeConf.getLong(ConfConstants.queryTimeOut).getOrElse(30l), TimeUnit.SECONDS)
       } catch {
         case e : Exception => {
           if(!response.isDone()) {

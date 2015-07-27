@@ -37,6 +37,8 @@ abstract class AcumeContextTrait {
   
   lazy val cacheBaseDirectory : String = getCacheBaseDirectory
   
+  private var datasourceName : String = null
+  
   def init() {
     //initialize anything
     // This must be called after creating acumeContext
@@ -53,6 +55,12 @@ abstract class AcumeContextTrait {
 	  diskBaseDirectory
   } 
 
+  def setDatasourceName(dsName : String) {
+    datasourceName = dsName
+  }
+  
+  def getDatasourceName : String = datasourceName
+  
   def acumeConf(): AcumeConf = AcumeConf.acumeConf
 
   def hqlContext(): HiveContext = null

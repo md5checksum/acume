@@ -193,7 +193,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       }
       if (shouldCombine) {
         var isSuccessCombiningPoint = true
-        val context = AcumeTreeCache.getContext(acumeCacheContext.cacheConf.getInt(ConfConstants.schedulerThreadPoolSize))
+        val context = AcumeTreeCache.getContext(acumeCacheContext.cacheConf.getInt(ConfConstants.schedulerThreadPoolSize).get)
         val f: Future[Option[AcumeFlatSchemaCacheValue]] = Future({
           if (tryGet(aggregatedTimestamp) == null) {
         	  logger.info("Finally Combining level {} to aggregationlevel " + aggregationLevel + " and levelTimeStamp {} ", childlevel, aggregatedTimestamp)

@@ -61,7 +61,7 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
   }
 
   acumeValue.acumeContext = acumeContext
-  val context = AcumeTreeCacheValue.getContext(acumeContext.cacheConf.getInt(ConfConstants.schedulerThreadPoolSize))
+  val context = AcumeTreeCacheValue.getContext(acumeContext.cacheConf.getInt(ConfConstants.schedulerThreadPoolSize).get)
   var isSuccessWritingToDisk = false
   
   if(acumeValue.isInstanceOf[AcumeInMemoryValue]) {

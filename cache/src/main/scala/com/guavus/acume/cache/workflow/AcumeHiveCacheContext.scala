@@ -36,26 +36,5 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
 }
 
 object AcumeHiveCacheContext{
-  
-  def main(args: Array[String]) { 
-    
-    val sqlContext = new SQLContext(new SparkContext)
-    val conf = new AcumeCacheConf
-    conf.set(ConfConstants.businesscubexml, "/Users/archit.thakur/Documents/Code_Acume_Scala/cache/src/test/resources/cubdefinition.xml")
-    conf.set("acume.cache.core.variableretentionmap", "1h:720")
-    conf.set("acume.cache.baselayer.instainstanceid","0")
-    conf.set("acume.cache.baselayer.storagetype", "orc")
-    conf.set("acume.cache.core.timezone", "GMT")
-    conf.set("acume.cache.baselayer.instabase","instabase")
-    conf.set("acume.cache.baselayer.cubedefinitionxml", "cubexml")
-    conf.set("acume.core.enableJDBCServer", "true")
-    conf.set("acume.core.app.config", "com.guavus.acume.core.configuration.AcumeAppConfig")
-    conf.set("acume.core.sql.query.engine", "acume")
-    
-    val cntxt = new AcumeHiveCacheContext(sqlContext, conf)
-    cntxt.acql("select * from searchEgressPeerCube_12345")
-  }
-
-  
 
 }

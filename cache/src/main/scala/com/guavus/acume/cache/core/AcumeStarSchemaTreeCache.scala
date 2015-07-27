@@ -70,9 +70,9 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
     }
   }
 
-  val concurrencyLevel = conf.get(ConfConstants.rrcacheconcurrenylevel).toInt
+  val concurrencyLevel = conf.getInt(ConfConstants.rrcacheconcurrenylevel).get
   val acumetreecachesize = concurrencyLevel + concurrencyLevel * (cube.levelPolicyMap.map(_._2).reduce(_ + _))
-  cachePointToTable = CacheBuilder.newBuilder().concurrencyLevel(conf.get(ConfConstants.rrcacheconcurrenylevel).toInt)
+  cachePointToTable = CacheBuilder.newBuilder().concurrencyLevel(conf.getInt(ConfConstants.rrcacheconcurrenylevel).get)
     .maximumSize(acumetreecachesize).removalListener(new RemovalListener[LevelTimestamp, AcumeTreeCacheValue] {
       def onRemoval(notification: RemovalNotification[LevelTimestamp, AcumeTreeCacheValue]) {
         //        acumeCacheContext.sqlContext.uncacheTable(notification.getValue().measuretableName)

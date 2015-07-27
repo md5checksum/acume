@@ -167,8 +167,8 @@ class RestService {
 
 	  val map = new java.util.HashMap[String, java.util.ArrayList[Long]]()
 	  val list = new java.util.ArrayList[Long]()
-	  list.add(AcumeContextTrait.acumeContext.get.acumeContext.cacheConf.getLong("acume.cache.delete.firstbinpersistedtime"))
-	  list.add(AcumeContextTrait.acumeContext.get.acumeContext.cacheConf.getLong("acume.cache.delete.lastbinpersistedtime"))
+	  list.add(AcumeContextTrait.acumeContext.get.acumeContext.cacheConf.getLong("acume.cache.delete.firstbinpersistedtime").get)
+	  list.add(AcumeContextTrait.acumeContext.get.acumeContext.cacheConf.getLong("acume.cache.delete.lastbinpersistedtime").get)
 	  
 	  //placeholder bin source
 	  map.put("abcd", list)

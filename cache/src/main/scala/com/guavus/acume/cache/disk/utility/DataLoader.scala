@@ -11,7 +11,6 @@ import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.core.AcumeCache
 import java.util.concurrent.ConcurrentHashMap
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
-import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 
 /**
  * @author archit.thakur
@@ -74,7 +73,6 @@ object DataLoader {
   private[cache] def getOrElseInsert(key: AcumeCache[_ >: Any, _ >: Any], defaultValue: DataLoadedMetadata): DataLoadedMetadata = {
 
     if (getMetadata(key) == null) {
-
       putMetadata(key, defaultValue)
       defaultValue
     } else
