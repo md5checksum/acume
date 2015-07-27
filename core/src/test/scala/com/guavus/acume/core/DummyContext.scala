@@ -7,27 +7,13 @@ import org.apache.spark.sql.hive.HiveContext
 
 class DummyContext extends AcumeContextTrait {
 
-  val conf = null
-
   val acumeConfiguration = null  
     
-  val sparkContext = null
-
-  val hc = null
-
   val _sqlContext = null
   
-  override val acumeContext = {
-    null
-  }
-  
-  override def sc() = sparkContext
+  val acumeContext = null
   
   override def ac() = acumeContext
-  
-  override def acumeConf() = acumeConfiguration
-  
-  override def hqlContext() = hc
   
   override def sqlContext() = _sqlContext
   

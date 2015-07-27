@@ -1,22 +1,17 @@
 package com.guavus.acume.core
 
-import org.apache.spark.sql.hive.HiveContext
-
+import org.apache.spark.sql.hbase.HBaseSQLContext
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
-import com.guavus.acume.cache.workflow.AcumeHiveCacheContext
+import com.guavus.acume.cache.workflow.AcumeHbaseCacheContext
 
-/**
- * @author kashish.jain
- * 
- */
-class AcumeHiveContext(val acumeConfiguration: AcumeConf) extends AcumeContextTrait {
-
-  val _sqlContext = new HiveContext(sparkContext)
-  val acumeContext = new AcumeHiveCacheContext(_sqlContext, new AcumeCacheConf)
- 
-  override def ac() = acumeContext
+class AcumeHbaseContext(val acumeConfiguration: AcumeConf) extends AcumeContextTrait {
   
+  val _sqlContext = new HBaseSQLContext(sparkContext)
+  val acumeContext = new AcumeHbaseCacheContext(_sqlContext, new AcumeCacheConf)
+
+  override def ac() = acumeContext
+
   override def sqlContext() = _sqlContext
   
   def chooseHiveDatabase() {

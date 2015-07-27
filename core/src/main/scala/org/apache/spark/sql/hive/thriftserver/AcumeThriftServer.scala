@@ -76,9 +76,9 @@ object AcumeThriftServer extends Logging {
    // SparkSQLEnv.init()
     SessionState.start(ss)
 
-
     try {
-      val server = new AcumeThriftServer(ConfigFactory.getInstance.getBean(classOf[AcumeContextTrait]).hqlContext)
+      // TODO: Check if multiple contextTraits are initialized, then this will throw error.
+      val server = new AcumeThriftServer(ConfigFactory.getInstance.getBean(classOf[AcumeContextTrait]).sqlContext().asInstanceOf[HiveContext])
       server.init(hiveConf)
       server.start()
       logInfo("HiveThriftServer2 started")

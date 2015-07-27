@@ -8,6 +8,7 @@ import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hive.HiveContext
+import org.apache.spark.sql.hbase.HBaseSQLContext
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import com.guavus.acume.cache.common.AcumeCacheConf
@@ -53,6 +54,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
 
   sqlContext match {
     case hiveContext: HiveContext =>
+    case hbaseContext : HBaseSQLContext =>
     case sqlContext: SQLContext => 
     case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }

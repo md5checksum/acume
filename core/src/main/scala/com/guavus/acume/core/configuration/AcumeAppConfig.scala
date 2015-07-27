@@ -28,16 +28,6 @@ object AcumeAppConfig {
 
   var DEFAULT_CLASS_LOADER: ClassLoader = Thread.currentThread().getContextClassLoader
 
-//  try {
-//    val mBeanInitializer = Class.forName("com.guavus.rubix.stats.RubixStatsMBeansInitializer")
-//    val method = mBeanInitializer.getMethod("initializeBeans")
-//    method.invoke(null, null.asInstanceOf[Array[Any]])
-//  } catch {
-//    case e: Throwable => {
-//      LoggerUtils.printStackTraceInError(logger, e)
-//      throw new RuntimeException(e)
-//    }
-//  }
 }
 
 @org.springframework.context.annotation.Configuration

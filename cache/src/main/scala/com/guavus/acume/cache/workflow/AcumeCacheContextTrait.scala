@@ -1,19 +1,18 @@
 package com.guavus.acume.cache.workflow
 
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.HashMap
+
 import org.apache.spark.sql.SQLContext
-import AcumeCacheContextTrait._
-import org.apache.spark.sql.hive.HiveContext
+
 import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.Dimension
 import com.guavus.acume.cache.common.Measure
-import scala.collection.mutable.HashMap
-import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
 import com.guavus.acume.cache.core.AcumeTreeCacheValue
-import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.HashMap
-import com.guavus.acume.cache.common.AcumeConstants
+import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
  
 /**
  * @author archit.thakur
@@ -28,7 +27,7 @@ trait AcumeCacheContextTrait extends Serializable {
   private [cache] val poolThreadLocal = new InheritableThreadLocal[HashMap[String, Any]]()
 
   def acql(sql: String): AcumeCacheResponse = {
-    setQuery(sql)
+  AcumeCacheContextTrait.setQuery(sql)
     try {
       if (cacheConf.getInt(ConfConstants.rrsize._1).get == 0) {
         executeQuery(sql)
@@ -36,7 +35,7 @@ trait AcumeCacheContextTrait extends Serializable {
         rrCacheLoader.getRdd((sql))
       }
     } finally {
-      unsetQuery()
+      AcumeCacheContextTrait.unsetQuery()
     }
   }
   
@@ -100,7 +99,6 @@ trait AcumeCacheContextTrait extends Serializable {
   }
   
 }
-
 
 object AcumeCacheContextTrait {
   

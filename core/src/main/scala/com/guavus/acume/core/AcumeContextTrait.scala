@@ -3,20 +3,24 @@ package com.guavus.acume.core
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
-import scala.collection.JavaConversions._
+
+import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable.LinkedHashMap
-import org.apache.hadoop.fs.Path
+
 import org.apache.spark.Accumulator
+import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
+import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.hive.HiveContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import com.guavus.acume.cache.common.ConfConstants
+
+import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import com.guavus.acume.core.gen.AcumeUdfs
+import com.guavus.acume.core.listener.AcumeSparkListener
+
 import javax.xml.bind.JAXBContext
-import com.guavus.acume.cache.utility.Utility
 
 /*
  * @author kashish.jain
@@ -25,20 +29,22 @@ abstract class AcumeContextTrait {
   
   private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeContextTrait])
   
-  val acumeConfiguration: AcumeConf
-  
-  val sparkContext : SparkContext
+  /*
+   *  TO be overrided by derived classes
+   */
+  def ac(): AcumeCacheContextTrait
 
-  val acumeContext: AcumeCacheContextTrait = null
+  def sqlContext(): SQLContext
+  
+  val sparkContext = new SparkContext(new SparkConf())
+  sparkContext.addSparkListener(new AcumeSparkListener)
   
   def sc(): SparkContext = sparkContext
-  
-  def ac(): AcumeCacheContextTrait = null
-  
+    
+  def acumeConf(): AcumeConf = AcumeConf.acumeConf
+
   lazy val cacheBaseDirectory : String = getCacheBaseDirectory
-  
-  private var datasourceName : String = null
-  
+
   def init() {
     //initialize anything
     // This must be called after creating acumeContext
@@ -46,27 +52,15 @@ abstract class AcumeContextTrait {
   }
   
   protected def getCacheBaseDirectory() = {
-	  val diskBaseDirectory = Utility.getDiskBaseDirectory(acumeContext)
+	  val diskBaseDirectory = Utility.getDiskBaseDirectory(ac)
 			  
 	  val checkpointDirectory = diskBaseDirectory + File.separator + "checkpoint"
-	  Utility.deleteDirectory(checkpointDirectory, acumeContext)
+	  Utility.deleteDirectory(checkpointDirectory, ac)
 	  sparkContext.setCheckpointDir(checkpointDirectory)
 	  println(s"setting checkpoint directory as $checkpointDirectory")
 	  diskBaseDirectory
   } 
-
-  def setDatasourceName(dsName : String) {
-    datasourceName = dsName
-  }
-  
-  def getDatasourceName : String = datasourceName
-  
-  def acumeConf(): AcumeConf = AcumeConf.acumeConf
-
-  def hqlContext(): HiveContext = null
-
-  def sqlContext(): SQLContext = null
-
+ 
   def registerUserDefinedFunctions() =
     {
       val xml = this.acumeConf.getUdfConfigurationxml
@@ -86,7 +80,7 @@ abstract class AcumeContextTrait {
       var udf: AcumeUdfs.UserDefined = null
       for (udf <- acumeUdf.getUserDefined()) {
         val createStatement = "create temporary function " + udf.getFunctionName() + " as '" + udf.getFullUdfclassName() + "'"
-        hqlContext.sql(createStatement)
+        sqlContext.sql(createStatement)
       }
     }
 }
