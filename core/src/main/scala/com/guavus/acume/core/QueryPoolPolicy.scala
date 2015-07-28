@@ -15,11 +15,11 @@ abstract class QueryPoolPolicy(throttleMap : Map[String, Int], acumeContext: Acu
     var classificationList: java.util.ArrayList[(String, HashMap[String, Any])] = new java.util.ArrayList()
     queries foreach(query => {
       val classification = getQueryClassification(query, classificationStats)
-      if(acumeContext.ac.threadLocal.get() == null) {
-        acumeContext.ac.threadLocal.set(HashMap[String, Any]())
+      if(acumeContext.acc.threadLocal.get() == null) {
+        acumeContext.acc.threadLocal.set(HashMap[String, Any]())
       }
-      classificationList.add(new Tuple2(classification, acumeContext.ac.threadLocal.get()))
-      acumeContext.ac.threadLocal.remove()
+      classificationList.add(new Tuple2(classification, acumeContext.acc.threadLocal.get()))
+      acumeContext.acc.threadLocal.remove()
     })
     classificationList.toList
   }

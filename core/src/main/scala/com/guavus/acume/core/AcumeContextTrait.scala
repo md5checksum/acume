@@ -32,7 +32,7 @@ abstract class AcumeContextTrait {
   /*
    *  TO be overrided by derived classes
    */
-  def ac(): AcumeCacheContextTrait
+  def acc(): AcumeCacheContextTrait
 
   def sqlContext(): SQLContext
   
@@ -52,10 +52,10 @@ abstract class AcumeContextTrait {
   }
   
   protected def getCacheBaseDirectory() = {
-	  val diskBaseDirectory = Utility.getDiskBaseDirectory(ac)
+	  val diskBaseDirectory = Utility.getDiskBaseDirectory(acc)
 			  
 	  val checkpointDirectory = diskBaseDirectory + File.separator + "checkpoint"
-	  Utility.deleteDirectory(checkpointDirectory, ac)
+	  Utility.deleteDirectory(checkpointDirectory, acc)
 	  sparkContext.setCheckpointDir(checkpointDirectory)
 	  println(s"setting checkpoint directory as $checkpointDirectory")
 	  diskBaseDirectory
@@ -92,7 +92,7 @@ object AcumeContextTrait {
   
   val acumeConf = new AcumeConf(true, "/acume.ini")
 
-  def init(queryEngineType : String):AcumeContextTrait = acumeContext.getOrElse({
+  def init(queryEngineType : String): AcumeContextTrait = acumeContext.getOrElse({
     acumeContext = if(queryEngineType.equals("acume"))
     	Some(new AcumeContext(acumeConf))
     else

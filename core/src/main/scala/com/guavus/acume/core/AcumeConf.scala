@@ -39,6 +39,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
   
   private val settings = new HashMap[String, String]()
   private var datasourceName : String = null
+  private var allDatasourceNames : Array[String] = Array[String]()
   
   // Set the default values
   setDefault
@@ -61,6 +62,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
      section.entrySet.map(property => {
        if(!property.getValue.trim.equals("")) {
          val key = AcumeConf.getKeyName(property.getKey, sectionName)
+         addDatasourceNames(sectionName)
          settings(key) = property.getValue.trim
          System.setProperty(key, property.getValue.trim)
        }
@@ -247,6 +249,12 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
   
   def setDatasourceName(dsName : String) {
     datasourceName = dsName
+  }
+  
+  def getAllDatasourceNames : Array[String] = allDatasourceNames
+  
+  def addDatasourceNames(dsName: String) {
+    allDatasourceNames.+(dsName)
   }
 }
 

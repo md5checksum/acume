@@ -22,7 +22,7 @@ class AcumeDataSourceSchema(acumeContext : AcumeContextTrait) extends QueryBuild
    * return the list of data source cubes.
    */
   override def getCubes(): java.util.List[ICube] = {
-    val cubes  = acumeContext.ac.getCubeList
+    val cubes  = acumeContext.acc.getCubeList
     cubes.map(cube=> {
     	var dimensions = cube.dimension.dimensionSet.map(field => {
     		new Field(FieldType.DIMENSION, FieldType.DIMENSION, field.getDefaultValue.asInstanceOf[AnyRef],field.getName, "")
@@ -38,7 +38,7 @@ class AcumeDataSourceSchema(acumeContext : AcumeContextTrait) extends QueryBuild
    */
   override def isDimension(fieldName: String): Boolean = {
     try {
-    	fieldName.equalsIgnoreCase("ts") || acumeContext.ac.isDimension(fieldName)
+    	fieldName.equalsIgnoreCase("ts") || acumeContext.acc.isDimension(fieldName)
     } catch {
       case ex : RuntimeException => false
     }
@@ -48,16 +48,16 @@ class AcumeDataSourceSchema(acumeContext : AcumeContextTrait) extends QueryBuild
    * 
    */
   override def getFieldsForCube(cube : ICube) : java.util.List[String] = {
-    acumeContext.ac.getFieldsForCube(cube.getCubeName(), cube.getBinSourceValue()).toList
+    acumeContext.acc.getFieldsForCube(cube.getCubeName(), cube.getBinSourceValue()).toList
   }
   
   override def getDefaultAggregateFunction(field : String) : String  = {
-    acumeContext.ac.getAggregationFunction(field)
+    acumeContext.acc.getAggregationFunction(field)
   }
 
   override def getCubeListContainingAllFields(fields : java.util.List[String]) : java.util.List[String] = {
-    acumeContext.ac.getCubeListContainingFields(fields.filter(x => !x.equalsIgnoreCase("ts")).toList).map(x=> x.cubeName)
+    acumeContext.acc.getCubeListContainingFields(fields.filter(x => !x.equalsIgnoreCase("ts")).toList).map(x=> x.cubeName)
   }
   
-  override def getDefaultValueForField(fieldName : String ) : Object = acumeContext.ac.getDefaultValue(fieldName).asInstanceOf[AnyRef]
+  override def getDefaultValueForField(fieldName : String ) : Object = acumeContext.acc.getDefaultValue(fieldName).asInstanceOf[AnyRef]
 }

@@ -16,8 +16,8 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
  
   sqlContext match {
     case hiveContext: HiveContext =>
-    case sqlContext: SQLContext => 
     case hbaseContext : HBaseSQLContext =>
+    case sqlContext: SQLContext => 
     case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
   

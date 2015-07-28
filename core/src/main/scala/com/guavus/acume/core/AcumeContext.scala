@@ -13,9 +13,9 @@ import com.guavus.acume.cache.workflow.AcumeCacheContext
 class AcumeContext(val acumeConfiguration: AcumeConf) extends AcumeContextTrait {
 
   val _sqlContext = new SQLContext(sparkContext)
-  val acumeContext = new AcumeCacheContext(_sqlContext, new AcumeCacheConf)
+  val acumeCacheContext = new AcumeCacheContext(_sqlContext, new AcumeCacheConf)
   
-  override def ac() = acumeContext
+  override def acc() = acumeCacheContext
   
   override def sqlContext() = _sqlContext
   

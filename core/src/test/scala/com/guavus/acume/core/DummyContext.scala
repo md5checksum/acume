@@ -13,7 +13,7 @@ class DummyContext extends AcumeContextTrait {
   
   val acumeContext = null
   
-  override def ac() = acumeContext
+  override def acc() = acumeContext
   
   override def sqlContext() = _sqlContext
   

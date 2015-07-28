@@ -27,7 +27,7 @@ object AcumeAppConfig {
   private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeAppConfig])
 
   var DEFAULT_CLASS_LOADER: ClassLoader = Thread.currentThread().getContextClassLoader
-
+  
 }
 
 @org.springframework.context.annotation.Configuration
@@ -77,7 +77,7 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
   @Bean
   @Autowired
   override def controller(acumeContext : AcumeContextTrait) : Controller = {
-    new Controller(acumeContext.ac)
+    new Controller(acumeContext.acc)
   } 
   
   

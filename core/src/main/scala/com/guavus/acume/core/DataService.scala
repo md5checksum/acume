@@ -91,27 +91,27 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
   }
 
   private def setSparkJobLocalProperties() {
-    for ((key, value) <- acumeContext.ac.threadLocal.get()) {
+    for ((key, value) <- acumeContext.acc.threadLocal.get()) {
       var propValue: String = if (value != null) value.toString else null
-      acumeContext.ac.cacheSqlContext.sparkContext.setLocalProperty(key, propValue)
+      acumeContext.acc.cacheSqlContext.sparkContext.setLocalProperty(key, propValue)
     }
-    AcumeCacheContextTrait.setSparkSqlShufflePartitions(acumeContext.ac.cacheSqlContext.getConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS))
+    AcumeCacheContextTrait.setSparkSqlShufflePartitions(acumeContext.acc.cacheSqlContext.getConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS))
   }
   
   private def getSparkJobLocalProperties() = {
-    if(acumeContext.ac.threadLocal.get() == null) {
-      acumeContext.ac.threadLocal.set(HashMap[String, Any]())
+    if(acumeContext.acc.threadLocal.get() == null) {
+      acumeContext.acc.threadLocal.set(HashMap[String, Any]())
     }
-    acumeContext.ac.threadLocal.get()
+    acumeContext.acc.threadLocal.get()
   }
 
   private def unsetSparkJobLocalProperties() {
-    for ((key, value) <- acumeContext.ac.threadLocal.get()) {
-      acumeContext.ac.cacheSqlContext.sparkContext.setLocalProperty(key, null)
+    for ((key, value) <- acumeContext.acc.threadLocal.get()) {
+      acumeContext.acc.cacheSqlContext.sparkContext.setLocalProperty(key, null)
     }
-    acumeContext.ac.cacheSqlContext.setConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS, AcumeCacheContextTrait.getSparkSqlShufflePartitions)
+    acumeContext.acc.cacheSqlContext.setConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS, AcumeCacheContextTrait.getSparkSqlShufflePartitions)
     try{
-    	AcumeCacheContextTrait.unsetAll(acumeContext.ac)      
+    	AcumeCacheContextTrait.unsetAll(acumeContext.acc)      
     } catch {
       case ex : Exception => logger.error("Error while unsetting sparkProperties", ex)
       case th : Throwable => logger.error("Error while unsetting sparkProperties", th)
@@ -163,8 +163,8 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
 
     val jobGroupId = Thread.currentThread().getName() + "-" + Thread.currentThread().getId() + "-" + counter.getAndIncrement
     try {
-      if (acumeContext.ac.threadLocal.get() == null) {
-        acumeContext.ac.threadLocal.set(new HashMap[String, Any]())
+      if (acumeContext.acc.threadLocal.get() == null) {
+        acumeContext.acc.threadLocal.set(new HashMap[String, Any]())
       }
       val isSchedulerQuery = queryBuilderService.get(0).isSchedulerQuery(sql)
       val jobDescription = getJobDescription(isSchedulerQuery, Thread.currentThread().getName() + Thread.currentThread().getId())
@@ -319,13 +319,13 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     if (!modifiedSql.equals("")) {
       if (!queryBuilderService.iterator.next.isSchedulerQuery(sql)) {
         logger.info(modifiedSql)
-        val resp = acumeContext.ac.acql(modifiedSql)
+        val resp = acumeContext.acc.acql(modifiedSql)
         if (!queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql) && !acumeContext.acumeConf.getDisableTotalForAggregateQueries()) {
-          resp.metadata.totalRecords = acumeContext.ac.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getLong(0)
+          resp.metadata.totalRecords = acumeContext.acc.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getLong(0)
         }
         resp
       } else {
-        acumeContext.ac.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql))
+        acumeContext.acc.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql))
       }
     } else
       throw new RuntimeException(s"Invalid Modified Query")
