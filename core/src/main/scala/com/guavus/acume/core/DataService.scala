@@ -97,7 +97,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       var propValue: String = if (value != null) value.toString else null
       acumeContext.ac.cacheSqlContext.sparkContext.setLocalProperty(key, propValue)
     }
-    AcumeCacheContextTrait.setSparkSqlShufflePartitions(acumeContext.ac.cacheSqlContext.getConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS))
+    AcumeCacheContextTrait.setSparkSqlShufflePartitions(acumeContext.ac.cacheSqlContext.getConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS, "200"))
   }
   
   private def getSparkJobLocalProperties() = {
