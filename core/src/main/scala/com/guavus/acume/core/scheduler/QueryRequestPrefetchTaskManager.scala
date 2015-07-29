@@ -67,20 +67,30 @@ class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService
   private var producerThreadPool: ScheduledExecutorService = Executors.newScheduledThreadPool(QueryRequestPrefetchTaskManager.MAX_TASK_PRODUCERS, new NamedThreadPoolFactory("PrefetchTaskProducer"))
   private var scheduledFuture: ScheduledFuture[_] = _
   private var queryPrefetchTaskProducer: QueryPrefetchTaskProducer = new QueryPrefetchTaskProducer(acumeContext, schemas, this, dataService, acumeService, false, schedulerPolicy, controller)
-  private val acumeConf = acumeContext.acumeConf
-  private [core] val acumeCacheAvailabilityMapPolicy = ICacheAvalabiltyUpdatePolicy.getICacheAvalabiltyUpdatePolicy(acumeConf, acumeContext.hqlContext)
 
-  private [core] def getBinSourceToCacheAvalabilityMap: HashMap[String, HashMap[Long, Interval]] = {
-    acumeCacheAvailabilityMapPolicy.getTrueCacheAvalabilityMap
-  } 
-  
+  @BeanProperty
+  var binSourceToCacheAvailability: HashMap[String, HashMap[Long, Interval]] = new HashMap[String, HashMap[Long, Interval]]()
+
   initConsumerThreadPool()
 
   def getVersion(): Int = queryPrefetchTaskProducer.version.get
 
+  def putBinClassToBinSourceToRubixAvailabiltyMap(value: HashMap[String, HashMap[Long, Interval]] = new HashMap[String, HashMap[Long, Interval]]): Boolean = {
+    binSourceToCacheAvailability = value
+    true
+  }
+
+  def updateBinSourceToRubixAvailabiltyMap(value: HashMap[String, HashMap[Long, Interval]]) {
+     binSourceToCacheAvailability = value
+  }
+
+  def getBinClassToBinSourceToRubixAvailabiltyMapFromCoordinator() = {
+    binSourceToCacheAvailability
+  }
+
   def startPrefetchScheduler() {
     queryPrefetchTaskProducer.clearTaskCacheUpdateTimeMap()
-    scheduledFuture = producerThreadPool.scheduleAtFixedRate(queryPrefetchTaskProducer, 0, acumeConf.getSchedulerCheckInterval, TimeUnit.SECONDS)
+    scheduledFuture = producerThreadPool.scheduleAtFixedRate(queryPrefetchTaskProducer, 0, acumeContext.acumeConf.getSchedulerCheckInterval, TimeUnit.SECONDS)
   }
 
   private def initConsumerThreadPool() {
@@ -102,7 +112,7 @@ class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService
       initConsumerThreadPool()
       queryPrefetchTaskProducer.version.incrementAndGet()
       schedulerPolicy.clearState()
-//      acumeCacheAvailabilityMapPolicy.reset
+      binSourceToCacheAvailability = HashMap[String, HashMap[Long, Interval]]()
       startPrefetchScheduler()
     }
   }
