@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.guavus</groupId>
 		<artifactId>acume</artifactId>
-		<version>0.1-SNAPSHOT</version>
+		<version>platform5.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<groupId>com.guavus.acume</groupId>
@@ -178,6 +178,36 @@
 
 	<build>
 		<plugins>
+			<plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/scala</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>add-test-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/test/scala</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.4</version>

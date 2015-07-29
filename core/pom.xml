@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>com.guavus</groupId>
 		<artifactId>acume</artifactId>
-		<version>0.1-SNAPSHOT</version>
+		<version>platform5.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<groupId>com.guavus.acume</groupId>
@@ -41,7 +41,7 @@
 		<dependency>
 			<groupId>com.guavus.acume</groupId>
 			<artifactId>cache</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>platform5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.guavus</groupId>
@@ -275,12 +275,12 @@
 		<dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>QueryBuilder</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>platform5.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>crux2.0</artifactId>
-			<version>${pversion}</version>
+			<version>platform5.0</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
