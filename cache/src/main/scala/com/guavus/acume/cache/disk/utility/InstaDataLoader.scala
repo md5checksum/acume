@@ -3,18 +3,15 @@ package com.guavus.acume.cache.disk.utility
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
-
 import scala.annotation.migration
 import scala.util.control.Breaks._
-
 import org.apache.spark.sql.SchemaRDD
 import org.apache.spark.sql.hive.HiveContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
-import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.CubeTrait
 import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.core.AcumeCache
 import com.guavus.acume.cache.utility.Utility
@@ -24,6 +21,8 @@ import com.guavus.insta.BinPersistTimeInfoRequest
 import com.guavus.insta.Insta
 import com.guavus.insta.InstaCubeMetaInfo
 import com.guavus.insta.InstaRequest
+import com.guavus.acume.cache.common.CacheLevel
+import com.guavus.acume.cache.common.LevelTimestamp
 
 class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @transient  conf: AcumeCacheConf, @transient acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends DataLoader(acumeCacheContext, conf, null) {
 
@@ -88,7 +87,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
     
   }
   
-  override def loadDimensionSet(keyMap : Map[String, Any], businessCube: Cube, startTime : Long, endTime : Long) : SchemaRDD = {
+  override def loadDimensionSet(keyMap : Map[String, Any], businessCube: CubeTrait, startTime : Long, endTime : Long) : SchemaRDD = {
     val dimSet = getBestCubeName(businessCube, startTime, endTime)
     val baseFields = CubeUtil.getDimensionSet(businessCube).map(_.getBaseFieldName)
     val fields = CubeUtil.getDimensionSet(businessCube).map(_.getName)
@@ -122,7 +121,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
       }).map(x => x._1 + " as " + x._2).mkString(",")
       
     val instaDimRequest = InstaRequest(startTime, endTime,
-        businessCube.binsource, dimSet.cubeName, List(rowFilters), measureFilters)
+        businessCube.binSource, dimSet.cubeName, List(rowFilters), measureFilters)
         logger.info("Firing aggregate query on insta "  + instaDimRequest)
         val dimensionTblTemp = "dimensionDataInstaTemp" + businessCube.cubeName+ endTime
     val newTuplesRdd = insta.getNewTuples(instaDimRequest)
@@ -130,10 +129,9 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
     sqlContext.sql(s"select $renameToAcumeFields from $dimensionTblTemp")
   }
 
-  override def loadData(keyMap : Map[String, Any], businessCube: Cube, levelTimestamp: LevelTimestamp): SchemaRDD = {
+  override def loadData(keyMap : Map[String, Any], businessCube: CubeTrait, startTime : Long, endTime : Long, level: Long) : SchemaRDD = {
     this.synchronized {
-      val endTime = Utility.getNextTimeFromGranularity(levelTimestamp.timestamp, levelTimestamp.level.localId, Utility.newCalendar)
-      val dimSet = getBestCubeName(businessCube, levelTimestamp.timestamp, endTime)
+      val dimSet = getBestCubeName(businessCube, startTime, endTime)
       val fields = CubeUtil.getCubeFields(businessCube)
       val baseFields = CubeUtil.getCubeBaseFields(businessCube)
       var i = -1
@@ -161,11 +159,11 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
           null
       })
 
-      val instaMeasuresRequest = InstaRequest(levelTimestamp.timestamp, endTime,
-        businessCube.binsource, dimSet.cubeName, List(), measureFilters)
+      val instaMeasuresRequest = InstaRequest(startTime, endTime,
+        businessCube.binSource, dimSet.cubeName, List(), measureFilters)
         logger.info("Firing aggregate query on insta "  + instaMeasuresRequest)
       val aggregatedMeasureDataInsta = insta.getAggregatedData(instaMeasuresRequest)
-      val aggregatedTblTemp = "aggregatedMeasureDataInstaTemp" + businessCube.cubeName + levelTimestamp.level + "_" + levelTimestamp.timestamp
+      val aggregatedTblTemp = "aggregatedMeasureDataInstaTemp" + businessCube.cubeName + level + "_" + startTime
       sqlContext.registerRDDAsTable(aggregatedMeasureDataInsta, aggregatedTblTemp)
       AcumeCacheContextTrait.setInstaTempTable(aggregatedTblTemp)
       //change schema for this schema rdd
@@ -176,7 +174,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
     }
   }
   
-  def getBestCubeName(businessCube: Cube, startTime: Long, endTime: Long): InstaCubeMetaInfo = {
+  def getBestCubeName(businessCube: CubeTrait, startTime: Long, endTime: Long): InstaCubeMetaInfo = {
     val fieldnum = Integer.MAX_VALUE;
     var resultantTable = null;
     var bestCube: InstaCubeMetaInfo = null
@@ -194,7 +192,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
           }
         }
       }
-      if (isValidCubeGran && cube.binSource == businessCube.binsource && CubeUtil.getCubeBaseFields(businessCube).toSet.subsetOf((cube.dimensions.map(_._1) ++ cube.measures.map(_._1)).toSet)) {
+      if (isValidCubeGran && cube.binSource == businessCube.binSource && CubeUtil.getCubeBaseFields(businessCube).toSet.subsetOf((cube.dimensions.map(_._1) ++ cube.measures.map(_._1)).toSet)) {
         if(cube.cubeName.equalsIgnoreCase(businessCube.cubeName)) {
           return cube
         } else if (bestCube == null) {

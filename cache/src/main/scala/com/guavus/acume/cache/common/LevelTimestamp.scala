@@ -8,10 +8,11 @@ import CacheLevel._
  */
 case class LevelTimestamp(level : CacheLevel, timestamp : Long, var aggregationLevel : CacheLevel = null) {
 	
+  @transient var loadType = LoadType.Insta
+  
   if(aggregationLevel == null) {
     aggregationLevel = level
   }
-  @transient var loadType = LoadType.Insta
   
   def this(level : CacheLevel, timestamp : Long, loadType : LoadType.Value) = {
     this(level, timestamp)

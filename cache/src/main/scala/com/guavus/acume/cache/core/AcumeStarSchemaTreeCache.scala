@@ -208,7 +208,10 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
 
   def loadData(businessCube: Cube, levelTimestamp: LevelTimestamp, dTableName: DimensionTable): Tuple2[SchemaRDD, String] = {
     val aggregatedTbl = "aggregatedMeasureDataInsta" + levelTimestamp.level + "_" + levelTimestamp.timestamp
-    diskUtility.loadData(keyMap, businessCube, levelTimestamp).registerTempTable(aggregatedTbl)
+    val cacheLevel = levelTimestamp.level
+    val startTime = levelTimestamp.timestamp
+    val endTime = Utility.getNextTimeFromGranularity(startTime, cacheLevel.localId, Utility.newCalendar)
+    diskUtility.loadData(keyMap, businessCube, startTime, endTime, cacheLevel.localId).registerTempTable(aggregatedTbl)
 
     this.synchronized {
       val endTime = Utility.getNextTimeFromGranularity(levelTimestamp.timestamp, levelTimestamp.level.localId, Utility.newCalendar)
