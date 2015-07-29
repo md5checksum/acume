@@ -61,7 +61,8 @@ class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: Quer
       this.synchronized {
         this.notify()
       }
-    var binSourceToIntervalMap = manager.getBinSourceToCacheAvailability
+    val policy = manager.acumeCacheAvailabilityMapPolicy
+    val binSourceToIntervalMap = manager.getBinSourceToCacheAvalabilityMap 
     binSourceToIntervalMap.getOrElseUpdate(getBinSource, new scala.collection.mutable.HashMap[Long, Interval]())
     val map = new java.util.TreeMap[Long, Interval](Collections.reverseOrder[Long]())
     map.putAll(binSourceToIntervalMap.get(getBinSource).get)
@@ -129,8 +130,8 @@ class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: Quer
       } else {
         binSourceToIntervalMap.+=(getBinSource ->  (scala.collection.mutable.HashMap() ++= map.toMap))
         logger.info("Putting RubixDataAvailability in Distributed cache {} ", binSourceToIntervalMap)
-        manager.updateBinSourceToRubixAvailabiltyMap(binSourceToIntervalMap)
-        logger.info("BinReplay: UI RubixDataAvaiabilty {}", manager.getBinClassToBinSourceToRubixAvailabiltyMapFromCoordinator)
+        policy.update(binSourceToIntervalMap)
+        logger.info("BinReplay: UI RubixDataAvaiabilty {}", policy.getTrueCacheAvalabilityMap)
       }
     this.synchronized {
       this.notify()

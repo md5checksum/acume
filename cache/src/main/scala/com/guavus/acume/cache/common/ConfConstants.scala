@@ -25,6 +25,7 @@ private [acume] object ConfConstants {
   val backendDbName = "acume.cache.backend.dbname"
   val acumeCacheDefaultType = "acume.cache.default.cache.type"
   val acumeCacheSingleEntityCacheSize = "acume.cache.singleentity.cache.size"
+  val acumeglobalevictionpolicycube = "acume.core.global.evictionpolicyclass"
   
   val levelpolicymap = "levelpolicymap"
   val basegranularity = "basegranularity"
@@ -44,7 +45,6 @@ private [acume] object ConfConstants {
   val acumecorelevelmap = "acume.core.global.levelpolicymap"
   val acumecoretimeserieslevelmap = "acume.core.global.timeserieslevelpolicymap"
   val acumeglobalbasegranularity = "acume.core.global.basegranularity"
-  val acumeglobalevictionpolicycube = "acume.core.global.evictionpolicyclass"
   val appConfig = "acume.core.app.config"                  
   val sqlQueryEngine = "acume.core.sql.query.engine"
   val udfConfigXml = "acume.core.udf.configurationxml"
@@ -70,7 +70,8 @@ private [acume] object ConfConstants {
   val instaAvailabilityPollInterval = "acume.insta.availability.poll.interval" 
   val cacheBaseDirectory = "acume.core.cache.base.directory"
   val cacheDirectory = "acume.core.cache.directory"
-
+  val acumecacheavailablitymappolicy = "acume.core.cache.cacheavailabiltymap.policy"
+  
   /* Insta Properties */
   val instaComboPoints = "acume.insta.comboPoints"
   val queryThreadPoolSize = "acume.core.thread.pool.size"

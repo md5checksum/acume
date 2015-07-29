@@ -203,6 +203,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
             val endTimeFloor = cacheLevelPolicy.getFloorToLevel(endTime, level)
             Some(MutableMap(level -> MutableList((startTimeCeiling, endTimeFloor))))
           } else None
+        case None => None
       }
     val levelTimestampMap = timestampMap.getOrElse(cacheLevelPolicy.getRequiredIntervals1(startTime, endTime))
     buildTableForIntervals(levelTimestampMap, tableName, isMetaData)
