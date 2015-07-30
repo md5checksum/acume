@@ -5,7 +5,7 @@ import com.guavus.qb.cube.schema.IField
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 
-case class Cube(cubeName: String, fields: List[IField], binSource: String, granularity: Long, properties : Map[String, String]) extends ICube {
+case class Cube(cubeName: String, fields: List[IField], binSource: String, granularity: Long, dataSource : String, properties : Map[String, String]) extends ICube {
 
   def getFields(): java.util.List[IField] = fields
 
@@ -22,4 +22,6 @@ case class Cube(cubeName: String, fields: List[IField], binSource: String, granu
   def getProperties() : java.util.Map[String, String] = {
 	mapAsJavaMap(properties)
   }
+  
+  def getDataSource() : String = dataSource
 }

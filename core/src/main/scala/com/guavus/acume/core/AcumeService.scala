@@ -105,6 +105,10 @@ class AcumeService(dataService: DataService) {
         }
       }
     }
+    
+    def run[T](callable: Callable[java.util.ArrayList[T]]): java.util.ArrayList[T] = {
+        callable.call()
+    }
 
     val callable = new Callable[java.util.ArrayList[T]]() {
       def call() = {
@@ -160,7 +164,11 @@ class AcumeService(dataService: DataService) {
         responses
       }
     }
-    runWithTimeout[T](callable)
+    if(dataService.acumeContext.acumeConf.getBoolean(ConfConstants.schedulerQuery).getOrElse(false)) {
+      run(callable)
+    } else {
+      runWithTimeout[T](callable)
+    }
   }
   
   def checkJobPropertiesAndUpdateStats(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): (List[(String, HashMap[String, Any])], List[String]) = {

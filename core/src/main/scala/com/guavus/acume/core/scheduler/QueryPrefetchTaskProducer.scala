@@ -217,7 +217,7 @@ class QueryPrefetchTaskProducer(acumeContext: AcumeContextTrait, schemas: List[Q
           var tempEndTime = getNextEndTime(startTime, endTime)
           while (startTime < endTime) {
             val combiner = new QueryPrefetchTaskCombiner(isFirstRun, taskManager, version, acumeContext, acumeService, controller)
-            for (prefetchCubeConfiguration <- value) {
+            for (prefetchCubeConfiguration <- value.filter(x => {acumeContext.acumeConf.setDatasourceName(x.getTopCube.getDataSource()); acumeContext.acumeConf.getEnableScheduler})) {
               val lastCacheUpdatedTime = cubeConfigurationToCacheTime.get(prefetchCubeConfiguration).getOrElse({ null }).asInstanceOf[Long]
               if (lastCacheUpdatedTime != null && lastCacheUpdatedTime != 0 && tempEndTime < lastCacheUpdatedTime) {
                 tempEndTime = lastCacheUpdatedTime

@@ -76,6 +76,7 @@ private [acume] object ConfConstants {
   val columnMappings = "columnMappings"
 
   val queryPoolSchedPolicyClass = "com.guavus.acume.core.QueryPoolPolicySchedulerImpl"
+    val schedulerQuery = "acume.core.scheduler.query"
   
   val defaultValueMap = Map[String, String]()
   defaultValueMap += businesscubexml -> "src/test/resources/cubedefinition1.xml"
@@ -85,5 +86,6 @@ private [acume] object ConfConstants {
   defaultValueMap += instaAvailabilityPollInterval -> "300"
   defaultValueMap += queryThreadPoolSize -> "16"
   defaultValueMap += useInsta -> "false"
+  defaultValueMap += schedulerQuery -> "false"
 
 }

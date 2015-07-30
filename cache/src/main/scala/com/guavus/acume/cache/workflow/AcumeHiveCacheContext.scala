@@ -99,7 +99,7 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
           val endTimeFloor = Utility.floorFromGranularity(endTime, level)
           timestamps = Utility.getAllIntervals(startTimeCeiling, endTimeFloor, level)
           val tables = for (timestamp <- timestamps) yield {
-            val rdd = dataLoader.loadData(Map[String, Any](), new BaseCube(cube, binsource, null, null, null), timestamp, Utility.getNextTimeFromGranularity(timestamp, level, Utility.newCalendar), level)
+            val rdd = dataLoader.loadData(Map[String, Any](), new BaseCube(cube, binsource, null, null, null, null, null), timestamp, Utility.getNextTimeFromGranularity(timestamp, level, Utility.newCalendar), level)
             val tempTable = AcumeCacheContext.getTable(cube)
             rdd.registerTempTable(tempTable)
             val tempTable1 = AcumeCacheContext.getTable(cube)
@@ -109,7 +109,7 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
           val finalQuery = tables.map(x => s" select * from $x ").mkString(" union all ")
           sqlContext.sql(finalQuery)
         } else {
-          val rdd = dataLoader.loadData(Map[String, Any](), new BaseCube(cube, binsource, null, null, null), startTime, endTime, 0l)
+          val rdd = dataLoader.loadData(Map[String, Any](), new BaseCube(cube, binsource, null, null, null, null, null), startTime, endTime, 0l)
           val tempTable = AcumeCacheContext.getTable(cube)
           rdd.registerTempTable(tempTable)
           sqlContext.sql(s"select *, $startTime as ts from $tempTable")
