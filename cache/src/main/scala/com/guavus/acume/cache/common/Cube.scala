@@ -10,12 +10,12 @@ import com.guavus.acume.cache.core.Level
  * @author archit.thakur
  *
  */
-abstract class CubeTrait(val cubeName: String, val binSource : String, val dataSourceName: String, val superDimension: DimensionSet, val superMeasure: MeasureSet, schemaType : AcumeCacheType) extends Serializable {
+abstract class CubeTrait(val cubeName: String, val binSource : String, val superDimension: DimensionSet, val superMeasure: MeasureSet, schemaType : AcumeCacheType) extends Serializable {
   def getAbsoluteCubeName : String
 }
-case class BaseCube(override val cubeName: String, binsource: String, val dataSourceName: String, dimension: DimensionSet, measure: MeasureSet, baseGran: TimeGranularity, schemaType : AcumeCacheType = null) extends CubeTrait(cubeName, binsource, dataSourceName, dimension, measure, schemaType) {
+case class BaseCube(override val cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, baseGran: TimeGranularity, schemaType : AcumeCacheType = null) extends CubeTrait(cubeName, binsource, dimension, measure, schemaType) {
    def getAbsoluteCubeName = {
-    cubeName + "_"+ binsource + "_" + dataSourceName 
+    cubeName + "_"+ binsource 
   }
 }
 
@@ -38,7 +38,7 @@ case class DimensionTable(var tblnm: String, var maxid: Long) extends Serializab
 case class Cube(override val cubeName: String, binsource: String, val dataSourceName: String, dimension: DimensionSet, measure: MeasureSet, singleEntityKeys : Map[String, String], 
     baseGran: TimeGranularity, isCacheable: Boolean, levelPolicyMap: Map[Level, Int], diskLevelPolicyMap : Map[Level, Int], cacheTimeseriesLevelPolicyMap: Map[Long, Int], 
     evictionPolicyClass: Class[_ <: EvictionPolicy], schemaType : AcumeCacheType, primaryKeys : Array[String], propertyMap: Map[String,String]) 
-    extends CubeTrait(cubeName, binsource, dataSourceName, dimension, measure, schemaType) with Equals {
+    extends CubeTrait(cubeName, binsource, dimension, measure, schemaType) with Equals {
   
   def getAbsoluteCubeName = {
     cubeName + "_"+ binsource + "_" + dataSourceName

@@ -421,7 +421,7 @@ object Utility extends Logging {
         val schemaType = AcumeCacheType.getAcumeCacheType(getProperty(propertyMap, "cacheType", ConfConstants.acumeCacheDefaultType, conf, cubeName))
         val orderedPrimaryKeys = propertyMap.getOrElse(ConfConstants.primaryKeys, "").split(";")
         val cube = Cube(cubeName, cubebinsource, cubeDatasourceName, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), singleEntityKeysMap, granularity, true, inMemoryPolicyMap, diskLevelPolicyMap, timeserieslevelpolicymap, _$eviction, schemaType, orderedPrimaryKeys, propertyMap.toMap)
-        cubeMap.put(CubeKey(cubeName, cubebinsource, cubeDatasourceName), cube)
+        cubeMap.put(CubeKey(cubeName, cubebinsource), cube)
         cube
       }
     cubeList.++=(list)
