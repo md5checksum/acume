@@ -6,7 +6,6 @@ package com.guavus.acume.cache.workflow
  */
 
 case class CubeKey(var name: String, val binsource: String) {
-
   name = name.toLowerCase
 }
 

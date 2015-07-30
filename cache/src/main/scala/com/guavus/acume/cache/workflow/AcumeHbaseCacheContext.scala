@@ -17,12 +17,13 @@ class AcumeHbaseCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheCon
     case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
   
+  Utility.init(conf)
   Utility.unmarshalXML(conf.get(ConfConstants.businesscubexml), dimensionMap, measureMap)
   
   private [acume] def cacheSqlContext() : SQLContext = sqlContext
   private [acume] def cacheConf = conf
   
-  override val dataLoader = null
+  override val dataLoader = throw new RuntimeException("Operation not supported")
   
   override private [acume] def executeQuery(sql: String) = {
     val resultSchemaRDD = sqlContext.sql(sql)

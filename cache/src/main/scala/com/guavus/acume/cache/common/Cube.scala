@@ -10,12 +10,12 @@ import com.guavus.acume.cache.core.Level
  * @author archit.thakur
  *
  */
-abstract class CubeTrait(val cubeName: String, val binSource : String, val superDimension: DimensionSet, val superMeasure: MeasureSet, schemaType : AcumeCacheType) extends Serializable {
+abstract class CubeTrait(val cubeName: String, val binSource : String, val dataSourceName: String, val superDimension: DimensionSet, val superMeasure: MeasureSet, schemaType : AcumeCacheType) extends Serializable {
   def getAbsoluteCubeName : String
 }
-case class BaseCube(override val cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, baseGran: TimeGranularity, schemaType : AcumeCacheType = null) extends CubeTrait(cubeName, binsource, dimension, measure, schemaType) {
+case class BaseCube(override val cubeName: String, binsource: String, val dataSourceName: String, dimension: DimensionSet, measure: MeasureSet, baseGran: TimeGranularity, schemaType : AcumeCacheType = null) extends CubeTrait(cubeName, binsource, dataSourceName, dimension, measure, schemaType) {
    def getAbsoluteCubeName = {
-    cubeName + "_"+ binsource
+    cubeName + "_"+ binsource + "_" + dataSourceName 
   }
 }
 
@@ -35,13 +35,13 @@ case class DimensionTable(var tblnm: String, var maxid: Long) extends Serializab
   } 	
 }
 
-case class Cube(override val cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, singleEntityKeys : Map[String, String], 
+case class Cube(override val cubeName: String, binsource: String, val dataSourceName: String, dimension: DimensionSet, measure: MeasureSet, singleEntityKeys : Map[String, String], 
     baseGran: TimeGranularity, isCacheable: Boolean, levelPolicyMap: Map[Level, Int], diskLevelPolicyMap : Map[Level, Int], cacheTimeseriesLevelPolicyMap: Map[Long, Int], 
-    evictionPolicyClass: Class[_ <: EvictionPolicy], schemaType : AcumeCacheType, propertyMap: Map[String,String]) 
-    extends CubeTrait(cubeName, binsource, dimension, measure, schemaType) with Equals {
+    evictionPolicyClass: Class[_ <: EvictionPolicy], schemaType : AcumeCacheType, primaryKeys : Array[String], propertyMap: Map[String,String]) 
+    extends CubeTrait(cubeName, binsource, dataSourceName, dimension, measure, schemaType) with Equals {
   
   def getAbsoluteCubeName = {
-    cubeName + "_"+ binsource
+    cubeName + "_"+ binsource + "_" + dataSourceName
   }
   
   def canEqual(other: Any) = {
@@ -54,10 +54,14 @@ case class Cube(override val cubeName: String, binsource: String, dimension: Dim
     case _ => false
     }
   }
-  
+
   override def hashCode() = {
-      val prime = 41
-      prime * (prime + cubeName.hashCode) + binsource.hashCode
-    }
+    val prime = 31
+    var result: Int = 1
+    result = prime * result + (cubeName.hashCode ^ (cubeName.hashCode >>> 32)).toInt
+    result = prime * result + (cubeName.hashCode ^ (binsource.hashCode >>> 32)).toInt
+    result
+  }
+  
 }
 
