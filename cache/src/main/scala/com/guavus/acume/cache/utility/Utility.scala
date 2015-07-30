@@ -63,6 +63,7 @@ import com.guavus.acume.cache.common.CacheLevel
 import CacheLevel._
 import com.google.common.collect.Iterables
 import acume.exception.AcumeException
+import com.guavus.acume.cache.common.HbaseConfigs
 
 /**
  * @author archit.thakur
@@ -415,12 +416,26 @@ object Utility extends Logging {
         val timeserieslevelpolicymap = Utility.getLevelPointMap(timeSeriesLevelPolicyString).map(x =>x._1.level -> x._2)
 
         
+        //Hbase configs
+        var hbaseConfig : HbaseConfigs = null
+        if(cubeDatasourceName.toLowerCase.startsWith("hbase")) {
+          val orderedPrimaryKeys = propertyMap.getOrElse(ConfConstants.primaryKeys, "").split(";")
+          val tableName = propertyMap.getOrElse(ConfConstants.tableName, throw new RuntimeException("Hbase tableName not defined"))
+          val columnMappings : Map[String, String] = propertyMap.getOrElse(ConfConstants.columnMappings, throw new RuntimeException("ColumnMappings not defined for Hbase")).split(";").map(mapping => {
+            val tuples = mapping.replaceAll(" ", "").split("->")
+            (tuples(0).replaceAll("[",""), tuples(1).replaceAll("]", ""))
+          }).toMap
+          
+          hbaseConfig = HbaseConfigs(tableName, cubeDatasourceName, cubeName, orderedPrimaryKeys, columnMappings)
+        }
+        
+        
         val Gnx = getProperty(propertyMap, ConfConstants.basegranularity, ConfConstants.acumeglobalbasegranularity, conf, cubeName)
         val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
         val _$eviction = Class.forName(getProperty(propertyMap, ConfConstants.evictionpolicyforcube, ConfConstants.acumeEvictionPolicyClass, conf, cubeName)).asSubclass(classOf[EvictionPolicy])
         val schemaType = AcumeCacheType.getAcumeCacheType(getProperty(propertyMap, "cacheType", ConfConstants.acumeCacheDefaultType, conf, cubeName))
-        val orderedPrimaryKeys = propertyMap.getOrElse(ConfConstants.primaryKeys, "").split(";")
-        val cube = Cube(cubeName, cubebinsource, cubeDatasourceName, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), singleEntityKeysMap, granularity, true, inMemoryPolicyMap, diskLevelPolicyMap, timeserieslevelpolicymap, _$eviction, schemaType, orderedPrimaryKeys, propertyMap.toMap)
+        
+        val cube = Cube(cubeName, cubebinsource, cubeDatasourceName, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), singleEntityKeysMap, granularity, true, inMemoryPolicyMap, diskLevelPolicyMap, timeserieslevelpolicymap, _$eviction, schemaType, hbaseConfig, propertyMap.toMap)
         cubeMap.put(CubeKey(cubeName, cubebinsource), cube)
         cube
       }

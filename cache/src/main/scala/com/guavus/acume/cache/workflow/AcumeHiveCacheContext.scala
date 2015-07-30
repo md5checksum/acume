@@ -1,8 +1,6 @@
 package com.guavus.acume.cache.workflow
 
-
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
+import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.immutable.SortedMap
 
 import org.apache.spark.sql.SQLContext
@@ -23,16 +21,17 @@ import com.guavus.acume.cache.utility.Utility
  */
 class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends AcumeCacheContextTrait { 
  
+  private [cache] val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]()(implicitly[Ordering[Long]].reverse) ++ Utility.getLevelPointMap(conf.get(ConfConstants.acumecoretimeserieslevelmap)).map(x=> (x._1.level, x._2)))
+  
   sqlContext match {
     case hiveContext: HiveContext =>
     case hbaseContext : HBaseSQLContext =>
     case sqlContext: SQLContext => 
     case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
+  
   Utility.init(conf)
   Utility.unmarshalXML(conf.get(ConfConstants.businesscubexml), dimensionMap, measureMap)
-  
-  val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]()(implicitly[Ordering[Long]].reverse) ++ Utility.getLevelPointMap(conf.get(ConfConstants.acumecoretimeserieslevelmap)).map(x=> (x._1.level, x._2)))
 
   private [acume] def cacheSqlContext() : SQLContext = sqlContext
   

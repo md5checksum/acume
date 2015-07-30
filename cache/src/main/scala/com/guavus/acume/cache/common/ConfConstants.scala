@@ -70,7 +70,10 @@ private [acume] object ConfConstants {
   val evictionpolicyforcube = "evictionpolicyclass"
   val indexDimension = "indexdimension"
   val numberOfPartitions = "numberofpartitions"
+
   val primaryKeys = "primaryKeys"
+  val tableName = "tableName"
+  val columnMappings = "columnMappings"
 
   val queryPoolSchedPolicyClass = "com.guavus.acume.core.QueryPoolPolicySchedulerImpl"
   

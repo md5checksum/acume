@@ -37,7 +37,7 @@ case class DimensionTable(var tblnm: String, var maxid: Long) extends Serializab
 
 case class Cube(override val cubeName: String, binsource: String, val dataSourceName: String, dimension: DimensionSet, measure: MeasureSet, singleEntityKeys : Map[String, String], 
     baseGran: TimeGranularity, isCacheable: Boolean, levelPolicyMap: Map[Level, Int], diskLevelPolicyMap : Map[Level, Int], cacheTimeseriesLevelPolicyMap: Map[Long, Int], 
-    evictionPolicyClass: Class[_ <: EvictionPolicy], schemaType : AcumeCacheType, primaryKeys : Array[String], propertyMap: Map[String,String]) 
+    evictionPolicyClass: Class[_ <: EvictionPolicy], schemaType : AcumeCacheType, hbaseConfigs : HbaseConfigs , propertyMap: Map[String,String]) 
     extends CubeTrait(cubeName, binsource, dimension, measure, schemaType) with Equals {
   
   def getAbsoluteCubeName = {

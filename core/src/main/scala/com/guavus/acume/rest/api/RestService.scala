@@ -30,7 +30,7 @@ class RestService {
     @Produces(Array("application/json"))
     @Path("exportaggregate")
   def exportAggregateData(dataExportRequest: DataExportRequest, @QueryParam(value = "super") userinfo: String,
-      @QueryParam("user") user: String, @QueryParam("password") password: String): Serializable = {
+      @QueryParam("user") user: String, @QueryParam("password") password: String, @QueryParam("datasource") datasource : String): Serializable = {
     
     Authentication.authenticate(userinfo, user, password)
     dataExportRequest.setRequestDataType("Aggregate")
@@ -43,7 +43,7 @@ class RestService {
     @Produces(Array("application/json"))
     @Path("exporttimeseries")
   def exportTimeseriesData(dataExportRequest: DataExportRequest, @QueryParam(value = "super") userinfo: String,
-      @QueryParam("user") user: String, @QueryParam("password") password: String): Serializable = {
+      @QueryParam("user") user: String, @QueryParam("password") password: String, @QueryParam("datasource") datasource : String): Serializable = {
     
     Authentication.authenticate(userinfo, user, password)
     dataExportRequest.setRequestDataType("Timeseries")
@@ -56,7 +56,7 @@ class RestService {
     @Produces(Array("application/json"))
     @Path("exportsqlaggregate")
   def exportSqlAggregateData(dataExportRequest: DataExportRequest, @QueryParam(value = "super") userinfo: String,
-      @QueryParam("user") user: String, @QueryParam("password") password: String): Serializable = {
+      @QueryParam("user") user: String, @QueryParam("password") password: String, @QueryParam("datasource") datasource : String): Serializable = {
     
     Authentication.authenticate(userinfo, user, password)
     dataExportRequest.setRequestDataType("Aggregate")
@@ -69,7 +69,7 @@ class RestService {
     @Produces(Array("application/json"))
     @Path("aggregate")
 	def servAggregate(query : QueryRequest, @QueryParam(value = "super") userinfo : String,
-			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
+			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean, @QueryParam("datasource") datasource : String) : Serializable = {
 	  servQuery(query, userinfo, user, password, getAdditionalInfo, true)
 	}
 	
@@ -78,7 +78,7 @@ class RestService {
     @Produces(Array("application/json"))
     @Path("timeseries")
 	def servTimeseries(query : QueryRequest, @QueryParam(value = "super") userinfo : String,
-			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
+			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean, @QueryParam("datasource") datasource : String) : Serializable = {
 	  servQuery(query, userinfo, user, password, getAdditionalInfo, false)
 	}
 	
@@ -87,7 +87,7 @@ class RestService {
     @Produces(Array("application/json"))
     @Path("aggregateMultiple")
 	def servAggregateMultiple(query : java.util.ArrayList[QueryRequest], @QueryParam(value = "super") userinfo : String,
-			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
+			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean, @QueryParam("datasource") datasource : String) : Serializable = {
 	  servMultiple(query, userinfo, user, password, getAdditionalInfo, true)
 	}
 	
@@ -96,7 +96,7 @@ class RestService {
     @Produces(Array("application/json"))
     @Path("timeseriesMultiple")
 	def servTimeseriesMultiple(query : java.util.ArrayList[QueryRequest], @QueryParam(value = "super") userinfo : String,
-			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
+			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean, @QueryParam("datasource") datasource : String) : Serializable = {
 	  servMultiple(query, userinfo, user, password, getAdditionalInfo, false)
 	}
 	
@@ -105,44 +105,17 @@ class RestService {
     @Produces(Array("application/json"))
     @Path("search")
 	def servSearchQuery(query : SearchRequest, @QueryParam(value = "super") userinfo : String,
-			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
+			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean, @QueryParam("datasource") datasource : String) : Serializable = {
 	  Authentication.authenticate(userinfo, user, password)
 		// Submit the request to query builder which will return the actual query to be fired on olap cache. It will also return the type of query it was aggregate/timeseries. After receiving
 	  AcumeService.acumeService.searchRequest(query).asInstanceOf[Serializable]
 	}
   
-	/**
-	 * Takes rubix like query as input with additional params and return response. This handles timeseries as well as aggregate queries
-	 */
-	def servQuery(query : QueryRequest, userinfo : String,
-			user : String, password : String, getAdditionalInfo : Boolean, isAggregate : Boolean) : Serializable = {
-		val startTime = System.currentTimeMillis();
-		Authentication.authenticate(userinfo, user, password)
-		// Submit the request to query builder which will return the actual query to be fired on olap cache. It will also return the type of query it was aggregate/timeseries. After receiving
-		if(isAggregate) {
-		  AcumeService.acumeService.servAggregateQuery(query).asInstanceOf[Serializable]
-		} else {
-			AcumeService.acumeService.servTimeseriesQuery(query).asInstanceOf[Serializable]
-		}
-	}
-	
-	def servMultiple(query : java.util.ArrayList[QueryRequest], userinfo : String,
-			user : String, password : String, getAdditionalInfo : Boolean, isAggregate : Boolean) : Serializable = {
-		val startTime = System.currentTimeMillis();
-		Authentication.authenticate(userinfo, user, password)
-		// Submit the request to query builder which will return the actual query to be fired on olap cache. It will also return the type of query it was aggregate/timeseries. After receiving
-		if(isAggregate) {
-		  AcumeService.acumeService.servAggregateMultiple(query).asInstanceOf[Serializable]
-		} else {
-			AcumeService.acumeService.servTimeseriesMultiple(query).asInstanceOf[Serializable]
-		}
-	}
-	
 	@POST
 	@Produces(Array("application/json"))
 	@Path("sql")
 	def servSqlQuery(query : String,  @QueryParam(value = "super") userinfo : String,
-			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
+			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean, @QueryParam("datasource") datasource : String) : Serializable = {
 		val startTime = System.currentTimeMillis();
 		Authentication.authenticate(userinfo, user, password)
 		// Submit the request to query builder which will return the actual query to be fired on olap cache. It will also return the type of query it was aggregate/timeseries. After receiving
@@ -190,5 +163,32 @@ class RestService {
 	  Authentication.authenticate(userinfo, user, password)
 	  new java.util.ArrayList()
 	}
+  
+  /**
+   * Takes rubix like query as input with additional params and return response. This handles timeseries as well as aggregate queries
+   */
+  def servQuery(query : QueryRequest, userinfo : String,
+      user : String, password : String, getAdditionalInfo : Boolean, isAggregate : Boolean) : Serializable = {
+    val startTime = System.currentTimeMillis();
+    Authentication.authenticate(userinfo, user, password)
+    // Submit the request to query builder which will return the actual query to be fired on olap cache. It will also return the type of query it was aggregate/timeseries. After receiving
+    if(isAggregate) {
+      AcumeService.acumeService.servAggregateQuery(query).asInstanceOf[Serializable]
+    } else {
+      AcumeService.acumeService.servTimeseriesQuery(query).asInstanceOf[Serializable]
+    }
+  }
+  
+  def servMultiple(query : java.util.ArrayList[QueryRequest], userinfo : String,
+      user : String, password : String, getAdditionalInfo : Boolean, isAggregate : Boolean) : Serializable = {
+    val startTime = System.currentTimeMillis();
+    Authentication.authenticate(userinfo, user, password)
+    // Submit the request to query builder which will return the actual query to be fired on olap cache. It will also return the type of query it was aggregate/timeseries. After receiving
+    if(isAggregate) {
+      AcumeService.acumeService.servAggregateMultiple(query).asInstanceOf[Serializable]
+    } else {
+      AcumeService.acumeService.servTimeseriesMultiple(query).asInstanceOf[Serializable]
+    }
+  }
 
 }
