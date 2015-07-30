@@ -1,6 +1,6 @@
 package com.guavus.acume.core.configuration
 
-import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.core.AcumeContextTraitUtil
 import com.guavus.acume.core.spring.Resolver
 
 /**
@@ -9,7 +9,7 @@ import com.guavus.acume.core.spring.Resolver
  */
 object ConfigFactory {
 
-  private var config: Config = new Configuration(Class.forName(AcumeContextTrait.acumeConf.getResolver()).newInstance().asInstanceOf[Resolver])
+  private var config: Config = new Configuration(Class.forName(AcumeContextTraitUtil.acumeConf.getResolver()).newInstance().asInstanceOf[Resolver])
   
   def getInstance(): Config = {
     config

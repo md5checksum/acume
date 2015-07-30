@@ -3,8 +3,8 @@ package com.guavus.acume.core.spring
 import org.slf4j.LoggerFactory
 import org.springframework.context.ApplicationContext
 import org.springframework.context.annotation.AnnotationConfigApplicationContext
-
 import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.core.AcumeContextTraitUtil
 
 class AcumeApplicationContext(ctx: ApplicationContext) {
 
@@ -17,7 +17,7 @@ object AcumeApplicationContext {
   val logger = LoggerFactory.getLogger(classOf[AcumeApplicationContext])
   var context: AcumeApplicationContext = null
   try {
-    val appConfigClassName = AcumeContextTrait.acumeConf.getAppConfig
+    val appConfigClassName = AcumeContextTraitUtil.acumeConf.getAppConfig
     context = new AcumeApplicationContext(new AnnotationConfigApplicationContext(Class.forName(appConfigClassName)))
   } catch {
     case t: Throwable =>

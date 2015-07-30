@@ -36,10 +36,7 @@ abstract class AcumeContextTrait {
 
   def sqlContext(): SQLContext
   
-  val sparkContext = new SparkContext(new SparkConf())
-  sparkContext.addSparkListener(new AcumeSparkListener)
-  
-  def sc(): SparkContext = sparkContext
+  def sc(): SparkContext = AcumeContextTraitUtil.sparkContext
     
   def acumeConf(): AcumeConf = AcumeConf.acumeConf
 
@@ -56,7 +53,7 @@ abstract class AcumeContextTrait {
 			  
 	  val checkpointDirectory = diskBaseDirectory + File.separator + "checkpoint"
 	  Utility.deleteDirectory(checkpointDirectory, acc)
-	  sparkContext.setCheckpointDir(checkpointDirectory)
+	  sc.setCheckpointDir(checkpointDirectory)
 	  println(s"setting checkpoint directory as $checkpointDirectory")
 	  diskBaseDirectory
   } 
@@ -83,57 +80,4 @@ abstract class AcumeContextTrait {
         sqlContext.sql(createStatement)
       }
     }
-}
-
-object AcumeContextTrait {
-  val logger: Logger = LoggerFactory.getLogger(AcumeContextTrait.getClass)
-  var acumeContext: Option[AcumeContextTrait] = None
-  val accumulatorMap = new LinkedHashMap[String, Accumulator[Long]]
-  
-  val acumeConf = new AcumeConf(true, "/acume.ini")
-
-  def init(queryEngineType : String): AcumeContextTrait = acumeContext.getOrElse({
-    acumeContext = if(queryEngineType.equals("acume"))
-    	Some(new AcumeContext(acumeConf))
-    else
-    	Some(new AcumeHiveContext(acumeConf))
-    acumeContext.get
-  })
-
-  def stop() {
-    logger.info("Destroying Acume Context")
-    acumeContext.getOrElse(throw new IllegalArgumentException("Destroying context without initializing it.")).sc.stop
-    acumeContext = None
-  }
-
-  def getAccumulator(name: String): Option[Accumulator[Long]] = {
-    accumulatorMap.get(name)
-  }
-
-  def addAccumulator(name: String, accumulator: Option[Accumulator[Long]]) {
-    if (!accumulator.isEmpty) {
-      accumulatorMap += (name -> accumulator.get)
-    }
-  }
-
-  def clearAccumulator(){
-    for (key <- accumulatorMap.keys) {
-    	accumulatorMap.get(key).get.value=0L       
-      }
-  }
-  
-  def printAndClearAccumulator() {
-    val sparkConf = acumeContext.get.sc().getConf
-    val executorCores = if (sparkConf.getOption("spark.executor.cores").isEmpty) 1; else sparkConf.get("spark.executor.cores").toInt
-    val executorInstances = if (sparkConf.getOption("spark.executor.instances").isEmpty) 2; else sparkConf.get("spark.executor.instances").toInt
-    val totalCores = executorCores * executorInstances
-    for (key <- accumulatorMap.keys) {
-      val value = accumulatorMap(key).value
-      if (value > 0) {
-        accumulatorMap.get(key);
-        logger.debug("Accumulator " + key + " =  " + value / (totalCores))
-        accumulatorMap.get(key).get.value=0L
-      }
-    }
-  }
 }

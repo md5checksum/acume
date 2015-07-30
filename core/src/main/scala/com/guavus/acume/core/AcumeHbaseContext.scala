@@ -7,7 +7,7 @@ import com.guavus.acume.cache.workflow.AcumeHbaseCacheContext
 
 class AcumeHbaseContext(val acumeConfiguration: AcumeConf) extends AcumeContextTrait {
   
-  val hbaseContext = new HBaseSQLContext(sparkContext)
+  val hbaseContext = AcumeContextTraitUtil.hBaseSQLContext
   val acumeCacheContext = new AcumeHbaseCacheContext(hbaseContext, new AcumeCacheConf)
 
   override def acc() = acumeCacheContext

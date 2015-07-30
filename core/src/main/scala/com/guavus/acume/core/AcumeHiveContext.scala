@@ -12,7 +12,7 @@ import com.guavus.acume.cache.workflow.AcumeHiveCacheContext
  */
 class AcumeHiveContext(val acumeConfiguration: AcumeConf) extends AcumeContextTrait {
 
-  val hiveContext = new HiveContext(sparkContext)
+  val hiveContext = AcumeContextTraitUtil.hiveContext
   val acumeCacheContext = new AcumeHiveCacheContext(hiveContext, new AcumeCacheConf)
  
   override def acc() = acumeCacheContext

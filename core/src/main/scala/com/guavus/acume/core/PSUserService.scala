@@ -29,7 +29,7 @@ class PSUserService {
 		val timeGran = ConfigFactory.getInstance().getBean(classOf[TimeGranularity]).getGranularity()
 		val timeGranularity = TimeGranularity.getTimeGranularity(timeGran)
 		val timeRange = getTimeRange()
-		val cal = Calendar.getInstance(Utility.getTimeZone(AcumeContextTrait.acumeContext.get.acc.cacheConf.get(ConfConstants.timezone)))
+		val cal = Calendar.getInstance(Utility.getTimeZone(AcumeContextTraitUtil.acumeConf.get(ConfConstants.timezone)))
 		var startYear = 0
 		if(params != null && params.getStartYear() != null){
 			startYear = Integer.parseInt(params.getStartYear());
@@ -47,7 +47,7 @@ class PSUserService {
 			endYear = cal.get(Calendar.YEAR) + 1
 		}
 		try {
-			return Utility.getTimeZoneInfo(ids.toList, startYear, endYear, AcumeContextTrait.acumeContext.get.acumeConf.get(ConfConstants.timezonedbPath))
+			return Utility.getTimeZoneInfo(ids.toList, startYear, endYear, AcumeContextTraitUtil.acumeConf.get(ConfConstants.timezonedbPath))
 		} catch {
 		  case e :Exception => 
 			throw new RuntimeException(e.getMessage())

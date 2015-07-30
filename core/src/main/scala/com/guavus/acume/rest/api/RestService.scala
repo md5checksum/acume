@@ -12,7 +12,8 @@ import javax.xml.bind.annotation.XmlRootElement
 import javax.ws.rs.POST
 import com.guavus.rubix.query.remote.flex.SearchRequest
 import com.guavus.acume.cache.workflow.AcumeCacheResponse
-import com.guavus.acume.core.AcumeContextTrait
+//import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.core.AcumeContextTraitUtil
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.core.query.DataExportRequest
 import com.guavus.acume.cache.workflow.RequestType
@@ -140,8 +141,8 @@ class RestService {
 
 	  val map = new java.util.HashMap[String, java.util.ArrayList[Long]]()
 	  val list = new java.util.ArrayList[Long]()
-	  list.add(AcumeContextTrait.acumeContext.get.acc.cacheConf.getLong("acume.cache.delete.firstbinpersistedtime").get)
-	  list.add(AcumeContextTrait.acumeContext.get.acc.cacheConf.getLong("acume.cache.delete.lastbinpersistedtime").get)
+	  list.add(AcumeContextTraitUtil.acumeConf.getLong("acume.cache.delete.firstbinpersistedtime").get)
+	  list.add(AcumeContextTraitUtil.acumeConf.getLong("acume.cache.delete.lastbinpersistedtime").get)
 	  
 	  //placeholder bin source
 	  map.put("abcd", list)

@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
-import com.guavus.acume.core.AcumeContext
+import com.guavus.acume.core.AcumeContextTraitUtil
 import com.guavus.acume.core.AcumeContextTrait
 import com.guavus.acume.core.AcumeService
 import com.guavus.acume.core.DataService
@@ -51,9 +51,7 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
   @Bean
   @Autowired
   override def acumeContext() : AcumeContextTrait = {
-    AcumeContextTrait.init(System.getProperty("queryEngine"))
-    AcumeContextTrait.acumeContext.get.init
-    AcumeContextTrait.acumeContext.get
+    AcumeContextTraitUtil.getAcumeContext("hbase")
   }
   
   @Bean

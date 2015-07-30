@@ -190,9 +190,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
   /** Get a parameter as an Option */
   private def getOption(key: String): Option[String] = {
     settings.get(key).getOrElse(
-        settings.get(
-            AcumeConf.getKeyName(key, datasourceName)
-        )
+        settings.get(AcumeConf.getKeyName(key, datasourceName))
     ).asInstanceOf[Option[String]]
   }
 
@@ -254,7 +252,8 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
   def getAllDatasourceNames : Array[String] = allDatasourceNames
   
   def addDatasourceNames(dsName: String) {
-    allDatasourceNames.+(dsName)
+    if(!dsName.equals("common"))
+      allDatasourceNames.+(dsName)
   }
 }
 
@@ -273,6 +272,9 @@ object AcumeConf {
    }
    
    def getKeyName(key: String, dataSourceInstance : String = null): String = {
+     if(dataSourceInstance == null || dataSourceInstance.toLowerCase.equals("common"))
+       key.trim
+     else
        dataSourceInstance.trim + "." + key.trim
    }
   

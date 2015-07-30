@@ -1,7 +1,5 @@
 package com.guavus.acume.core
 
-import org.apache.spark.sql.SQLContext
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.workflow.AcumeCacheContext
 
@@ -12,11 +10,11 @@ import com.guavus.acume.cache.workflow.AcumeCacheContext
  */
 class AcumeContext(val acumeConfiguration: AcumeConf) extends AcumeContextTrait {
 
-  val _sqlContext = new SQLContext(sparkContext)
-  val acumeCacheContext = new AcumeCacheContext(_sqlContext, new AcumeCacheConf)
+  val _hiveContext = AcumeContextTraitUtil.hiveContext
+  val acumeCacheContext = new AcumeCacheContext(_hiveContext, new AcumeCacheConf)
   
   override def acc() = acumeCacheContext
   
-  override def sqlContext() = _sqlContext
+  override def sqlContext() = _hiveContext
   
 }

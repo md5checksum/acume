@@ -25,7 +25,7 @@ import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.workflow.RequestType
-import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.core.AcumeContextTraitUtil
 import com.guavus.rubix.query.remote.flex.AggregateResponse
 import com.guavus.rubix.query.remote.flex.NameValue
 import com.guavus.rubix.query.remote.flex.TimeseriesResponse
@@ -103,7 +103,7 @@ object CSVDataExporter {
     }
     val formatted = new StringBuilder()
     val dimensionsSize = dimensions.keySet.size
-    val timeZone = AcumeContextTrait.acumeContext.get.acumeConf().get(ConfConstants.timezone)
+    val timeZone = AcumeContextTraitUtil.acumeConf.get(ConfConstants.timezone)
     val calendar = Utility.getCalendar(timeZone)
     for (i <- 0 until response.getTimestamps.size) {
       for (j <- 0 until dimensionsSize) {
@@ -169,7 +169,7 @@ object CSVDataExporter {
     }
     val formatted = new StringBuilder()
     val timeSeriesResults = response.getResults
-    val timeZone = AcumeContextTrait.acumeContext.get.acumeConf().get(ConfConstants.timezone)
+    val timeZone = AcumeContextTraitUtil.acumeConf.get(ConfConstants.timezone)
     val calendar = Utility.getCalendar(timeZone)
     for (timeSeriesResult <- timeSeriesResults; i <- 0 until response.getTimestamps.size) {
       val time = response.getTimestamps.get(i)
