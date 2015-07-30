@@ -82,7 +82,7 @@
 		<dependency> <!-- Spark dependency -->
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-core_2.10</artifactId>
-			<version>1.2.1</version>
+			<version>1.2.1-1a</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>
@@ -108,7 +108,7 @@
 		<dependency>
 			<groupId>org.apache.spark</groupId>
 			<artifactId>spark-sql_2.10</artifactId>
-			<version>1.2.1-1c</version>
+			<version>1.2.1-1d</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
