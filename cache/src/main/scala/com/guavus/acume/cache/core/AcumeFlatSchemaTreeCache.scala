@@ -271,7 +271,9 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
    // val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
     import acumeCacheContext.sqlContext._
     val cacheLevel = levelTimestamp.level
-    val diskloaded = diskUtility.loadData(keyMap, cube, levelTimestamp)
+    val startTime = levelTimestamp.timestamp
+    val endTime = Utility.getNextTimeFromGranularity(startTime, cacheLevel.localId, Utility.newCalendar)
+    val diskloaded = diskUtility.loadData(keyMap, cube, startTime, endTime, cacheLevel.localId)
     val processedDiskLoaded = processBackendData(diskloaded)
     
     val _tableNameTemp = cube.getAbsoluteCubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString + "_temp"

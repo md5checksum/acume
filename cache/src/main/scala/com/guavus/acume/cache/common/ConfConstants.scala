@@ -70,9 +70,11 @@ private [acume] object ConfConstants {
   val instaAvailabilityPollInterval = "acume.insta.availability.poll.interval" 
   val cacheBaseDirectory = "acume.core.cache.base.directory"
   val cacheDirectory = "acume.core.cache.directory"
+
   /* Insta Properties */
   val instaComboPoints = "acume.insta.comboPoints"
   val queryThreadPoolSize = "acume.core.thread.pool.size"
+  val useInsta = "acume.core.cache.use.insta"
 
   val defaultValueMap = Map[String, String]()
   defaultValueMap += businesscubexml -> "src/test/resources/cubedefinition1.xml"
@@ -81,5 +83,6 @@ private [acume] object ConfConstants {
   defaultValueMap += queryTimeOut -> "30"
   defaultValueMap += instaAvailabilityPollInterval -> "300"
   defaultValueMap += queryThreadPoolSize -> "16"
+  defaultValueMap += useInsta -> "false"
 
 }

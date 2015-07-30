@@ -15,6 +15,8 @@ import com.guavus.acume.cache.core.AcumeTreeCacheValue
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.common.AcumeConstants
+import com.guavus.acume.cache.disk.utility.DataLoader
+import java.util.concurrent.ConcurrentHashMap
  
 /**
  * @author archit.thakur
@@ -27,6 +29,7 @@ trait AcumeCacheContextTrait extends Serializable {
   private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
   private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
   private [cache] val poolThreadLocal = new InheritableThreadLocal[HashMap[String, Any]]()
+  private [cache] val dataloadermap : ConcurrentHashMap[String, DataLoader]
   
   def acql(sql: String): AcumeCacheResponse = {
     acql(sql, null)
@@ -47,7 +50,6 @@ trait AcumeCacheContextTrait extends Serializable {
       } else {
         rrCacheLoader.getRdd((sql, ql))
       }
-
     } finally {
       unsetQuery()
     }
