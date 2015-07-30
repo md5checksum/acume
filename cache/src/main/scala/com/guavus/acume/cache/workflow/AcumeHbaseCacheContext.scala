@@ -10,7 +10,7 @@ import com.guavus.acume.cache.utility.Utility
 
 class AcumeHbaseCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends AcumeCacheContextTrait {
 
-   sqlContext match {
+  sqlContext match {
     case hiveContext: HiveContext =>
     case hbaseContext : HBaseSQLContext =>
     case sqlContext: SQLContext =>
@@ -20,8 +20,9 @@ class AcumeHbaseCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheCon
   Utility.unmarshalXML(conf.get(ConfConstants.businesscubexml), dimensionMap, measureMap)
   
   private [acume] def cacheSqlContext() : SQLContext = sqlContext
-
   private [acume] def cacheConf = conf
+  
+  override val dataLoader = null
   
   override private [acume] def executeQuery(sql: String) = {
     val resultSchemaRDD = sqlContext.sql(sql)

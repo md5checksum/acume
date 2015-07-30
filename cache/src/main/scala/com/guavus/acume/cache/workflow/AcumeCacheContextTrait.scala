@@ -28,8 +28,9 @@ trait AcumeCacheContextTrait extends Serializable {
   private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
   private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
   private [cache] val poolThreadLocal = new InheritableThreadLocal[HashMap[String, Any]]()
-  private [cache] val dataloadermap : ConcurrentHashMap[String, DataLoader]
-
+  private [cache] val dataLoader : DataLoader
+  private [cache] val dataloadermap : ConcurrentHashMap[String, DataLoader] = new ConcurrentHashMap[String, DataLoader]
+  
   def acql(sql: String): AcumeCacheResponse = {
   AcumeCacheContextTrait.setQuery(sql)
     try {

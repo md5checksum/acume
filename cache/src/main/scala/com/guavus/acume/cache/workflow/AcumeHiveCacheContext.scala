@@ -1,29 +1,21 @@
 package com.guavus.acume.cache.workflow
 
+
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
+import scala.collection.immutable.SortedMap
 
-import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hbase.HBaseSQLContext
 import org.apache.spark.sql.hive.HiveContext
 
 import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.common.ConfConstants
-import com.guavus.acume.cache.utility.Utility
-import com.guavus.acume.cache.sql.ISqlCorrector
-import scala.collection.mutable.ArrayBuffer
-import com.guavus.acume.cache.disk.utility.DataLoader
-import java.util.concurrent.ConcurrentHashMap
-import com.guavus.acume.cache.common.Cube
-import com.guavus.acume.cache.disk.utility.InstaDataLoaderThinAcume
 import com.guavus.acume.cache.common.BaseCube
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.core.Level
-import com.guavus.acume.cache.common.CacheLevel
-import com.guavus.acume.cache.core.FixedLevelPolicy
+import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.core.CacheTimeSeriesLevelPolicy
-import scala.collection.immutable.SortedMap
+import com.guavus.acume.cache.disk.utility.InstaDataLoaderThinAcume
+import com.guavus.acume.cache.sql.ISqlCorrector
+import com.guavus.acume.cache.utility.Utility
 
 /**
  * @author kashish.jain
@@ -40,17 +32,15 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
   Utility.init(conf)
   Utility.unmarshalXML(conf.get(ConfConstants.businesscubexml), dimensionMap, measureMap)
   
-  val dataLoader = new InstaDataLoaderThinAcume(this, conf, null)
-
   val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]()(implicitly[Ordering[Long]].reverse) ++ Utility.getLevelPointMap(conf.get(ConfConstants.acumecoretimeserieslevelmap)).map(x=> (x._1.level, x._2)))
-
-  override private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
 
   private [acume] def cacheSqlContext() : SQLContext = sqlContext
   
   private [acume] def cacheConf = conf
   
   private [acume] def getCubeMap = throw new RuntimeException("Operation not supported")
+  
+  override val dataLoader = new InstaDataLoaderThinAcume(this, conf, null)
   
   override def getFirstBinPersistedTime(binSource: String): Long = {
     dataLoader.getFirstBinPersistedTime(binSource)

@@ -3,7 +3,7 @@ package com.guavus.acume.cache.workflow
 import java.io.StringReader
 import java.util.Random
 import java.util.concurrent.ConcurrentHashMap
-import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
 import org.apache.spark.sql.SQLContext
@@ -46,8 +46,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeCacheContext])
   
-  override private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
-  val dataLoader: DataLoader = DataLoader.getDataLoader(this, conf, null)
   private [cache] val baseCubeList = MutableList[BaseCube]()
   private [cache] val cubeMap = new HashMap[CubeKey, Cube]
   private [cache] val cubeList = MutableList[Cube]()
@@ -62,13 +60,14 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   Utility.init(conf)
   Utility.loadXML(conf, dimensionMap, measureMap, cubeMap, cubeList)
 
-  
-  override def getCubeMap = cubeMap.toMap
-  
   private [acume] def cacheConf() = conf
   
   private [acume] def cacheSqlContext() = sqlContext
 
+  override val dataLoader = DataLoader.getDataLoader(this, conf, null)
+  
+  override def getCubeMap = cubeMap.toMap
+  
   override def getFirstBinPersistedTime(binSource: String): Long = {
     dataLoader.getFirstBinPersistedTime(binSource)
   }
@@ -185,13 +184,6 @@ object AcumeCacheContext{
   
   def correctSQL(unparsedsql: String, parsedsql: Tuple2[List[Tuple], RequestType.RequestType]) = {
     
-    
-//			val sql = SQLParserFactory.getParserManager()
-//			val select = sql.parse(new StringReader(unparsedsql))
-//			val expression = select.asInstanceOf[PlainSelect].getWhere()
-//			expression
-//			return list;
-		
     val newunparsedsql = unparsedsql.replaceAll("\"","")
     val newparsedsql = (parsedsql._1.map(x => { 
       
