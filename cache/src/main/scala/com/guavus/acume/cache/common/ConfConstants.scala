@@ -80,5 +80,6 @@ private [acume] object ConfConstants {
   defaultValueMap += queryTimeOut -> "30"
   defaultValueMap += instaAvailabilityPollInterval -> "300"
   defaultValueMap += queryThreadPoolSize -> "16"
+  defaultValueMap += useInsta -> "false"
 
 }

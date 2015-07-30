@@ -1,6 +1,5 @@
 package com.guavus.acume.cache.common
 
-//import com.guavus.acume.cache.core.AcumeCacheType._
 import com.guavus.acume.cache.core.TimeGranularity._
 import com.guavus.acume.cache.eviction.EvictionPolicy
 import com.guavus.acume.cache.core.AcumeCacheType._
@@ -11,15 +10,14 @@ import com.guavus.acume.cache.core.Level
  * @author archit.thakur
  *
  */
-abstract class CubeTrait(val superCubeName: String, val superDimension: DimensionSet, val superMeasure: MeasureSet, schemaType : AcumeCacheType) extends Serializable {
+abstract class CubeTrait(val cubeName: String, val binSource : String, val superDimension: DimensionSet, val superMeasure: MeasureSet, schemaType : AcumeCacheType) extends Serializable {
   def getAbsoluteCubeName : String
 }
-case class BaseCube(cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, baseGran: TimeGranularity, schemaType : AcumeCacheType = null) extends CubeTrait(cubeName, dimension, measure, schemaType) {
-  def getAbsoluteCubeName = {
-    cubeName + "-"+ binsource
+case class BaseCube(override val cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, baseGran: TimeGranularity, schemaType : AcumeCacheType = null) extends CubeTrait(cubeName, binsource, dimension, measure, schemaType) {
+   def getAbsoluteCubeName = {
+    cubeName + "_"+ binsource
   }
 }
-
 
 case class Function(functionClass: String, functionName: String) extends Serializable 
 case class DimensionSet(dimensionSet: List[Dimension]) extends Serializable 
@@ -37,10 +35,10 @@ case class DimensionTable(var tblnm: String, var maxid: Long) extends Serializab
   } 	
 }
 
-case class Cube(cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, singleEntityKeys : Map[String, String], 
+case class Cube(override val cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, singleEntityKeys : Map[String, String], 
     baseGran: TimeGranularity, isCacheable: Boolean, levelPolicyMap: Map[Level, Int], diskLevelPolicyMap : Map[Level, Int], cacheTimeseriesLevelPolicyMap: Map[Long, Int], 
     evictionPolicyClass: Class[_ <: EvictionPolicy], schemaType : AcumeCacheType, propertyMap: Map[String,String]) 
-    extends CubeTrait(cubeName, dimension, measure, schemaType) with Equals {
+    extends CubeTrait(cubeName, binsource, dimension, measure, schemaType) with Equals {
   
   def getAbsoluteCubeName = {
     cubeName + "_"+ binsource
@@ -62,8 +60,4 @@ case class Cube(cubeName: String, binsource: String, dimension: DimensionSet, me
       prime * (prime + cubeName.hashCode) + binsource.hashCode
     }
 }
-
-
-
-
 
