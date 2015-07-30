@@ -19,7 +19,7 @@ import org.apache.spark.sql.SQLContext
  */
 class AcumeCacheAvailabiltyPolicy(acumeConf: AcumeConf, sqlContext: SQLContext) extends ICacheAvalabiltyUpdatePolicy(acumeConf, sqlContext) {
   
-  override def getCacheAvalabilityMap: HashMap[String, HashMap[Long, Interval]] = super.getTrueCacheAvalabilityMap
+  override def getCacheAvalabilityMap: HashMap[String, HashMap[Long, Interval]] = super.getTrueCacheAvailabilityMap
     
   override def onBlockManagerRemoved(withMap: HashMap[String, HashMap[Long, Interval]] = HashMap[String, HashMap[Long, Interval]]()): Unit = {
     super.onBlockManagerRemoved(withMap)
@@ -32,7 +32,7 @@ class UnionizedCacheAvailabiltyPolicy(acumeConf: AcumeConf, sqlContext: SQLConte
   private var unionizedMap = list.reduce(union(_, _))
   private var isUnionDirty = false
   
-  override def getTrueCacheAvalabilityMap: HashMap[String, HashMap[Long, Interval]] = super.getTrueCacheAvalabilityMap
+  override def getTrueCacheAvailabilityMap: HashMap[String, HashMap[Long, Interval]] = super.getTrueCacheAvailabilityMap
   
   override def getCacheAvalabilityMap: HashMap[String, HashMap[Long, Interval]] = {
     if(isUnionDirty) {
@@ -47,7 +47,7 @@ class UnionizedCacheAvailabiltyPolicy(acumeConf: AcumeConf, sqlContext: SQLConte
     isUnionDirty = true
     if (!withMap.isEmpty)
       list.+=(withMap)
-    list.+=(getTrueCacheAvalabilityMap)
+    list.+=(getTrueCacheAvailabilityMap)
     super.reset
   }
   
@@ -60,6 +60,12 @@ class UnionizedCacheAvailabiltyPolicy(acumeConf: AcumeConf, sqlContext: SQLConte
       
     val _$processed = new SchemaRDD(sqlContext, Prune(customPartitionPruner(id), unprocessed.baseLogicalPlan))
     _$processed
+  }
+  
+  override def onBackwardCombinerCompleted { 
+    isUnionDirty = true
+    list.clear
+    list.+=(super.getTrueCacheAvailabilityMap)
   }
   
   private def customPartitionPruner(id: Int)(partitionId: Int) = {
@@ -87,7 +93,7 @@ class UnionizedCacheAvailabiltyPolicy(acumeConf: AcumeConf, sqlContext: SQLConte
     
     super.update(withMap)
     list.clear()
-    list.+=(getTrueCacheAvalabilityMap)
+    list.+=(getTrueCacheAvailabilityMap)
     isUnionDirty = true 
     
   }

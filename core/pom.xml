@@ -41,7 +41,7 @@
 		<dependency>
 			<groupId>com.guavus.acume</groupId>
 			<artifactId>cache</artifactId>
-			<version>platform5.0</version>
+			<version>${pversion}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.guavus</groupId>
@@ -275,12 +275,12 @@
 		<dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>QueryBuilder</artifactId>
-			<version>platform5.0</version>
+			<version>${pversion}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>crux2.0</artifactId>
-			<version>platform5.0</version>
+			<version>${pversion}</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>

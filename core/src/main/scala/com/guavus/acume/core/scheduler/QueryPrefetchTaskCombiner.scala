@@ -131,7 +131,7 @@ class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: Quer
         binSourceToIntervalMap.+=(getBinSource ->  (scala.collection.mutable.HashMap() ++= map.toMap))
         logger.info("Putting RubixDataAvailability in Distributed cache {} ", binSourceToIntervalMap)
         policy.update(binSourceToIntervalMap)
-        logger.info("BinReplay: UI RubixDataAvaiabilty {}", policy.getTrueCacheAvalabilityMap)
+        logger.info("BinReplay: UI RubixDataAvaiabilty {}", policy.getTrueCacheAvailabilityMap)
       }
     this.synchronized {
       this.notify()

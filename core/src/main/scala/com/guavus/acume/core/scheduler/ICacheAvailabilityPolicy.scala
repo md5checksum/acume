@@ -28,7 +28,7 @@ abstract class ICacheAvalabiltyUpdatePolicy(acumeConf: AcumeConf, sqlContext: SQ
    * should not be overriden.
    * API targeted for scheduler.
    */
-  def getTrueCacheAvalabilityMap: HashMap[String, HashMap[Long, Interval]] = {
+  def getTrueCacheAvailabilityMap: HashMap[String, HashMap[Long, Interval]] = {
     acumeCacheAvailabilityMap
   }
   
@@ -47,6 +47,15 @@ abstract class ICacheAvalabiltyUpdatePolicy(acumeConf: AcumeConf, sqlContext: SQ
   def onBlockManagerRemoved(withMap: HashMap[String, HashMap[Long, Interval]] = HashMap[String, HashMap[Long, Interval]]()): Unit = {
     acumeCacheAvailabilityMap.clear()
     if(!withMap.isEmpty) acumeCacheAvailabilityMap.++=(withMap)
+  }
+  
+  /**
+   * 
+   * should be overriden.
+   * API targeted for listeners.
+   */
+  def onBackwardCombinerCompleted {
+    //do nothing here
   }
   
   /**
