@@ -24,15 +24,15 @@ object AcumeContextTraitUtil {
       case "cache" =>
         if(hiveContext == null)
           hiveContext =  new HiveContext(sparkContext)
-        context = Some(new AcumeContext(acumeConf))
+        context = Some(new AcumeContext(dsName.toLowerCase))
       case "hive" =>
         if(hiveContext == null)
           hiveContext =  new HiveContext(sparkContext)
-        context = Some(new AcumeHiveContext(acumeConf))
+        context = Some(new AcumeHiveContext(dsName.toLowerCase))
       case "hbase" =>
         if(hBaseSQLContext == null)
           hBaseSQLContext =  new HBaseSQLContext(sparkContext)
-        context = Some(new AcumeHbaseContext(acumeConf))
+        context = Some(new AcumeHbaseContext(dsName.toLowerCase))
       case _ => throw new RuntimeException("wrong datasource configured")
     }
     context.get.init

@@ -53,14 +53,13 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   sqlContext match {
     case hiveContext: HiveContext =>
     case hbaseContext : HBaseSQLContext =>
-    case sqlContext: SQLContext => 
     case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
   
   Utility.init(conf)
   Utility.loadXML(conf, dimensionMap, measureMap, cubeMap, cubeList)
 
-  private [acume] def cacheConf() = conf
+  private [acume] val cacheConf = conf
   
   private [acume] def cacheSqlContext() = sqlContext
 

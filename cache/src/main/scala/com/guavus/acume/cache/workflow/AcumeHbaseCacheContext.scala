@@ -19,7 +19,6 @@ class AcumeHbaseCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheCon
   sqlContext match {
     case hiveContext: HiveContext =>
     case hbaseContext : HBaseSQLContext =>
-    case sqlContext: SQLContext =>
     case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
   
@@ -64,7 +63,7 @@ class AcumeHbaseCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheCon
   
   private [acume] def cacheSqlContext() : SQLContext = sqlContext
   
-  private [acume] def cacheConf = conf
+  private [acume] val cacheConf = conf
   
   override val dataLoader = throw new RuntimeException("Operation not supported")
   

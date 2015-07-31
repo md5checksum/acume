@@ -168,7 +168,7 @@ object ParquetDataConvertor {
 	    }
 	  }
 	 
-	  val cube = BaseCube(cubeName, "default", DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), TimeGranularity.HOUR)
+	  val cube = BaseCube(cubeName, "default", DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), TimeGranularity.HOUR , null, "default")
 	  baseCubeMap.put(cubeName, cube)
     }
   }

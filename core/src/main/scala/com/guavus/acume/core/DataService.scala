@@ -179,6 +179,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         getSparkJobLocalProperties ++= localProperties
         setSparkJobLocalProperties
         try {
+          //conf.setDatasourceName(dsName)
           AcumeConf.setConf(conf)
           acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
           val cacheResponse = execute(sql)

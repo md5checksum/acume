@@ -5,10 +5,10 @@ import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.workflow.AcumeHbaseCacheContext
 
-class AcumeHbaseContext(val acumeConfiguration: AcumeConf) extends AcumeContextTrait {
+class AcumeHbaseContext(val datasoureName: String) extends AcumeContextTrait {
   
   val hbaseContext = AcumeContextTraitUtil.hBaseSQLContext
-  val acumeCacheContext = new AcumeHbaseCacheContext(hbaseContext, new AcumeCacheConf)
+  val acumeCacheContext = new AcumeHbaseCacheContext(hbaseContext, new AcumeCacheConf(datasoureName))
 
   override def acc() = acumeCacheContext
 
@@ -16,9 +16,9 @@ class AcumeHbaseContext(val acumeConfiguration: AcumeConf) extends AcumeContextT
   
   def chooseHiveDatabase() {
     try{
-       hbaseContext.sql("use " + acumeConfiguration.get(ConfConstants.backendDbName))
+       hbaseContext.sql("use " + acumeConf.get(ConfConstants.backendDbName))
     } catch {
-      case ex : Exception => throw new RuntimeException("Cannot use the database " + acumeConfiguration.get(ConfConstants.backendDbName), ex)
+      case ex : Exception => throw new RuntimeException("Cannot use the database " + acumeConf.get(ConfConstants.backendDbName), ex)
     }
   }
   

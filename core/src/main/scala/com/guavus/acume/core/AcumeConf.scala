@@ -225,11 +225,6 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
     this
   }
 
-  /** Copy this object */
-  override def clone: AcumeConf = {
-    new AcumeConf(false).setAll(settings)
-  }
-
   /** Checks for illegal or deprecated config settings. Throws an exception for the former. Not
     * idempotent - may mutate this conf object to convert deprecated settings to supported ones. */
   private[AcumeConf] def validateSettings() {
@@ -264,11 +259,11 @@ object AcumeConf {
      threadLocal.set(conf)
    }
    
-   def acumeConf() = {
+   def acumeConf() : AcumeConf = {
      if(threadLocal.get() == null) {
-    	threadLocal.set(new AcumeConf())
-    }
-    threadLocal.get()
+    	threadLocal.set(AcumeContextTraitUtil.acumeConf)
+     }
+     threadLocal.get()
    }
    
    def getKeyName(key: String, dataSourceInstance : String = null): String = {

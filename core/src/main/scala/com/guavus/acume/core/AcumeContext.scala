@@ -8,10 +8,10 @@ import com.guavus.acume.cache.workflow.AcumeCacheContext
  *
  * This will keep the sparkcontext and hive context.
  */
-class AcumeContext(val acumeConfiguration: AcumeConf) extends AcumeContextTrait {
+class AcumeContext(val datasourceName : String) extends AcumeContextTrait {
 
   val _hiveContext = AcumeContextTraitUtil.hiveContext
-  val acumeCacheContext = new AcumeCacheContext(_hiveContext, new AcumeCacheConf)
+  val acumeCacheContext = new AcumeCacheContext(_hiveContext, new AcumeCacheConf(datasourceName))
   
   override def acc() = acumeCacheContext
   

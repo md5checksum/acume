@@ -2,13 +2,13 @@ package com.guavus.acume.threads
 
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
-import com.guavus.acume.core.AcumeConf
 import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.core.AcumeContextTraitUtil
 import scala.concurrent.ExecutionContext
 
 object QueryExecutorThreads {
 
-  private var threadPool: ExecutorService = Executors.newFixedThreadPool(new AcumeConf().getInt(ConfConstants.queryThreadPoolSize).getOrElse(16), new NamedThreadPoolFactory("QueryExecutorThread"))
+  private var threadPool: ExecutorService = Executors.newFixedThreadPool(AcumeContextTraitUtil.acumeConf.getInt(ConfConstants.queryThreadPoolSize).getOrElse(16), new NamedThreadPoolFactory("QueryExecutorThread"))
 
   def getPool(): ExecutorService = threadPool
   
@@ -16,7 +16,7 @@ object QueryExecutorThreads {
   
   def getPoolMultiple(): ExecutorService = threadPoolMultiple
   
-  private var threadPoolMultiple: ExecutorService = Executors.newFixedThreadPool(new AcumeConf().getInt(ConfConstants.queryThreadPoolSize).getOrElse(16), new NamedThreadPoolFactory("QueryExecutorThread-Multiple"))
+  private var threadPoolMultiple: ExecutorService = Executors.newFixedThreadPool(AcumeContextTraitUtil.acumeConf.getInt(ConfConstants.queryThreadPoolSize).getOrElse(16), new NamedThreadPoolFactory("QueryExecutorThread-Multiple"))
   
   val executionContextMultiple = ExecutionContext.fromExecutorService(threadPoolMultiple)
 

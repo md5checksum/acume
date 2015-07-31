@@ -67,7 +67,7 @@ trait AcumeCacheContextTrait extends Serializable {
   
   private [acume] def executeQuery(sql : String) : AcumeCacheResponse
   
-  private [acume] def cacheConf : AcumeCacheConf
+  private [acume] val cacheConf : AcumeCacheConf
   
   private [acume] def cacheSqlContext() : SQLContext
   

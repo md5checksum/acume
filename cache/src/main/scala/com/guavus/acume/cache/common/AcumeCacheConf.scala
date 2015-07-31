@@ -29,21 +29,19 @@ import org.apache.shiro.config.Ini.Section
  * @param loadDefaults whether to also load values from Java system properties
  */
 
-class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: String) extends Cloneable with Serializable {
+class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: String, var datasourceName: String = null) extends Cloneable with Serializable {
   
   private val logger = LoggerFactory.getLogger(this.getClass())
   
   /** Create a AcumeCacheConf that loads defaults from system properties and the classpath */
   def this() = this(true, null)
   
-  private var datasourceName : String = null
   private var settings = new HashMap[String, String]()
   
   settings++=ConfConstants.defaultValueMap
   
   // Set the default values
   setDefault
-  
   
   if (loadSystemPropertyOverDefault) {
     for ((k, v) <- System.getProperties.asScala if k.toLowerCase.contains("acume.")) {
@@ -103,9 +101,7 @@ class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: String) exten
   /** Get a parameter as an Option */
   def getOption(key: String): Option[String] = {
     settings.get(key).getOrElse(
-        settings.get(
-            AcumeCacheConf.getKeyName(key, datasourceName)
-        )
+        settings.get(AcumeCacheConf.getKeyName(key, datasourceName))
     ).asInstanceOf[Option[String]]
   }
 
@@ -131,11 +127,6 @@ class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: String) exten
     getOption(key).map(_.trim.toBoolean)
   }
 
-  /** Copy this object */
-  override def clone: AcumeCacheConf = {
-    new AcumeCacheConf().setAll(settings)
-  }
-
   /**
    * By using this instead of System.getenv(), environment variables can be mocked
    * in unit tests.
@@ -157,16 +148,14 @@ class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: String) exten
     settings.toArray.sorted.map{case (k, v) => k + "=" + v}.mkString("\n")
   }
   
-  def getDatasourceName = datasourceName
-
-  def setDatasourceName(dsName : String) {
-    datasourceName = dsName
-  }
 }
 
 object AcumeCacheConf {
   
   def getKeyName(key: String, dataSourceInstance : String = null): String = {
+    if(dataSourceInstance == null || dataSourceInstance == "common")
+      key.trim
+    else
        dataSourceInstance.trim + "." + key.trim
   }
 }
