@@ -40,8 +40,10 @@ object AcumeMain {
     logger.info("Called AcumeMain on " + sqlQueryEngine)
     
     val startTime = System.currentTimeMillis()
+
     //start Prefetch Scheduler
-    if(acumeContext.acumeConf.getEnableScheduler)
+    val numberOfEnabledSchedulers =  aumeContext.acumeConf.settings.filter(_._1.contains(ConfConstants.enableScheduler)).map(_._2).filter(_==true).size
+    if(numberOfEnabledSchedulers != 0)
     	ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).startPrefetchScheduler
    
     //Initialize all components for Acume Core

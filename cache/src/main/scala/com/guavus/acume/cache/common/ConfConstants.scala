@@ -31,7 +31,6 @@ private [acume] object ConfConstants {
   val schedulerPolicyClass = "acume.global.scheduler.schedulerpolicyclass"
   val prefetchTaskRetryIntervalInMillis = "acume.global.scheduler.prefetchTaskRetryIntervalInMillis"
   val schedulerThreadPoolSize = "acume.global.scheduler.threadPoolSize"
-  val enableScheduler ="acume.global.scheduler.enable"
   val schedulerVariableRetentionMap = "acume.global.scheduler.variableRetentionMap"
   val variableRetentionCombinePoints = "acume.global.scheduler.variableRetentionCombinePoints"
   val queryPrefetchTaskNoOfRetries = "acume.global.scheduler.queryPrefetchTaskNoOfRetries"
@@ -58,6 +57,7 @@ private [acume] object ConfConstants {
   val cacheTypeConfigClassName = "acume.cache.type.config.classname"
   val acumecorelevelmap = "acume.cache.global.levelpolicymap"
   val acumeEvictionPolicyClass = "acume.cache.global.evictionpolicyclass"
+  val enableScheduler ="acume.scheduler.enable"
 
   /* For HIVE. Thin client properties */
   val useInsta = "acume.core.use.insta"

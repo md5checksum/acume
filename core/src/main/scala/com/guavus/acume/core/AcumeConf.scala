@@ -37,7 +37,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
   /** Create a AcumeConf that loads defaults from system properties and the classpath */
   def this() = this(true)
   
-  private val settings = new HashMap[String, String]()
+  val settings = new HashMap[String, String]()
   private var datasourceName : String = null
   private var allDatasourceNames : Array[String] = Array[String]()
   
@@ -122,7 +122,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
   }
   
   def getEnableScheduler() : Boolean = {
-    getBoolean(ConfConstants.enableScheduler).getOrElse(true)
+    getBoolean(ConfConstants.enableScheduler).getOrElse(false)
   }
 
   /* Get the timezone of acume */
