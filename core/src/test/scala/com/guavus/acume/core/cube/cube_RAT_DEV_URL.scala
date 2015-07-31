@@ -38,5 +38,6 @@ class cube_RAT_DEV_URL extends ICube {
   def getProperties() = {
      null
   }
+  def getDatasourceName() = "default"
   
 }

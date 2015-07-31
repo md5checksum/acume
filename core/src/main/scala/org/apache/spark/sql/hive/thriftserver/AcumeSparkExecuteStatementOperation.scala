@@ -166,7 +166,7 @@ private[hive] class AcumeSparkExecuteStatementOperation(
         logInfo(s"Running query '$statement'")
         setState(OperationState.RUNNING)
         try {
-          result  = AcumeService.acumeService.servSqlQuery2(statement).schemaRDD
+          result  = AcumeService.acumeService.servSqlQuery2(statement, "hive").schemaRDD
           iter = result.collect.iterator
 
           dataTypes = result.queryExecution.analyzed.output.map(_.dataType).toArray

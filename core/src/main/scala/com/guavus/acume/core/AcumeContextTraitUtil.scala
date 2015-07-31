@@ -5,6 +5,8 @@ import org.apache.spark.SparkContext
 import com.guavus.acume.core.listener.AcumeSparkListener
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.sql.hbase.HBaseSQLContext
+import com.guavus.acume.core.configuration.QueryBuilderFactory
+import com.guavus.qb.ds.DatasourceType
 
 object AcumeContextTraitUtil {
   
@@ -20,16 +22,16 @@ object AcumeContextTraitUtil {
   
   acumeConf.getAllDatasourceNames.map(dsName => {
     var context : Option[AcumeContextTrait] = null
-    dsName.toLowerCase match {
-      case "cache" =>
+    DatasourceType.getDataSourceTypeFromString(dsName.toLowerCase) match {
+     case DatasourceType.CACHE => 
         if(hiveContext == null)
           hiveContext =  new HiveContext(sparkContext)
         context = Some(new AcumeContext(dsName.toLowerCase))
-      case "hive" =>
+      case DatasourceType.HIVE =>
         if(hiveContext == null)
           hiveContext =  new HiveContext(sparkContext)
         context = Some(new AcumeHiveContext(dsName.toLowerCase))
-      case "hbase" =>
+      case DatasourceType.HBASE =>
         if(hBaseSQLContext == null)
           hBaseSQLContext =  new HBaseSQLContext(sparkContext)
         context = Some(new AcumeHbaseContext(dsName.toLowerCase))
@@ -37,6 +39,7 @@ object AcumeContextTraitUtil {
     }
     context.get.init
     acumeContextMap.+=(dsName.toLowerCase -> context.get)
+    QueryBuilderFactory.getQBInstance(dsName)
   })
   
   def getAcumeContext(dsName : String) : AcumeContextTrait = {

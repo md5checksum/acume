@@ -292,7 +292,7 @@
 		<dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>crux2.0</artifactId>
-			<version>${pinstaversion}</version>
+			<version>${pversion}</version>
 			<scope>provided</scope>
 			<exclusions>
 				<exclusion>

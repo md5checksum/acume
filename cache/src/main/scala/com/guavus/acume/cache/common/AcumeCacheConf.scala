@@ -29,12 +29,14 @@ import org.apache.shiro.config.Ini.Section
  * @param loadDefaults whether to also load values from Java system properties
  */
 
-class AcumeCacheConf(loadSystemPropertyOverDefault: Boolean, file: String, var datasourceName: String = null) extends Cloneable with Serializable {
+class AcumeCacheConf(datasourceName: String, loadSystemPropertyOverDefault: Boolean, file: String) extends Cloneable with Serializable {
   
   private val logger = LoggerFactory.getLogger(this.getClass())
   
   /** Create a AcumeCacheConf that loads defaults from system properties and the classpath */
-  def this() = this(true, null)
+  def this() = this(null, true, null)
+  
+  def this(datasourceName : String) = this(datasourceName, true, null)
   
   private var settings = new HashMap[String, String]()
   

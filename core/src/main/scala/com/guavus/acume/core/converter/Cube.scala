@@ -23,5 +23,5 @@ case class Cube(cubeName: String, fields: List[IField], binSource: String, granu
 	mapAsJavaMap(properties)
   }
   
-  def getDataSource() : String = dataSource
+  def getDatasourceName() : String = dataSource
 }

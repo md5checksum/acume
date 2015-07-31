@@ -33,4 +33,6 @@ class cube_APN_SUBCR_TT_APP extends ICube {
    def getProperties() = {
      null
   }
+  
+  def getDatasourceName() = "default"
 }

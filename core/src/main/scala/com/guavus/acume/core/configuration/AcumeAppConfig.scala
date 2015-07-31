@@ -4,30 +4,26 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
-import com.guavus.acume.core.AcumeContextTraitUtil
 import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.core.AcumeContextTraitUtil
 import com.guavus.acume.core.AcumeService
 import com.guavus.acume.core.DataService
-import com.guavus.acume.core.converter.AcumeDataSourceSchema
+import com.guavus.acume.core.listener.AcumeBlockManagerRemovedListener
+import com.guavus.acume.core.scheduler.Controller
+import com.guavus.acume.core.scheduler.ISchedulerPolicy
+import com.guavus.acume.core.scheduler.QueryRequestPrefetchTaskManager
 import com.guavus.acume.core.usermanagement.DefaultPermissionTemplate
-import com.guavus.qb.conf.QBConf
 import com.guavus.qb.services.IQueryBuilderService
 import com.guavus.rubix.user.permission.IPermissionTemplate
-import com.guavus.acume.core.scheduler.QueryRequestPrefetchTaskManager
-import com.guavus.acume.core.scheduler.VariableGranularitySchedulerPolicy
-import com.guavus.acume.core.scheduler.ISchedulerPolicy
-import com.guavus.acume.core.scheduler.Controller
-import com.guavus.qb.services.QueryBuilderService
-import com.guavus.acume.core.listener.AcumeBlockManagerRemovedListener
 
 object AcumeAppConfig {
 
   private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeAppConfig])
 
   var DEFAULT_CLASS_LOADER: ClassLoader = Thread.currentThread().getContextClassLoader
-  
 }
 
 @org.springframework.context.annotation.Configuration
@@ -35,13 +31,17 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
 
   @Bean
   @Autowired
-  override def acumeService(dataService: DataService): AcumeService = {
+  private val dataSource : String = AcumeContextTraitUtil.acumeConf.getAllDatasourceNames(0)
+  
+  @Bean
+  @Autowired
+  override def acumeService(dataService: DataService, dataSource: String): AcumeService = {
     new AcumeService(dataService)
   }
 
   @Bean
   @Autowired
-  override def dataService(queryBuilderService : Seq[IQueryBuilderService], ac : AcumeContextTrait): DataService = {
+  override def dataService(queryBuilderService : Seq[IQueryBuilderService], ac : AcumeContextTrait, dataSource: String): DataService = {
     new DataService(queryBuilderService, ac)
   }
 
@@ -50,15 +50,14 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
   
   @Bean
   @Autowired
-  override def acumeContext() : AcumeContextTrait = {
-    AcumeContextTraitUtil.getAcumeContext("hbase")
+  override def acumeContext(dataSource: String) : AcumeContextTrait = {
+    AcumeContextTraitUtil.getAcumeContext(dataSource)
   }
   
   @Bean
   @Autowired
-  override def queryBuilderService(acumeContext : AcumeContextTrait) : Seq[IQueryBuilderService] = {
-
-    List(new QueryBuilderService(new AcumeDataSourceSchema(acumeContext), new QBConf()))
+  override def queryBuilderService(acumeContext : AcumeContextTrait, dataSource: String) : Seq[IQueryBuilderService] = {
+    List(QueryBuilderFactory.getQBInstance(dataSource))
   }
 
   @Bean

@@ -1,6 +1,6 @@
 package com.guavus.acume.tomcat.core
 
-import scala.collection.JavaConversions.bufferAsJavaList
+import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
 
 import org.apache.spark.sql.hive.thriftserver.AcumeThriftServer
@@ -15,6 +15,8 @@ import com.guavus.rubix.hibernate.SessionFactory
 import com.guavus.rubix.user.management.IDML
 import com.guavus.rubix.user.management.InitDatabase
 import com.guavus.rubix.user.management.UMProperties
+import com.guavus.acume.cache.common.ConfConstants
+
 
 /**
  * Entry point to start the tomcat. this must be called by spark or command line to start the application
@@ -42,7 +44,7 @@ object AcumeMain {
     val startTime = System.currentTimeMillis()
 
     //start Prefetch Scheduler
-    val numberOfEnabledSchedulers =  aumeContext.acumeConf.settings.filter(_._1.contains(ConfConstants.enableScheduler)).map(_._2).filter(_==true).size
+    val numberOfEnabledSchedulers =  acumeContext.acumeConf.settings.filter(_._1.contains(ConfConstants.enableScheduler)).map(_._2).filter(_==true).size
     if(numberOfEnabledSchedulers != 0)
     	ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).startPrefetchScheduler
    

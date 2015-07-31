@@ -319,24 +319,24 @@ object CSVDataExporter {
 
 class CSVDataExporter  extends IDataExporter {
   
-  override def exportToFile(dataExportRequest : DataExportRequest) : DataExportResponse = {
+  override def exportToFile(dataExportRequest : DataExportRequest, dataSource: String) : DataExportResponse = {
     
     if (dataExportRequest.getRequestDataType.equals(RequestType.Aggregate)) {
-      return getAggregateCSVResponse(dataExportRequest)
+      return getAggregateCSVResponse(dataExportRequest, dataSource)
     } else if (dataExportRequest.getRequestDataType.equals(RequestType.Timeseries)) {
-      return getTimeSeriesCSVResponse(dataExportRequest)
+      return getTimeSeriesCSVResponse(dataExportRequest, dataSource)
     }
     throw new RuntimeException("Query type not specified. Must have any one of these values " + 
         RequestType.Aggregate + "," + RequestType.Timeseries)
   }
   
-  def getAggregateCSVResponse(dataExportRequest : DataExportRequest) : DataExportResponse = {
+  def getAggregateCSVResponse(dataExportRequest : DataExportRequest, dataSource: String) : DataExportResponse = {
     var tempDirectory: String = null
     try {
       tempDirectory = CSVDataExporter.generateDirectory
       CSVDataExporter.generateFiltersFile(dataExportRequest.getFilterDescriptionString, tempDirectory, dataExportRequest.getFileName)
       val flexService = dataExportRequest.getRubixService
-      val responses = flexService.servAggregateMultiple(new ArrayList(dataExportRequest.getRequests))
+      val responses = flexService.servAggregateMultiple(new ArrayList(dataExportRequest.getRequests), dataSource)
       var queryResponse: AggregateResponse = null
       var queryResponseTotal: AggregateResponse = null
       if (responses.size == 1) {
@@ -381,14 +381,14 @@ class CSVDataExporter  extends IDataExporter {
     }
   }
   
-  def getTimeSeriesCSVResponse(dataExportRequest : DataExportRequest) : DataExportResponse = {
+  def getTimeSeriesCSVResponse(dataExportRequest : DataExportRequest, dataSource: String) : DataExportResponse = {
     
     var tempDirectory: String = null
     try {
       tempDirectory = CSVDataExporter.generateDirectory()
       CSVDataExporter.generateFiltersFile(dataExportRequest.getFilterDescriptionString, tempDirectory, dataExportRequest.getFileName)
       val flexService = dataExportRequest.getRubixService
-      val responses = flexService.servTimeseriesMultiple(new ArrayList(dataExportRequest.getRequests))
+      val responses = flexService.servTimeseriesMultiple(new ArrayList(dataExportRequest.getRequests), dataSource)
       var queryResponse: TimeseriesResponse = null
       var queryResponseTotal: TimeseriesResponse = null
       if (responses.size == 1) {

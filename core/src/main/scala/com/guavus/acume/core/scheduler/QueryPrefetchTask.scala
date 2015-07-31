@@ -53,7 +53,7 @@ class QueryPrefetchTask(private var acumeService: AcumeService, @BeanProperty va
         reTryCount += 1
         try {
           HttpUtils.setLoginInfo(acumeContext.acumeConf.getSuperUser)
-          logger.info(acumeService.servSqlQuery(request.toSql("ts")).toString)
+          logger.info(acumeService.servSqlQuery(request.toSql("ts"), acumeContext.acumeConf.getDatasourceName).toString)
           success = true
         } catch {
           case t: Throwable => {

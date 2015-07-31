@@ -16,15 +16,15 @@ import com.guavus.acume.core.scheduler.Controller
  */
 trait AcumeAppConfigTrait extends Serializable {
   
-  def acumeService(dataService: DataService): AcumeService
+  def acumeService(dataService: DataService, datasourceName: String): AcumeService
 
-  def dataService(queryBuilderService : Seq[IQueryBuilderService], ac : AcumeContextTrait): DataService 
+  def dataService(queryBuilderService : Seq[IQueryBuilderService], ac : AcumeContextTrait, datasourceName: String): DataService 
 
   def defaultTimeGranularity(): TimeGranularity
 
-  def acumeContext() : AcumeContextTrait
+  def acumeContext(datasourceName: String) : AcumeContextTrait
 
-  def queryBuilderService(acumeContext : AcumeContextTrait) : Seq[IQueryBuilderService] 
+  def queryBuilderService(acumeContext : AcumeContextTrait, datasourceName: String) : Seq[IQueryBuilderService] 
   
   def permissionTemplate(): IPermissionTemplate 
   

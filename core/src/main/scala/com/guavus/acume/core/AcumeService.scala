@@ -184,7 +184,7 @@ class AcumeService(dataService: DataService) {
   
   //Developer API for not calling checkJobproperties and directly calling the QueryExecutor
   def servMultiple[T](requestDataType: RequestDataType.RequestDataType,
-                              requests: java.util.ArrayList[_ <: Any], checkJobProperty: Boolean = true): java.util.ArrayList[T] = {
+                              requests: java.util.ArrayList[_ <: Any], datasourceName: String, checkJobProperty: Boolean = true): java.util.ArrayList[T] = {
 
     try {
 
@@ -220,7 +220,7 @@ class AcumeService(dataService: DataService) {
           setCallId(key);
         }
         val queryExecutorTask = new QueryExecutor[T](this,
-          HttpUtils.getLoginInfo(), key, requestDataType, classificationDetail._2)
+          HttpUtils.getLoginInfo(), key, requestDataType, datasourceName, classificationDetail._2)
         callableResponses.add(queryExecutorTask)
       }
       
@@ -236,54 +236,54 @@ class AcumeService(dataService: DataService) {
   /**
    * Serves only aggregate request. if request type is timeseries this method fails.
    */
-  def  servAggregateSingleQuery(queryRequest : QueryRequest, property: HashMap[String, Any] = null) : AggregateResponse = {
+  def  servAggregateSingleQuery(queryRequest : QueryRequest, datasourceName: String, property: HashMap[String, Any] = null) : AggregateResponse = {
     dataService.servAggregate(queryRequest, property)
   }
   
-  def servTimeseriesSingleQuery(queryRequest : QueryRequest, property: HashMap[String, Any] = null) : TimeseriesResponse = {
+  def servTimeseriesSingleQuery(queryRequest : QueryRequest, datasourceName: String, property: HashMap[String, Any] = null) : TimeseriesResponse = {
     dataService.servTimeseries(queryRequest, property)
   }
   
-  def  servSingleQuery(queryRequest : String, property: HashMap[String, Any] = null) : Serializable = {
+  def  servSingleQuery(queryRequest : String, datasourceName: String, property: HashMap[String, Any] = null) : Serializable = {
     dataService.servRequest(queryRequest, property).asInstanceOf[Serializable]
   }
   
-  def  servAggregateMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[AggregateResponse] = {
-    servMultiple[AggregateResponse](RequestDataType.Aggregate, queryRequests)
+  def  servAggregateMultiple(queryRequests : java.util.ArrayList[QueryRequest], datasourceName: String) : java.util.ArrayList[AggregateResponse] = {
+    servMultiple[AggregateResponse](RequestDataType.Aggregate, queryRequests, datasourceName)
   }
   
-  def  servAggregateQuery(queryRequest : QueryRequest) : AggregateResponse = {
-    servMultiple[AggregateResponse](RequestDataType.Aggregate, new java.util.ArrayList(List(queryRequest))).get(0)
+  def  servAggregateQuery(queryRequest : QueryRequest, datasourceName: String) : AggregateResponse = {
+    servMultiple[AggregateResponse](RequestDataType.Aggregate, new java.util.ArrayList(List(queryRequest)), datasourceName).get(0)
   }
   
-  def servTimeseriesMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[TimeseriesResponse] = {
-    servMultiple[TimeseriesResponse](RequestDataType.TimeSeries, queryRequests)
+  def servTimeseriesMultiple(queryRequests : java.util.ArrayList[QueryRequest], datasourceName: String) : java.util.ArrayList[TimeseriesResponse] = {
+    servMultiple[TimeseriesResponse](RequestDataType.TimeSeries, queryRequests, datasourceName)
   }
   
-  def servTimeseriesQuery(queryRequest : QueryRequest) : TimeseriesResponse = {
-    servMultiple[TimeseriesResponse](RequestDataType.TimeSeries, new java.util.ArrayList(List(queryRequest))).get(0)
+  def servTimeseriesQuery(queryRequest : QueryRequest, datasourceName: String) : TimeseriesResponse = {
+    servMultiple[TimeseriesResponse](RequestDataType.TimeSeries, new java.util.ArrayList(List(queryRequest)), datasourceName).get(0)
   }
   
-  def  servSqlQuery(queryRequest : String) : Serializable = {
-    servMultiple[Serializable](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest))).get(0)
+  def  servSqlQuery(queryRequest : String, datasourceName: String) : Serializable = {
+    servMultiple[Serializable](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest)), datasourceName).get(0)
   }
   
-  def servSqlQueryMultiple(queryRequests : java.util.ArrayList[String]) : java.util.ArrayList[Serializable] = {
-    servMultiple[Serializable](RequestDataType.SQL, queryRequests)
+  def servSqlQueryMultiple(queryRequests : java.util.ArrayList[String], datasourceName: String) : java.util.ArrayList[Serializable] = {
+    servMultiple[Serializable](RequestDataType.SQL, queryRequests, datasourceName)
   }
   
-  def  servSqlQuery2(queryRequest : String) = {
+  def  servSqlQuery2(queryRequest : String, datasourceName: String) = {
     dataService.execute(queryRequest)
   }
   
-  def searchRequest(searchRequest : SearchRequest) : SearchResponse = {
+  def searchRequest(searchRequest : SearchRequest, datasourceName: String) : SearchResponse = {
     dataService.servSearchRequest(searchRequest)
   }
   
-  def servExportCSV(dataExportRequest: DataExportRequest) : Response = {
+  def servExportCSV(dataExportRequest: DataExportRequest, datasourceName: String) : Response = {
     try {
         val dataExporter : IDataExporter = DataExporterUtil.getExporterInstance(dataExportRequest.getFileType());
-        val dataExporterResponse : DataExportResponse = dataExporter.exportToFile(dataExportRequest);
+        val dataExporterResponse : DataExportResponse = dataExporter.exportToFile(dataExportRequest, datasourceName);
         val rBuild : ResponseBuilder = Response.ok();
             
         var fileName : String = null
