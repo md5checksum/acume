@@ -24,7 +24,7 @@ class AcumeContext(override val acumeConfiguration: AcumeConf) extends AcumeCont
 
   val hc = new HiveContext(sparkContext)
 
-  val _sqlContext = new SQLContext(sparkContext)
+  // val _sqlContext = new SQLContext(sparkContext)
   
   override val acumeContext = {
     new AcumeCacheContext(hc, new AcumeCacheConf)
@@ -36,6 +36,6 @@ class AcumeContext(override val acumeConfiguration: AcumeConf) extends AcumeCont
   
   override def hqlContext() = hc
   
-  override def sqlContext() = _sqlContext
+  // override def sqlContext() = _sqlContext
   
 }

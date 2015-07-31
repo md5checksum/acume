@@ -114,8 +114,8 @@ trait AcumeValue {
 
   def registerAndCacheDataInMemory(tableName : String) {
     measureSchemaRdd.registerTempTable(tableName)
-    measureSchemaRdd.sqlContext.cacheTable(tableName)
-    measureSchemaRdd.sqlContext.table(tableName).count
+    // use eager caching
+    measureSchemaRdd.sqlContext.sql("cache table " + tableName)
   }
 
 }
