@@ -23,7 +23,7 @@ object AcumeCacheUtility {
     
   private [core] def getSchemaRDD(acumeCacheContext: AcumeCacheContext, cube: Cube, joinDimMeasureTableName: String) = { 
     
-    val sqlContext = acumeCacheContext.sqlContext
+    val sqlContext = acumeCacheContext.cacheSqlContext
     import sqlContext._
     val measureMapThisCube = acumeCacheContext.measureMap.clone.filterKeys(key => cube.measure.measureSet.contains(acumeCacheContext.measureMap.get(key).get)) .toMap
     val businessCubeAggregatedMeasureList = CubeUtil.getStringMeasureOrFunction(measureMapThisCube, cube)

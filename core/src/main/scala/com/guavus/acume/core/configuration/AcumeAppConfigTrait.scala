@@ -2,7 +2,6 @@ package com.guavus.acume.core.configuration
 
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
-import com.guavus.acume.core.AcumeContext
 import com.guavus.acume.core.AcumeContextTrait
 import com.guavus.acume.core.AcumeService
 import com.guavus.acume.core.DataService
@@ -16,15 +15,15 @@ import com.guavus.acume.core.scheduler.Controller
  */
 trait AcumeAppConfigTrait extends Serializable {
   
-  def acumeService(dataService: DataService, datasourceName: String): AcumeService
+  def acumeService(dataService: DataService): AcumeService
 
-  def dataService(queryBuilderService : Seq[IQueryBuilderService], ac : AcumeContextTrait, datasourceName: String): DataService 
+  def dataService(queryBuilderService : Seq[IQueryBuilderService], ac : AcumeContextTrait): DataService 
 
   def defaultTimeGranularity(): TimeGranularity
 
-  def acumeContext(datasourceName: String) : AcumeContextTrait
+  def acumeContext(dataSource : String) : AcumeContextTrait
 
-  def queryBuilderService(acumeContext : AcumeContextTrait, datasourceName: String) : Seq[IQueryBuilderService] 
+  def queryBuilderService(dataSource : String) : Seq[IQueryBuilderService] 
   
   def permissionTemplate(): IPermissionTemplate 
   
@@ -32,4 +31,6 @@ trait AcumeAppConfigTrait extends Serializable {
   
   def controller(acumeContext : AcumeContextTrait) : Controller = throw new AbstractMethodError("Method not implemented.")
   
+  def dataSource : String
+
 }

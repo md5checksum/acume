@@ -422,8 +422,8 @@ object Utility extends Logging {
           val orderedPrimaryKeys = propertyMap.getOrElse(ConfConstants.primaryKeys, "").split(";")
           val tableName = propertyMap.getOrElse(ConfConstants.tableName, throw new RuntimeException("Hbase tableName not defined"))
           val columnMappings : Map[String, String] = propertyMap.getOrElse(ConfConstants.columnMappings, throw new RuntimeException("ColumnMappings not defined for Hbase")).split(";").map(mapping => {
-            val tuples = mapping.replaceAll(" ", "").split("->")
-            (tuples(0).replaceAll("[",""), tuples(1).replaceAll("]", ""))
+            val tuples = mapping.replace(" ", "").split("->")
+            (tuples(0).replace("[",""), tuples(1).replace("]", ""))
           }).toMap
           
           hbaseConfig = HbaseConfigs(tableName, cubeDatasourceName, cubeName, orderedPrimaryKeys, columnMappings)

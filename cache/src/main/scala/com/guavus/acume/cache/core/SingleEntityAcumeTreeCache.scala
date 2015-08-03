@@ -57,7 +57,7 @@ extends AcumeCache[CacheIdentifier, AcumeCache[LevelTimestamp, AcumeTreeCacheVal
 	    val singleEntityCache = cachePointToTable.get(cacheIdentifier)
 	    val tableNameAppender = keyValueMap.map(x => x._1+ "=" + x._2).mkString("_")
 	    singleEntityCache.createTempTable(List(keyValueMap.toMap), startTime, endTime, requestType, (tableName + "_" + tableNameAppender), queryOptionalParam)
-	    acumeCacheContext.sqlContext.table((tableName + "_" + tableNameAppender))
+	    acumeCacheContext.cacheSqlContext.table((tableName + "_" + tableNameAppender))
 	  }
 	  val finalRdd = tempTables.reduce(_.unionAll(_))
 	  finalRdd.registerTempTable(tableName)
@@ -73,7 +73,7 @@ extends AcumeCache[CacheIdentifier, AcumeCache[LevelTimestamp, AcumeTreeCacheVal
 	    val singleEntityCache = cachePointToTable.get(cacheIdentifier)
 	    val tableNameAppender = keyValueMap.map(x => x._1+ "=" + x._2).mkString("_")
 	    val metadata = singleEntityCache.createTempTableAndMetadata(keyMap, startTime, endTime, requestType, (tableName + "_" + tableNameAppender), queryOptionalParam)
-	    (acumeCacheContext.sqlContext.table((tableName + "_" + tableNameAppender)),metadata)
+	    (acumeCacheContext.cacheSqlContext.table((tableName + "_" + tableNameAppender)),metadata)
 	  }
 	  val finalRdd = tempTables.reduce((x,y)=>(x._1.unionAll(y._1), x._2))
 	  finalRdd._1.registerTempTable(tableName)

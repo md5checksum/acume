@@ -12,14 +12,14 @@ import com.guavus.acume.cache.workflow.AcumeHiveCacheContext
  */
 class AcumeHiveContext(val datasourceName: String) extends AcumeContextTrait {
 
-  val hiveContext = AcumeContextTraitUtil.hiveContext
-  val acumeCacheContext = new AcumeHiveCacheContext(hiveContext, new AcumeCacheConf(datasourceName))
+  private val hiveContext = AcumeContextTraitUtil.hiveContext
+  private val acumeCacheContext = new AcumeHiveCacheContext(hiveContext, new AcumeCacheConf(datasourceName))
  
   override def acc() = acumeCacheContext
   
   override def sqlContext() = hiveContext
   
-  def chooseHiveDatabase() {
+  val chooseHiveDatabase = {
     try{
        hiveContext.sql("use " + acumeConf.get(ConfConstants.backendDbName))
     } catch {
@@ -27,6 +27,6 @@ class AcumeHiveContext(val datasourceName: String) extends AcumeContextTrait {
     }
   }
   
-  chooseHiveDatabase()
+  AcumeContextTraitUtil.registerUserDefinedFunctions
 
 }

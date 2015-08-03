@@ -46,7 +46,7 @@ class AcumeCacheConf(datasourceName: String, loadSystemPropertyOverDefault: Bool
   setDefault
   
   if (loadSystemPropertyOverDefault) {
-    for ((k, v) <- System.getProperties.asScala if k.toLowerCase.contains("acume.")) {
+    for ((k, v) <- System.getProperties.asScala if k.toLowerCase.contains("acume")) {
       settings(k) = v.trim
     }
   }
@@ -102,9 +102,13 @@ class AcumeCacheConf(datasourceName: String, loadSystemPropertyOverDefault: Bool
 
   /** Get a parameter as an Option */
   def getOption(key: String): Option[String] = {
-    settings.get(key).getOrElse(
-        settings.get(AcumeCacheConf.getKeyName(key, datasourceName))
-    ).asInstanceOf[Option[String]]
+    val globalFound = settings.get(key)
+    globalFound match {
+      case None => 
+        return settings.get(AcumeCacheConf.getKeyName(key, datasourceName))
+      case _ =>
+        return globalFound
+    }
   }
 
   /** Get all parameters as a list of pairs */

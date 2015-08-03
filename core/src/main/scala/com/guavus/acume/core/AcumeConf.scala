@@ -9,6 +9,7 @@ import org.apache.shiro.config.Ini
 import org.apache.shiro.config.Ini.Section
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.utility.PropertyValidator
+import java.net.URLClassLoader
 
 /**
  * Configuration for a Acume application. Used to set various Acume parameters as key-value pairs.
@@ -54,22 +55,21 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
   
   // Read the acume.ini file. 
   if(fileName != null) {
-    val ini : Ini = Ini.fromResourcePath(fileName)
+    val ini : Ini = Ini.fromResourcePath(ClassLoader.getSystemResource(fileName).getPath)
     val sectionNames = ini.getSectionNames
     
     sectionNames.map(sectionName => {
      val section : Section = ini.getSection(sectionName.trim)
+     addDatasourceNames(sectionName)
      section.entrySet.map(property => {
        if(!property.getValue.trim.equals("")) {
          val key = AcumeConf.getKeyName(property.getKey, sectionName)
-         addDatasourceNames(sectionName)
          settings(key) = property.getValue.trim
          System.setProperty(key, property.getValue.trim)
        }
      })
     })
-    
-	  PropertyValidator.validate(settings)
+//	  PropertyValidator.validate(settings)
   }
   
   private def setDefault = {
@@ -189,9 +189,13 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
 
   /** Get a parameter as an Option */
   private def getOption(key: String): Option[String] = {
-    settings.get(key).getOrElse(
-        settings.get(AcumeConf.getKeyName(key, datasourceName))
-    ).asInstanceOf[Option[String]]
+    val globalFound = settings.get(key)
+    globalFound match {
+      case None => 
+        return settings.get(AcumeConf.getKeyName(key, datasourceName))
+      case _ =>
+        return globalFound
+    }
   }
 
   /** Get all parameters as a list of pairs */
@@ -248,7 +252,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
   
   def addDatasourceNames(dsName: String) {
     if(!dsName.equals("common"))
-      allDatasourceNames.+(dsName)
+      allDatasourceNames = allDatasourceNames.+:(dsName)
   }
 }
 

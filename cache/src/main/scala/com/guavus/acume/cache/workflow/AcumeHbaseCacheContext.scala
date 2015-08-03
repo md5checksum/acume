@@ -1,29 +1,27 @@
 package com.guavus.acume.cache.workflow
 
-import scala.collection.mutable.HashMap
-import scala.collection.mutable.MutableList
-
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hbase.HBaseSQLContext
 import org.apache.spark.sql.hive.HiveContext
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.ConversionToSpark
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.utility.Utility
 
-class AcumeHbaseCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) extends AcumeCacheContextTrait {
+class AcumeHbaseCacheContext(override val cacheSqlContext: SQLContext, override val cacheConf: AcumeCacheConf) extends AcumeCacheContextTrait {
 
-  private [cache] val cubeMap = new HashMap[CubeKey, Cube]
-  private [cache] val cubeList = MutableList[Cube]()
- 
-  sqlContext match {
+  private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeHbaseCacheContext])
+   
+  cacheSqlContext match {
     case hiveContext: HiveContext =>
     case hbaseContext : HBaseSQLContext =>
     case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
   
-  Utility.init(conf)
-  Utility.loadXML(conf, dimensionMap, measureMap, cubeMap, cubeList)
+  Utility.loadXML(cacheConf, dimensionMap, measureMap, cubeMap, cubeList)
   initHbase
   
   private def constructQueryFromCube(cube: Cube) : String = {
@@ -33,8 +31,11 @@ class AcumeHbaseCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheCon
     queryString.append(cube.cubeName)
     queryString.append(" ( ")
     
-    val fields = cube.dimension.dimensionSet.map(dimension => dimension.getName + " " + dimension.getDataType.typeString).toArray.mkString(", ")
-    queryString.append(fields)
+    val dimFields = cube.dimension.dimensionSet.map(dimension => dimension.getName + " " + ConversionToSpark.convertToSparkDataType(dimension.getDataType).typeName).toArray.mkString(", ")
+    queryString.append(dimFields)
+    
+    val measureFields = cube.measure.measureSet.map(measure => measure.getName + " " + ConversionToSpark.convertToSparkDataType(measure.getDataType).typeName).toArray.mkString(", ")
+    queryString.append(", " + measureFields)
     
     queryString.append(", primary key(")
     val primaryKeys = cube.hbaseConfigs.primaryKeys.mkString(",")
@@ -57,21 +58,27 @@ class AcumeHbaseCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheCon
     // Create table for every cube of hbase
     cubeList.filter(cube => cube.dataSourceName.toLowerCase.startsWith("hbase")).map(cube => {
     	val query = constructQueryFromCube(cube)
-      sqlContext.sql(query).collect
+      //Drop table if already exists
+      try{
+    	  cacheSqlContext.sql("drop table " + cube.cubeName).collect
+      } catch {
+        case e: Exception => println(e.getMessage)
+        case th : Throwable => println(th.getMessage)
+      }
+      
+      //Create table with cubename
+      try{
+        cacheSqlContext.sql(query).collect
+      } catch {
+        case e: Exception => println(e.getMessage)
+        case th : Throwable => println(th.getMessage)
+      }
     })
   }
   
-  private [acume] def cacheSqlContext() : SQLContext = sqlContext
-  
-  private [acume] val cacheConf = conf
-  
-  override val dataLoader = throw new RuntimeException("Operation not supported")
-  
   override private [acume] def executeQuery(sql: String) = {
-    val resultSchemaRDD = sqlContext.sql(sql)
+    val resultSchemaRDD = cacheSqlContext.sql(sql)
     new AcumeCacheResponse(resultSchemaRDD, resultSchemaRDD.rdd, MetaData(-1, Nil))
   }
-
-  private [acume] def getCubeMap = throw new RuntimeException("Operation not supported")
   
 }

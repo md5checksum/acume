@@ -129,14 +129,14 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
       current.unionAll(result)
     }
 
-    import acumeCacheContext.sqlContext._
+    import acumeCacheContext.cacheSqlContext._
     val tempTable = _tableName + "tempUnion"
 
     value.registerTempTable(tempTable)
     //aggregate over measures after union
     val selectMeasures = CubeUtil.getMeasureSet(cube).map(x => x.getAggregationFunction + "(" + x.getName + ") as " + x.getName).mkString(",")
     val selectDimensions = CubeUtil.getDimensionSet(cube).map(_.getName).mkString(",")
-    val parentRdd = acumeCacheContext.sqlContext.sql("select tupleid, " + key.timestamp + " as ts, " + selectMeasures + " from " + tempTable + " group by tupleid)")
+    val parentRdd = acumeCacheContext.cacheSqlContext.sql("select tupleid, " + key.timestamp + " as ts, " + selectMeasures + " from " + tempTable + " group by tupleid)")
 
     parentRdd.registerTempTable(_tableName)
     cacheTable(_tableName)
@@ -181,7 +181,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
       val intervals: MutableMap[Long, MutableList[Long]] = MutableMap(level -> list)
       buildTableForIntervals(intervals, tableName, isMetaData)
     } else {
-      Utility.getEmptySchemaRDD(acumeCacheContext.sqlContext, cube).registerTempTable(tableName)
+      Utility.getEmptySchemaRDD(acumeCacheContext.cacheSqlContext, cube).registerTempTable(tableName)
       MetaData(-1, Nil)
     }
   }
@@ -193,7 +193,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
 
   override def getDataFromBackend(levelTimestamp: LevelTimestamp): AcumeTreeCacheValue = {
     val _tableName = cube.getAbsoluteCubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
-    import acumeCacheContext.sqlContext._
+    import acumeCacheContext.cacheSqlContext._
     val cacheLevel = levelTimestamp.level
     val diskloaded = loadData(cube, levelTimestamp, dimensionTable)
 
@@ -223,7 +223,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
       } else {
         val dimensionSetRdd = diskUtility.loadDimensionSet(keyMap, businessCube, Utility.floorFromGranularity(dimensionSetLoadedEndTime.toLong, businessCube.baseGran.getGranularity), endTime)
         val fullRdd = AcumeStarSchemaTreeCache.generateId(dimensionSetRdd, dTableName, acumeCacheContext.cacheSqlContext, latestschema)
-        val finalDimensionRdd = acumeCacheContext.sqlContext.table(dTableName.tblnm).unionAll(fullRdd)
+        val finalDimensionRdd = acumeCacheContext.cacheSqlContext.table(dTableName.tblnm).unionAll(fullRdd)
         dTableName.Modify
         finalDimensionRdd.registerTempTable(dTableName.tblnm)
         metaData.put(DataLoadedMetadata.dimensionSetEndTime, endTime.toString)
@@ -252,7 +252,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
   private def getUniqueRandomeNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt)
 
   private def buildTableForIntervals(levelTimestampMap: MutableMap[Long, MutableList[Long]], tableName: String, isMetaData: Boolean): MetaData = {
-    import acumeCacheContext.sqlContext._
+    import acumeCacheContext.cacheSqlContext._
     val timestamps: MutableList[Long] = MutableList[Long]()
     var finalSchema = null.asInstanceOf[StructType]
     val x = getCubeName(tableName)
@@ -278,7 +278,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
       val baseMeasureSetTable = cube.getAbsoluteCubeName + "MeasureSet" + getUniqueRandomeNo
       val joinDimMeasureTableName = baseMeasureSetTable + getUniqueRandomeNo
       dataloadedrdd.registerTempTable(baseMeasureSetTable)
-      AcumeCacheUtility.dMJoin(acumeCacheContext.sqlContext, dimensionTable.tblnm, baseMeasureSetTable, joinDimMeasureTableName)
+      AcumeCacheUtility.dMJoin(acumeCacheContext.cacheSqlContext, dimensionTable.tblnm, baseMeasureSetTable, joinDimMeasureTableName)
       val _$acumecache = table(joinDimMeasureTableName)
       if (logger.isTraceEnabled)
         _$acumecache.collect.map(x => logger.trace(x.toString))

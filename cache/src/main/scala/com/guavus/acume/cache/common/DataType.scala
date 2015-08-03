@@ -69,6 +69,8 @@ object ConversionToSpark {
       case _ => throw new RuntimeException("Not Supported Datatype: " + dataType)
     }
   }
+  
+  
 }
   
 object ConversionToCrux { 

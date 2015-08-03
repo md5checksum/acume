@@ -57,27 +57,4 @@ abstract class AcumeContextTrait {
 	  println(s"setting checkpoint directory as $checkpointDirectory")
 	  diskBaseDirectory
   } 
- 
-  def registerUserDefinedFunctions() =
-    {
-      val xml = this.acumeConf.getUdfConfigurationxml
-      val jc = JAXBContext.newInstance("com.guavus.acume.core.gen")
-      val unmarsh = jc.createUnmarshaller()
-
-      var inputstream: InputStream = null
-      if (new File(xml).exists())
-        inputstream = new FileInputStream(xml)
-      else {
-        inputstream = this.getClass().getResourceAsStream("/" + xml)
-        if (inputstream == null)
-          throw new RuntimeException(s"$xml file does not exists")
-      }
-
-      val acumeUdf = unmarsh.unmarshal(inputstream).asInstanceOf[AcumeUdfs]
-      var udf: AcumeUdfs.UserDefined = null
-      for (udf <- acumeUdf.getUserDefined()) {
-        val createStatement = "create temporary function " + udf.getFunctionName() + " as '" + udf.getFullUdfclassName() + "'"
-        sqlContext.sql(createStatement)
-      }
-    }
 }

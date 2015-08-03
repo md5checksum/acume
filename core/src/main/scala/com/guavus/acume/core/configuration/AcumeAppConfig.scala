@@ -28,20 +28,16 @@ object AcumeAppConfig {
 
 @org.springframework.context.annotation.Configuration
 class AcumeAppConfig extends AcumeAppConfigTrait {
-
-  @Bean
-  @Autowired
-  private val dataSource : String = AcumeContextTraitUtil.acumeConf.getAllDatasourceNames(0)
   
   @Bean
   @Autowired
-  override def acumeService(dataService: DataService, dataSource: String): AcumeService = {
+  override def acumeService(dataService: DataService): AcumeService = {
     new AcumeService(dataService)
   }
 
   @Bean
   @Autowired
-  override def dataService(queryBuilderService : Seq[IQueryBuilderService], ac : AcumeContextTrait, dataSource: String): DataService = {
+  override def dataService(queryBuilderService : Seq[IQueryBuilderService], ac : AcumeContextTrait): DataService = {
     new DataService(queryBuilderService, ac)
   }
 
@@ -50,13 +46,13 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
   
   @Bean
   @Autowired
-  override def acumeContext(dataSource: String) : AcumeContextTrait = {
+  override def acumeContext(dataSource : String) : AcumeContextTrait = {
     AcumeContextTraitUtil.getAcumeContext(dataSource)
   }
   
   @Bean
   @Autowired
-  override def queryBuilderService(acumeContext : AcumeContextTrait, dataSource: String) : Seq[IQueryBuilderService] = {
+  override def queryBuilderService(dataSource : String) : Seq[IQueryBuilderService] = {
     List(QueryBuilderFactory.getQBInstance(dataSource))
   }
 
@@ -77,6 +73,8 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
     new Controller(acumeContext.acc)
   } 
   
-  
+  @Bean
+  @Autowired
+  override def dataSource : String = AcumeContextTraitUtil.acumeConf.getAllDatasourceNames(0)
   
 }

@@ -4,6 +4,7 @@ import java.util.concurrent.ConcurrentHashMap
 
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
+import scala.collection.mutable.MutableList
 
 import org.apache.spark.sql.SQLContext
 
@@ -16,6 +17,8 @@ import com.guavus.acume.cache.common.Measure
 import com.guavus.acume.cache.core.AcumeTreeCacheValue
 import com.guavus.acume.cache.disk.utility.DataLoader
 import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
+import com.guavus.acume.cache.utility.Utility
+
  
 /**
  * @author archit.thakur
@@ -28,8 +31,14 @@ trait AcumeCacheContextTrait extends Serializable {
   private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
   private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
   private [cache] val poolThreadLocal = new InheritableThreadLocal[HashMap[String, Any]]()
-  private [cache] val dataLoader : DataLoader
+  private [cache] val dataLoader : DataLoader = null
   private [cache] val dataloadermap : ConcurrentHashMap[String, DataLoader] = new ConcurrentHashMap[String, DataLoader]
+  private [cache] val cubeMap = new HashMap[CubeKey, Cube]
+  private [cache] val cubeList = MutableList[Cube]()
+
+  private [acume] val cacheSqlContext : SQLContext
+  private [acume] val cacheConf: AcumeCacheConf
+  Utility.init(cacheConf)
   
   def acql(sql: String): AcumeCacheResponse = {
   AcumeCacheContextTrait.setQuery(sql)
@@ -63,28 +72,39 @@ trait AcumeCacheContextTrait extends Serializable {
       measureMap.get(fieldName).get.getDefaultValue
   }
   
-  private [acume] def getCubeMap: Map[CubeKey, Cube]
+  private [acume] def getCubeMap : Map[CubeKey, Cube] = cubeMap.toMap
+
+  private[acume] def getCubeList: List[Cube] = cubeList.toList
   
+  private [acume] def getCube(cube: CubeKey) = cubeMap.get(cube).getOrElse(throw new RuntimeException(s"cube $cube not found."))
+  
+  /* To be overrided by subclasses */
   private [acume] def executeQuery(sql : String) : AcumeCacheResponse
   
-  private [acume] val cacheConf : AcumeCacheConf
-  
-  private [acume] def cacheSqlContext() : SQLContext
-  
-  private[acume] def getCubeList: List[Cube] = {
-    throw new NoSuchMethodException("Method not present")
-  }
-
   private[acume] def getFieldsForCube(name: String, binsource: String): List[String] = {
-    throw new NoSuchMethodException("Method not present")
+    val cube = cubeMap.getOrElse(CubeKey(name, binsource), throw new RuntimeException(s"Cube $name Not in AcumeCache knowledge."))
+    cube.dimension.dimensionSet.map(_.getName) ++ cube.measure.measureSet.map(_.getName)
   }
 
   private[acume] def getAggregationFunction(stringname: String): String = {
-    throw new NoSuchMethodException("Method not present")
+    val measure = measureMap.getOrElse(stringname, throw new RuntimeException(s"Measure $stringname not in Acume knowledge."))
+    measure.getAggregationFunction
   }
 
   private[acume] def getCubeListContainingFields(lstfieldNames: List[String]): List[Cube] = {
-    throw new NoSuchMethodException("Method not present")
+    val dimensionSet = scala.collection.mutable.Set[Dimension]()
+    val measureSet = scala.collection.mutable.Set[Measure]()
+    for(field <- lstfieldNames)
+      if(isDimension(field))
+        dimensionSet.+=(dimensionMap.get(field).get)
+      else
+        measureSet.+=(measureMap.get(field).get)
+      val kCube = 
+        for(cube <- cubeList if(dimensionSet.toSet.subsetOf(cube.dimension.dimensionSet.toSet) && 
+            measureSet.toSet.subsetOf(cube.measure.measureSet.toSet))) yield {
+          cube
+        }
+    kCube.toList
   }
   
   def getFirstBinPersistedTime(binSource : String) : Long =  {

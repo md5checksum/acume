@@ -1,49 +1,76 @@
 package com.guavus.acume.core
 
+import java.io.File
+import java.io.FileInputStream
+import java.io.InputStream
+
+import scala.collection.JavaConversions._
+import scala.collection.mutable.HashMap
+
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
-import com.guavus.acume.core.listener.AcumeSparkListener
-import org.apache.spark.sql.hive.HiveContext
+import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.sql.hbase.HBaseSQLContext
-import com.guavus.acume.core.configuration.QueryBuilderFactory
+import org.apache.spark.sql.hive.HiveContext
+
+import com.guavus.acume.core.gen.AcumeUdfs
+import com.guavus.acume.core.listener.AcumeSparkListener
 import com.guavus.qb.ds.DatasourceType
+
+import javax.xml.bind.JAXBContext
+
 
 object AcumeContextTraitUtil {
   
   // Initialize sparkContext, hiveContext, HbaseSQLContext only  once
   val sparkContext = new SparkContext(new SparkConf())
   sparkContext.addSparkListener(new AcumeSparkListener)
-  var hiveContext : HiveContext = null
-  var hBaseSQLContext : HBaseSQLContext = null
+  lazy val hiveContext : HiveContext = new HiveContext(sparkContext)
+  lazy val hBaseSQLContext : HBaseSQLContext = new HBaseSQLContext(sparkContext)
+
+  private val acumeContextMap = HashMap[String, AcumeContextTrait]()
   
-  var acumeContextMap = Map[String, AcumeContextTrait]() 
-  
-  val acumeConf = new AcumeConf(true, "/acume.ini")
+  val acumeConf = new AcumeConf(true, "acume.ini")
   
   acumeConf.getAllDatasourceNames.map(dsName => {
-    var context : Option[AcumeContextTrait] = null
-    DatasourceType.getDataSourceTypeFromString(dsName.toLowerCase) match {
-     case DatasourceType.CACHE => 
-        if(hiveContext == null)
-          hiveContext =  new HiveContext(sparkContext)
-        context = Some(new AcumeContext(dsName.toLowerCase))
-      case DatasourceType.HIVE =>
-        if(hiveContext == null)
-          hiveContext =  new HiveContext(sparkContext)
-        context = Some(new AcumeHiveContext(dsName.toLowerCase))
-      case DatasourceType.HBASE =>
-        if(hBaseSQLContext == null)
-          hBaseSQLContext =  new HBaseSQLContext(sparkContext)
-        context = Some(new AcumeHbaseContext(dsName.toLowerCase))
-      case _ => throw new RuntimeException("wrong datasource configured")
+    val context: AcumeContextTrait =
+      DatasourceType.getDataSourceTypeFromString(dsName.toLowerCase) match {
+        case DatasourceType.CACHE =>
+          new AcumeContext(dsName.toLowerCase)
+        case DatasourceType.HIVE =>
+          new AcumeHiveContext(dsName.toLowerCase)
+        case DatasourceType.HBASE =>
+          new AcumeHbaseContext(dsName.toLowerCase)
+        case _ => throw new RuntimeException("wrong datasource configured")
     }
-    context.get.init
-    acumeContextMap.+=(dsName.toLowerCase -> context.get)
-    QueryBuilderFactory.getQBInstance(dsName)
+    context.init
+    acumeContextMap.+=(dsName.toLowerCase -> context)
   })
   
   def getAcumeContext(dsName : String) : AcumeContextTrait = {
-    acumeContextMap.get(dsName.toLowerCase).getOrElse(throw new RuntimeException("This datasource is not configured"))
+    acumeContextMap.get(dsName.toLowerCase).getOrElse(throw new RuntimeException(s"This datasource  $dsName is not configured"))
+  }
+
+  lazy val registerUserDefinedFunctions = {
+    val xml = this.acumeConf.getUdfConfigurationxml
+    val jc = JAXBContext.newInstance("com.guavus.acume.core.gen")
+    val unmarsh = jc.createUnmarshaller()
+
+    var inputstream: InputStream = null
+    if (new File(xml).exists())
+      inputstream = new FileInputStream(xml)
+    else {
+      inputstream = this.getClass().getResourceAsStream("/" + xml)
+      if (inputstream == null)
+        throw new RuntimeException(s"$xml file does not exists")
+    }
+
+    val acumeUdf = unmarsh.unmarshal(inputstream).asInstanceOf[AcumeUdfs]
+    var udf: AcumeUdfs.UserDefined = null
+    for (udf <- acumeUdf.getUserDefined()) {
+      val createStatement = "create temporary function " + udf.getFunctionName() + " as '" + udf.getFullUdfclassName() + "'"
+      hiveContext.sql(createStatement)
+    }
   }
   
 }

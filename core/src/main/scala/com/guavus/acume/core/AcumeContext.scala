@@ -10,8 +10,10 @@ import com.guavus.acume.cache.workflow.AcumeCacheContext
  */
 class AcumeContext(val datasourceName : String) extends AcumeContextTrait {
 
-  val _hiveContext = AcumeContextTraitUtil.hiveContext
-  val acumeCacheContext = new AcumeCacheContext(_hiveContext, new AcumeCacheConf(datasourceName))
+  private val _hiveContext = AcumeContextTraitUtil.hiveContext
+  private val acumeCacheContext = new AcumeCacheContext(_hiveContext, new AcumeCacheConf(datasourceName))
+  
+  AcumeContextTraitUtil.registerUserDefinedFunctions
   
   override def acc() = acumeCacheContext
   

@@ -101,7 +101,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
         	val childrenLevel = cacheLevelPolicy.getChildrenLevel(key.level.localId)
         	val childrenAggregationLevel = cacheLevelPolicy.getAggregationLevel(childrenLevel)
         	logger.info("Children for key " + key +   " are " + childrenLevel + " - " + childrenAggregationLevel)
-        	import acumeCacheContext.sqlContext.implicits._
+        	import acumeCacheContext.cacheSqlContext.implicits._
         	var floorTime = Utility.floorFromGranularity(key.timestamp, childrenAggregationLevel)
         	var rdds = MutableList[(AcumeValue, SchemaRDD)]()
         	if(key.timestamp != floorTime) {
@@ -189,7 +189,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     value.registerTempTable(tempTable)
     AcumeCacheContextTrait.setInstaTempTable(tempTable)
     val timestamp = key.timestamp
-    val parentRdd = acumeCacheContext.sqlContext.sql(s"select $timestamp as ts " + (if(!selectDimensions.isEmpty) s", $selectDimensions " else "") + (if(!selectMeasures.isEmpty) s", $selectMeasures" else "") + s" from $tempTable " + groupBy)
+    val parentRdd = acumeCacheContext.cacheSqlContext.sql(s"select $timestamp as ts " + (if(!selectDimensions.isEmpty) s", $selectDimensions " else "") + (if(!selectMeasures.isEmpty) s", $selectMeasures" else "") + s" from $tempTable " + groupBy)
     return new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(key, cube, parentRdd, acumeValRdds), acumeCacheContext)
   }
   
@@ -254,7 +254,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
       val intervals: MutableMap[Long, MutableList[(Long, Long)]] = MutableMap(level -> MutableList((startTimeCeiling, endTimeFloor)))
       buildTableForIntervals(intervals, tableName, isMetaData)
     } else {
-      Utility.getEmptySchemaRDD(acumeCacheContext.sqlContext, cube).registerTempTable(tableName)
+      Utility.getEmptySchemaRDD(acumeCacheContext.cacheSqlContext, cube).registerTempTable(tableName)
       MetaData(-1, Nil)
     }
   }
@@ -266,7 +266,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
 
   override def getDataFromBackend(levelTimestamp: LevelTimestamp): AcumeTreeCacheValue = {
    // val _tableName = cube.cubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString
-    import acumeCacheContext.sqlContext._
+    import acumeCacheContext.cacheSqlContext._
     val cacheLevel = levelTimestamp.level
     val startTime = levelTimestamp.timestamp
     val endTime = Utility.getNextTimeFromGranularity(startTime, cacheLevel.localId, Utility.newCalendar)
@@ -290,7 +290,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
   
 
   private def buildTableForIntervals(levelTimestampMap: MutableMap[Long, MutableList[(Long, Long)]], tableName: String, isMetaData: Boolean): MetaData = {
-    import acumeCacheContext.sqlContext.implicits._
+    import acumeCacheContext.cacheSqlContext.implicits._
     logger.info("Total timestamps are : {}", cachePointToTable.asMap().keySet())
     val finalTimestamps: MutableList[Long] = MutableList[Long]()
     var finalSchema = null.asInstanceOf[StructType]
@@ -325,7 +325,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
         	  }
         	} else {
         	  logger.info("Selecting table with timestamp {}", aggregatedTimestamp)
-        	  import acumeCacheContext.sqlContext._
+        	  import acumeCacheContext.cacheSqlContext._
         	  if(level == aggregationlevel) {
         	    Seq(acumeValue.getAcumeValue.measureSchemaRdd)
         	  } else {

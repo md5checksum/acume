@@ -25,31 +25,26 @@ object AcumeMain {
   
   private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeMain])
   
-  def startAcumeComponents(sqlQueryEngine:String) = {
-    System.setProperty("queryEngine", sqlQueryEngine)
+  def startAcumeComponents = {
     val acumeContext = ConfigFactory.getInstance.getBean(classOf[AcumeContextTrait])
-	  acumeContext.registerUserDefinedFunctions
 	
-	  var enableJDBC = acumeContext.acumeConf.getEnableJDBCServer
-	 
-	  if(enableJDBC.toBoolean)
+	  if(acumeContext.acumeConf.getEnableJDBCServer.toBoolean)
 		  AcumeThriftServer.main(Array[String]())
-	
+      
 	  //Initiate the session Factory for user management db
     SessionFactory.getInstance(SessionContext.DISTRIBUTED)
     InitDatabase.initializeDatabaseTables(ArrayBuffer[IDML]())
     UMProperties.setGlobalTimeZone(acumeContext.acumeConf.getAcumeTimeZone)
-    logger.info("Called AcumeMain on " + sqlQueryEngine)
+    logger.info("Called AcumeMain")
     
     val startTime = System.currentTimeMillis()
-
+ 
     //start Prefetch Scheduler
-    val numberOfEnabledSchedulers =  acumeContext.acumeConf.settings.filter(_._1.contains(ConfConstants.enableScheduler)).map(_._2).filter(_==true).size
+    val numberOfEnabledSchedulers =  acumeContext.acumeConf.settings.filter(_._1.contains(ConfConstants.enableScheduler)).map(_._2).filter("true".equalsIgnoreCase(_)).size
     if(numberOfEnabledSchedulers != 0)
     	ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).startPrefetchScheduler
    
     //Initialize all components for Acume Core
-    //val config = ConfigFactory.getInstance()
     val timeTaken = (System.currentTimeMillis() - startTime)
     logger.info("Time taken to initialize Acume {} seconds", timeTaken / 1000)
   }
