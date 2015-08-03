@@ -43,14 +43,14 @@ class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService
   private val acumeConf = acumeContext.acumeConf 
   private [core] val acumeCacheAvailabilityMapPolicy = ICacheAvalabiltyUpdatePolicy.getICacheAvalabiltyUpdatePolicy(acumeConf, acumeContext.hqlContext)
   private val combinerpriority = new PriorityBlockingQueue[Runnable](QueryRequestPrefetchTaskManager.INITIAL_TASK_QUEUE_SIZE)
-  
-  def oldCombinerRunning: Boolean = {
-    combinerpriority.toArray().map(_.asInstanceOf[QueryPrefetchTaskCombiner]).filter(_.getIsOlderTask()).size >= 1 && 
-    consumerCombinerThreadPool.asInstanceOf[CombinerExecutor].
-    getRunningExecutorsRunnable.toArray.map(_.asInstanceOf[QueryPrefetchTaskCombiner]).filter(_.getIsOlderTask()).size >= 1
-  }
 
-  private [core] def getBinSourceToCacheAvalabilityMap: HashMap[String, HashMap[Long, Interval]] = {
+  def oldCombinerRunning: Boolean = {
+    combinerpriority.toArray().map(_.asInstanceOf[QueryPrefetchTaskCombiner]).filter(_.getIsOlderTask()).size >= 1 ||
+      consumerCombinerThreadPool.asInstanceOf[CombinerExecutor].
+      getRunningExecutorsRunnable.toArray.map(_.asInstanceOf[QueryPrefetchTaskCombiner]).filter(_.getIsOlderTask()).size >= 1
+  }
+  
+  private[core] def getBinSourceToCacheAvalabilityMap: HashMap[String, HashMap[Long, Interval]] = {
     acumeCacheAvailabilityMapPolicy.getTrueCacheAvailabilityMap
   } 
   
@@ -71,8 +71,6 @@ class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService
   def submitInnerTask(task: QueryPrefetchTask): Future[_] = consumerThreadPool.submit(task)
 
   def submitTask(combiner: QueryPrefetchTaskCombiner) {
-    if(!oldCombinerRunning)
-      acumeCacheAvailabilityMapPolicy.onBackwardCombinerCompleted
     consumerCombinerThreadPool.execute(combiner)
   }
 

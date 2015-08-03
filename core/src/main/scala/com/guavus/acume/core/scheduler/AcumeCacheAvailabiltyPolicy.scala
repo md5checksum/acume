@@ -12,6 +12,7 @@ import org.apache.spark.storage.RDDBlockId
 import org.apache.spark.sql.catalyst.plans.logical.Prune
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
+import com.guavus.acume.core.configuration.ConfigFactory
 
 /**
  * 
@@ -29,16 +30,21 @@ class AcumeCacheAvailabiltyPolicy(acumeConf: AcumeConf, sqlContext: SQLContext) 
 class UnionizedCacheAvailabiltyPolicy(acumeConf: AcumeConf, sqlContext: SQLContext) extends ICacheAvalabiltyUpdatePolicy(acumeConf, sqlContext) {
 
   private val list = MutableList[HashMap[String, HashMap[Long, Interval]]]()
-  private var unionizedMap = list.reduce(union(_, _))
+  private var unionizedMap: HashMap[String, HashMap[Long, Interval]] = unionList
   private var isUnionDirty = false
+  
+  
+  private def unionList = {
+    if (list.isEmpty) HashMap.empty[String, HashMap[Long, Interval]]
+    else list.reduce(union(_, _))
+  }
   
   override def getTrueCacheAvailabilityMap: HashMap[String, HashMap[Long, Interval]] = super.getTrueCacheAvailabilityMap
   
   override def getCacheAvalabilityMap: HashMap[String, HashMap[Long, Interval]] = {
-    if(isUnionDirty) {
-      unionizedMap = list.reduce(union(_, _))
-      isUnionDirty = false  
-    }
+    isUnionDirty = true
+    list.+=(getTrueCacheAvailabilityMap)
+    unionizedMap = unionList
     unionizedMap
   }
     
@@ -47,7 +53,7 @@ class UnionizedCacheAvailabiltyPolicy(acumeConf: AcumeConf, sqlContext: SQLConte
     isUnionDirty = true
     if (!withMap.isEmpty)
       list.+=(withMap)
-    list.+=(getTrueCacheAvailabilityMap)
+    list.+=(getTrueCacheAvailabilityMap.clone)
     super.reset
   }
   
@@ -56,16 +62,19 @@ class UnionizedCacheAvailabiltyPolicy(acumeConf: AcumeConf, sqlContext: SQLConte
     val executedPlan = unprocessed.queryExecution.executedPlan
     val id = if(executedPlan.isInstanceOf[InMemoryColumnarTableScan])
       executedPlan.asInstanceOf[InMemoryColumnarTableScan].relation._cachedColumnBuffers.id
-    else throw new RuntimeException("UnionizedCacheAvailabiltyPolicy expects the schemardds of physical plan InMemoryColumnarTableScan")
+    else return unprocessed
       
     val _$processed = new SchemaRDD(sqlContext, Prune(customPartitionPruner(id), unprocessed.baseLogicalPlan))
     _$processed
   }
-  
-  override def onBackwardCombinerCompleted { 
-    isUnionDirty = true
-    list.clear
-    list.+=(super.getTrueCacheAvailabilityMap)
+
+  override def onBackwardCombinerCompleted(version: Int) {
+    
+    if (ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).getVersion == version) {
+      isUnionDirty = true
+      list.clear
+      list.+=(super.getTrueCacheAvailabilityMap)
+    }
   }
   
   private def customPartitionPruner(id: Int)(partitionId: Int) = {

@@ -54,7 +54,7 @@ abstract class ICacheAvalabiltyUpdatePolicy(acumeConf: AcumeConf, sqlContext: SQ
    * should be overriden.
    * API targeted for listeners.
    */
-  def onBackwardCombinerCompleted {
+  def onBackwardCombinerCompleted(version: Int) {
     //do nothing here
   }
   
@@ -73,7 +73,7 @@ abstract class ICacheAvalabiltyUpdatePolicy(acumeConf: AcumeConf, sqlContext: SQ
    * API could be used by any component.
    */
   def update(withMap: HashMap[String, HashMap[Long, Interval]] = HashMap[String, HashMap[Long, Interval]]()): Unit = {
-    acumeCacheAvailabilityMap.clear()
+//    acumeCacheAvailabilityMap.clear()
     if(!withMap.isEmpty) acumeCacheAvailabilityMap.++=(withMap)
   }
   

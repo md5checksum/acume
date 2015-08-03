@@ -235,10 +235,12 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
 
   def mergePathRdds(rdds : Iterable[SchemaRDD]) = {
     Utility.withDummyCallSite(acumeCacheContext.cacheSqlContext.sparkContext) {
-      rdds.reduce(_.unionAll(_))
+      if(rdds.size == 1)
+        new SchemaRDD(acumeCacheContext.cacheSqlContext(), rdds.toList(0).baseLogicalPlan)
+      else 
+        rdds.reduce(_.unionAll(_))
     }
   }
-
 }
 
 object AcumeTreeCache {
