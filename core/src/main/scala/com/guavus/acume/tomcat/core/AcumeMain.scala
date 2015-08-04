@@ -37,7 +37,7 @@ object AcumeMain {
     UMProperties.setGlobalTimeZone(acumeContext.acumeConf.getAcumeTimeZone)
     logger.info("Called AcumeMain")
     
-    val startTime = System.currentTimeMillis()
+    val startTime = System.currentTimeMillis
  
     //start Prefetch Scheduler
     val numberOfEnabledSchedulers =  acumeContext.acumeConf.settings.filter(_._1.contains(ConfConstants.enableScheduler)).map(_._2).filter("true".equalsIgnoreCase(_)).size
