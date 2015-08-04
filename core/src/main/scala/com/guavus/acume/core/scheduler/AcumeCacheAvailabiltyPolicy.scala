@@ -13,6 +13,7 @@ import org.apache.spark.sql.catalyst.plans.logical.Prune
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import com.guavus.acume.core.configuration.ConfigFactory
+import com.guavus.acume.cache.common.ConfConstants
 
 /**
  * 
@@ -58,7 +59,11 @@ class UnionizedCacheAvailabiltyPolicy(acumeConf: AcumeConf, sqlContext: SQLConte
   }
   
   override def preProcessSchemaRDD(unprocessed: SchemaRDD): SchemaRDD = {
-    
+   
+    // Do not pre process if this is scheduler call.
+    if(AcumeConf.acumeConf().getBoolean(ConfConstants.schedulerQuery, false)) {
+      return unprocessed
+    }
     val executedPlan = unprocessed.queryExecution.executedPlan
     val id = if(executedPlan.isInstanceOf[InMemoryColumnarTableScan])
       executedPlan.asInstanceOf[InMemoryColumnarTableScan].relation._cachedColumnBuffers.id

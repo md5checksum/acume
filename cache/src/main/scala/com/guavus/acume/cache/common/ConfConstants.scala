@@ -71,6 +71,7 @@ private [acume] object ConfConstants {
   val cacheBaseDirectory = "acume.core.cache.base.directory"
   val cacheDirectory = "acume.core.cache.directory"
   val acumecacheavailablitymappolicy = "acume.core.cache.cacheavailabiltymap.policy"
+  val schedulerQuery = "acume.core.scheduler.query"
   
   /* Insta Properties */
   val instaComboPoints = "acume.insta.comboPoints"
@@ -85,5 +86,6 @@ private [acume] object ConfConstants {
   defaultValueMap += instaAvailabilityPollInterval -> "300"
   defaultValueMap += queryThreadPoolSize -> "16"
   defaultValueMap += useInsta -> "false"
+  defaultValueMap += schedulerQuery -> "false"
 
 }
