@@ -412,7 +412,7 @@
         </Property>
         <Property>
             <Property_Name> application.${rubixApp}.umDBVersion</Property_Name>
-            <Property_Value>3.5.1</Property_Value>
+            <Property_Value>0.0</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${rubixApp}.umDBVersion</Property_OriginalName>
