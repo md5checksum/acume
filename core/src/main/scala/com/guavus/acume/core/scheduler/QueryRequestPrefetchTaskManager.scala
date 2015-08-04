@@ -51,7 +51,7 @@ class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService
   }
   
   private[core] def getBinSourceToCacheAvalabilityMap: HashMap[String, HashMap[Long, Interval]] = {
-    acumeCacheAvailabilityMapPolicy.getTrueCacheAvailabilityMap
+    acumeCacheAvailabilityMapPolicy.getTrueCacheAvailabilityMap(getVersion())
   } 
   
   initConsumerThreadPool()

@@ -129,9 +129,9 @@ class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: Quer
         logger.info("Not populating RubixDataAvailability in Distributed cache {} because view has changed" + binSourceToIntervalMap)
       } else {
         binSourceToIntervalMap.+=(getBinSource ->  (scala.collection.mutable.HashMap() ++= map.toMap))
-        logger.info("Putting RubixDataAvailability in Distributed cache {} ", binSourceToIntervalMap)
-//        policy.update(binSourceToIntervalMap)
-        logger.info("BinReplay: UI RubixDataAvaiabilty {}", policy.getTrueCacheAvailabilityMap)
+        logger.info("Full Mode RubixDataAvailability: {} ", policy.getTrueCacheAvailabilityMap(this.version))
+        logger.info("Combiner Version:" + this.version)
+        logger.info("Partial Mode RubixDataAvailability {}", policy.getCacheAvalabilityMap)
       }
     
     if(!manager.oldCombinerRunning)
