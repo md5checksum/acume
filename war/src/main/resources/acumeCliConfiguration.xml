@@ -542,7 +542,7 @@ Please don't use the following reserved property names:
         <property>
             <name>umDBVersion</name>
             <help><![CDATA[ - UserManagement Database version]]></help>
-            <default><![CDATA[3.5.1]]></default>
+            <default><![CDATA[0.0]]></default>
             <targets>
                 <target>
                     <file><![CDATA[usermanagement.properties]]></file>
