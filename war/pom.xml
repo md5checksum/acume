@@ -133,6 +133,7 @@
   
 
 </dependencies>
+
 <build>
     <plugins>
         <!-- put aside some unwanted jars from war...-->
@@ -154,6 +155,7 @@
                              <exclude>WEB-INF/lib/xercesImpl*.jar</exclude>
                              <exclude>WEB-INF/lib/xml-apis*.jar</exclude>
     	                     <exclude>WEB-INF/lib/logback-*.jar</exclude>
+                           <exclude>WEB-INF/lib/jackson-*.jar</exclude>
                         </excludes>
                     </overlay>
 
