@@ -287,7 +287,7 @@
 		<dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>QueryBuilder</artifactId>
-			<version>0.1-SNAPSHOT</version>
+			<version>${pversion}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.guavus</groupId>

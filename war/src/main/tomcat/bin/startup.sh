@@ -237,7 +237,7 @@ fi
 ################################
 # HBASE Jar for Spark Classpath
 ################################
-SPARK_HBASE_JAR=$(ls -1 /opt/tms/java/hbase-spark/hbase-spark-*-bin-*.jar 2>/dev/null)
+SPARK_HBASE_JAR=$(ls -1 /opt/tms/java/hbase-spark/spark-hbase*-jar-with-dependencies.jar 2>/dev/null)
 if [[ ! -z $SPARK_HBASE_JAR ]];then
     echo "Using HBASE Jar : $SPARK_HBASE_JAR" >> "$CATALINA_OUT"
 else
