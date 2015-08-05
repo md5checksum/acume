@@ -13,10 +13,12 @@ object QueryJsonUtil {
 
   private var gson: Gson = new GsonBuilder().create()
   
+  def dataExportResponseToJson(request : DataExportResponse) : String = gson.toJson(request)
+  
   def dataExportRequestToJson(request : DataExportRequest) : String = gson.toJson(request)
 
-  def fromJsonToExportResponse(json: String): DataExportResponse = {
-    gson.fromJson(json, classOf[DataExportResponse])
+  def fromJsonToExportRequest(json: String): DataExportRequest = {
+    gson.fromJson(json, classOf[DataExportRequest])
   }
 
   def queryRequestToJson(request: QueryRequest): String = gson.toJson(request)

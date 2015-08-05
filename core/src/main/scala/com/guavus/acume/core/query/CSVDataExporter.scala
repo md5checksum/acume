@@ -14,13 +14,10 @@ import java.util.List
 import java.util.Map
 import java.util.Set
 import java.util.TreeMap
-
 import scala.collection.JavaConversions._
-
 import org.jgroups.util.UUID
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.utility.Utility
@@ -29,8 +26,8 @@ import com.guavus.acume.core.AcumeContextTrait
 import com.guavus.rubix.query.remote.flex.AggregateResponse
 import com.guavus.rubix.query.remote.flex.NameValue
 import com.guavus.rubix.query.remote.flex.TimeseriesResponse
-
 import javax.xml.bind.annotation.XmlRootElement
+import com.guavus.acume.workflow.RequestDataType
 
 /*
 * @author kashish.jain
@@ -91,7 +88,7 @@ object CSVDataExporter {
   private def getCSV(map: Map[Integer, NameValue]): String = {
     val string = new StringBuilder()
     for (i <- map.keySet) {
-      string.append(map.get(i))
+      string.append(map.get(i).value)
       string.append(AcumeConstants.COMMA)
     }
     string.toString
@@ -152,8 +149,10 @@ object CSVDataExporter {
         val values = validColumnValues(index)
         if (values.isInstanceOf[java.lang.Double]) {
           string.append(new BigDecimal(values.asInstanceOf[java.lang.Double]))
-        } else {
-          string.append(value.toString)
+        } else if(values.isInstanceOf[Double]){
+          string.append(new BigDecimal(values.asInstanceOf[Double]))
+        }else {
+          string.append(values.toString)
         }
       } else {
         string.append(INVALID_COLUMN_VALUE)
@@ -321,9 +320,9 @@ class CSVDataExporter  extends IDataExporter {
   
   override def exportToFile(dataExportRequest : DataExportRequest) : DataExportResponse = {
     
-    if (dataExportRequest.getRequestDataType.equals(RequestType.Aggregate)) {
+    if (dataExportRequest.getRequestDataType.equals(RequestDataType.Aggregate)) {
       return getAggregateCSVResponse(dataExportRequest)
-    } else if (dataExportRequest.getRequestDataType.equals(RequestType.Timeseries)) {
+    } else if (dataExportRequest.getRequestDataType.equals(RequestDataType.TimeSeries)) {
       return getTimeSeriesCSVResponse(dataExportRequest)
     }
     throw new RuntimeException("Query type not specified. Must have any one of these values " + 
