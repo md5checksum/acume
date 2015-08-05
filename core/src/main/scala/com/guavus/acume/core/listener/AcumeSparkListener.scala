@@ -28,7 +28,7 @@ class AcumeBlockManagerRemovedListener(acumeConf: AcumeConf, sqlContext: SQLCont
   
   override def onBlockManagerRemoved(blockManagerRemoved : SparkListenerBlockManagerRemoved) {
     logger.info("Block manager {} removed from spark application at : {}", blockManagerRemoved.blockManagerId, blockManagerRemoved.time/1000)
-    ICacheAvalabiltyUpdatePolicy.getICacheAvalabiltyUpdatePolicy(acumeConf, sqlContext).onBlockManagerRemoved
+//    ICacheAvalabiltyUpdatePolicy.getICacheAvalabiltyUpdatePolicy(acumeConf, sqlContext).onBlockManagerRemoved
     ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).restartPrefetchScheduler
   }
 }

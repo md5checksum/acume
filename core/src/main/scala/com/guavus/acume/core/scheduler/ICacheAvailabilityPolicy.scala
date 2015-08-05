@@ -25,7 +25,7 @@ abstract class ICacheAvalabiltyUpdatePolicy(acumeConf: AcumeConf, sqlContext: SQ
   
   protected var mode = "full"
 //  private val acumeCacheAvailabilityMap: HashMap[String, HashMap[Long, Interval]] = HashMap[String, HashMap[Long, Interval]]()
-  private val acumeCacheAvailabilityMapWithVersion: HashMap[Int, HashMap[String, HashMap[Long, Interval]]] = HashMap[Int, HashMap[String, HashMap[Long, Interval]]]()
+  private var acumeCacheAvailabilityMapWithVersion: HashMap[Int, HashMap[String, HashMap[Long, Interval]]] = HashMap[Int, HashMap[String, HashMap[Long, Interval]]]()
   
   /**
    * should not be overriden.
@@ -51,7 +51,8 @@ abstract class ICacheAvalabiltyUpdatePolicy(acumeConf: AcumeConf, sqlContext: SQ
    */
   def onBlockManagerRemoved: Unit = {
     val _$version = ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).getVersion
-    this.getTrueCacheAvailabilityMap(_$version).clear
+    acumeCacheAvailabilityMapWithVersion.+=(_$version -> HashMap[String, HashMap[Long, Interval]]())
+//    this.getTrueCacheAvailabilityMap(_$version).clear
   }
   
   /**
@@ -78,7 +79,8 @@ abstract class ICacheAvalabiltyUpdatePolicy(acumeConf: AcumeConf, sqlContext: SQ
    * API could be used by any component.
    */
   private [core] def reset(version: Int): Unit = {
-    acumeCacheAvailabilityMapWithVersion.getOrElse(version, HashMap.empty).clear
+//    acumeCacheAvailabilityMapWithVersion.getOrElse(version, HashMap.empty).clear
+    acumeCacheAvailabilityMapWithVersion.+=(version -> HashMap[String, HashMap[Long, Interval]]())
   }
   
   /**

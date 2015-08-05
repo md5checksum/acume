@@ -82,7 +82,7 @@ class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService
       initConsumerThreadPool()
       queryPrefetchTaskProducer.version.incrementAndGet()
       schedulerPolicy.clearState()
-//      acumeCacheAvailabilityMapPolicy.reset
+      acumeCacheAvailabilityMapPolicy.onBlockManagerRemoved
       startPrefetchScheduler()
     }
   }
