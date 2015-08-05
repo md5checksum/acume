@@ -1,4 +1,4 @@
-package com.guavus.acume.core.servlet
+package com.guavus.acume.rest.api
 import java.io.OutputStream
 import java.lang.annotation.Annotation
 import java.lang.reflect.Type

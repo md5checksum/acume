@@ -39,6 +39,7 @@ import scala.collection.mutable.HashMap
 import com.guavus.rubix.cache.Interval
 import com.guavus.acume.core.scheduler.UnionizedCacheAvailabilityPolicy
 import com.guavus.rubix.query.remote.flex.LoginParameterRequest
+import com.guavus.acume.workflow.RequestDataType
 
 @Path("/" + "queryresponse")
 /**
@@ -47,42 +48,41 @@ import com.guavus.rubix.query.remote.flex.LoginParameterRequest
 class RestService {
   
   @POST
-    @Consumes(Array("application/json"))
-    @Produces(Array("application/json"))
-    @Path("exportaggregate")
+  @Consumes(Array("text/plain,text/html,application/x-www-form-urlencoded,application/json"))
+  @Path("exportaggregate")
   def exportAggregateData(dataExportRequest: DataExportRequest, @QueryParam(value = "super") userinfo: String,
-      @QueryParam("user") user: String, @QueryParam("password") password: String): Serializable = {
+      @QueryParam("user") user: String, @QueryParam("password") password: String) = {
     
-    Authentication.authenticate(userinfo, user, password)
-    dataExportRequest.setRequestDataType("Aggregate")
+    //Authentication.authenticate(userinfo, user, password)
+    
+    dataExportRequest.setRequestDataType(RequestDataType.Aggregate)
+    
     dataExportRequest.setRubixService(AcumeService.acumeService)
-    AcumeService.acumeService.servExportCSV(dataExportRequest).asInstanceOf[Serializable]
+    AcumeService.acumeService.servExportCSV(dataExportRequest)
   }
   
   @POST
-    @Consumes(Array("application/json"))
-    @Produces(Array("application/json"))
+    @Consumes(Array("text/plain,text/html,application/x-www-form-urlencoded,application/json"))
     @Path("exporttimeseries")
   def exportTimeseriesData(dataExportRequest: DataExportRequest, @QueryParam(value = "super") userinfo: String,
-      @QueryParam("user") user: String, @QueryParam("password") password: String): Serializable = {
+      @QueryParam("user") user: String, @QueryParam("password") password: String) = {
     
     Authentication.authenticate(userinfo, user, password)
-    dataExportRequest.setRequestDataType("Timeseries")
+    dataExportRequest.setRequestDataType(RequestDataType.TimeSeries)
     dataExportRequest.setRubixService(AcumeService.acumeService)
-    AcumeService.acumeService.servExportCSV(dataExportRequest).asInstanceOf[Serializable]
+    AcumeService.acumeService.servExportCSV(dataExportRequest)
   }
   
   @POST
     @Consumes(Array("application/json"))
-    @Produces(Array("application/json"))
     @Path("exportsqlaggregate")
   def exportSqlAggregateData(dataExportRequest: DataExportRequest, @QueryParam(value = "super") userinfo: String,
-      @QueryParam("user") user: String, @QueryParam("password") password: String): Serializable = {
+      @QueryParam("user") user: String, @QueryParam("password") password: String) = {
     
     Authentication.authenticate(userinfo, user, password)
-    dataExportRequest.setRequestDataType("Aggregate")
+    dataExportRequest.setRequestDataType(RequestDataType.TimeSeries)
     dataExportRequest.setRubixService(AcumeService.acumeService)
-    AcumeService.acumeService.servExportCSV(dataExportRequest).asInstanceOf[Serializable]
+    AcumeService.acumeService.servExportCSV(dataExportRequest)
   }
 
 	@POST
