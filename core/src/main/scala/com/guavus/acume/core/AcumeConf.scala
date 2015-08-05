@@ -1,6 +1,5 @@
 package com.guavus.acume.core
 
-import scala.Array.canBuildFrom
 import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
@@ -10,6 +9,8 @@ import org.apache.shiro.config.Ini.Section
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.utility.PropertyValidator
 import java.net.URLClassLoader
+import java.util.Map.Entry
+import scala.Array.canBuildFrom
 
 /**
  * Configuration for a Acume application. Used to set various Acume parameters as key-value pairs.
@@ -61,11 +62,12 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
     sectionNames.map(sectionName => {
      val section : Section = ini.getSection(sectionName.trim)
      addDatasourceNames(sectionName)
-     section.entrySet.map(property => {
-       if(!property.getValue.trim.equals("")) {
-         val key = AcumeConf.getKeyName(property.getKey, sectionName)
-         settings(key) = property.getValue.trim
-         System.setProperty(key, property.getValue.trim)
+     section.entrySet.toArray.map(property => {
+       val prop = property.asInstanceOf[Entry[String, String]]
+       if(!prop.getValue.trim.isEmpty) {
+         val key = AcumeConf.getKeyName(prop.getKey, sectionName)
+         settings(key) = prop.getValue.trim
+         System.setProperty(key, prop.getValue.trim)
        }
      })
     })

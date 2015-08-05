@@ -1,5 +1,4 @@
 package com.guavus.acume.core
-
 import com.guavus.rubix.query.remote.flex.TimeseriesResponse
 import com.guavus.rubix.query.remote.flex.AggregateResponse
 import org.apache.spark.rdd.RDD
@@ -174,6 +173,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         lazy val fut = future { f }
         Await.result(fut, DurationInt(acumeContext.acumeConf.getInt(ConfConstants.queryTimeOut).getOrElse(30)) second)
       }
+      
       def run(sql: String, jobGroupId : String, jobDescription : String, conf: AcumeConf, localProperties : HashMap[String, Any]) = {
 
         getSparkJobLocalProperties ++= localProperties
@@ -214,12 +214,20 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       }
       if (isTimeseries) {
         val sortedRows = rows.sortBy(row => row(tsIndex).toString)
-        val timestamps = cacheResponse.metadata.timestamps
+        val timestamps : List[Long] = {
+          val metaDataTimeStamps = cacheResponse.metadata.timestamps
+          if(metaDataTimeStamps == null || metaDataTimeStamps.isEmpty)
+            sortedRows.map(row => row(tsIndex).asInstanceOf[String].toLong).toList.distinct
+          else
+            metaDataTimeStamps
+        }
+        
         val timestampsToIndexMap = new scala.collection.mutable.HashMap[Long, Int]()
         var index = -1
         timestamps.foreach(x => { index += 1; timestampsToIndexMap += (x -> index) })
         val rowToMeasureMap = new scala.collection.mutable.HashMap[ArrayBuffer[Any], ArrayBuffer[ArrayBuffer[Any]]]
-        for (row <- rows) {
+        
+        for (row <- sortedRows) {
           val dims = new ArrayBuffer[Any]()
           val measures = new ArrayBuffer[Any]()
           var i = 0
