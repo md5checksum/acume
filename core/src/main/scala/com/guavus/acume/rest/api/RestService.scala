@@ -19,6 +19,9 @@ import com.guavus.acume.core.query.DataExportRequest
 import com.guavus.acume.cache.workflow.RequestType
 import com.guavus.rubix.user.management.utils.UserManagementUtils
 import java.io.Serializable
+import com.guavus.acume.core.scheduler.Controller
+import com.guavus.acume.core.configuration.ConfigFactory
+import com.guavus.acume.cache.common.ConfConstants
 
 @Path("/" + "queryresponse")
 /**
@@ -150,10 +153,11 @@ class RestService {
       @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : java.util.HashMap[String, java.util.ArrayList[Long]] = {
 	  Authentication.authenticate(userinfo, user, password)
 
+    val controller = ConfigFactory.getInstance.getBean(classOf[Controller])
 	  val map = new java.util.HashMap[String, java.util.ArrayList[Long]]()
 	  val list = new java.util.ArrayList[Long]()
-	  list.add(AcumeContextTraitUtil.acumeConf.getLong("acume.cache.delete.firstbinpersistedtime").get)
-	  list.add(AcumeContextTraitUtil.acumeConf.getLong("acume.cache.delete.lastbinpersistedtime").get)
+	  list.add(controller.getFirstBinPersistedTime(ConfConstants.acumecorebinsource))
+	  list.add(controller.getLastBinPersistedTime(ConfConstants.acumecorebinsource))
 	  
 	  //placeholder bin source
 	  map.put("abcd", list)

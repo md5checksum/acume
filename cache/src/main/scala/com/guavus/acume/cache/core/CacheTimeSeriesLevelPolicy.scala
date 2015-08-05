@@ -16,8 +16,8 @@ class CacheTimeSeriesLevelPolicy(levelMap: SortedMap[Long, Int]) extends CacheTi
 
   override def getAggregationIntervals(): HashMap[MutableList[Long], Long] = {
     val aggregationIntervals = HashMap[MutableList[Long], Long]()
-    val endTime = 0//Controller.getInstance.getLastBinPersistedTime(binclass, binSource)
-    val startTime = 0//Controller.getInstance.getFirstBinPersistedTime(binclass, binSource)
+    val endTime = 0
+    val startTime = 0
     for ((key, value) <- levelMap){
       val roundedEndTime = Utility.floorFromGranularity(endTime, key)
       val roundedStartTime: Long = 
@@ -44,7 +44,7 @@ class CacheTimeSeriesLevelPolicy(levelMap: SortedMap[Long, Int]) extends CacheTi
   }
 
   override def getLevelToUse(startTime: Long, endTime: Long, lastbinpersistedtime: Long): Long = {
-    val lastBinTime = lastbinpersistedtime//Controller.getInstance.getLastBinPersistedTime(binclass, binSource, Controller.RETRY_COUNT)
+    val lastBinTime = lastbinpersistedtime
     for ((key, value) <- levelMap) {
       val level = key
       val points = value

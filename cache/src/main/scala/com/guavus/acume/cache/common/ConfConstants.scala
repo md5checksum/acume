@@ -61,8 +61,6 @@ private [acume] object ConfConstants {
 
   /* For HIVE. Thin client properties */
   val useInsta = "acume.core.use.insta"
-  val firstBinPersistedTime = "acume.cache.delete.firstbinpersistedtime"
-  val lastBinPersistedTime = "acume.cache.delete.lastbinpersistedtime"
   
   val levelpolicymap = "levelpolicymap"
   val basegranularity = "basegranularity"

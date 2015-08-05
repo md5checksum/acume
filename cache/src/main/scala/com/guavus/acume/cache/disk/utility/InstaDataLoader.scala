@@ -226,23 +226,23 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
     val newInstance = loadedClass.getConstructor(classOf[AcumeCacheContext], classOf[AcumeCacheConf], classOf[AcumeCache[_ <: Any, _ <: Any]]).newInstance(acumeCacheContext, conf, acumeCache)
     newInstance.asInstanceOf[DataLoader]
   }
-  override def getFirstBinPersistedTime(binSource : String) : Long =  {
-	  		val granToIntervalMap = getBinSourceToIntervalMap(binSource)
-		  granToIntervalMap.get(-1).getOrElse(throw new IllegalArgumentException("No Data found in insta for default gran -1 and binSource :" + binSource))._1
+  override def getFirstBinPersistedTime(binSource: String): Long = {
+    val granToIntervalMap = getBinSourceToIntervalMap(binSource)
+    granToIntervalMap.get(-1).getOrElse(throw new IllegalArgumentException("No Data found in insta for default gran -1 and binSource :" + binSource))._1
   }
-  
-  override def getLastBinPersistedTime(binSource : String) : Long =  {
-	  		val granToIntervalMap = getBinSourceToIntervalMap(binSource)
-		   granToIntervalMap.get(-1).getOrElse(throw new IllegalArgumentException("No Data found in insta for default gran -1 and binSource :" + binSource))._2
+
+  override def getLastBinPersistedTime(binSource: String): Long = {
+    val granToIntervalMap = getBinSourceToIntervalMap(binSource)
+    granToIntervalMap.get(-1).getOrElse(throw new IllegalArgumentException("No Data found in insta for default gran -1 and binSource :" + binSource))._2
   }
-  
-  override def getBinSourceToIntervalMap(binSource : String) : Map[Long, (Long,Long)] =  {
-		  getAllBinSourceToIntervalMap.getOrElse(binSource, throw new IllegalArgumentException("No Data found for binSource " +  binSource))
+
+  override def getBinSourceToIntervalMap(binSource: String): Map[Long, (Long, Long)] = {
+    getAllBinSourceToIntervalMap.getOrElse(binSource, throw new IllegalArgumentException("No Data found for binSource " + binSource))
   }
-  
-  override def getAllBinSourceToIntervalMap() : Map[String, Map[Long, (Long,Long)]] =  {
-    if(binSourceToIntervalMap.isEmpty) {
-    	// This means its happening for the first time
+
+  override def getAllBinSourceToIntervalMap(): Map[String, Map[Long, (Long, Long)]] = {
+    if (binSourceToIntervalMap.isEmpty) {
+      // This means its happening for the first time
       synchronizedGetAndUpdateMap
     }
     binSourceToIntervalMap

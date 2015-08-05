@@ -955,7 +955,7 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>MAXALLOWEACUMECLASSIFICATIONMAXALLOWEDQUERIES</name>
+            <name>ACUMECLASSIFICATIONMAXALLOWEDQUERIES</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[default:25]]></default>
@@ -1437,32 +1437,6 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>HIVECACHEDELETEFIRSTBINPERSISTEDTIME</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.ini]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
-            <name>HIVECACHEDELETELASTBINPERSISTEDTIME</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.ini]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
             <name>HIVESCHEDULERENABLE</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
@@ -1476,6 +1450,19 @@ Please don't use the following reserved property names:
         </property>
 
         <!-- HBASE configs -->
+        <property>
+            <name>HBASETIMESERIESLEVELPOLICYMAP</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[1h:24]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.ini]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
 
     	<property>
             <name>HBASEDISABLETOTALQUERY</name>
