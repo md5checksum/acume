@@ -1,22 +1,18 @@
 package com.guavus.acume.cache.workflow
 
 import java.util.concurrent.ConcurrentHashMap
-import scala.collection.mutable.ArrayBuffer
+
 import scala.collection.mutable.HashMap
-import scala.collection.mutable.MutableList
+
 import org.apache.spark.sql.SQLContext
+
 import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.Dimension
 import com.guavus.acume.cache.common.Measure
-import com.guavus.acume.cache.core.AcumeTreeCacheValue
 import com.guavus.acume.cache.disk.utility.DataLoader
-import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
-import com.guavus.acume.cache.utility.Utility
 
- 
 /**
  * @author archit.thakur
  * 
@@ -25,19 +21,17 @@ trait AcumeCacheContextTrait extends Serializable {
   
   @transient
   private [cache] var rrCacheLoader : RRCache = Class.forName(cacheConf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, cacheConf).asInstanceOf[RRCache]
-  private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
-  private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
   private [cache] val poolThreadLocal = new InheritableThreadLocal[HashMap[String, Any]]()
   private [cache] val dataLoader : DataLoader = null
   private [cache] val dataloadermap : ConcurrentHashMap[String, DataLoader] = new ConcurrentHashMap[String, DataLoader]
-  private [cache] val cubeMap = new HashMap[CubeKey, Cube]
-  private [cache] val cubeList = MutableList[Cube]()
-
   private [acume] val cacheSqlContext : SQLContext
-  private [acume] val cacheConf: AcumeCacheConf
-  
-  Utility.init(cacheConf)
-  Utility.loadXML(cacheConf, dimensionMap, measureMap, cubeMap, cubeList)
+	private [acume] val cacheConf: AcumeCacheConf
+	
+  lazy private [cache] val measureMap = AcumeCacheContextTraitUtil.measureMap
+	lazy private [cache] val dimensionMap = AcumeCacheContextTraitUtil.dimensionMap
+  lazy private [cache] val cubeMap = AcumeCacheContextTraitUtil.cubeMap.filter(cubeKey => cubeKey._2.equals(cacheConf.getDataSourceName))
+  lazy private [cache] val cubeList = AcumeCacheContextTraitUtil.cubeList.filter(cube => cube.dataSourceName.equals(cacheConf.getDataSourceName))
+
   
   def acql(sql: String): AcumeCacheResponse = {
   AcumeCacheContextTraitUtil.setQuery(sql)
@@ -71,9 +65,9 @@ trait AcumeCacheContextTrait extends Serializable {
       measureMap.get(fieldName).get.getDefaultValue
   }
   
-  lazy private [acume] val getCubeMap : Map[CubeKey, Cube] = cubeMap.filter(cubeKey => cubeKey._2.equals(cacheConf.getDataSourceName)).toMap
+  lazy private [acume] val getCubeMap : Map[CubeKey, Cube] = cubeMap.toMap
 
-  lazy private[acume] val getCubeList : List[Cube] = cubeList.filter(cube => cube.dataSourceName.equals(cacheConf.getDataSourceName)).toList
+  lazy private[acume] val getCubeList : List[Cube] = cubeList.toList
   
   private [acume] def getCube(cube: CubeKey) = getCubeMap.get(cube).getOrElse(throw new RuntimeException(s"cube $cube not found."))
   

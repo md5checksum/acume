@@ -4,11 +4,28 @@ import scala.collection.mutable.ArrayBuffer
 import com.guavus.acume.cache.core.AcumeTreeCacheValue
 import com.guavus.acume.cache.common.AcumeConstants
 import scala.collection.mutable.HashMap
+import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
+import scala.collection.mutable.MutableList
+import com.guavus.acume.cache.utility.Utility
+import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.Dimension
+import com.guavus.acume.cache.common.Measure
+import com.guavus.acume.cache.common.AcumeCacheConf
 
 /**
  * @author kashish.jain
  */
 object AcumeCacheContextTraitUtil {
+  
+  val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
+  val measureMap = new InsensitiveStringKeyHashMap[Measure]
+  val cubeMap = new HashMap[CubeKey, Cube]
+  val cubeList = MutableList[Cube]()
+  private val cacheConf = new AcumeCacheConf
+  
+  Utility.init(cacheConf)
+  Utility.loadXML(cacheConf, dimensionMap, measureMap, cubeMap, cubeList)
+
   
   private val threadLocal = new ThreadLocal[HashMap[String, Any]]() { 
     override protected def initialValue() : HashMap[String, Any] = {
@@ -73,4 +90,6 @@ object AcumeCacheContextTraitUtil {
     getInstaTempTable
     unsetAcumeTreeCacheValue
   }
+  
+  
 }

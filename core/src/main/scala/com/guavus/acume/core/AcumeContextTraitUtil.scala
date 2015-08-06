@@ -3,21 +3,18 @@ package com.guavus.acume.core
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
-
 import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
-
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.sql.hbase.HBaseSQLContext
 import org.apache.spark.sql.hive.HiveContext
-
 import com.guavus.acume.core.gen.AcumeUdfs
 import com.guavus.acume.core.listener.AcumeSparkListener
 import com.guavus.qb.ds.DatasourceType
-
 import javax.xml.bind.JAXBContext
+import com.guavus.acume.cache.common.ConfConstants
 
 
 object AcumeContextTraitUtil {
@@ -28,9 +25,10 @@ object AcumeContextTraitUtil {
   lazy val hiveContext : HiveContext = new HiveContext(sparkContext)
   lazy val hBaseSQLContext : HBaseSQLContext = new HBaseSQLContext(sparkContext)
 
-  private val acumeContextMap = HashMap[String, AcumeContextTrait]()
-  
+  val dsInterpreterPolicy = Class.forName(acumeConf.get(ConfConstants.datasourceInterpreterPolicy)).getConstructors()(0).newInstance().asInstanceOf[DsInterpreterPolicy]
   val acumeConf = new AcumeConf(true, "acume.ini")
+  
+  private val acumeContextMap = HashMap[String, AcumeContextTrait]()
   
   acumeConf.getAllDatasourceNames.map(dsName => {
     val context: AcumeContextTrait =

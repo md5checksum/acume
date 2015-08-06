@@ -237,17 +237,17 @@ class AcumeService(dataService: DataService) {
    * Serves only aggregate request. if request type is timeseries this method fails.
    */
   def  servAggregateSingleQuery(queryRequest : QueryRequest, datasourceName: String, property: HashMap[String, Any] = null) : AggregateResponse = {
-    val dsInterpreterClassName = AcumeContextTraitUtil.acumeConf.get(ConfConstants.datasourceInterpreterPolicy) 
-    val dsInterpreterPolicy = Class.forName(dsInterpreterClassName).getConstructors()(0).newInstance().asInstanceOf[QueryPoolPolicy]
-    dsInterpreterPolicy.
+    val datasourceName = AcumeContextTraitUtil.dsInterpreterPolicy.interpretDsName(queryRequest.toSql(""))
     dataService.servAggregate(queryRequest, property)
   }
   
   def servTimeseriesSingleQuery(queryRequest : QueryRequest, datasourceName: String, property: HashMap[String, Any] = null) : TimeseriesResponse = {
+    val datasourceName = AcumeContextTraitUtil.dsInterpreterPolicy.interpretDsName(queryRequest.toSql(""))
     dataService.servTimeseries(queryRequest, property)
   }
   
   def  servSingleQuery(queryRequest : String, datasourceName: String, property: HashMap[String, Any] = null) : Serializable = {
+    val datasourceName = AcumeContextTraitUtil.dsInterpreterPolicy.interpretDsName(queryRequest)
     dataService.servRequest(queryRequest, property).asInstanceOf[Serializable]
   }
   
