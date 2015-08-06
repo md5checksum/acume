@@ -1,13 +1,10 @@
 package com.guavus.acume.cache.workflow
 
 import java.util.concurrent.ConcurrentHashMap
-
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
-
 import org.apache.spark.sql.SQLContext
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.ConfConstants
@@ -38,10 +35,12 @@ trait AcumeCacheContextTrait extends Serializable {
 
   private [acume] val cacheSqlContext : SQLContext
   private [acume] val cacheConf: AcumeCacheConf
+  
   Utility.init(cacheConf)
+  Utility.loadXML(cacheConf, dimensionMap, measureMap, cubeMap, cubeList)
   
   def acql(sql: String): AcumeCacheResponse = {
-  AcumeCacheContextTrait.setQuery(sql)
+  AcumeCacheContextTraitUtil.setQuery(sql)
     try {
       if (cacheConf.getInt(ConfConstants.rrsize._1).get == 0) {
         executeQuery(sql)
@@ -49,7 +48,7 @@ trait AcumeCacheContextTrait extends Serializable {
         rrCacheLoader.getRdd((sql))
       }
     } finally {
-      AcumeCacheContextTrait.unsetQuery()
+      AcumeCacheContextTraitUtil.unsetQuery()
     }
   }
   
@@ -72,17 +71,17 @@ trait AcumeCacheContextTrait extends Serializable {
       measureMap.get(fieldName).get.getDefaultValue
   }
   
-  private [acume] def getCubeMap : Map[CubeKey, Cube] = cubeMap.toMap
+  lazy private [acume] val getCubeMap : Map[CubeKey, Cube] = cubeMap.filter(cubeKey => cubeKey._2.equals(cacheConf.getDataSourceName)).toMap
 
-  private[acume] def getCubeList: List[Cube] = cubeList.toList
+  lazy private[acume] val getCubeList : List[Cube] = cubeList.filter(cube => cube.dataSourceName.equals(cacheConf.getDataSourceName)).toList
   
-  private [acume] def getCube(cube: CubeKey) = cubeMap.get(cube).getOrElse(throw new RuntimeException(s"cube $cube not found."))
+  private [acume] def getCube(cube: CubeKey) = getCubeMap.get(cube).getOrElse(throw new RuntimeException(s"cube $cube not found."))
   
   /* To be overrided by subclasses */
   private [acume] def executeQuery(sql : String) : AcumeCacheResponse
   
   private[acume] def getFieldsForCube(name: String, binsource: String): List[String] = {
-    val cube = cubeMap.getOrElse(CubeKey(name, binsource), throw new RuntimeException(s"Cube $name Not in AcumeCache knowledge."))
+    val cube = getCubeMap.getOrElse(CubeKey(name, binsource), throw new RuntimeException(s"Cube $name Not in AcumeCache knowledge."))
     cube.dimension.dimensionSet.map(_.getName) ++ cube.measure.measureSet.map(_.getName)
   }
 
@@ -100,7 +99,7 @@ trait AcumeCacheContextTrait extends Serializable {
       else
         measureSet.+=(measureMap.get(field).get)
       val kCube = 
-        for(cube <- cubeList if(dimensionSet.toSet.subsetOf(cube.dimension.dimensionSet.toSet) && 
+        for(cube <- getCubeList if(dimensionSet.toSet.subsetOf(cube.dimension.dimensionSet.toSet) && 
             measureSet.toSet.subsetOf(cube.measure.measureSet.toSet))) yield {
           cube
         }
@@ -123,71 +122,4 @@ trait AcumeCacheContextTrait extends Serializable {
     throw new NoSuchMethodException("Method not present")
   }
   
-}
-
-object AcumeCacheContextTrait {
-  
-  private val threadLocal = new ThreadLocal[HashMap[String, Any]]() { 
-    override protected def initialValue() : HashMap[String, Any] = {
-      new HashMap[String, Any]()
-    }
-  }
-  
-  def setQuery(query : String) {
-    threadLocal.get.put("query", query)
-  }
-  
-  def getQuery(): String = {
-    return threadLocal.get.getOrElse("query", null).asInstanceOf[String]
-  }
-  
-  def unsetQuery() {
-    threadLocal.get.put("query", null)
-  }
-  
-  def addAcumeTreeCacheValue(acumeTreeCacheValue : AcumeTreeCacheValue) {
-    val list = threadLocal.get.getOrElse("AcumeTreeCacheValue", new ArrayBuffer[AcumeTreeCacheValue]).asInstanceOf[ArrayBuffer[AcumeTreeCacheValue]]
-    list.+=(acumeTreeCacheValue)
-    threadLocal.get().put("AcumeTreeCacheValue", list)
-  }
-  
-  def setQueryTable(tableName : String) {
-    val list = threadLocal.get.getOrElse("QueryTable", new ArrayBuffer[String]).asInstanceOf[ArrayBuffer[String]]
-    list.+=(tableName)
-    threadLocal.get().put("QueryTable", list)
-  }
-  
-  def setInstaTempTable(tableName : String) {
-    val list = threadLocal.get.getOrElse("InstaTempTable", new ArrayBuffer[String]).asInstanceOf[ArrayBuffer[String]]
-    list.+=(tableName)
-    threadLocal.get().put("InstaTempTable", list)
-  }
-  
-  def setSparkSqlShufflePartitions(numPartitions: String) {
-    threadLocal.get.put(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS, numPartitions)
-  }
-  
-  def getSparkSqlShufflePartitions(): String = {
-    threadLocal.get.get(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS).get.asInstanceOf[String]
-  }
-
-  def unsetAcumeTreeCacheValue() {
-    threadLocal.get.remove("AcumeTreeCacheValue")
-  }
-  
-  def unsetQueryTable(cacheContext : AcumeCacheContextTrait) {
-    val x = threadLocal.get.remove("QueryTable").map(x => {
-      x.asInstanceOf[ArrayBuffer[String]].map(cacheContext.cacheSqlContext.dropTempTable(_))
-    })
-  }
-  
-  def getInstaTempTable() = {
-    threadLocal.get.remove("InstaTempTable")
-  }
-  
-  def unsetAll(cacheContext : AcumeCacheContextTrait) {
-    unsetQueryTable(cacheContext)
-    getInstaTempTable
-    unsetAcumeTreeCacheValue
-  }
 }

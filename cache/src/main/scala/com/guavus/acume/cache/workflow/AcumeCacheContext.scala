@@ -49,8 +49,6 @@ class AcumeCacheContext(override val cacheSqlContext: SQLContext, override val c
     case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
   
-  Utility.loadXML(cacheConf, dimensionMap, measureMap, cubeMap, cubeList)
-
   override val dataLoader = DataLoader.getDataLoader(this, cacheConf, null)
   
   override def getFirstBinPersistedTime(binSource: String): Long = {

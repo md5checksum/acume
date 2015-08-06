@@ -1,14 +1,11 @@
 package com.guavus.acume.cache.core
 
 import java.util.concurrent.Executors
-
 import scala.concurrent._
 import scala.concurrent.Future
-
 import org.apache.spark.sql.SchemaRDD
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import com.guavus.acume.cache.common.CacheLevel
 import com.guavus.acume.cache.common.CacheLevel._
 import com.guavus.acume.cache.common.Cube
@@ -22,14 +19,12 @@ import java.io.File
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
-
 import org.apache.hadoop.fs.Path
 import org.slf4j.LoggerFactory
 import org.slf4j.Logger
-
 import com.guavus.acume.threads.NamedThreadPoolFactory
-
 import AcumeTreeCacheValue._
+import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 
 abstract case class AcumeTreeCacheValue(dimensionTableName: String = null, acumeContext: AcumeCacheContextTrait) {
   
@@ -122,7 +117,7 @@ trait AcumeValue {
 }
 
 case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measureSchemaRdd: SchemaRDD, parentPoints: Seq[(AcumeValue, SchemaRDD)] = Seq()) extends AcumeValue {
-  val tempTables = AcumeCacheContextTrait.getInstaTempTable()
+  val tempTables = AcumeCacheContextTraitUtil.getInstaTempTable()
 
   var tableName = cube.getAbsoluteCubeName
   tableName = tableName + Utility.getlevelDirectoryName(levelTimestamp.level, levelTimestamp.aggregationLevel)

@@ -28,8 +28,9 @@ import com.guavus.insta.InstaCubeMetaInfo
 import com.guavus.insta.InstaRequest
 import com.guavus.acume.cache.common.CacheLevel
 import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 
-class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @transient  conf: AcumeCacheConf, @transient acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends DataLoader(acumeCacheContext, conf, null) {
+class InstaDataLoader(@transient var acumeCacheContext: AcumeCacheContextTrait, @transient  var conf: AcumeCacheConf, @transient var acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends DataLoader(acumeCacheContext, conf, null) {
 
   @transient var insta: Insta = null
   @transient val sqlContext = acumeCacheContext.cacheSqlContext
@@ -170,7 +171,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
       val aggregatedMeasureDataInsta = insta.getAggregatedData(instaMeasuresRequest)
       val aggregatedTblTemp = "aggregatedMeasureDataInstaTemp" + businessCube.cubeName + level + "_" + startTime
       aggregatedMeasureDataInsta.registerTempTable(aggregatedTblTemp)
-      AcumeCacheContextTrait.setInstaTempTable(aggregatedTblTemp)
+      AcumeCacheContextTraitUtil.setInstaTempTable(aggregatedTblTemp)
       //change schema for this schema rdd
       val renameToAcumeFields = (for(acumeField <- fields) yield {
         acumeFieldToBaseFieldMap.get(acumeField).get -> acumeField

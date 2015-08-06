@@ -34,8 +34,6 @@ class AcumeHiveCacheContext(override val cacheSqlContext: SQLContext, override v
     case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
   
-  Utility.unmarshalXML(cacheConf.get(ConfConstants.businesscubexml), dimensionMap, measureMap)
-
   override val dataLoader : DataLoader = {
     if(!useInsta)
       null

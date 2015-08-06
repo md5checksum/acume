@@ -6,7 +6,7 @@ import com.guavus.acume.cache.workflow.AcumeCacheContext
 /**
  * @author pankaj.arora
  *
- * This will keep the sparkcontext and hive context.
+ * This will keep the acumeCacheContextTrait and hive context.
  */
 class AcumeContext(val datasourceName : String) extends AcumeContextTrait {
 

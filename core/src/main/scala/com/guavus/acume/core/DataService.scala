@@ -37,6 +37,7 @@ import com.guavus.acume.core.exceptions.AcumeExceptionConstants
 import com.guavus.acume.workflow.RequestDataType
 import com.guavus.acume.cache.common.AcumeConstants
 import java.util.concurrent.ConcurrentHashMap
+import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 
 /**
  * This class interacts with query builder and Olap cache.
@@ -94,7 +95,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       var propValue: String = if (value != null) value.toString else null
       acumeContext.acc.cacheSqlContext.sparkContext.setLocalProperty(key, propValue)
     }
-    AcumeCacheContextTrait.setSparkSqlShufflePartitions(acumeContext.acc.cacheSqlContext.getConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS))
+    AcumeCacheContextTraitUtil.setSparkSqlShufflePartitions(acumeContext.acc.cacheSqlContext.getConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS))
   }
   
   private def getSparkJobLocalProperties() = {
@@ -108,9 +109,9 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     for ((key, value) <- acumeContext.acc.threadLocal.get()) {
       acumeContext.acc.cacheSqlContext.sparkContext.setLocalProperty(key, null)
     }
-    acumeContext.acc.cacheSqlContext.setConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS, AcumeCacheContextTrait.getSparkSqlShufflePartitions)
+    acumeContext.acc.cacheSqlContext.setConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS, AcumeCacheContextTraitUtil.getSparkSqlShufflePartitions)
     try{
-    	AcumeCacheContextTrait.unsetAll(acumeContext.acc)      
+    	AcumeCacheContextTraitUtil.unsetAll(acumeContext.acc)      
     } catch {
       case ex : Exception => logger.error("Error while unsetting sparkProperties", ex)
       case th : Throwable => logger.error("Error while unsetting sparkProperties", th)

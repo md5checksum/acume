@@ -21,7 +21,6 @@ class AcumeHbaseCacheContext(override val cacheSqlContext: SQLContext, override 
     case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
   
-  Utility.loadXML(cacheConf, dimensionMap, measureMap, cubeMap, cubeList)
   initHbase
   
   private def constructQueryFromCube(cube: Cube) : String = {

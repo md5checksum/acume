@@ -1158,6 +1158,30 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
+        <property>
+            <name>ACUMEDATASOURCEINTERPRETERPOLICY</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.acume.core.DatasourceInterpreterPolicy]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.ini]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        <property>
+            <name>ACUMEDEFAULTDATASOURCE</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[cache]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.ini]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
 
 
         <!-- Acume Cache configs -->

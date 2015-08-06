@@ -327,8 +327,8 @@ object Utility extends Logging {
     val globalDataSourceName :  String = "cache"
     
     val acumeCube = unmarshalXML(xml, dimensionMap, measureMap)
-
-    val list = 
+    
+    val list : List[Cube] = 
       for(c <- acumeCube.getCubes().getCube().toList) yield {
         val cubeinfo = c.getInfo().trim.split(",")
         
@@ -439,7 +439,10 @@ object Utility extends Logging {
         cubeMap.put(CubeKey(cubeName, cubebinsource), cube)
         cube
       }
-    cubeList.++=(list)
+    if(list != null || !list.isEmpty)
+      cubeList.++=(list)
+    
+    cubeList
   }
   
   private def getProperty(propertyMap: scala.collection.mutable.HashMap[String, String], name: String, globalname: String, conf: AcumeCacheConf, gnmCube: String) = {

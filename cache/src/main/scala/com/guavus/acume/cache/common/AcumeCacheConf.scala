@@ -149,6 +149,7 @@ class AcumeCacheConf(datasourceName: String, loadSystemPropertyOverDefault: Bool
     settings.toArray.sorted.map{case (k, v) => k + "=" + v}.mkString("\n")
   }
   
+  def getDataSourceName : String = datasourceName
 }
 
 object AcumeCacheConf {

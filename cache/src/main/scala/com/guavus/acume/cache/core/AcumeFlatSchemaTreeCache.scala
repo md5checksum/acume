@@ -53,6 +53,7 @@ import com.guavus.acume.cache.common.CacheLevel
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import com.guavus.acume.cache.common.LoadType
 import org.apache.spark.sql.catalyst.dsl._
+import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 
 /**
  * @author archit.thakur
@@ -187,7 +188,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
 
     val tempTable = _tableName + "Temp"
     value.registerTempTable(tempTable)
-    AcumeCacheContextTrait.setInstaTempTable(tempTable)
+    AcumeCacheContextTraitUtil.setInstaTempTable(tempTable)
     val timestamp = key.timestamp
     val parentRdd = acumeCacheContext.cacheSqlContext.sql(s"select $timestamp as ts " + (if(!selectDimensions.isEmpty) s", $selectDimensions " else "") + (if(!selectMeasures.isEmpty) s", $selectMeasures" else "") + s" from $tempTable " + groupBy)
     return new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(key, cube, parentRdd, acumeValRdds), acumeCacheContext)
@@ -275,7 +276,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     
     val _tableNameTemp = cube.getAbsoluteCubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString + "_temp"
     processedDiskLoaded.registerTempTable(_tableNameTemp)
-    AcumeCacheContextTrait.setInstaTempTable(_tableNameTemp)
+    AcumeCacheContextTraitUtil.setInstaTempTable(_tableNameTemp)
     val timestamp = levelTimestamp.timestamp
     val measureSet = (CubeUtil.getDimensionSet(cube) ++ CubeUtil.getMeasureSet(cube)).map(_.getName).mkString(",")
     val cachePoint = sqlContext.sql(s"select $timestamp as ts, $measureSet from " + _tableNameTemp)
@@ -357,7 +358,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
       if (logger.isTraceEnabled)
         _$acumecache.collect.map(x => logger.trace(x.toString))
       _$acumecache.registerTempTable(tableName)
-      AcumeCacheContextTrait.setQueryTable(tableName)
+      AcumeCacheContextTraitUtil.setQueryTable(tableName)
     }
     val klist = finalTimestamps.toList
     MetaData(-1, klist)

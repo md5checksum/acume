@@ -42,6 +42,8 @@ private [acume] object ConfConstants {
   val cacheBaseDirectory = "acume.global.cache.base.directory"
   val cacheDirectory = "acume.global.cache.directory"
   val queryThreadPoolSize = "acume.global.thread.pool.size"
+  val datasourceInterpreterPolicy = "acume.global.datasource.interpreter.policy"
+  val defaultDatasource = "acume.global.default.datasource"
 
   /* Cache properties */
   val acumecoretimeserieslevelmap  = "acume.core.global.timeserieslevelpolicymap"

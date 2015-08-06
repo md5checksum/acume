@@ -27,12 +27,11 @@ import com.guavus.acume.cache.common.LoadType
 import com.guavus.acume.cache.common.ConfConstants
 import org.apache.spark.sql.catalyst.expressions.Row
 import org.apache.spark.rdd.RDD
-
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
-
 import com.guavus.acume.threads.NamedThreadPoolFactory
+import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 
 abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy)
   extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf, cube) {
@@ -110,7 +109,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
   
   def get(key: LevelTimestamp) = {
     val cacheValue = cachePointToTable.get(key)
-    AcumeCacheContextTrait.addAcumeTreeCacheValue(cacheValue)
+    AcumeCacheContextTraitUtil.addAcumeTreeCacheValue(cacheValue)
     notifyObserverList
     cacheValue
   }
