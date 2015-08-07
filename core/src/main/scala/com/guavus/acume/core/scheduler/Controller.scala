@@ -3,24 +3,24 @@ package com.guavus.acume.core.scheduler
 import com.guavus.acume.cache.core.Interval
 import scala.collection.immutable.HashMap
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
 
-case class Controller(acumeCacheContextTrait : AcumeCacheContextTrait) {
-
+case class Controller() {
   
   def getFirstBinPersistedTime(binSource : String) : Long = {
-    acumeCacheContextTrait.getFirstBinPersistedTime(binSource)
+    BinAvailabilityPoller.getFirstBinPersistedTime(binSource)
   }
   
   def getLastBinPersistedTime(binSource : String) : Long = {
-    acumeCacheContextTrait.getLastBinPersistedTime(binSource)
+    BinAvailabilityPoller.getLastBinPersistedTime(binSource)
   }
   
   def getInstaTimeIntervalForBinSource(binSource : String) : Map[Long, (Long, Long)] = {
-    acumeCacheContextTrait.getBinSourceToIntervalMap(binSource)
+    BinAvailabilityPoller.getBinSourceToIntervalMap(binSource)
   }
   
   def getInstaTimeInterval() : Map[String, Map[Long, Interval]] = {
-	acumeCacheContextTrait.getAllBinSourceToIntervalMap.map(x => {
+	BinAvailabilityPoller.getAllBinSourceToIntervalMap.map(x => {
 	  (x._1 , x._2.map(y => {
 	    (y._1, new Interval(y._2._1, y._2._2))
 	  }))

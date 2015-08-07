@@ -1,16 +1,20 @@
 package com.guavus.acume.cache.workflow
 
+import java.util.concurrent.ConcurrentHashMap
+
 import scala.collection.mutable.ArrayBuffer
-import com.guavus.acume.cache.core.AcumeTreeCacheValue
-import com.guavus.acume.cache.common.AcumeConstants
 import scala.collection.mutable.HashMap
-import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
 import scala.collection.mutable.MutableList
-import com.guavus.acume.cache.utility.Utility
+
+import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.Dimension
 import com.guavus.acume.cache.common.Measure
-import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.core.AcumeTreeCacheValue
+import com.guavus.acume.cache.disk.utility.DataLoader
+import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
+import com.guavus.acume.cache.utility.Utility
 
 /**
  * @author kashish.jain
@@ -21,9 +25,10 @@ object AcumeCacheContextTraitUtil {
   val measureMap = new InsensitiveStringKeyHashMap[Measure]
   val cubeMap = new HashMap[CubeKey, Cube]
   val cubeList = MutableList[Cube]()
-  private val cacheConf = new AcumeCacheConf
+  val cacheConf = new AcumeCacheConf
+  val dataloadermap : ConcurrentHashMap[String, DataLoader] = new ConcurrentHashMap[String, DataLoader]
+
   private val inheritablePoolThreadLocal = new InheritableThreadLocal[HashMap[String, Any]]()
-  
   
   /*
    * Initializing and reading acume's cubedefiniton.xml

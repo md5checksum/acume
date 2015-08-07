@@ -6,7 +6,7 @@ package com.guavus.acume.cache.disk.utility
  */
 object StorageType extends Enumeration {
 
-  val insta = new StorageType("insta", "com.guavus.acume.cache.disk.utility.InstaDataLoader", "com.guavus.acume.cache.disk.utility.DummyMetaDataLoader")
+  val insta = new StorageType("insta", "com.guavus.acume.cache.disk.utility.InstaDataLoader")
   
   def getStorageType(name: String): StorageType = { 
     for(actualName <- StorageType.values){
@@ -16,7 +16,7 @@ object StorageType extends Enumeration {
     insta
   }
   
-  class StorageType(val strid: String, val dataClass: String, val metaDataClass: String) extends Val
+  class StorageType(val strid: String, val dataClass: String) extends Val
 
   implicit def convertValue(v: Value): StorageType = v.asInstanceOf[StorageType]
   

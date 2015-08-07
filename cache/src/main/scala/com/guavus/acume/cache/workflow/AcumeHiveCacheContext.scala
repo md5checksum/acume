@@ -13,6 +13,7 @@ import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.BaseCube
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.core.CacheTimeSeriesLevelPolicy
+import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
 import com.guavus.acume.cache.disk.utility.DataLoader
 import com.guavus.acume.cache.disk.utility.InstaDataLoaderThinAcume
 import com.guavus.acume.cache.sql.ISqlCorrector
@@ -41,34 +42,6 @@ class AcumeHiveCacheContext(override val cacheSqlContext: SQLContext, override v
       new InstaDataLoaderThinAcume(this, cacheConf, null)
   } 
     
-  override def getFirstBinPersistedTime(binSource: String): Long = {
-    if(!useInsta)
-      throw new RuntimeException("Operation not supported")
-    else
-      dataLoader.getFirstBinPersistedTime(binSource)
-  }
-
-  override def getLastBinPersistedTime(binSource: String): Long = {
-    if(!useInsta)
-      throw new RuntimeException("Operation not supported")
-    else
-      dataLoader.getLastBinPersistedTime(binSource)
-  }
-
-  override def getBinSourceToIntervalMap(binSource: String): Map[Long, (Long, Long)] = {
-    if(!useInsta)
-      throw new RuntimeException("Operation not supported")
-    else
-      dataLoader.getBinSourceToIntervalMap(binSource)
-  }
-  
-  override def getAllBinSourceToIntervalMap() : Map[String, Map[Long, (Long,Long)]] =  {
-    if(!useInsta)
-      throw new RuntimeException("Operation not supported")
-    else
-		  dataLoader.getAllBinSourceToIntervalMap
-  }
-
   override private[acume] def executeQuery(sql: String) = {
     if (!useInsta) {
       val resultSchemaRdd = cacheSqlContext.sql(sql)
@@ -105,7 +78,7 @@ class AcumeHiveCacheContext(override val cacheSqlContext: SQLContext, override v
             if (queryOptionalParams.getTimeSeriesGranularity() != 0) {
               queryOptionalParams.getTimeSeriesGranularity()
             } else
-              cacheTimeseriesLevelPolicy.getLevelToUse(startTime, endTime, getLastBinPersistedTime(key_binsource))
+              cacheTimeseriesLevelPolicy.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(key_binsource))
 
           val startTimeCeiling = Utility.floorFromGranularity(startTime, level)
           val endTimeFloor = Utility.floorFromGranularity(endTime, level)

@@ -1,12 +1,10 @@
 package com.guavus.acume.core.configuration
 
 import scala.collection.mutable.HashMap
-
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
-
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
 import com.guavus.acume.core.AcumeContextTrait
@@ -20,6 +18,9 @@ import com.guavus.acume.core.usermanagement.DefaultPermissionTemplate
 import com.guavus.qb.cube.schema.QueryBuilderSchema
 import com.guavus.qb.services.IQueryBuilderService
 import com.guavus.rubix.user.permission.IPermissionTemplate
+import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
+import com.guavus.insta.Insta
+import com.guavus.acume.cache.disk.utility.InstaUtil
 
 object AcumeAppConfig {
 
@@ -76,7 +77,7 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
   @Bean
   @Autowired
   override def controller(acumeContextMap : HashMap[String, AcumeContextTrait]) : Controller = {
-    new Controller(acumeContextMap.get(AcumeContextTraitUtil.acumeConf.getAllDatasourceNames(0)).get.acc)
+    new Controller()
   }
   
   @Bean

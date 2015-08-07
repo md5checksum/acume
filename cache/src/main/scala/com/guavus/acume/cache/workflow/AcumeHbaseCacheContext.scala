@@ -49,6 +49,7 @@ class AcumeHbaseCacheContext(override val cacheSqlContext: SQLContext, override 
     
     queryString.append("])")
     
+    logger.info("Firing query on Hbase: " + queryString.toString)
     queryString.toString
   }
   

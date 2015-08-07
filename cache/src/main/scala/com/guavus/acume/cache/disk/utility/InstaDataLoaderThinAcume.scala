@@ -1,15 +1,13 @@
 package com.guavus.acume.cache.disk.utility
 
-import com.guavus.acume.cache.core.AcumeCache
-import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import org.apache.spark.sql.SchemaRDD
-import com.guavus.insta.InstaRequest
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.common.Cube
-import com.guavus.acume.cache.utility.Utility
+
+import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.CubeTrait
+import com.guavus.acume.cache.core.AcumeCache
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import com.guavus.insta.InstaCubeMetaInfo
+import com.guavus.insta.InstaRequest
 
 class InstaDataLoaderThinAcume(@transient acumeCacheContext: AcumeCacheContextTrait, @transient conf: AcumeCacheConf, @transient acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends InstaDataLoader(acumeCacheContext, conf, acumeCache) {
 
@@ -25,7 +23,7 @@ class InstaDataLoaderThinAcume(@transient acumeCacheContext: AcumeCacheContextTr
     val instaMeasuresRequest = InstaRequest(startTime, endTime,
       businessCube.binSource, businessCube.cubeName, List(), measureFilters)
     print("Firing aggregate query on insta " + instaMeasuresRequest)
-    insta.getAggregatedData(instaMeasuresRequest)
+    InstaUtil.getInstaClient.getAggregatedData(instaMeasuresRequest)
   }
 
 }

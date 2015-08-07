@@ -16,6 +16,7 @@ import java.util.concurrent.ConcurrentMap
 import com.guavus.acume.cache.core.AcumeTreeCacheValue
 import org.slf4j.LoggerFactory
 import org.slf4j.Logger
+import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
 
 /**
  * @author archit.thakur
@@ -52,11 +53,11 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextT
   }
   
   private def isEvictiable(levelTimestamp: LevelTimestamp, variableRetentionMap: Map[Level, Int]): Boolean = {
-    if (Utility.getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, levelTimestamp.aggregationLevel.localId, variableRetentionMap, cacheContext.getLastBinPersistedTime(cube.binsource)) == 0) true else false
+    if (Utility.getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, levelTimestamp.aggregationLevel.localId, variableRetentionMap, BinAvailabilityPoller.getLastBinPersistedTime(cube.binsource)) == 0) true else false
   }
 
   private def intializeMetaData(variableRetentionMap: Map[Long, Int]): HashMap[Long, Long] = {
-    val lastBinTime = cacheContext.getLastBinPersistedTime(cube.binsource) //Controller.getInstance.getLastBinPersistedTime(ConfigFactory.getInstance.getBean(classOf[TimeGranularity])
+    val lastBinTime = BinAvailabilityPoller.getLastBinPersistedTime(cube.binsource) //Controller.getInstance.getLastBinPersistedTime(ConfigFactory.getInstance.getBean(classOf[TimeGranularity])
       //.getName, BinSource.getDefault.name(), Controller.RETRY_COUNT)
     val map = HashMap[Long, Long]()
     for ((key, value) <- variableRetentionMap) {

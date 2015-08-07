@@ -9,7 +9,6 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.control.Breaks._
 import org.apache.hadoop.fs.Path
-import org.apache.spark.sql.SchemaRDD
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import com.guavus.acume.cache.common.AcumeCacheConf
@@ -21,7 +20,7 @@ import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import com.guavus.acume.cache.common.CacheLevel
 import com.guavus.acume.cache.utility.Utility
-import org.apache.spark.sql.SchemaRDD
+import org.apache.spark.sql.DataFrame
 import org.apache.hadoop.fs.Path
 import com.guavus.acume.cache.common.LoadType
 import com.guavus.acume.cache.common.ConfConstants
@@ -32,6 +31,7 @@ import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 import com.guavus.acume.threads.NamedThreadPoolFactory
 import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
+import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
 
 abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy)
   extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf, cube) {
@@ -77,7 +77,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         val levelDirectoryName = Utility.getlevelDirectoryName(presentLevel._1, presentLevel._2)
         val timestamps = fs.listStatus(new Path(cacheBaseDirectory + File.separator + levelDirectoryName)).map(_.getPath().getName().toLong)
         for (timestamp <- timestamps)
-          if (Utility.getPriority(timestamp, presentLevel._1.localId, presentLevel._2.localId, cube.diskLevelPolicyMap, acumeCacheContext.getLastBinPersistedTime(cube.binsource)) == 0) {
+          if (Utility.getPriority(timestamp, presentLevel._1.localId, presentLevel._2.localId, cube.diskLevelPolicyMap, BinAvailabilityPoller.getLastBinPersistedTime(cube.binsource)) == 0) {
             val directoryToBeDeleted = Utility.getDiskDirectoryForPoint(acumeCacheContext, cube, new LevelTimestamp(presentLevel._1, timestamp, presentLevel._2))
             Utility.deleteDirectory(directoryToBeDeleted, acumeCacheContext)
           }
@@ -94,7 +94,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       val diskDirectory = Utility.getDiskDirectoryForPoint(acumeCacheContext, cube, levelTimestamp)
       val diskDirpath = new Path(diskDirectory)
 	    //Do previous run cleanup
-        val priority = Utility.getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, levelTimestamp.aggregationLevel.localId, cube.diskLevelPolicyMap, acumeCacheContext.getLastBinPersistedTime(cube.binsource))
+        val priority = Utility.getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, levelTimestamp.aggregationLevel.localId, cube.diskLevelPolicyMap, BinAvailabilityPoller.getLastBinPersistedTime(cube.binsource))
 	    if (priority == 1 && Utility.isPathExisting(diskDirpath, acumeCacheContext) && Utility.isDiskWriteComplete(diskDirectory, acumeCacheContext)) {
 	      
         acumeCacheContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk cache reading " + diskDirectory, false)
@@ -152,13 +152,13 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
   }
 
   /* Method to combine child points to aggregated parent point */
-  def mergeChildPoints(emptyRdd: SchemaRDD, rdds: Seq[SchemaRDD]): SchemaRDD = rdds.reduce(_.unionAll(_))
+  def mergeChildPoints(emptyRdd: DataFrame, rdds: Seq[DataFrame]): DataFrame = rdds.reduce(_.unionAll(_))
 
   /* Method to combine child points to a single zipped point containing data of all the points*/
-  def zipChildPoints(rdds : Seq[SchemaRDD]): SchemaRDD = {
+  def zipChildPoints(rdds : Seq[DataFrame]): DataFrame = {
     
     acumeCacheContext.cacheSqlContext.applySchema(
-        rdds.map(x => x.asInstanceOf[RDD[Row]]).reduce((x, y) => { x.union(y).coalesce(Math.max(x.partitions.size, y.partitions.size), false)}),
+        rdds.map(x => x.rdd).reduce((x, y) => { x.union(y).coalesce(Math.max(x.partitions.size, y.partitions.size), false)}),
         rdds.iterator.next().schema
     )
   }
@@ -232,7 +232,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       value.evictFromMemory
   }
 
-  def mergePathRdds(rdds : Iterable[SchemaRDD]) = {
+  def mergePathRdds(rdds : Iterable[DataFrame]) = {
     Utility.withDummyCallSite(acumeCacheContext.cacheSqlContext.sparkContext) {
       rdds.reduce(_.unionAll(_))
     }

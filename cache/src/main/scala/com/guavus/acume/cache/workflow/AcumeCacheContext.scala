@@ -5,7 +5,6 @@ import java.util.Random
 
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.JavaConversions.mapAsScalaMap
-import scala.collection.mutable.ArrayBuffer
 
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hbase.HBaseSQLContext
@@ -16,15 +15,14 @@ import org.slf4j.LoggerFactory
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.ConfConstants
-import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.core.AcumeCacheFactory
 import com.guavus.acume.cache.core.CacheIdentifier
+import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
 import com.guavus.acume.cache.disk.utility.DataLoader
 import com.guavus.acume.cache.sql.ISqlCorrector
 import com.guavus.acume.cache.utility.SQLParserFactory
 import com.guavus.acume.cache.utility.SQLUtility
 import com.guavus.acume.cache.utility.Tuple
-import com.guavus.acume.cache.utility.Utility
 
 import net.sf.jsqlparser.expression.Expression
 import net.sf.jsqlparser.expression.Parenthesis
@@ -50,22 +48,6 @@ class AcumeCacheContext(override val cacheSqlContext: SQLContext, override val c
   }
   
   override val dataLoader = DataLoader.getDataLoader(this, cacheConf, null)
-  
-  override def getFirstBinPersistedTime(binSource: String): Long = {
-    dataLoader.getFirstBinPersistedTime(binSource)
-  }
-
-  override def getLastBinPersistedTime(binSource: String): Long = {
-    dataLoader.getLastBinPersistedTime(binSource)
-  }
-
-  override def getBinSourceToIntervalMap(binSource: String): Map[Long, (Long, Long)] = {
-    dataLoader.getBinSourceToIntervalMap(binSource)
-  }
-  
-  override def getAllBinSourceToIntervalMap() : Map[String, Map[Long, (Long,Long)]] =  {
-		dataLoader.getAllBinSourceToIntervalMap
-  }
   
   override private [acume] def executeQuery(sql: String) = {
     
@@ -116,7 +98,7 @@ class AcumeCacheContext(override val cacheSqlContext: SQLContext, override val c
   }
   
   private [acume] def validateQuery(startTime : Long, endTime : Long, binSource : String) {
-    if(startTime < getFirstBinPersistedTime(binSource) || endTime > getLastBinPersistedTime(binSource)){
+    if(startTime < BinAvailabilityPoller.getFirstBinPersistedTime(binSource) || endTime > BinAvailabilityPoller.getLastBinPersistedTime(binSource)){
       throw new RuntimeException("Cannot serve query. StartTime and endTime doesn't fall in the availability range.")
     }
   }

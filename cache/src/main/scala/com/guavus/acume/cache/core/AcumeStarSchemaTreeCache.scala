@@ -42,6 +42,7 @@ import com.guavus.acume.cache.workflow.RequestType.RequestType
 import com.guavus.acume.cache.workflow.RequestType.Timeseries
 import com.google.common.cache.Cache
 import com.guavus.acume.cache.common.LoadType
+import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
 
 /**
  * @author archit.thakur
@@ -169,9 +170,9 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
             }
             level
           } else
-            Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, acumeCacheContext.getLastBinPersistedTime(cube.binsource)))
+            Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(cube.binsource)))
         case None =>
-          Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, acumeCacheContext.getLastBinPersistedTime(cube.binsource)))
+          Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(cube.binsource)))
       }
 
     val startTimeCeiling = cacheLevelPolicy.getCeilingToLevel(startTime, level)

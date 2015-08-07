@@ -54,6 +54,7 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import com.guavus.acume.cache.common.LoadType
 import org.apache.spark.sql.catalyst.dsl._
 import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
+import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
 
 /**
  * @author archit.thakur
@@ -242,9 +243,9 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
             }
             level
           } else
-            Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, acumeCacheContext.getLastBinPersistedTime(cube.binsource)))
+            Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(cube.binsource)))
         case None =>
-          Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, acumeCacheContext.getLastBinPersistedTime(cube.binsource)))
+          Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(cube.binsource)))
       }
 
     val startTimeCeiling = cacheLevelPolicy.getCeilingToLevel(startTime, level)

@@ -17,6 +17,8 @@ import com.guavus.qb.ds.DatasourceType
 import javax.xml.bind.JAXBContext
 import com.guavus.acume.cache.common.ConfConstants
 import org.apache.hadoop.fs.Path
+import com.guavus.acume.cache.disk.utility.InstaUtil
+import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
 
 
 object AcumeContextTraitUtil {
@@ -26,7 +28,7 @@ object AcumeContextTraitUtil {
   sparkContext.addSparkListener(new AcumeSparkListener)
   sparkContext.addSparkListener(new AcumeBlockManagerRemovedListener)
   
-  lazy val hiveContext : HiveContext = new HiveContext(sparkContext)
+  val hiveContext : HiveContext = new HiveContext(sparkContext)
   lazy val hBaseSQLContext : HBaseSQLContext = new HBaseSQLContext(sparkContext)
 
   val acumeConf = new AcumeConf(true, "acume.ini")
@@ -49,6 +51,8 @@ object AcumeContextTraitUtil {
     })
     
     initCheckpointDir
+    val insta = InstaUtil.initializeInstaClient(hiveContext)
+    BinAvailabilityPoller.init(insta)
     acumeContextMap
   }
 

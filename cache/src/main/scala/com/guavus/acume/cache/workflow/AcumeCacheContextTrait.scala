@@ -1,9 +1,5 @@
 package com.guavus.acume.cache.workflow
 
-import java.util.concurrent.ConcurrentHashMap
-
-import scala.collection.mutable.HashMap
-
 import org.apache.spark.sql.SQLContext
 
 import com.guavus.acume.cache.common.AcumeCacheConf
@@ -22,7 +18,6 @@ trait AcumeCacheContextTrait extends Serializable {
   @transient
   private [cache] var rrCacheLoader : RRCache = Class.forName(cacheConf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, cacheConf).asInstanceOf[RRCache]
   private [cache] val dataLoader : DataLoader = null
-  private [cache] val dataloadermap : ConcurrentHashMap[String, DataLoader] = new ConcurrentHashMap[String, DataLoader]
   private [acume] val cacheSqlContext : SQLContext
 	private [acume] val cacheConf: AcumeCacheConf
 	
@@ -95,22 +90,6 @@ trait AcumeCacheContextTrait extends Serializable {
           cube
         }
     kCube.toList
-  }
-  
-  def getFirstBinPersistedTime(binSource : String) : Long =  {
-    throw new NoSuchMethodException("Method not present")
-  }
-  
-  def getLastBinPersistedTime(binSource : String) : Long =  {
-    throw new NoSuchMethodException("Method not present")
-  }
-  
-  def getBinSourceToIntervalMap(binSource : String) : Map[Long, (Long,Long)] =  {
-    throw new NoSuchMethodException("Method not present")
-  }
-  
-  def getAllBinSourceToIntervalMap() : Map[String, Map[Long, (Long,Long)]] =  {
-    throw new NoSuchMethodException("Method not present")
   }
   
 }
