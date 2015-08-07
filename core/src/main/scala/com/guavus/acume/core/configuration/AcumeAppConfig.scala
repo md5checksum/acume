@@ -1,24 +1,25 @@
 package com.guavus.acume.core.configuration
 
+import scala.collection.mutable.HashMap
+
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
+
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
 import com.guavus.acume.core.AcumeContextTrait
 import com.guavus.acume.core.AcumeContextTraitUtil
 import com.guavus.acume.core.AcumeService
 import com.guavus.acume.core.DataService
-import com.guavus.acume.core.listener.AcumeBlockManagerRemovedListener
 import com.guavus.acume.core.scheduler.Controller
 import com.guavus.acume.core.scheduler.ISchedulerPolicy
 import com.guavus.acume.core.scheduler.QueryRequestPrefetchTaskManager
 import com.guavus.acume.core.usermanagement.DefaultPermissionTemplate
+import com.guavus.qb.cube.schema.QueryBuilderSchema
 import com.guavus.qb.services.IQueryBuilderService
 import com.guavus.rubix.user.permission.IPermissionTemplate
-import scala.collection.mutable.HashMap
-import com.guavus.qb.cube.schema.QueryBuilderSchema
 
 object AcumeAppConfig {
 

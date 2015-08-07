@@ -21,7 +21,6 @@ trait AcumeCacheContextTrait extends Serializable {
   
   @transient
   private [cache] var rrCacheLoader : RRCache = Class.forName(cacheConf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, cacheConf).asInstanceOf[RRCache]
-  private [cache] val poolThreadLocal = new InheritableThreadLocal[HashMap[String, Any]]()
   private [cache] val dataLoader : DataLoader = null
   private [cache] val dataloadermap : ConcurrentHashMap[String, DataLoader] = new ConcurrentHashMap[String, DataLoader]
   private [acume] val cacheSqlContext : SQLContext
@@ -46,8 +45,6 @@ trait AcumeCacheContextTrait extends Serializable {
     }
   }
   
-  def threadLocal: InheritableThreadLocal[HashMap[String, Any]] = poolThreadLocal
-    
   def isDimension(name: String) : Boolean =  {
     if(dimensionMap.contains(name)) {
       true 

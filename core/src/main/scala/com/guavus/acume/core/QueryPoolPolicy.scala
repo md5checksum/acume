@@ -8,18 +8,19 @@ import java.util.function.Function
 import acume.exception.AcumeException
 import com.guavus.acume.core.exceptions.AcumeExceptionConstants
 import scala.collection.mutable.HashMap
+import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 
-abstract class QueryPoolPolicy(throttleMap : Map[String, Int], acumeContext: AcumeContextTrait) {
+abstract class QueryPoolPolicy(throttleMap : Map[String, Int]) {
   
   def getQueriesClassification(queries : List[String], classificationStats : ClassificationStats) : List[(String, HashMap[String, Any])] = {
     var classificationList: java.util.ArrayList[(String, HashMap[String, Any])] = new java.util.ArrayList()
     queries foreach(query => {
       val classification = getQueryClassification(query, classificationStats)
-      if(acumeContext.acc.threadLocal.get() == null) {
-        acumeContext.acc.threadLocal.set(HashMap[String, Any]())
+      if(AcumeCacheContextTraitUtil.poolThreadLocal.get() == null) {
+        AcumeCacheContextTraitUtil.poolThreadLocal.set(HashMap[String, Any]())
       }
-      classificationList.add(new Tuple2(classification, acumeContext.acc.threadLocal.get()))
-      acumeContext.acc.threadLocal.remove()
+      classificationList.add(new Tuple2(classification, AcumeCacheContextTraitUtil.poolThreadLocal.get()))
+      AcumeCacheContextTraitUtil.poolThreadLocal.remove()
     })
     classificationList.toList
   }
@@ -89,7 +90,7 @@ abstract class QueryPoolPolicy(throttleMap : Map[String, Int], acumeContext: Acu
    
 }
 
-class MultipleQueryPoolPolicyImpl(throttleMap : Map[String, Int], acumeContext: AcumeContextTrait) extends QueryPoolPolicy(throttleMap, acumeContext) {
+class MultipleQueryPoolPolicyImpl(throttleMap : Map[String, Int]) extends QueryPoolPolicy(throttleMap) {
   
   override def getQueryClassification(query : String, classificationStats : ClassificationStats) : String = "default"
 
@@ -110,7 +111,7 @@ class MultipleQueryPoolPolicyImpl(throttleMap : Map[String, Int], acumeContext: 
   
 }
 
-class QueryPoolPolicyImpl(throttleMap : Map[String, Int], acumeContext: AcumeContextTrait) extends QueryPoolPolicy(throttleMap, acumeContext) {
+class QueryPoolPolicyImpl(throttleMap : Map[String, Int]) extends QueryPoolPolicy(throttleMap) {
   
   override def getQueryClassification(query : String, classificationStats : ClassificationStats) : String = "default"
 
@@ -122,7 +123,7 @@ class QueryPoolPolicyImpl(throttleMap : Map[String, Int], acumeContext: AcumeCon
   override def getNumberOfQueries(classificationList: List[String]): Int = classificationList.size
 }
 
-class QueryPoolPolicySchedulerImpl(acumeContext: AcumeContextTrait) extends QueryPoolPolicy(Map.empty, acumeContext) {
+class QueryPoolPolicySchedulerImpl extends QueryPoolPolicy(Map.empty) {
   
   override def getQueryClassification(query : String, classificationStats : ClassificationStats) : String = "scheduler"
 

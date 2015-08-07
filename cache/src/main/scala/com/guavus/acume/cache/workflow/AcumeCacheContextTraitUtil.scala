@@ -22,11 +22,26 @@ object AcumeCacheContextTraitUtil {
   val cubeMap = new HashMap[CubeKey, Cube]
   val cubeList = MutableList[Cube]()
   private val cacheConf = new AcumeCacheConf
+  private val inheritablePoolThreadLocal = new InheritableThreadLocal[HashMap[String, Any]]()
   
+  
+  /*
+   * Initializing and reading acume's cubedefiniton.xml
+   * 
+   */
   Utility.init(cacheConf)
   Utility.loadXML(cacheConf, dimensionMap, measureMap, cubeMap, cubeList)
 
   
+  /*
+   * Setting pool level threadlocal params
+   */
+  def poolThreadLocal: InheritableThreadLocal[HashMap[String, Any]] = inheritablePoolThreadLocal
+  
+
+  /*
+   * Setting threadLocal params for query execution
+   */
   private val threadLocal = new ThreadLocal[HashMap[String, Any]]() { 
     override protected def initialValue() : HashMap[String, Any] = {
       new HashMap[String, Any]()

@@ -38,26 +38,16 @@ import com.guavus.acume.workflow.RequestDataType
 import com.guavus.acume.cache.common.AcumeConstants
 import java.util.concurrent.ConcurrentHashMap
 import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
+import DataService._
+
 
 /**
  * This class interacts with query builder and Olap cache.
  */
 class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeContext: AcumeContextTrait) {
 
-  val logger = LoggerFactory.getLogger(this.getClass())
   val counter = new AtomicLong(0l)
-  var poolStats: PoolStats = new PoolStats()
-  var classificationStats: ClassificationStats = new ClassificationStats()
-
-  val policyclass = acumeContext.acumeConf.getSchedulerPolicyClass
-  val throttleMap = acumeContext.acumeConf.getMaxAllowedQueriesPerClassification.split(",")map(x => {
-	  val i = x.indexOf(":")
-			  (x.substring(0, i).trim, x.substring(i+1, x.length).trim.toInt)
-  })
-  val queryPoolUIPolicy: QueryPoolPolicy = Class.forName(policyclass).getConstructors()(0).newInstance(throttleMap.toMap, acumeContext).asInstanceOf[QueryPoolPolicy]
-  val queryPoolSchedulerPolicy: QueryPoolPolicy = Class.forName(ConfConstants.queryPoolSchedPolicyClass).getConstructors()(0).newInstance(acumeContext).asInstanceOf[QueryPoolPolicy]
-  var queryPoolPolicy: QueryPoolPolicy = null
-
+  
   /**
    * Takes QueryRequest i.e. Rubix query and return aggregate Response.
    */
@@ -91,7 +81,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
   }
 
   private def setSparkJobLocalProperties() {
-    for ((key, value) <- acumeContext.acc.threadLocal.get()) {
+    for ((key, value) <- AcumeCacheContextTraitUtil.poolThreadLocal.get()) {
       var propValue: String = if (value != null) value.toString else null
       acumeContext.acc.cacheSqlContext.sparkContext.setLocalProperty(key, propValue)
     }
@@ -99,14 +89,14 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
   }
   
   private def getSparkJobLocalProperties() = {
-    if(acumeContext.acc.threadLocal.get() == null) {
-      acumeContext.acc.threadLocal.set(HashMap[String, Any]())
+    if(AcumeCacheContextTraitUtil.poolThreadLocal.get() == null) {
+      AcumeCacheContextTraitUtil.poolThreadLocal.set(HashMap[String, Any]())
     }
-    acumeContext.acc.threadLocal.get()
+    AcumeCacheContextTraitUtil.poolThreadLocal.get()
   }
 
   private def unsetSparkJobLocalProperties() {
-    for ((key, value) <- acumeContext.acc.threadLocal.get()) {
+    for ((key, value) <- AcumeCacheContextTraitUtil.poolThreadLocal.get()) {
       acumeContext.acc.cacheSqlContext.sparkContext.setLocalProperty(key, null)
     }
     acumeContext.acc.cacheSqlContext.setConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS, AcumeCacheContextTraitUtil.getSparkSqlShufflePartitions)
@@ -163,8 +153,8 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
 
     val jobGroupId = Thread.currentThread().getName() + "-" + Thread.currentThread().getId() + "-" + counter.getAndIncrement
     try {
-      if (acumeContext.acc.threadLocal.get() == null) {
-        acumeContext.acc.threadLocal.set(new HashMap[String, Any]())
+      if (AcumeCacheContextTraitUtil.poolThreadLocal.get() == null) {
+        AcumeCacheContextTraitUtil.poolThreadLocal.set(new HashMap[String, Any]())
       }
       val isSchedulerQuery = queryBuilderService.get(0).isSchedulerQuery(sql)
       val jobDescription = getJobDescription(isSchedulerQuery, Thread.currentThread().getName() + Thread.currentThread().getId())
@@ -341,4 +331,21 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       throw new RuntimeException(s"Invalid Modified Query")
 
   }
+}
+
+object DataService {
+  
+  val logger = LoggerFactory.getLogger(this.getClass())
+  var poolStats: PoolStats = new PoolStats()
+  var classificationStats: ClassificationStats = new ClassificationStats()
+
+  val policyclass = AcumeContextTraitUtil.acumeConf.getSchedulerPolicyClass
+  val throttleMap = AcumeContextTraitUtil.acumeConf.getMaxAllowedQueriesPerClassification.split(",")map(x => {
+    val i = x.indexOf(":")
+        (x.substring(0, i).trim, x.substring(i+1, x.length).trim.toInt)
+  })
+  
+  val queryPoolUIPolicy: QueryPoolPolicy = Class.forName(policyclass).getConstructors()(0).newInstance(throttleMap.toMap).asInstanceOf[QueryPoolPolicy]
+  val queryPoolSchedulerPolicy: QueryPoolPolicy = Class.forName(ConfConstants.queryPoolSchedPolicyClass).getConstructors()(0).newInstance().asInstanceOf[QueryPoolPolicy]
+  var queryPoolPolicy: QueryPoolPolicy = null
 }

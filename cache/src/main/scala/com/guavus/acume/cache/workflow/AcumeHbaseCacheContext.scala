@@ -56,20 +56,24 @@ class AcumeHbaseCacheContext(override val cacheSqlContext: SQLContext, override 
     // Create table for every cube of hbase
     cubeList.map(cube => {
     	val query = constructQueryFromCube(cube)
+      val cubeName = cube.cubeName
+      
       //Drop table if already exists
       try{
-    	  cacheSqlContext.sql("drop table " + cube.cubeName).collect
+    	  cacheSqlContext.sql("drop table " + cubeName).collect
+        logger.info(s"temp table $cubeName dropped")
       } catch {
-        case e: Exception => println(e.getMessage)
-        case th : Throwable => println(th.getMessage)
+        case e: Exception => logger.error(s"Dropping temp table $cubeName failed. " + e.getMessage)
+        case th : Throwable => logger.error(s"Dropping temp table $cubeName failed. " + th.getMessage)
       }
       
       //Create table with cubename
       try{
         cacheSqlContext.sql(query).collect
+        logger.info(s"temp table $cubeName created")
       } catch {
-        case e: Exception => println(e.getMessage)
-        case th : Throwable => println(th.getMessage)
+        case e: Exception => logger.error(s"Creating temp table $cubeName failed. " + e.getMessage)
+        case th : Throwable => logger.error(s"Creating temp table $cubeName failed. " + th.getMessage)
       }
     })
   }

@@ -3,22 +3,20 @@ package com.guavus.acume.core
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
-
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable.HashMap
-
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.annotation.DeveloperApi
 import org.apache.spark.sql.hbase.HBaseSQLContext
 import org.apache.spark.sql.hive.HiveContext
-
 import com.guavus.acume.core.gen.AcumeUdfs
 import com.guavus.acume.core.listener.AcumeBlockManagerRemovedListener
 import com.guavus.acume.core.listener.AcumeSparkListener
 import com.guavus.qb.ds.DatasourceType
-
 import javax.xml.bind.JAXBContext
+import com.guavus.acume.cache.common.ConfConstants
+import org.apache.hadoop.fs.Path
 
 
 object AcumeContextTraitUtil {
@@ -47,13 +45,39 @@ object AcumeContextTraitUtil {
             new AcumeHbaseContext(dsName.toLowerCase)
           case _ => throw new RuntimeException("wrong datasource configured")
         }
-      context.init
       acumeContextMap.+=(dsName.toLowerCase -> context)
     })
     
+    initCheckpointDir
     acumeContextMap
   }
 
+  lazy val initCheckpointDir = {
+    //initialize anything
+    // This must be called after creating acumeContext
+
+    def getDiskBaseDirectory = {
+      var diskBaseDirectory = acumeConf.get(ConfConstants.cacheBaseDirectory) + File.separator + sparkContext.getConf.get("spark.app.name")
+      diskBaseDirectory = diskBaseDirectory + "-" + acumeConf.get(ConfConstants.cacheDirectory)
+      diskBaseDirectory
+    }
+
+    def deleteDirectory(dir: String) = {
+      println("deleting checkpoint directory " + dir)
+      val path = new Path(dir)
+      val fs = path.getFileSystem(sparkContext.hadoopConfiguration)
+      fs.delete(path, true)
+    }
+
+    val diskBaseDirectory = getDiskBaseDirectory
+
+    val checkpointDirectory = diskBaseDirectory + File.separator + "checkpoint"
+    deleteDirectory(checkpointDirectory)
+    sparkContext.setCheckpointDir(checkpointDirectory)
+    println(s"setting checkpoint directory as $checkpointDirectory")
+
+  }
+  
   lazy val registerUserDefinedFunctions = {
     val xml = this.acumeConf.getUdfConfigurationxml
     val jc = JAXBContext.newInstance("com.guavus.acume.core.gen")

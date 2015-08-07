@@ -127,15 +127,11 @@ class AcumeService {
         }
 
         try {
-          for(index <- 0 until futureResponses.size) {
-            val futureResponse = futureResponses(index)
-            val queryRequest = callableResponses(index).asInstanceOf[QueryExecutor[Any]].request.asInstanceOf[QueryRequest]
-            val dataService = DataServiceFactory.getDataserviceInstance(queryRequest, requestDataType)
-            
+          for(futureResponse <- futureResponses) {
             try {
               responses.add(futureResponse.get())
               if (checkJobProperty && poolIterator.hasNext)
-                dataService.queryPoolPolicy.updateStats(poolIterator.next(), classificationIterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+                DataService.queryPoolPolicy.updateStats(poolIterator.next(), classificationIterator.next(), DataService.poolStats, DataService.classificationStats, starttime, System.currentTimeMillis())
             } catch {
               case e: ExecutionException => {
                 Utility.throwIfRubixException(e)
@@ -157,9 +153,9 @@ class AcumeService {
           }
           if (checkJobProperty) {
             while (poolIterator.hasNext) {
-              dataService.queryPoolPolicy.updateStats(poolIterator.next(), classificationIterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+              DataService.queryPoolPolicy.updateStats(poolIterator.next(), classificationIterator.next(), DataService.poolStats, DataService.classificationStats, starttime, System.currentTimeMillis())
             }
-            dataService.queryPoolPolicy.updateFinalStats(poolList.iterator.next(), classificationList.iterator.next(), DataService.poolStats, DataService.classificationStats, starttime, System.currentTimeMillis())
+            DataService.queryPoolPolicy.updateFinalStats(poolList.iterator.next(), classificationList.iterator.next(), DataService.poolStats, DataService.classificationStats, starttime, System.currentTimeMillis())
           }
         }
         responses
@@ -180,7 +176,7 @@ class AcumeService {
     
     this.synchronized {
       var classificationandpool = dataService.checkJobLevelProperties(requests, requestDataType)
-      dataService.queryPoolPolicy.updateInitialStats(classificationandpool._2, classificationandpool._1.map(x => x._1), DataService.poolStats, DataService.classificationStats)
+      DataService.queryPoolPolicy.updateInitialStats(classificationandpool._2, classificationandpool._1.map(x => x._1), DataService.poolStats, DataService.classificationStats)
       classificationandpool
     }
   }
