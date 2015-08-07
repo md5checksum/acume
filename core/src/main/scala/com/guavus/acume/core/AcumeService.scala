@@ -51,6 +51,7 @@ import scala.concurrent.duration._
 import com.guavus.acume.cache.common.ConfConstants
 import ExecutionContext.Implicits.global
 import java.util.concurrent.TimeUnit
+import com.guavus.acume.util.AcumeCustomizedFuture
 
 /**
  * Main service of acume which serves the request from UI and rest services. It checks if the response is present in RR cache otherwise fire the query on OLAP cache.
@@ -106,6 +107,10 @@ class AcumeService(dataService: DataService) {
       }
     }
 
+    def run[T](callable: Callable[java.util.ArrayList[T]]): java.util.ArrayList[T] = {
+      callable.call()
+    }
+
     val callable = new Callable[java.util.ArrayList[T]]() {
       def call() = {
 
@@ -114,9 +119,12 @@ class AcumeService(dataService: DataService) {
         val isIDSet = false;
 
         callableResponses foreach (callableResponse => {
+          if (dataService.acumeContext.acumeConf.getBoolean(ConfConstants.schedulerQuery, false))
+            futureResponses.add(new AcumeCustomizedFuture[T](callableResponse))
+            else
           futureResponses.add(threadPool.submit(callableResponse))
         })
-
+          
         val responses = new java.util.ArrayList[T]()
         var classificationIterator: Iterator[String] = null
         var poolIterator: Iterator[String] = null
@@ -160,7 +168,12 @@ class AcumeService(dataService: DataService) {
         responses
       }
     }
-    runWithTimeout[T](callable)
+
+    if (dataService.acumeContext.acumeConf.getBoolean(ConfConstants.schedulerQuery, false)) {
+      run(callable)
+    } else {
+      runWithTimeout[T](callable)
+    }
   }
   
   def checkJobPropertiesAndUpdateStats(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): (List[(String, HashMap[String, Any])], List[String]) = {

@@ -113,12 +113,11 @@ trait AcumeValue {
     }
   }
 
-  def registerAndCacheDataInMemory(tableName : String) {
+  def registerAndCacheDataInMemory(tableName: String) {
     measureSchemaRdd.registerTempTable(tableName)
-    // use eager caching
-    measureSchemaRdd.sqlContext.sql("cache table " + tableName)
+    measureSchemaRdd.sqlContext.cacheTable(tableName)
+    measureSchemaRdd.sqlContext.table(tableName).count
   }
-
 }
 
 case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measureSchemaRdd: SchemaRDD, parentPoints: Seq[(AcumeValue, SchemaRDD)] = Seq()) extends AcumeValue {
@@ -200,5 +199,4 @@ object AcumeTreeCacheValue {
     }
     context
   }
-
 }
