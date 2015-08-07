@@ -1772,6 +1772,18 @@ Please don't use the following reserved property names:
             </target>
         </targets>
     </property>
+    
+    <property>
+        <name>AcumeCoreCacheAvailabilityMapPolicy</name>
+        <help><![CDATA[ - Which CacheAvailabilityMapPolicy to be used for updating CacheAvailabilityMap of Acume]]></help>
+        <default><![CDATA[com.guavus.acume.core.scheduler.AcumeCacheAvailabiltyPolicy]]></default>
+        <targets>
+            <target>
+                <file><![CDATA[acume.conf]]></file>
+                <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+            </target>
+        </targets>
+    </property>
         
     </PropertiesPerApplication>
 
