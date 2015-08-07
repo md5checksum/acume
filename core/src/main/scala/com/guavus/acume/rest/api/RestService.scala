@@ -32,7 +32,7 @@ class RestService {
   def exportAggregateData(dataExportRequest: DataExportRequest, @QueryParam(value = "super") userinfo: String,
       @QueryParam("user") user: String, @QueryParam("password") password: String) = {
     
-    //Authentication.authenticate(userinfo, user, password)
+    Authentication.authenticate(userinfo, user, password)
     
     dataExportRequest.setRequestDataType(RequestDataType.Aggregate)
     
