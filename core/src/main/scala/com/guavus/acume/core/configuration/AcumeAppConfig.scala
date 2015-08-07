@@ -4,7 +4,6 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
-
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
 import com.guavus.acume.core.AcumeContextTrait
@@ -18,6 +17,8 @@ import com.guavus.acume.core.scheduler.QueryRequestPrefetchTaskManager
 import com.guavus.acume.core.usermanagement.DefaultPermissionTemplate
 import com.guavus.qb.services.IQueryBuilderService
 import com.guavus.rubix.user.permission.IPermissionTemplate
+import scala.collection.mutable.HashMap
+import com.guavus.qb.cube.schema.QueryBuilderSchema
 
 object AcumeAppConfig {
 
@@ -31,14 +32,14 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
   
   @Bean
   @Autowired
-  override def acumeService(dataService: DataService): AcumeService = {
-    new AcumeService(dataService)
+  override def acumeService: AcumeService = {
+    new AcumeService
   }
 
   @Bean
   @Autowired
-  override def dataService(queryBuilderService : Seq[IQueryBuilderService], ac : AcumeContextTrait): DataService = {
-    new DataService(queryBuilderService, ac)
+  override def dataServiceMap(queryBuilderServiceMap : HashMap[String, Seq[IQueryBuilderService]], acumeContextMap : HashMap[String, AcumeContextTrait]): HashMap[String, DataService] = {
+   DataServiceFactory.initDataServiceFactory(queryBuilderServiceMap, acumeContextMap)
   }
 
   @Bean
@@ -46,14 +47,14 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
   
   @Bean
   @Autowired
-  override def acumeContext(dataSource : String) : AcumeContextTrait = {
-    AcumeContextTraitUtil.getAcumeContext(dataSource)
+  override def acumeContextMap(datasourceNames : Array[String]) : HashMap[String, AcumeContextTrait] = {
+    AcumeContextTraitUtil.initAcumeContextTraitFactory(datasourceNames)
   }
   
   @Bean
   @Autowired
-  override def queryBuilderService(dataSource : String) : Seq[IQueryBuilderService] = {
-    List(QueryBuilderFactory.getQBInstance(dataSource))
+  override def queryBuilderServiceMap(datasourceNames : Array[String], acumeContextMap : HashMap[String, AcumeContextTrait]) : HashMap[String, Seq[IQueryBuilderService]] = {
+    QueryBuilderFactory.initializeQueryBuilderFactory(datasourceNames, acumeContextMap)
   }
 
   @Bean
@@ -61,20 +62,26 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
   
   @Bean
   @Autowired
-  override def queryRequestPrefetchTaskManager(acumeService : AcumeService, dataService : DataService , queryBuilderService : Seq[IQueryBuilderService], acumeContext : AcumeContextTrait, controller : Controller) : QueryRequestPrefetchTaskManager = {
-    acumeContext.sc.addSparkListener(new AcumeBlockManagerRemovedListener)
-    val ischedulerpolicy = ISchedulerPolicy.getISchedulerPolicy(acumeContext.acumeConf)
-    new QueryRequestPrefetchTaskManager(dataService, queryBuilderService.map(_.getQueryBuilderSchema).toList, acumeContext, acumeService, ischedulerpolicy, controller)
+  override def queryRequestPrefetchTaskManager(queryBuilderServiceMap: HashMap[String, Seq[IQueryBuilderService]], acumeService : AcumeService, controller: Controller) : QueryRequestPrefetchTaskManager = {
+    val ischedulerpolicy = ISchedulerPolicy.getISchedulerPolicy
+    val qbSchemaList = List[QueryBuilderSchema]()
+    
+    queryBuilderServiceMap.map(entry => {
+      qbSchemaList.++(entry._2.map(_.getQueryBuilderSchema).toList)
+    })
+    new QueryRequestPrefetchTaskManager(qbSchemaList, acumeService, ischedulerpolicy, controller)
   }
   
   @Bean
   @Autowired
-  override def controller(acumeContext : AcumeContextTrait) : Controller = {
-    new Controller(acumeContext.acc)
-  } 
+  override def controller(acumeContextMap : HashMap[String, AcumeContextTrait]) : Controller = {
+    new Controller(acumeContextMap.get(AcumeContextTraitUtil.acumeConf.getAllDatasourceNames(0)).get.acc)
+  }
   
   @Bean
   @Autowired
-  override def dataSource : String = AcumeContextTraitUtil.acumeConf.getAllDatasourceNames(0)
+  override def datasourceNames : Array[String] = {
+    AcumeContextTraitUtil.acumeConf.getAllDatasourceNames
+  }
   
 }

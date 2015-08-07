@@ -14,7 +14,7 @@ class SearchRequestServlet extends AbstractRequestServlet {
    
     val searchRequest : SearchRequest = QueryJsonUtil.fromJsonToSearchRequest(req.getReader().readLine())
     service.servSearchQuery(searchRequest,  req.getParameter("super"),
-			req.getParameter("user"), req.getParameter("password"), false, req.getParameter("datasource"))
+			req.getParameter("user"), req.getParameter("password"), false)
   }
  
 }
@@ -23,7 +23,7 @@ class SqlRequestServlet extends AbstractRequestServlet {
 
   override def getResponse(req : HttpServletRequest) : Serializable = {
     service.servSqlQuery(req.getReader().readLine(),  req.getParameter("super"),
-			req.getParameter("user"), req.getParameter("password"), false, req.getParameter("datasource"))
+			req.getParameter("user"), req.getParameter("password"), false)
   }
  
 }
@@ -42,7 +42,7 @@ class AggregateRequestServlet extends AbstractRequestServlet {
     
     val queryRequest : QueryRequest = QueryJsonUtil.fromJsonToQueryRequest(req.getReader().readLine())
     service.servAggregate(queryRequest,  req.getParameter("super"),
-			req.getParameter("user"), req.getParameter("password"), false, req.getParameter("datasource"))
+			req.getParameter("user"), req.getParameter("password"), false)
   
   }
  
@@ -53,7 +53,7 @@ class TimeSeriesRequestServlet extends AbstractRequestServlet {
    override def getResponse(req : HttpServletRequest) : Serializable = {
     val queryRequest : QueryRequest = QueryJsonUtil.fromJsonToQueryRequest(req.getReader().readLine())
     service.servTimeseries(queryRequest,  req.getParameter("super"),
-			req.getParameter("user"), req.getParameter("password"), false, req.getParameter("datasource"))
+			req.getParameter("user"), req.getParameter("password"), false)
   }
  
 }
@@ -63,7 +63,7 @@ class TimeSeriesMultipleRequestServlet extends AbstractRequestServlet {
    override def getResponse(req : HttpServletRequest) : Serializable = {
     val queryRequests  = QueryJsonUtil.fromJsonToQueryRequests(req.getReader().readLine())
     service.servTimeseriesMultiple(queryRequests,  req.getParameter("super"),
-			req.getParameter("user"), req.getParameter("password"), false, req.getParameter("datasource"))
+			req.getParameter("user"), req.getParameter("password"), false)
   }
  
 }
@@ -74,7 +74,7 @@ class AggregateMultipleRequestServlet extends AbstractRequestServlet {
     
     val queryRequests = QueryJsonUtil.fromJsonToQueryRequests(req.getReader().readLine())
     service.servAggregateMultiple(queryRequests,  req.getParameter("super"),
-			req.getParameter("user"), req.getParameter("password"), false, req.getParameter("datasource"))
+			req.getParameter("user"), req.getParameter("password"), false)
   
   }
  

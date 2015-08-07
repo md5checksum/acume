@@ -190,7 +190,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
   }
 
   /** Get a parameter as an Option */
-  private def getOption(key: String): Option[String] = {
+  def getOption(key: String): Option[String] = {
     val globalFound = settings.get(key)
     globalFound match {
       case None => 

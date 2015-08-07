@@ -64,6 +64,7 @@ import CacheLevel._
 import com.google.common.collect.Iterables
 import acume.exception.AcumeException
 import com.guavus.acume.cache.common.HbaseConfigs
+import com.guavus.qb.ds.DatasourceType
 
 /**
  * @author archit.thakur
@@ -324,7 +325,7 @@ object Utility extends Logging {
     
     val xml: String = conf.get(ConfConstants.businesscubexml) 
     val globalbinsource: String = conf.get(ConfConstants.acumecorebinsource)
-    val globalDataSourceName :  String = "cache"
+    val globalDataSourceName :  String = conf.get(ConfConstants.defaultDatasource)
     
     val acumeCube = unmarshalXML(xml, dimensionMap, measureMap)
     
@@ -418,7 +419,7 @@ object Utility extends Logging {
         
         //Hbase configs
         var hbaseConfig : HbaseConfigs = null
-        if(cubeDatasourceName.toLowerCase.startsWith("hbase")) {
+        if(DatasourceType.HBASE.equals(DatasourceType.getDataSourceTypeFromString(cubeDatasourceName))) {
           val orderedPrimaryKeys = propertyMap.getOrElse(ConfConstants.primaryKeys, "").split(";")
           val tableName = propertyMap.getOrElse(ConfConstants.tableName, throw new RuntimeException("Hbase tableName not defined"))
           val columnMappings : Map[String, String] = propertyMap.getOrElse(ConfConstants.columnMappings, throw new RuntimeException("ColumnMappings not defined for Hbase")).split(";").map(mapping => {

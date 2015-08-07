@@ -1,33 +1,35 @@
 package com.guavus.acume.core.scheduler
 
-import java.util.Calendar
-import java.util.concurrent.Future
-import scala.collection.JavaConversions._
-import scala.reflect.BeanProperty
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-import com.guavus.acume.cache.core.Interval
-import com.guavus.acume.cache.utility.Utility
-import com.guavus.acume.core.AcumeConf
-import com.guavus.acume.core.AcumeConf
-import com.guavus.acume.core.AcumeService
-import com.guavus.acume.core.PSUserService
-import QueryPrefetchTaskCombiner._
-import scala.collection.mutable.ArrayBuffer
+import java.util.Collections
 import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
-import java.util.Collections
-import scala.util.control.Breaks._
-import com.guavus.acume.core.AcumeContext
-import com.guavus.acume.core.AcumeContextTrait
+import java.util.concurrent.Future
+
+import scala.collection.JavaConversions.asScalaSet
+import scala.collection.JavaConversions.bufferAsJavaList
+import scala.collection.JavaConversions.mapAsScalaMap
+import scala.collection.JavaConversions.mutableMapAsJavaMap
+import scala.collection.mutable.ArrayBuffer
+import scala.reflect.BeanProperty
+import scala.util.control.Breaks.break
+import scala.util.control.Breaks.breakable
+
+import org.slf4j.LoggerFactory
+
+import com.guavus.acume.cache.core.Interval
 import com.guavus.acume.cache.core.Level
+import com.guavus.acume.cache.utility.Utility
+import com.guavus.acume.core.AcumeContextTraitUtil
+import com.guavus.acume.core.AcumeService
+
+import QueryPrefetchTaskCombiner.logger
 
 object QueryPrefetchTaskCombiner {
 
   val logger = LoggerFactory.getLogger(classOf[QueryPrefetchTaskCombiner])
 }
 
-class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: QueryRequestPrefetchTaskManager, @BeanProperty var version: Int, acumeContext : AcumeContextTrait, acumeService : AcumeService, controller : Controller) extends Runnable with Comparable[QueryPrefetchTaskCombiner] {
+class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: QueryRequestPrefetchTaskManager, @BeanProperty var version: Int, acumeService : AcumeService, controller : Controller) extends Runnable with Comparable[QueryPrefetchTaskCombiner] {
 
   @BeanProperty
   var startTime: Long = _
@@ -65,7 +67,7 @@ class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: Quer
     binSourceToIntervalMap.getOrElseUpdate(getBinSource, new scala.collection.mutable.HashMap[Long, Interval]())
     val map = new java.util.TreeMap[Long, Interval](Collections.reverseOrder[Long]())
     map.putAll(binSourceToIntervalMap.get(getBinSource).get)
-    val levelPointMap = Utility.getLevelPointMap(acumeContext.acumeConf.getSchedulerVariableRetentionMap)
+    val levelPointMap = Utility.getLevelPointMap(AcumeContextTraitUtil.acumeConf.getSchedulerVariableRetentionMap)
     val instance = Utility.newCalendar()
     for ((key, value) <- getGranToIntervalMap) {
       breakable {

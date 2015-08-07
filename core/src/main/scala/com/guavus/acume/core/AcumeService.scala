@@ -51,17 +51,14 @@ import scala.concurrent.duration._
 import com.guavus.acume.cache.common.ConfConstants
 import ExecutionContext.Implicits.global
 import java.util.concurrent.TimeUnit
+import com.guavus.acume.core.configuration.DataServiceFactory
 
 /**
  * Main service of acume which serves the request from UI and rest services. It checks if the response is present in RR cache otherwise fire the query on OLAP cache.
  */
-class AcumeService(dataService: DataService) {
+class AcumeService {
   
   private val counter = new AtomicInteger(1);
-  
-  def this() = {
-    this(ConfigFactory.getInstance.getBean(classOf[DataService]))
-  }
   
   /**
    * Any query request can be fired and result of appropriate type is returned, If query is of type aggregate it returns aggregate response else timeseries response.
@@ -95,7 +92,7 @@ class AcumeService(dataService: DataService) {
     def runWithTimeout[T](callable: Callable[java.util.ArrayList[T]]): java.util.ArrayList[T] = {
       val response = QueryExecutorThreads.getPoolMultiple.submit(callable)
       try {
-        response.get(dataService.acumeContext.acumeConf.getLong(ConfConstants.queryTimeOut).getOrElse(30l), TimeUnit.SECONDS)
+        response.get(AcumeConf.acumeConf.getLong(ConfConstants.queryTimeOut).getOrElse(30l), TimeUnit.SECONDS)
       } catch {
         case e : Exception => {
           if(!response.isDone()) {
@@ -115,8 +112,8 @@ class AcumeService(dataService: DataService) {
 
         val futureResponses = new java.util.ArrayList[Future[T]]();
         val threadPool = QueryExecutorThreads.getPool();
-        val isIDSet = false;
-
+        val isIDSet = false
+        
         callableResponses foreach (callableResponse => {
           futureResponses.add(threadPool.submit(callableResponse))
         })
@@ -130,7 +127,11 @@ class AcumeService(dataService: DataService) {
         }
 
         try {
-          for (futureResponse <- futureResponses) {
+          for(index <- 0 until futureResponses.size) {
+            val futureResponse = futureResponses(index)
+            val queryRequest = callableResponses(index).asInstanceOf[QueryExecutor[Any]].request.asInstanceOf[QueryRequest]
+            val dataService = DataServiceFactory.getDataserviceInstance(queryRequest, requestDataType)
+            
             try {
               responses.add(futureResponse.get())
               if (checkJobProperty && poolIterator.hasNext)
@@ -158,25 +159,28 @@ class AcumeService(dataService: DataService) {
             while (poolIterator.hasNext) {
               dataService.queryPoolPolicy.updateStats(poolIterator.next(), classificationIterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
             }
-            dataService.queryPoolPolicy.updateFinalStats(poolList.iterator.next(), classificationList.iterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+            dataService.queryPoolPolicy.updateFinalStats(poolList.iterator.next(), classificationList.iterator.next(), DataService.poolStats, DataService.classificationStats, starttime, System.currentTimeMillis())
           }
         }
         responses
       }
     }
-    if(dataService.acumeContext.acumeConf.getBoolean(ConfConstants.schedulerQuery).getOrElse(false)) {
+    if(AcumeConf.acumeConf.getBoolean(ConfConstants.schedulerQuery).getOrElse(false)) {
       run(callable)
     } else {
       runWithTimeout[T](callable)
     }
   }
   
-  def checkJobPropertiesAndUpdateStats(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): (List[(String, HashMap[String, Any])], List[String]) = {
+  private def checkJobPropertiesAndUpdateStats(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): (List[(String, HashMap[String, Any])], List[String]) = {
     var poolname: String = null
     var classificationname: String = null
+    
+    val dataService = DataServiceFactory.getDataserviceInstance(requests(0).asInstanceOf[QueryRequest], requestDataType)
+    
     this.synchronized {
       var classificationandpool = dataService.checkJobLevelProperties(requests, requestDataType)
-      dataService.queryPoolPolicy.updateInitialStats(classificationandpool._2, classificationandpool._1.map(x => x._1), dataService.poolStats, dataService.classificationStats)
+      dataService.queryPoolPolicy.updateInitialStats(classificationandpool._2, classificationandpool._1.map(x => x._1), DataService.poolStats, DataService.classificationStats)
       classificationandpool
     }
   }
@@ -184,7 +188,7 @@ class AcumeService(dataService: DataService) {
   
   //Developer API for not calling checkJobproperties and directly calling the QueryExecutor
   def servMultiple[T](requestDataType: RequestDataType.RequestDataType,
-                              requests: java.util.ArrayList[_ <: Any], datasourceName: String, checkJobProperty: Boolean = true): java.util.ArrayList[T] = {
+                              requests: java.util.ArrayList[_ <: Any], checkJobProperty: Boolean = true): java.util.ArrayList[T] = {
 
     try {
 
@@ -220,7 +224,7 @@ class AcumeService(dataService: DataService) {
           setCallId(key);
         }
         val queryExecutorTask = new QueryExecutor[T](this,
-          HttpUtils.getLoginInfo(), key, requestDataType, datasourceName, classificationDetail._2)
+          HttpUtils.getLoginInfo(), key, requestDataType, classificationDetail._2)
         callableResponses.add(queryExecutorTask)
       }
       
@@ -236,57 +240,59 @@ class AcumeService(dataService: DataService) {
   /**
    * Serves only aggregate request. if request type is timeseries this method fails.
    */
-  def  servAggregateSingleQuery(queryRequest : QueryRequest, datasourceName: String, property: HashMap[String, Any] = null) : AggregateResponse = {
-    val datasourceName = AcumeContextTraitUtil.dsInterpreterPolicy.interpretDsName(queryRequest.toSql(""))
+  def  servAggregateSingleQuery(queryRequest : QueryRequest, property: HashMap[String, Any] = null) : AggregateResponse = {
+    val dataService = DataServiceFactory.getDataserviceInstance(queryRequest.toSql(""))
     dataService.servAggregate(queryRequest, property)
   }
   
-  def servTimeseriesSingleQuery(queryRequest : QueryRequest, datasourceName: String, property: HashMap[String, Any] = null) : TimeseriesResponse = {
-    val datasourceName = AcumeContextTraitUtil.dsInterpreterPolicy.interpretDsName(queryRequest.toSql(""))
+  def servTimeseriesSingleQuery(queryRequest : QueryRequest, property: HashMap[String, Any] = null) : TimeseriesResponse = {
+    val dataService = DataServiceFactory.getDataserviceInstance(queryRequest.toSql("ts, "))
     dataService.servTimeseries(queryRequest, property)
   }
   
-  def  servSingleQuery(queryRequest : String, datasourceName: String, property: HashMap[String, Any] = null) : Serializable = {
-    val datasourceName = AcumeContextTraitUtil.dsInterpreterPolicy.interpretDsName(queryRequest)
+  def  servSingleQuery(queryRequest : String, property: HashMap[String, Any] = null) : Serializable = {
+    val dataService = DataServiceFactory.getDataserviceInstance(queryRequest)
     dataService.servRequest(queryRequest, property).asInstanceOf[Serializable]
   }
   
-  def  servAggregateMultiple(queryRequests : java.util.ArrayList[QueryRequest], datasourceName: String) : java.util.ArrayList[AggregateResponse] = {
-    servMultiple[AggregateResponse](RequestDataType.Aggregate, queryRequests, datasourceName)
+  def  servAggregateMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[AggregateResponse] = {
+    servMultiple[AggregateResponse](RequestDataType.Aggregate, queryRequests)
   }
   
-  def  servAggregateQuery(queryRequest : QueryRequest, datasourceName: String) : AggregateResponse = {
-    servMultiple[AggregateResponse](RequestDataType.Aggregate, new java.util.ArrayList(List(queryRequest)), datasourceName).get(0)
+  def  servAggregateQuery(queryRequest : QueryRequest) : AggregateResponse = {
+    servMultiple[AggregateResponse](RequestDataType.Aggregate, new java.util.ArrayList(List(queryRequest))).get(0)
   }
   
-  def servTimeseriesMultiple(queryRequests : java.util.ArrayList[QueryRequest], datasourceName: String) : java.util.ArrayList[TimeseriesResponse] = {
-    servMultiple[TimeseriesResponse](RequestDataType.TimeSeries, queryRequests, datasourceName)
+  def servTimeseriesMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[TimeseriesResponse] = {
+    servMultiple[TimeseriesResponse](RequestDataType.TimeSeries, queryRequests)
   }
   
-  def servTimeseriesQuery(queryRequest : QueryRequest, datasourceName: String) : TimeseriesResponse = {
-    servMultiple[TimeseriesResponse](RequestDataType.TimeSeries, new java.util.ArrayList(List(queryRequest)), datasourceName).get(0)
+  def servTimeseriesQuery(queryRequest : QueryRequest) : TimeseriesResponse = {
+    servMultiple[TimeseriesResponse](RequestDataType.TimeSeries, new java.util.ArrayList(List(queryRequest))).get(0)
   }
   
-  def  servSqlQuery(queryRequest : String, datasourceName: String) : Serializable = {
-    servMultiple[Serializable](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest)), datasourceName).get(0)
+  def  servSqlQuery(queryRequest : String) : Serializable = {
+    servMultiple[Serializable](RequestDataType.SQL, new java.util.ArrayList(List(queryRequest))).get(0)
   }
   
-  def servSqlQueryMultiple(queryRequests : java.util.ArrayList[String], datasourceName: String) : java.util.ArrayList[Serializable] = {
-    servMultiple[Serializable](RequestDataType.SQL, queryRequests, datasourceName)
+  def servSqlQueryMultiple(queryRequests : java.util.ArrayList[String]) : java.util.ArrayList[Serializable] = {
+    servMultiple[Serializable](RequestDataType.SQL, queryRequests)
   }
   
-  def  servSqlQuery2(queryRequest : String, datasourceName: String) = {
+  def  servSqlQuery2(queryRequest : String) = {
+    val dataService = DataServiceFactory.getDataserviceInstance(queryRequest)
     dataService.execute(queryRequest)
   }
   
-  def searchRequest(searchRequest : SearchRequest, datasourceName: String) : SearchResponse = {
+  def searchRequest(searchRequest : SearchRequest) : SearchResponse = {
+    val dataService = DataServiceFactory.getDataserviceInstance(searchRequest.toSql)
     dataService.servSearchRequest(searchRequest)
   }
   
-  def servExportCSV(dataExportRequest: DataExportRequest, datasourceName: String) : Response = {
+  def servExportCSV(dataExportRequest: DataExportRequest) : Response = {
     try {
         val dataExporter : IDataExporter = DataExporterUtil.getExporterInstance(dataExportRequest.getFileType());
-        val dataExporterResponse : DataExportResponse = dataExporter.exportToFile(dataExportRequest, datasourceName);
+        val dataExporterResponse : DataExportResponse = dataExporter.exportToFile(dataExportRequest);
         val rBuild : ResponseBuilder = Response.ok();
             
         var fileName : String = null
@@ -312,10 +318,8 @@ class AcumeService(dataService: DataService) {
   
 }
 
-
 object AcumeService {
   
   val acumeService = ConfigFactory.getInstance().getBean(classOf[AcumeService])
   
-  val dataService = ConfigFactory.getInstance().getBean(classOf[DataService])
 }

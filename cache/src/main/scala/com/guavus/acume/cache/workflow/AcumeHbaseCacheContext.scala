@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConversionToSpark
 import com.guavus.acume.cache.common.Cube
-import com.guavus.acume.cache.utility.Utility
 
 class AcumeHbaseCacheContext(override val cacheSqlContext: SQLContext, override val cacheConf: AcumeCacheConf) extends AcumeCacheContextTrait {
 
@@ -55,7 +54,7 @@ class AcumeHbaseCacheContext(override val cacheSqlContext: SQLContext, override 
   
   private def initHbase {
     // Create table for every cube of hbase
-    cubeList.filter(cube => cube.dataSourceName.toLowerCase.startsWith("hbase")).map(cube => {
+    cubeList.map(cube => {
     	val query = constructQueryFromCube(cube)
       //Drop table if already exists
       try{

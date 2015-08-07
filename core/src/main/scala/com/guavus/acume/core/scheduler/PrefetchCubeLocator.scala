@@ -6,6 +6,8 @@ import com.guavus.qb.cube.schema.ICube
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.utility.Utility
+import com.guavus.acume.core.AcumeContextTraitUtil
+import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 
 class PrefetchCubeLocator(schemas: List[QueryBuilderSchema]) {
 

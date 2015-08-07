@@ -12,10 +12,11 @@ import com.guavus.acume.core.AcumeContextTrait
 import java.lang.IllegalArgumentException
 import com.guavus.acume.core.AcumeService
 import com.guavus.acume.core.DataService
+import com.guavus.acume.core.AcumeContextTraitUtil
 
-class VariableGranularitySchedulerPolicy(acumeConf : AcumeConf) extends ISchedulerPolicy(acumeConf) {
+class VariableGranularitySchedulerPolicy extends ISchedulerPolicy {
 
-  val schedulerVariableRetentionMap: Map[Long, Int] = Utility.getLevelPointMap(acumeConf.getSchedulerVariableRetentionMap).map(x=> x._1.level -> x._2)
+  val schedulerVariableRetentionMap: Map[Long, Int] = Utility.getLevelPointMap(AcumeContextTraitUtil.acumeConf.getSchedulerVariableRetentionMap).map(x=> x._1.level -> x._2)
 
   val cachePopulationMap: HashMap[PrefetchCubeConfiguration, HashMap[String, HashMap[Long, Long]]] = new HashMap[PrefetchCubeConfiguration, HashMap[String, HashMap[Long, Long]]]()
 
@@ -75,8 +76,8 @@ class VariableGranularitySchedulerPolicy(acumeConf : AcumeConf) extends ISchedul
   }
 
   private def mergeTimeIntervals(duration: List[Interval], level: java.lang.Long, cubeGranularity: Long): List[Interval] = {
-    val maxDuration = cubeGranularity * acumeConf.getInstaComboPoints
-    val noOfIntervalsToBeCombined = (if (maxDuration / level > acumeConf.getSchedulerVariableRetentionCombinePoints) acumeConf.getSchedulerVariableRetentionCombinePoints else maxDuration / level).toInt
+    val maxDuration = cubeGranularity * AcumeContextTraitUtil.acumeConf.getInstaComboPoints
+    val noOfIntervalsToBeCombined = (if (maxDuration / level > AcumeContextTraitUtil.acumeConf.getSchedulerVariableRetentionCombinePoints) AcumeContextTraitUtil.acumeConf.getSchedulerVariableRetentionCombinePoints else maxDuration / level).toInt
     if (noOfIntervalsToBeCombined <= 1) {
       return duration
     }

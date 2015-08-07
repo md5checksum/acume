@@ -4,12 +4,13 @@ import scala.collection.mutable.HashMap
 import com.guavus.acume.core.AcumeConf
 import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.core.AcumeContextTraitUtil
 
 /**
  * @author archit.thakur
  *
  */
-abstract class ISchedulerPolicy(acumeConf: AcumeConf) {
+abstract class ISchedulerPolicy {
 
   def getIntervalsAndLastUpdateTime(startTime: Long, endTime: Long, cubeConfiguration: PrefetchCubeConfiguration, isFirstTimeRun: Boolean, optionalParams: HashMap[String, Any], taskManager: QueryRequestPrefetchTaskManager): PrefetchLastCacheUpdateTimeAndInterval
 
@@ -22,9 +23,9 @@ abstract class ISchedulerPolicy(acumeConf: AcumeConf) {
 object ISchedulerPolicy {
   
   val objectgetter = HashMap[String, ISchedulerPolicy]()
-  def getISchedulerPolicy(acumeConf: AcumeConf): ISchedulerPolicy = {
+  def getISchedulerPolicy : ISchedulerPolicy = {
     val schedulerpolicykey = ConfConstants.schedulerPolicyClass
-    val ischedulerpolicy = objectgetter.getOrElse(schedulerpolicykey, Class.forName(acumeConf.get(schedulerpolicykey)).getConstructor(classOf[AcumeConf]).newInstance(acumeConf)
+    val ischedulerpolicy = objectgetter.getOrElse(schedulerpolicykey, Class.forName(AcumeContextTraitUtil.acumeConf.get(schedulerpolicykey)).getConstructor(classOf[AcumeConf]).newInstance()
     .asInstanceOf[ISchedulerPolicy])
     if(!objectgetter.contains(schedulerpolicykey)) {
       objectgetter.put(schedulerpolicykey, ischedulerpolicy)

@@ -21,6 +21,7 @@ import com.guavus.acume.core.AcumeContextTrait
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.core.AcumeContext
 import java.util.concurrent.TimeoutException
+import com.guavus.acume.core.AcumeContextTraitUtil
 
 object QueryPrefetchTask {
 
@@ -28,11 +29,11 @@ object QueryPrefetchTask {
 
 }
 
-class QueryPrefetchTask(private var acumeService: AcumeService, @BeanProperty var request: PrefetchTaskRequest, version : Int, taskManager : QueryRequestPrefetchTaskManager, acumeContext : AcumeContextTrait) extends Runnable with Comparable[QueryPrefetchTask] {
+class QueryPrefetchTask(private var acumeService: AcumeService, @BeanProperty var request: PrefetchTaskRequest, version : Int, taskManager : QueryRequestPrefetchTaskManager) extends Runnable with Comparable[QueryPrefetchTask] {
 
-  private val RETRY_INTERVAL_IN_MILLIS = acumeContext.acumeConf.getQueryPrefetchTaskRetryIntervalInMillis
+  private val RETRY_INTERVAL_IN_MILLIS = AcumeContextTraitUtil.acumeConf.getQueryPrefetchTaskRetryIntervalInMillis
 
-  private val MAX_NO_RETRIES = acumeContext.acumeConf.getQueryPrefetchTaskNoOfRetries
+  private val MAX_NO_RETRIES = AcumeContextTraitUtil.acumeConf.getQueryPrefetchTaskNoOfRetries
 
   override def run() {
     logger.info("Consuming Task : {}", request)
@@ -43,8 +44,8 @@ class QueryPrefetchTask(private var acumeService: AcumeService, @BeanProperty va
     var flag = false
     breakable{
       while (true){
-    	acumeContext.acumeConf.setLocalProperty(ConfConstants.queryTimeOut, String.valueOf(acumeContext.acumeConf.get(ConfConstants.schedulerQueryTimeOut)* (reTryCount + 2)))
-    	acumeContext.acumeConf.setLocalProperty(ConfConstants.schedulerQuery, "true")
+    	AcumeConf.acumeConf.setLocalProperty(ConfConstants.queryTimeOut, String.valueOf(AcumeContextTraitUtil.acumeConf.get(ConfConstants.schedulerQueryTimeOut)* (reTryCount + 2)))
+    	AcumeConf.acumeConf.setLocalProperty(ConfConstants.schedulerQuery, "true")
         flag = false
         if (version != taskManager.getVersion) {
           logger.info("Not executing older prefetching task as view has changed")
@@ -52,8 +53,8 @@ class QueryPrefetchTask(private var acumeService: AcumeService, @BeanProperty va
         }
         reTryCount += 1
         try {
-          HttpUtils.setLoginInfo(acumeContext.acumeConf.getSuperUser)
-          logger.info(acumeService.servSqlQuery(request.toSql("ts"), acumeContext.acumeConf.getDatasourceName).toString)
+          HttpUtils.setLoginInfo(AcumeContextTraitUtil.acumeConf.getSuperUser)
+          logger.info(acumeService.servSqlQuery(request.toSql("ts")).toString)
           success = true
         } catch {
           case t: Throwable => {

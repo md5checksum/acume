@@ -22,6 +22,7 @@ import com.guavus.acume.core.configuration.ConfigFactory
 import com.guavus.qb.conf.QBConf
 import com.guavus.qb.services.QueryBuilderService
 import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.core.AcumeContextTraitUtil
 
 object QueryRequestPrefetchTaskManager {
 
@@ -33,14 +34,14 @@ object QueryRequestPrefetchTaskManager {
 
 }
 
-class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService, @BeanProperty schemas: List[QueryBuilderSchema], acumeContext : AcumeContextTrait, acumeService : AcumeService, schedulerPolicy : ISchedulerPolicy, controller : Controller) {
+class QueryRequestPrefetchTaskManager(@BeanProperty var schemas: List[QueryBuilderSchema], acumeService : AcumeService, schedulerPolicy : ISchedulerPolicy, controller : Controller) {
 
   val logger = LoggerFactory.getLogger(classOf[QueryRequestPrefetchTaskManager])
   private var consumerCombinerThreadPool: ExecutorService = _
   private var consumerThreadPool: ExecutorService = _
   private var producerThreadPool: ScheduledExecutorService = Executors.newScheduledThreadPool(QueryRequestPrefetchTaskManager.MAX_TASK_PRODUCERS, new NamedThreadPoolFactory("PrefetchTaskProducer"))
   private var scheduledFuture: ScheduledFuture[_] = _
-  private var queryPrefetchTaskProducer: QueryPrefetchTaskProducer = new QueryPrefetchTaskProducer(acumeContext, schemas, this, dataService, acumeService, false, schedulerPolicy, controller)
+  private var queryPrefetchTaskProducer: QueryPrefetchTaskProducer = new QueryPrefetchTaskProducer(schemas, this, acumeService, false, schedulerPolicy, controller)
 
   @BeanProperty
   var binSourceToCacheAvailability: HashMap[String, HashMap[Long, Interval]] = new HashMap[String, HashMap[Long, Interval]]()
@@ -64,12 +65,12 @@ class QueryRequestPrefetchTaskManager(@BeanProperty var dataService: DataService
 
   def startPrefetchScheduler() {
     queryPrefetchTaskProducer.clearTaskCacheUpdateTimeMap()
-    scheduledFuture = producerThreadPool.scheduleAtFixedRate(queryPrefetchTaskProducer, 0, acumeContext.acumeConf.getSchedulerCheckInterval, TimeUnit.SECONDS)
+    scheduledFuture = producerThreadPool.scheduleAtFixedRate(queryPrefetchTaskProducer, 0, AcumeContextTraitUtil.acumeConf.getSchedulerCheckInterval, TimeUnit.SECONDS)
   }
 
   private def initConsumerThreadPool() {
     consumerCombinerThreadPool = new GracefullShutdownExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new PriorityBlockingQueue[Runnable](QueryRequestPrefetchTaskManager.INITIAL_TASK_QUEUE_SIZE), new NamedThreadPoolFactory("PrefetchScheduler"))
-    consumerThreadPool = new GracefullShutdownExecutor(acumeContext.acumeConf.getSchedulerThreadPoolSize, acumeContext.acumeConf.getSchedulerThreadPoolSize, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue[Runnable](QueryRequestPrefetchTaskManager.INITIAL_TASK_QUEUE_SIZE), new NamedThreadPoolFactory("PrefetchScheduler-inner"))
+    consumerThreadPool = new GracefullShutdownExecutor(AcumeContextTraitUtil.acumeConf.getSchedulerThreadPoolSize, AcumeContextTraitUtil.acumeConf.getSchedulerThreadPoolSize, 0L, TimeUnit.MILLISECONDS, new ArrayBlockingQueue[Runnable](QueryRequestPrefetchTaskManager.INITIAL_TASK_QUEUE_SIZE), new NamedThreadPoolFactory("PrefetchScheduler-inner"))
   }
 
   def submitInnerTask(task: QueryPrefetchTask): Future[_] = consumerThreadPool.submit(task)
