@@ -23,8 +23,8 @@ trait AcumeCacheContextTrait extends Serializable {
 	
   lazy private [cache] val measureMap = AcumeCacheContextTraitUtil.measureMap
 	lazy private [cache] val dimensionMap = AcumeCacheContextTraitUtil.dimensionMap
-  lazy private [cache] val cubeMap = AcumeCacheContextTraitUtil.cubeMap.filter(cubeKey => cubeKey._2.equals(cacheConf.getDataSourceName))
-  lazy private [cache] val cubeList = AcumeCacheContextTraitUtil.cubeList.filter(cube => cube.dataSourceName.equals(cacheConf.getDataSourceName))
+  lazy private [cache] val cubeMap = AcumeCacheContextTraitUtil.cubeMap.filter(cubeKey => cubeKey._2.dataSourceName.equalsIgnoreCase(cacheConf.getDataSourceName))
+  lazy private [cache] val cubeList = AcumeCacheContextTraitUtil.cubeList.filter(cube => cube.dataSourceName.equalsIgnoreCase(	cacheConf.getDataSourceName))
 
   
   def acql(sql: String): AcumeCacheResponse = {
