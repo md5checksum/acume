@@ -15,7 +15,7 @@ import com.guavus.rubix.query.remote.flex.QueryRequest
  */
 object DataServiceFactory {
   
-  private lazy val dataserviceMapBean = ConfigFactory.getInstance().getBean(classOf[HashMap[String, DataService]])
+  private lazy val dataserviceMapBean = ConfigFactory.getInstance().getBean(classOf[DataServiceMap])
   private lazy val dsInterpreterPolicy = Class.forName(AcumeContextTraitUtil.acumeConf.get(ConfConstants.datasourceInterpreterPolicy)).getConstructors()(0).newInstance().asInstanceOf[DsInterpreterPolicy]
   
   def initDataServiceFactory(queryBuilderServiceMap: HashMap[String, Seq[IQueryBuilderService]], acumeContextMap : HashMap[String, AcumeContextTrait]) : HashMap[String, DataService] = {
@@ -32,7 +32,7 @@ object DataServiceFactory {
   
   def getDataserviceInstance(query : String) : DataService = {
     val dsName = dsInterpreterPolicy.interpretDsName(query)
-    dataserviceMapBean.get(dsName).get
+    dataserviceMapBean.d.get(dsName).get
   }
   
   def getDataserviceInstance(queryRequest: QueryRequest, requestDataType: RequestDataType.RequestDataType): DataService = {
