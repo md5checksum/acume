@@ -36,6 +36,7 @@ object AcumeContextTraitUtil {
   def initAcumeContextTraitFactory(datsourceNames : Array[String]) : HashMap[String, AcumeContextTrait] = {
     val acumeContextMap = HashMap[String, AcumeContextTrait]()
     
+    val insta = InstaUtil.initializeInstaClient(hiveContext)
     datsourceNames.map(dsName => {
       val context: AcumeContextTrait =
         DatasourceType.getDataSourceTypeFromString(dsName.toLowerCase) match {
@@ -51,7 +52,6 @@ object AcumeContextTraitUtil {
     })
     
     initCheckpointDir
-    val insta = InstaUtil.initializeInstaClient(hiveContext)
     BinAvailabilityPoller.init(insta)
     acumeContextMap
   }
