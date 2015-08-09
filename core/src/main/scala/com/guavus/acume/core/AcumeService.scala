@@ -172,7 +172,11 @@ class AcumeService {
     var poolname: String = null
     var classificationname: String = null
     
-    val dataService = DataServiceFactory.getDataserviceInstance(requests(0).asInstanceOf[QueryRequest], requestDataType)
+    val dataService = 
+      if(requests(0).isInstanceOf[QueryRequest])
+        DataServiceFactory.getDataserviceInstance(requests(0).asInstanceOf[QueryRequest], requestDataType)
+      else
+        DataServiceFactory.getDataserviceInstance(requests(0).asInstanceOf[String])
     
     this.synchronized {
       var classificationandpool = dataService.checkJobLevelProperties(requests, requestDataType)
