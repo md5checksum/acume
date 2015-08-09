@@ -25,7 +25,7 @@ object ISchedulerPolicy {
   val objectgetter = HashMap[String, ISchedulerPolicy]()
   def getISchedulerPolicy : ISchedulerPolicy = {
     val schedulerpolicykey = ConfConstants.schedulerPolicyClass
-    val ischedulerpolicy = objectgetter.getOrElse(schedulerpolicykey, Class.forName(AcumeContextTraitUtil.acumeConf.get(schedulerpolicykey)).getConstructor(classOf[AcumeConf]).newInstance()
+    val ischedulerpolicy = objectgetter.getOrElse(schedulerpolicykey, Class.forName(AcumeContextTraitUtil.acumeConf.get(schedulerpolicykey)).getConstructor().newInstance()
     .asInstanceOf[ISchedulerPolicy])
     if(!objectgetter.contains(schedulerpolicykey)) {
       objectgetter.put(schedulerpolicykey, ischedulerpolicy)
