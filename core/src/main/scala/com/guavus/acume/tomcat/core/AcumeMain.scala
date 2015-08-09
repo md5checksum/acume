@@ -2,11 +2,9 @@ package com.guavus.acume.tomcat.core
 
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ArrayBuffer
-
 import org.apache.spark.sql.hive.thriftserver.AcumeThriftServer
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import com.guavus.acume.core.AcumeContextTrait
 import com.guavus.acume.core.configuration.ConfigFactory
 import com.guavus.acume.core.scheduler.QueryRequestPrefetchTaskManager
@@ -16,6 +14,7 @@ import com.guavus.rubix.user.management.IDML
 import com.guavus.rubix.user.management.InitDatabase
 import com.guavus.rubix.user.management.UMProperties
 import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.core.AcumeContextTraitUtil
 
 
 /**
@@ -26,21 +25,20 @@ object AcumeMain {
   private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeMain])
   
   def startAcumeComponents = {
-    val acumeContext = ConfigFactory.getInstance.getBean(classOf[AcumeContextTrait])
-	
-	  if(acumeContext.acumeConf.getEnableJDBCServer.toBoolean)
+
+    if(AcumeContextTraitUtil.acumeConf.getEnableJDBCServer.toBoolean)
 		  AcumeThriftServer.main(Array[String]())
       
 	  //Initiate the session Factory for user management db
     SessionFactory.getInstance(SessionContext.DISTRIBUTED)
     InitDatabase.initializeDatabaseTables(ArrayBuffer[IDML]())
-    UMProperties.setGlobalTimeZone(acumeContext.acumeConf.getAcumeTimeZone)
+    UMProperties.setGlobalTimeZone(AcumeContextTraitUtil.acumeConf.getAcumeTimeZone)
     logger.info("Called AcumeMain")
     
     val startTime = System.currentTimeMillis
  
     //start Prefetch Scheduler
-    val numberOfEnabledSchedulers =  acumeContext.acumeConf.settings.filter(_._1.contains(ConfConstants.enableScheduler)).map(_._2).filter("true".equalsIgnoreCase(_)).size
+    val numberOfEnabledSchedulers =  AcumeContextTraitUtil.acumeConf.settings.filter(_._1.contains(ConfConstants.enableScheduler)).map(_._2).filter("true".equalsIgnoreCase(_)).size
     if(numberOfEnabledSchedulers != 0)
     	ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).startPrefetchScheduler
    
