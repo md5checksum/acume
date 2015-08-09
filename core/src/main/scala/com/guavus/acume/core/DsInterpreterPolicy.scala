@@ -23,7 +23,7 @@ class DsInterpreterPolicyImpl extends DsInterpreterPolicy {
     val sql = SQLParserFactory.getParserManager
     val statement = sql.parse(new StringReader(query)).asInstanceOf[Select].getSelectBody.asInstanceOf[PlainSelect]
     
-    val tableName = statement.getInto.getName
+    val tableName = statement.getFromItem().toString
     
     val cube = AcumeCacheContextTraitUtil.cubeList.filter(cube => cube.dataSourceName.equalsIgnoreCase(tableName))
     val dsName : String = cube.size match {
