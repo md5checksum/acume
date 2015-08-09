@@ -36,12 +36,29 @@ trait AcumeAppConfigTrait extends Serializable {
   def dataSource : String
   * 
   */
+  def acumeService: AcumeService
+  def dataServiceMap(queryBuilderServiceMap : QueryBuilderSerciceMap, acumeContextMap : AcumeContextTraitMap): DataServiceMap
+  def defaultTimeGranularity(): TimeGranularity
+  def acumeContextMap(datasourceNames : DataSourceNames) : AcumeContextTraitMap 
+  def queryBuilderServiceMap(datasourceNames : DataSourceNames, acumeContextMap : AcumeContextTraitMap) : QueryBuilderSerciceMap 
+  def permissionTemplate(): IPermissionTemplate
+  def queryRequestPrefetchTaskManager(queryBuilderServiceMap: QueryBuilderSerciceMap, acumeService : AcumeService, controller: Controller) : QueryRequestPrefetchTaskManager 
+  def controller(acumeContextMap : AcumeContextTraitMap) : Controller 
+  def datasourceNames : DataSourceNames
+  
+  
+  
+  
+  
+  /*
+
+  def datasourceNames : Array[String]
   
   def acumeService: AcumeService
   
   def dataServiceMap(queryBuilderServiceMap : HashMap[String, Seq[IQueryBuilderService]], acumeContextMap : HashMap[String, AcumeContextTrait]): HashMap[String, DataService]
   
-  def defaultTimeGranularity(): TimeGranularity = TimeGranularity.HOUR
+  def defaultTimeGranularity(): TimeGranularity
   
   def acumeContextMap(datasourceNames : Array[String]) : HashMap[String, AcumeContextTrait]
   
@@ -53,6 +70,5 @@ trait AcumeAppConfigTrait extends Serializable {
   
   def controller(acumeContextMap : HashMap[String, AcumeContextTrait]) : Controller
   
-  def datasourceNames : Array[String]
-
+*/
 }
