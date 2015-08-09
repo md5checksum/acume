@@ -12,6 +12,8 @@ import com.guavus.acume.core.configuration.ConfigFactory
 import AggregateResponse._
 import javax.xml.bind.annotation.XmlRootElement
 import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.core.AcumeContextTraitUtil
+
 
 object AggregateResponse {
 
@@ -52,7 +54,7 @@ class AggregateResponse extends Serializable {
   var totalRecords: Int = _
 
   override def toString(): String = {
-    val maxLen = ConfigFactory.getInstance.getBean(classOf[AcumeContextTrait]).acumeConf().getMaxQueryLogRecords
+    val maxLen = AcumeContextTraitUtil.acumeConf.getMaxQueryLogRecords
     
     val aggResponse =
       if (maxLen < 0)

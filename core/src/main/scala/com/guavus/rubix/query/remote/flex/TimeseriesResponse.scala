@@ -11,6 +11,7 @@ import com.guavus.acume.core.configuration.ConfigFactory
 import com.guavus.acume.core.AcumeContext
 import java.util.List
 import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.core.AcumeContextTraitUtil
 
 object TimeseriesResponse {
 
@@ -25,7 +26,7 @@ object TimeseriesResponse {
 class TimeseriesResponse(@BeanProperty var results: List[TimeseriesResultSet], @BeanProperty var responseDimensions: List[String], @BeanProperty var responseMeasures: List[String], @BeanProperty var timestamps: List[Long]) extends Serializable {
 
   override def toString(): String = {
-    val maxLen = ConfigFactory.getInstance.getBean(classOf[AcumeContextTrait]).acumeConf().getMaxQueryLogRecords	
+    val maxLen = AcumeContextTraitUtil.acumeConf.getMaxQueryLogRecords	
     val tsResponse = new TimeseriesResponse(results.subList(0,Math.min(results.size, maxLen)), responseDimensions, responseMeasures, timestamps)
     gson.toJson(tsResponse)
   }

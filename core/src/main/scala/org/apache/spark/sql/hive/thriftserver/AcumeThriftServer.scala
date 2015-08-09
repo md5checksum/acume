@@ -38,6 +38,7 @@ import com.guavus.acume.core.AcumeContext
 import org.apache.spark.sql.hive.thriftserver.ReflectionUtils._
 import com.guavus.acume.core.AcumeContextTrait
 import org.apache.hadoop.security.UserGroupInformation
+import com.guavus.acume.core.AcumeContextTraitUtil
 
 /**
  * The main entry point for the Spark SQL port of HiveServer2.  Starts up a `SparkSQLContext` and a
@@ -78,7 +79,7 @@ object AcumeThriftServer extends Logging {
 
     try {
       // TODO: Check if multiple contextTraits are initialized, then this will throw error.
-      val server = new AcumeThriftServer(ConfigFactory.getInstance.getBean(classOf[AcumeContextTrait]).sqlContext().asInstanceOf[HiveContext])
+      val server = new AcumeThriftServer(AcumeContextTraitUtil.hiveContext)
       server.init(hiveConf)
       server.start()
       logInfo("HiveThriftServer2 started")
