@@ -25,10 +25,10 @@ class DsInterpreterPolicyImpl extends DsInterpreterPolicy {
     
     val tableName = statement.getFromItem().toString
     
-    val cube = AcumeCacheContextTraitUtil.cubeList.filter(cube => cube.dataSourceName.equalsIgnoreCase(tableName))
-    val dsName : String = cube.size match {
+    val dsNames = AcumeCacheContextTraitUtil.cubeList.filter(cube => cube.cubeName.equalsIgnoreCase(tableName)).map(cube => cube.dataSourceName)
+    val dsName : String = dsNames.size match {
       case 0 => AcumeContextTraitUtil.acumeConf.get(ConfConstants.defaultDatasource)
-      case 1 => cube.get(0).get.dataSourceName
+      case 1 => dsNames.get(0).get//cube.get(0).get.dataSourceName
       case _ => throw new RuntimeException("Multiple Cubes found with this tablename. Cant resolve datasourceName")
     }
     

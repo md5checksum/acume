@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Acume>
+   <Fields>
+      <Field>
+         <Info>a,string,dimension,none,0</Info>
+      </Field>
+      <Field>
+         <Info>ts,string,dimension,none,0</Info>
+      </Field>
+      <Field>
+         <Info>c,string,dimension,none,0</Info>
+      </Field>
+      <Field>
+         <Info>d,string,dimension,none,0</Info>
+      </Field>
+      <Field>
+         <Info>e,string,dimension,none,0</Info>
+      </Field>
+      <Field>
+         <Info>f,string,dimension,none,0</Info>
+      </Field>
+      <Field>
+         <Info>col,long,measure,sum,0</Info>
+      </Field>
+
+
+
+
+        <Field>
+        <Info>
+        DC,int,dimension,none,0
+        </Info>
+        </Field>
+        
+        <Field>
+        <Info>
+        APN,int,dimension,none,0
+        </Info>
+        </Field>
+        
+        <Field>
+        <Info>
+        DEVICE,int,dimension,none,0
+        </Info>
+        </Field>
+        
+        <Field>
+        <Info>
+        TT_APP_CAT,int,dimension,none,0
+        </Info>
+        </Field>
+        
+         <Field>
+        <Info>
+        RAT,int,dimension,none,0
+        </Info>
+        </Field>
+        
+        <Field>
+        <Info>
+        SUBCR,int,dimension,none,0
+        </Info>
+        </Field>
+        
+        <Field>
+        <Info>
+        SEGMENT,int,dimension,none,0
+        </Info>
+        </Field>
+        
+        <Field>
+        <Info>
+        FLOW_DURATION,double,measure,sum,0
+        </Info>
+        </Field>
+        
+        <Field>
+        <Info>
+        PEAK_FLOW_DUR,double,measure,sum,0
+        </Info>
+        </Field>
+        
+        <Field>
+        <Info>
+        DOWN_BYTES,double,measure,sum,0
+        </Info>
+        </Field>
+
+        <Field>
+        <Info>
+        UP_BYTES,double,measure,sum,0
+        </Info>
+        </Field>
+
+        <Field>
+        <Info>
+        FLOW_COUNT,double,measure,sum,0
+        </Info>
+        </Field>
+
+        <Field>
+        <Info>
+        HIT_COUNT,double,measure,sum,0
+        </Info>
+        </Field>
+
+        <Field>
+        <Info>
+        BYTES,double,measure,sum,0
+        </Info>
+        </Field>
+
+        <Field>
+        <Info>
+        TT_FLOW_COUNT,double,measure,sum,0
+        </Info>
+        </Field>
+
+        <Field>
+        <Info>
+        TT_BYTES,double,measure,sum,0
+        </Info>
+        </Field>
+
+
+   </Fields>
+   <!--
+    Annotation function in Field, 
+    aggregation function in Cube.
+    -->
+   <Cubes>
+      <Cube>
+         <Info>test1, __DEFAULT_BINSRC__, hbase</Info>
+         <Fields>a,ts,c,d,e,col</Fields>
+         <Properties>basegranularity:1h, cubetype:normal, levelpolicymap:1h:53, timeserieslevelpolicymap:1h:720, evictionpolicyclass: com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy, primaryKeys:a;ts;c;d;e, tableName:final4tab3, columnMappings:[col->cf1.delta] 
+</Properties>
+      </Cube>
+
+       <Cube>
+            <Info>
+                ALL_DEV,__DEFAULT_BINSRC__,cache
+            </Info>
+            <Fields>
+                DC, HIT_COUNT, BYTES, TT_FLOW_COUNT, TT_BYTES
+            </Fields>
+            <Properties>
+                basegranularity:1h, cubetype:normal, levelpolicymap:1h:6;3h:4;4h:6, timeserieslevelpolicymap:1h:6;3h:4;4h:6, evictionpolicyclass:com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy, cacheType:AcumeFlatSchemaTreeCache
+            </Properties>
+        </Cube>
+        
+   </Cubes>
+</Acume>

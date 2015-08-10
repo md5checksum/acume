@@ -10,6 +10,9 @@ import com.guavus.acume.core.DataService
  */
 
 case class AcumeContextTraitMap(var a : HashMap[String, AcumeContextTrait])
+
 case class QueryBuilderSerciceMap(var q : HashMap[String, Seq[IQueryBuilderService]])
+
 case class DataServiceMap(var d : HashMap[String, DataService])
+
 case class DataSourceNames(var d : Array[String])
