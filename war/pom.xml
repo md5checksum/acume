@@ -30,7 +30,7 @@
 <dependency>
 <groupId>com.guavus.acume</groupId>
 <artifactId>core</artifactId>
-<version>0.1-SNAPSHOT</version>
+<version>platform5.0</version>
 <exclusions>
 	<exclusion>
 		<groupId>org.apache.spark</groupId>
