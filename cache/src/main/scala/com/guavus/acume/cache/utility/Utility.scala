@@ -349,7 +349,7 @@ object Utility extends Logging {
         }
         
         if(cubeMap.contains(CubeKey(cubeName, cubebinsource))) {
-          throw new RuntimeException("Xml contains more than one cube with same CubeKey(cubename + cubebinsource).")
+          throw new RuntimeException(s"Xml contains more than one cube with same CubeKey($cubeName + $cubebinsource).")
         }
         
         

@@ -1,15 +1,9 @@
 package com.guavus.acume.core.configuration
 
-import scala.collection.mutable.HashMap
-
-import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
-import com.guavus.acume.core.AcumeContextTrait
 import com.guavus.acume.core.AcumeService
-import com.guavus.acume.core.DataService
 import com.guavus.acume.core.scheduler.Controller
 import com.guavus.acume.core.scheduler.QueryRequestPrefetchTaskManager
-import com.guavus.qb.services.IQueryBuilderService
 import com.guavus.rubix.user.permission.IPermissionTemplate
 
 /*
@@ -17,6 +11,8 @@ import com.guavus.rubix.user.permission.IPermissionTemplate
  */
 trait AcumeAppConfigTrait extends Serializable {
   /*
+   * Old Set of beans. 
+   * /
   def acumeService(dataService: DataService): AcumeService
 
   def dataService(queryBuilderService : Seq[IQueryBuilderService], ac : AcumeContextTrait): DataService 
@@ -33,42 +29,27 @@ trait AcumeAppConfigTrait extends Serializable {
   
   def controller(acumeContext : AcumeContextTrait) : Controller = throw new AbstractMethodError("Method not implemented.")
   
-  def dataSource : String
-  * 
   */
-  def acumeService: AcumeService
-  def dataServiceMap(queryBuilderServiceMap : QueryBuilderSerciceMap, acumeContextMap : AcumeContextTraitMap): DataServiceMap
-  def defaultTimeGranularity(): TimeGranularity
-  def acumeContextMap(datasourceNames : DataSourceNames) : AcumeContextTraitMap 
-  def queryBuilderServiceMap(datasourceNames : DataSourceNames, acumeContextMap : AcumeContextTraitMap) : QueryBuilderSerciceMap 
-  def permissionTemplate(): IPermissionTemplate
-  def queryRequestPrefetchTaskManager(queryBuilderServiceMap: QueryBuilderSerciceMap, acumeService : AcumeService, controller: Controller) : QueryRequestPrefetchTaskManager 
-  def controller(acumeContextMap : AcumeContextTraitMap) : Controller 
-  def datasourceNames : DataSourceNames
-  
-  
-  
-  
   
   /*
-
-  def datasourceNames : Array[String]
-  
+   *  New set of beans for multiple datasaource support
+   */
   def acumeService: AcumeService
   
-  def dataServiceMap(queryBuilderServiceMap : HashMap[String, Seq[IQueryBuilderService]], acumeContextMap : HashMap[String, AcumeContextTrait]): HashMap[String, DataService]
-  
+  def dataServiceMap(queryBuilderServiceMap : QueryBuilderSerciceMap, acumeContextMap : AcumeContextTraitMap): DataServiceMap
+
   def defaultTimeGranularity(): TimeGranularity
   
-  def acumeContextMap(datasourceNames : Array[String]) : HashMap[String, AcumeContextTrait]
+  def acumeContextMap(datasourceNames : DataSourceNames) : AcumeContextTraitMap 
   
-  def queryBuilderServiceMap(datasourceNames : Array[String], acumeContextMap : HashMap[String, AcumeContextTrait]) : HashMap[String, Seq[IQueryBuilderService]]
+  def queryBuilderServiceMap(datasourceNames : DataSourceNames, acumeContextMap : AcumeContextTraitMap) : QueryBuilderSerciceMap 
   
   def permissionTemplate(): IPermissionTemplate
   
-  def queryRequestPrefetchTaskManager(queryBuilderServiceMap: HashMap[String, Seq[IQueryBuilderService]], acumeService : AcumeService, controller: Controller) : QueryRequestPrefetchTaskManager
+  def queryRequestPrefetchTaskManager(queryBuilderServiceMap: QueryBuilderSerciceMap, acumeService : AcumeService, controller: Controller) : QueryRequestPrefetchTaskManager 
   
-  def controller(acumeContextMap : HashMap[String, AcumeContextTrait]) : Controller
+  def controller(acumeContextMap : AcumeContextTraitMap) : Controller 
   
-*/
+  def datasourceNames : DataSourceNames
+  
 }
