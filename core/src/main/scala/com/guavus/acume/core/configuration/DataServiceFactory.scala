@@ -1,14 +1,17 @@
 package com.guavus.acume.core.configuration
 
 import scala.collection.mutable.HashMap
-import com.guavus.acume.core.AcumeContextTrait
-import com.guavus.acume.core.DataService
-import com.guavus.qb.services.IQueryBuilderService
-import com.guavus.acume.core.AcumeContextTraitUtil
-import com.guavus.acume.core.DsInterpreterPolicy
+
 import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.core.AcumeContextTrait
+import com.guavus.acume.core.AcumeContextTraitUtil
+import com.guavus.acume.core.DataService
+import com.guavus.acume.core.DsInterpreterPolicy
 import com.guavus.acume.workflow.RequestDataType
+import com.guavus.qb.services.IQueryBuilderService
 import com.guavus.rubix.query.remote.flex.QueryRequest
+
+import javax.xml.bind.annotation.XmlRootElement
 
 /**
  * @author kashish.jain
@@ -30,15 +33,15 @@ object DataServiceFactory {
     tempMap
   }
   
-  def getDataserviceInstance(query : String) : DataService = {
-    val dsName = dsInterpreterPolicy.interpretDsName(query)
-    dataserviceMapBean.d.get(dsName).get
+  def getDataserviceInstance(queryObject : Any, requestDataType: RequestDataType.RequestDataType):  DataService = {
+    requestDataType match {
+      case RequestDataType.SQL => 
+        dataserviceMapBean.d.get(dsInterpreterPolicy.interpretDsName(queryObject.asInstanceOf[String])).get
+      case RequestDataType.Aggregate =>
+        dataserviceMapBean.d.get(dsInterpreterPolicy.interpretDsName(queryObject.asInstanceOf[QueryRequest].toSql(""))).get
+      case RequestDataType.TimeSeries =>
+        dataserviceMapBean.d.get(dsInterpreterPolicy.interpretDsName(queryObject.asInstanceOf[QueryRequest].toSql("ts, "))).get
+    }
   }
   
-  def getDataserviceInstance(queryRequest: QueryRequest, requestDataType: RequestDataType.RequestDataType): DataService = {
-    if(requestDataType.equals(RequestDataType.Aggregate))
-      getDataserviceInstance(queryRequest.toSql(""))
-    else
-      getDataserviceInstance(queryRequest.toSql("ts, "))
-  }
 }

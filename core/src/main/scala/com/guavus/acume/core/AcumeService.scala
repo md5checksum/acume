@@ -172,11 +172,7 @@ class AcumeService {
     var poolname: String = null
     var classificationname: String = null
     
-    val dataService = 
-      if(requests(0).isInstanceOf[QueryRequest])
-        DataServiceFactory.getDataserviceInstance(requests(0).asInstanceOf[QueryRequest], requestDataType)
-      else
-        DataServiceFactory.getDataserviceInstance(requests(0).asInstanceOf[String])
+    val dataService = DataServiceFactory.getDataserviceInstance(requests(0), requestDataType)
     
     this.synchronized {
       var classificationandpool = dataService.checkJobLevelProperties(requests, requestDataType)
@@ -241,17 +237,17 @@ class AcumeService {
    * Serves only aggregate request. if request type is timeseries this method fails.
    */
   def  servAggregateSingleQuery(queryRequest : QueryRequest, property: HashMap[String, Any] = null) : AggregateResponse = {
-    val dataService = DataServiceFactory.getDataserviceInstance(queryRequest.toSql(""))
+    val dataService = DataServiceFactory.getDataserviceInstance(queryRequest, RequestDataType.Aggregate)
     dataService.servAggregate(queryRequest, property)
   }
   
   def servTimeseriesSingleQuery(queryRequest : QueryRequest, property: HashMap[String, Any] = null) : TimeseriesResponse = {
-    val dataService = DataServiceFactory.getDataserviceInstance(queryRequest.toSql("ts, "))
+    val dataService = DataServiceFactory.getDataserviceInstance(queryRequest, RequestDataType.TimeSeries)
     dataService.servTimeseries(queryRequest, property)
   }
   
   def  servSingleQuery(queryRequest : String, property: HashMap[String, Any] = null) : Serializable = {
-    val dataService = DataServiceFactory.getDataserviceInstance(queryRequest)
+    val dataService = DataServiceFactory.getDataserviceInstance(queryRequest, RequestDataType.SQL)
     dataService.servRequest(queryRequest, property).asInstanceOf[Serializable]
   }
   
@@ -280,12 +276,12 @@ class AcumeService {
   }
   
   def  servSqlQuery2(queryRequest : String) = {
-    val dataService = DataServiceFactory.getDataserviceInstance(queryRequest)
+    val dataService = DataServiceFactory.getDataserviceInstance(queryRequest, RequestDataType.SQL)
     dataService.execute(queryRequest)
   }
   
   def searchRequest(searchRequest : SearchRequest) : SearchResponse = {
-    val dataService = DataServiceFactory.getDataserviceInstance(searchRequest.toSql)
+    val dataService = DataServiceFactory.getDataserviceInstance(searchRequest.toSql, RequestDataType.SQL)
     dataService.servSearchRequest(searchRequest)
   }
   
