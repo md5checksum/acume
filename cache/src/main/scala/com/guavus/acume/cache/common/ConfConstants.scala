@@ -11,6 +11,10 @@ import com.guavus.acume.cache.core.AcumeCacheType
 
 private [acume] object ConfConstants {
 
+  /*Thread level properties */
+  val queryTimeOut = "acume.global.query.timeout"
+  val schedulerQuery = "acume.core.scheduler.query"
+  
   /* Acume global properties */
   val superUser = "acume.global.super.user"
   val springResolver = "acume.global.resolver"
@@ -25,7 +29,6 @@ private [acume] object ConfConstants {
   val acumecorebinsource = "acume.global.binsource"
   val udfConfigXml = "acume.global.udf.configurationxml"
   val acumeglobalbasegranularity = "acume.global.basegranularity"
-  val queryTimeOut = "acume.global.query.timeout"
   val maxAllowedQueriesPerClassification = "acume.global.classification.max.allowedQueries"
   val queryPoolPolicyClass = "acume.global.scheduler.querypoolpolicyclass"
   val schedulerPolicyClass = "acume.global.scheduler.schedulerpolicyclass"
@@ -76,7 +79,6 @@ private [acume] object ConfConstants {
   val columnMappings = "columnMappings"
 
   val queryPoolSchedPolicyClass = "com.guavus.acume.core.QueryPoolPolicySchedulerImpl"
-    val schedulerQuery = "acume.core.scheduler.query"
   
   val defaultValueMap = Map[String, String]()
   defaultValueMap += businesscubexml -> "src/test/resources/cubedefinition1.xml"

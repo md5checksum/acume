@@ -29,7 +29,7 @@ import org.apache.shiro.config.Ini.Section
  * @param loadDefaults whether to also load values from Java system properties
  */
 
-class AcumeCacheConf(datasourceName: String, loadSystemPropertyOverDefault: Boolean, file: String) extends Cloneable with Serializable {
+class AcumeCacheConf(var datasourceName: String, loadSystemPropertyOverDefault: Boolean, file: String) extends Cloneable with Serializable {
   
   private val logger = LoggerFactory.getLogger(this.getClass())
   
@@ -150,6 +150,9 @@ class AcumeCacheConf(datasourceName: String, loadSystemPropertyOverDefault: Bool
   }
   
   def getDataSourceName : String = datasourceName
+  
+  def setDataSourceName(dsName : String) { this.datasourceName = dsName }
+  
 }
 
 object AcumeCacheConf {

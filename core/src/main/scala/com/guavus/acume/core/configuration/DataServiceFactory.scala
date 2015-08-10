@@ -27,7 +27,7 @@ object DataServiceFactory {
     
     queryBuilderServiceMap.map(qbService => {
       val acumContext = acumeContextMap.get(qbService._1).get
-      tempMap.+=(qbService._1 -> new DataService(qbService._2, acumContext))
+      tempMap.+=(qbService._1 -> new DataService(qbService._2, acumContext, qbService._1))
     })
     
     tempMap

@@ -353,6 +353,10 @@ object Utility extends Logging {
         }
         
         
+        /* Set the datasourceName in acumeCacheConf so that retrieving the values is easier */
+        conf.setDataSourceName(cubeDatasourceName)
+
+        
         // Parse the cube fields
         val fields = c.getFields().split(",").map(_.trim)
         val dimensionSet = scala.collection.mutable.MutableList[Dimension]()
@@ -434,7 +438,7 @@ object Utility extends Logging {
         val Gnx = getProperty(propertyMap, ConfConstants.basegranularity, ConfConstants.acumeglobalbasegranularity, conf, cubeName)
         val granularity = TimeGranularity.getTimeGranularityForVariableRetentionName(Gnx).getOrElse(throw new RuntimeException("Granularity doesnot exist " + Gnx))
         val _$eviction = Class.forName(getProperty(propertyMap, ConfConstants.evictionpolicyforcube, ConfConstants.acumeEvictionPolicyClass, conf, cubeName)).asSubclass(classOf[EvictionPolicy])
-        val schemaType = AcumeCacheType.getAcumeCacheType(getProperty(propertyMap, "cacheType", ConfConstants.acumeCacheDefaultType, conf, cubeName))
+        val schemaType = AcumeCacheType.getAcumeCacheType(getProperty(propertyMap, "cacheType", ConfConstants.acumeCacheDefaultType, conf, cubeName), conf)
         
         val cube = Cube(cubeName, cubebinsource, cubeDatasourceName, DimensionSet(dimensionSet.toList), MeasureSet(measureSet.toList), singleEntityKeysMap, granularity, true, inMemoryPolicyMap, diskLevelPolicyMap, timeserieslevelpolicymap, _$eviction, schemaType, hbaseConfig, propertyMap.toMap)
         cubeMap.put(CubeKey(cubeName, cubebinsource), cube)

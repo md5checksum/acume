@@ -44,7 +44,7 @@ import DataService._
 /**
  * This class interacts with query builder and Olap cache.
  */
-class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeContext: AcumeContextTrait) {
+class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeContext: AcumeContextTrait, datasourceName: String) {
 
   val counter = new AtomicLong(0l)
   
@@ -162,7 +162,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       
       def runWithTimeout[T](f: => (AcumeCacheResponse, Array[Row])): (AcumeCacheResponse, Array[Row]) = {
         lazy val fut = future { f }
-        Await.result(fut, DurationInt(acumeContext.acumeConf.getInt(ConfConstants.queryTimeOut).getOrElse(30)) second)
+        Await.result(fut, DurationInt(AcumeConf.acumeConf.getInt(ConfConstants.queryTimeOut).getOrElse(30)) second)
       }
       
       def run(sql: String, jobGroupId : String, jobDescription : String, conf: AcumeConf, localProperties : HashMap[String, Any]) = {
@@ -170,8 +170,8 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         getSparkJobLocalProperties ++= localProperties
         setSparkJobLocalProperties
         try {
-          //conf.setDatasourceName(dsName)
-          AcumeConf.setConf(conf)
+          conf.setDatasourceName(datasourceName)
+          //AcumeConf.setConf(conf) This is redundant
           acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
           val cacheResponse = execute(sql)
           val responseRdd = cacheResponse.rowRDD
@@ -184,7 +184,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       val localProperties = if (property == null) getSparkJobLocalProperties else property
       val (cacheResponse, rows) = run(sql, jobGroupId, jobDescription, acumeContext.acumeConf, localProperties)
       
-      val fields = queryBuilderService.get(0).getQuerySchema(sql, cacheResponse.schemaRDD.schema.fieldNames.toList) //schemaRdd.schemaschema.fieldNames
+      val fields = queryBuilderService.get(0).getQuerySchema(sql, cacheResponse.schemaRDD.schema.fieldNames.toList)
       
       val acumeSchema: QueryBuilderSchema = queryBuilderService.get(0).getQueryBuilderSchema
       val dimsNames = new ArrayBuffer[String]()
@@ -320,7 +320,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       if (!queryBuilderService.iterator.next.isSchedulerQuery(sql)) {
         logger.info(modifiedSql)
         val resp = acumeContext.acc.acql(modifiedSql)
-        if (!queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql) && !acumeContext.acumeConf.getDisableTotalForAggregateQueries()) {
+        if (!queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql) && !acumeContext.acumeConf.getDisableTotalForAggregateQueries(datasourceName)) {
           resp.metadata.totalRecords = acumeContext.acc.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getLong(0)
         }
         resp

@@ -36,12 +36,12 @@ object AcumeCacheType extends Enumeration {
   val acumeFlatSchemaTreeCache = new AcumeCacheType("AcumeFlatSchemaTreeCache", classOf[AcumeFlatSchemaTreeCache])
   val cacheTypeValues = List(acumeStarSchemaTreeCache, acumeFlatSchemaTreeCache)
   
-  def getAcumeCacheType(name: String) : AcumeCacheType = { 
+  def getAcumeCacheType(name: String, conf : AcumeCacheConf) : AcumeCacheType = { 
     for(actualName <- cacheTypeValues){
       if(name equalsIgnoreCase actualName.name)
         return actualName
     }
-    val cacheTypeConfigClassName = new AcumeCacheConf().get(ConfConstants.cacheTypeConfigClassName)
+    val cacheTypeConfigClassName = conf.get(ConfConstants.cacheTypeConfigClassName)
     Class.forName(cacheTypeConfigClassName).getConstructors()(0).newInstance(name , Class.forName(name).asInstanceOf[Class[_ <: AcumeCache[_ <: Any, _ <: Any]]]).asInstanceOf[AcumeCacheType]
   }
   

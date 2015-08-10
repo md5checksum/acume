@@ -75,7 +75,6 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
   }
   
   private def setDefault = {
-    set(ConfConstants.schedulerPolicyClass,"com.guavus.acume.core.scheduler.VariableGranularitySchedulerPolicy")
   }
   
   /** Set a configuration variable. */
@@ -123,8 +122,8 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
     getOption(ConfConstants.springResolver).getOrElse("com.guavus.acume.core.spring.AcumeResolver")
   }
   
-  def getEnableScheduler() : Boolean = {
-    getBoolean(ConfConstants.enableScheduler).getOrElse(false)
+  def getEnableScheduler(dsName: String) : Boolean = {
+    getBoolean(AcumeConf.getKeyName(ConfConstants.enableScheduler, dsName)).getOrElse(false)
   }
 
   /* Get the timezone of acume */
@@ -160,8 +159,8 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
     getInt(ConfConstants.schedulerCheckInterval).getOrElse(300)
   }
 
-  def getDisableTotalForAggregateQueries() : Boolean = {
-    getBoolean(ConfConstants.disableTotalForAggregate).getOrElse(false)
+  def getDisableTotalForAggregateQueries(dsName: String) : Boolean = {
+    getBoolean(AcumeConf.getKeyName(ConfConstants.disableTotalForAggregate, dsName)).getOrElse(false)
   }
 
   def getEnableJDBCServer(): String = {

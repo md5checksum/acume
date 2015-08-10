@@ -38,7 +38,7 @@ object AcumeMain {
     val startTime = System.currentTimeMillis
  
     //start Prefetch Scheduler
-    val numberOfEnabledSchedulers =  AcumeContextTraitUtil.acumeConf.settings.filter(_._1.contains(ConfConstants.enableScheduler)).map(_._2).filter("true".equalsIgnoreCase(_)).size
+    val numberOfEnabledSchedulers =  AcumeContextTraitUtil.acumeConf.getAllDatasourceNames.filter(dsName => AcumeContextTraitUtil.acumeConf.getEnableScheduler(dsName)).size
     if(numberOfEnabledSchedulers != 0)
     	ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).startPrefetchScheduler
    

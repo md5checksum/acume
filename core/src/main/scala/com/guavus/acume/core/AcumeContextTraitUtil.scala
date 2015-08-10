@@ -27,10 +27,8 @@ object AcumeContextTraitUtil {
   val sparkContext = new SparkContext(new SparkConf())
   sparkContext.addSparkListener(new AcumeSparkListener)
   sparkContext.addSparkListener(new AcumeBlockManagerRemovedListener)
-  
   val hiveContext : HiveContext = new HiveContext(sparkContext)
-  lazy val hBaseSQLContext : HBaseSQLContext = new HBaseSQLContext(sparkContext)
-
+  val hBaseSQLContext : HBaseSQLContext = new HBaseSQLContext(sparkContext)
   val acumeConf = new AcumeConf(true, "acume.ini")
 
   def initAcumeContextTraitFactory(datsourceNames : Array[String]) : HashMap[String, AcumeContextTrait] = {
