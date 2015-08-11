@@ -234,10 +234,9 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
 
   def mergePathRdds(rdds : Iterable[DataFrame]) = {
     Utility.withDummyCallSite(acumeCacheContext.cacheSqlContext.sparkContext) {
-      rdds.reduce(_.unionAll(_))
+        rdds.reduce(_.unionAll(_))
     }
   }
-
 }
 
 object AcumeTreeCache {

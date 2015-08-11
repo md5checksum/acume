@@ -15,6 +15,7 @@ import com.guavus.acume.core.usermanagement.DefaultPermissionTemplate
 import com.guavus.qb.cube.schema.QueryBuilderSchema
 import com.guavus.qb.services.IQueryBuilderService
 import com.guavus.rubix.user.permission.IPermissionTemplate
+import com.guavus.acume.core.listener.AcumeBlockManagerRemovedListener
 
 object AcumeAppConfig {
 
@@ -59,6 +60,7 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
   @Bean
   @Autowired
   override def queryRequestPrefetchTaskManager(queryBuilderServiceMap: QueryBuilderSerciceMap, acumeService : AcumeService, controller: Controller) : QueryRequestPrefetchTaskManager = {
+    AcumeContextTraitUtil.sparkContext.addSparkListener(new AcumeBlockManagerRemovedListener)
     val ischedulerpolicy = ISchedulerPolicy.getISchedulerPolicy
     var qbSchemaList = List[QueryBuilderSchema]()
     

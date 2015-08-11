@@ -29,7 +29,7 @@ object QueryPrefetchTask {
 
 }
 
-class QueryPrefetchTask(private var acumeService: AcumeService, @BeanProperty var request: PrefetchTaskRequest, version : Int, taskManager : QueryRequestPrefetchTaskManager) extends Runnable with Comparable[QueryPrefetchTask] {
+class QueryPrefetchTask(private var acumeService: AcumeService, @BeanProperty var request: PrefetchTaskRequest, version: Int, taskManager: QueryRequestPrefetchTaskManager) extends Runnable with Comparable[QueryPrefetchTask] {
 
   private val RETRY_INTERVAL_IN_MILLIS = AcumeContextTraitUtil.acumeConf.getQueryPrefetchTaskRetryIntervalInMillis
 
@@ -42,10 +42,10 @@ class QueryPrefetchTask(private var acumeService: AcumeService, @BeanProperty va
     var success = false
     var reTryCount = -1
     var flag = false
-    breakable{
-      while (true){
-    	AcumeConf.acumeConf.setLocalProperty(ConfConstants.queryTimeOut, String.valueOf(AcumeContextTraitUtil.acumeConf.get(ConfConstants.schedulerQueryTimeOut)* (reTryCount + 2)))
-    	AcumeConf.acumeConf.setLocalProperty(ConfConstants.schedulerQuery, "true")
+    breakable {
+      while (true) {
+        AcumeConf.acumeConf.setLocalProperty(ConfConstants.queryTimeOut, String.valueOf(AcumeContextTraitUtil.acumeConf.get(ConfConstants.schedulerQueryTimeOut) * (reTryCount + 2)))
+        AcumeConf.acumeConf.setLocalProperty(ConfConstants.schedulerQuery, "true")
         flag = false
         if (version != taskManager.getVersion) {
           logger.info("Not executing older prefetching task as view has changed")

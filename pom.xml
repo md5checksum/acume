@@ -4,7 +4,7 @@
 
 	<groupId>com.guavus</groupId>
 	<artifactId>acume</artifactId>
-	<version>0.1-SNAPSHOT</version>
+	<version>platform5.2</version>
 	<packaging>pom</packaging>
    <name>Acume Project Parent POM</name>
         <profiles>
@@ -15,7 +15,7 @@
         </activation>
         <properties>
         <pversion>platform5.2</pversion>
-        <pudfversion>0.0.1-SNAPSHOT</pudfversion>
+        <pudfversion>platform5.2</pudfversion>
         <pinstaversion>platform5.2</pinstaversion>
         </properties>
         </profile>

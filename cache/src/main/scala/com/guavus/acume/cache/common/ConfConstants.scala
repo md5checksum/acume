@@ -5,7 +5,7 @@ import scala.collection.mutable.Map
 import com.guavus.acume.cache.core.AcumeCacheType
 
 /**
- * @author kashish.jain
+ * @author archit.thakur
  *
  */
 
@@ -47,6 +47,7 @@ private [acume] object ConfConstants {
   val queryThreadPoolSize = "acume.global.thread.pool.size"
   val datasourceInterpreterPolicy = "acume.global.datasource.interpreter.policy"
   val defaultDatasource = "acume.global.default.datasource"
+  val acumecacheavailablitymappolicy = "acume.global.scheduler.cacheavailabilymapupdatepolicy"
 
   /* Cache properties */
   val acumecoretimeserieslevelmap  = "acume.core.global.timeserieslevelpolicymap"

@@ -52,6 +52,7 @@ import com.guavus.acume.cache.common.ConfConstants
 import ExecutionContext.Implicits.global
 import java.util.concurrent.TimeUnit
 import com.guavus.acume.core.configuration.DataServiceFactory
+import com.guavus.acume.util.AcumeCustomizedFuture
 
 /**
  * Main service of acume which serves the request from UI and rest services. It checks if the response is present in RR cache otherwise fire the query on OLAP cache.
@@ -115,9 +116,12 @@ class AcumeService {
         val isIDSet = false
         
         callableResponses foreach (callableResponse => {
+          if (AcumeConf.acumeConf.getBoolean(ConfConstants.schedulerQuery).getOrElse(false))
+            futureResponses.add(new AcumeCustomizedFuture[T](callableResponse))
+            else
           futureResponses.add(threadPool.submit(callableResponse))
         })
-
+          
         val responses = new java.util.ArrayList[T]()
         var classificationIterator: Iterator[String] = null
         var poolIterator: Iterator[String] = null
