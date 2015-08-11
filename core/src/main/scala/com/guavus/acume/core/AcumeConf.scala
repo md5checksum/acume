@@ -66,15 +66,15 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
       breakable {
         section.entrySet.toArray.map(property => {
           val prop = property.asInstanceOf[Entry[String, String]]
-          
-          if (!prop.getValue.trim.isEmpty) {
+          val propValue = prop.getValue.trim.replace("'", "") 
+          if (!propValue.isEmpty) {
             val key = AcumeConf.getKeyName(prop.getKey, sectionName)
-            settings(key) = prop.getValue.trim
-            System.setProperty(key, prop.getValue.trim)
+            settings(key) = propValue
+            System.setProperty(key, propValue)
           }
 
           if(ConfConstants.enableDatasource.equals(prop.getKey)) {
-            if("false".equalsIgnoreCase(prop.getValue.trim)) {
+            if("false".equalsIgnoreCase(propValue)) {
             	//Skip this section if this section is disabled
             	break
             } else {

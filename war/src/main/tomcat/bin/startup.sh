@@ -199,7 +199,7 @@ fi
 ############
 echo "Setting ACUME_JAVA_OPTS..." >> "$CATALINA_OUT"
 CATALINA_BASE="$SCRIPT_DIR/.."
-export ACUME_JAVA_OPTS="-Dcatalina.base=$CATALINA_BASE $ACUME_JAVA_OPTS -Djava.io.tmpdir=$CATALINA_BASE/temp -Dacume.core.cache.directory=$ACUME_CACHE_DIR"
+export ACUME_JAVA_OPTS="-Dcatalina.base=$CATALINA_BASE $ACUME_JAVA_OPTS -Djava.io.tmpdir=$CATALINA_BASE/temp -Dacume.global.cache.directory=$ACUME_CACHE_DIR"
 echo "ACUME_JAVA_OPTS = $ACUME_JAVA_OPTS" >> "$CATALINA_OUT"
 
 ############
@@ -215,7 +215,7 @@ echo "SPARK_JAR = $SPARK_JAR" >> "$CATALINA_OUT"
 ############
 dirpath="$DOCBASE/WEB-INF/classes/"
 FILE_NAME=$dirpath"acume.conf"
-prop_key="acume.core.udf.configurationxml"
+prop_key="acume.global.udf.configurationxml"
 prop_value=`cat ${FILE_NAME} | grep ${prop_key} | cut -d ' ' -f2`
 if [ -z $prop_value ]
 then
