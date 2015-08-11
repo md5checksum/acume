@@ -994,19 +994,6 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
-            <name>ACUMECORECACHEAVAILABILITYMAPPOLICY</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[com.guavus.acume.core.scheduler.AcumeCacheAvailabiltyPolicy]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.ini]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-          <property>
             <name>ACUMESCHEDULERPREFETCHTASKRETRYINTERVAL</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
@@ -1151,7 +1138,7 @@ Please don't use the following reserved property names:
             <name>ACUMECACHEDIRECTORY</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
-            <default><![CDATA[\"\"]]></default>
+            <default><![CDATA['']]></default>
             <targets>
                 <target>
             <file><![CDATA[acume.ini]]></file>
@@ -1195,6 +1182,20 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
+
+        <property>
+            <name>ACUMECORECACHEAVAILABILITYMAPPOLICY</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.acume.core.scheduler.AcumeCacheAvailabiltyPolicy]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.ini]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
 
 
         <!-- Acume Cache configs -->
