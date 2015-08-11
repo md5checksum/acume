@@ -145,7 +145,10 @@ case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measur
       logger.info("Unpersisting Data object {} for temp_memory_only for cube " + cube.getAbsoluteCubeName, levelTimestamp)
       logger.info("Dropping temp tables {}", tempTables.mkString(","))
       evictFromMemory
-      tempTables.get.asInstanceOf[scala.collection.mutable.ArrayBuffer[String]].map(x => measureSchemaRdd.sqlContext.dropTempTable(x))
+      tempTables match {
+        case Some(table) => table.asInstanceOf[scala.collection.mutable.ArrayBuffer[String]].map(x => measureSchemaRdd.sqlContext.dropTempTable(x))
+        case None =>
+      }
       measureSchemaRdd.sqlContext.dropTempTable(tableName)
     } catch {
       case e: Exception => logger.error("", e)
