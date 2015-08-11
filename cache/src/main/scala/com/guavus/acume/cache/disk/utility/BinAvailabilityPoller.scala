@@ -3,11 +3,12 @@ package com.guavus.acume.cache.disk.utility
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
-
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 import com.guavus.insta.Insta
+import com.google.common.util.concurrent.ThreadFactoryBuilder
+import java.util.concurrent.ThreadFactory
 
 /**
  * @author kashish.jain
@@ -22,7 +23,8 @@ object BinAvailabilityPoller {
   
   def init(insta : Insta) {
      this.insta = insta
-     service = Executors.newSingleThreadScheduledExecutor()
+     val namedThreadFactory : ThreadFactory = new ThreadFactoryBuilder().setNameFormat("BinAvailabilityPoller-%d").build()
+     service = Executors.newSingleThreadScheduledExecutor(namedThreadFactory)
      service.scheduleAtFixedRate(runnable, 0, AcumeCacheContextTraitUtil.cacheConf.getInt(ConfConstants.instaAvailabilityPollInterval).get, TimeUnit.SECONDS);
   }
 
