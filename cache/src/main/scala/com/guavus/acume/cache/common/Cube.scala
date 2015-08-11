@@ -15,7 +15,7 @@ abstract class CubeTrait(val cubeName: String, val binSource : String, val super
 }
 case class BaseCube(override val cubeName: String, binsource: String, dimension: DimensionSet, measure: MeasureSet, baseGran: TimeGranularity, schemaType : AcumeCacheType = null, override val dataSource : String) extends CubeTrait(cubeName, binsource, dimension, measure, schemaType, dataSource) {
    def getAbsoluteCubeName = {
-    cubeName + "_"+ binsource + "_" + dataSource 
+    cubeName + "_"+ binsource 
   }
 }
 
@@ -41,7 +41,7 @@ case class Cube(override val cubeName: String, binsource: String, val dataSource
     extends CubeTrait(cubeName, binsource, dimension, measure, schemaType, dataSourceName) with Equals {
   
   def getAbsoluteCubeName = {
-    cubeName + "_"+ binsource + "_" + dataSourceName
+    cubeName + "_"+ binsource
   }
   
   def canEqual(other: Any) = {
