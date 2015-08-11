@@ -828,7 +828,7 @@ Please don't use the following reserved property names:
             <name>ACUMECUBEDEFINITIONXML</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
-            <default><![CDATA[cubexml.xml]]></default>
+            <default><![CDATA[/opt/tms/xml_schema/CubeDefinition.xml]]></default>
             <targets>
                 <target>
                     <file><![CDATA[acume.ini]]></file>
@@ -1367,6 +1367,20 @@ Please don't use the following reserved property names:
             </targets>
         </property>
 
+        <property>
+            <name>CACHEDATASOURCEENABLE</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[true]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.ini]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+
 
         <!-- HIVE related configs -->
 
@@ -1473,6 +1487,21 @@ Please don't use the following reserved property names:
             </targets>
         </property>
 
+        <property>
+            <name>HIVEDATASOURCEENABLE</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[true]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.ini]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+
+
         <!-- HBASE configs -->
         <property>
             <name>HBASETIMESERIESLEVELPOLICYMAP</name>
@@ -1552,6 +1581,20 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
+
+        <property>
+            <name>HBASEDATASOURCEENABLE</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[true]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.ini]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
 
             
         <!-- Logging properties -->

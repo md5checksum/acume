@@ -3,6 +3,7 @@ package com.guavus.acume.core
 import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
 import scala.collection.mutable.HashMap
+import scala.util.control.Breaks._
 import org.slf4j.LoggerFactory
 import org.apache.shiro.config.Ini
 import org.apache.shiro.config.Ini.Section
@@ -41,7 +42,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
   
   val settings = new HashMap[String, String]()
   private var datasourceName : String = null
-  private var allDatasourceNames : Array[String] = Array[String]()
+  private var enabledDatasourceNames : Array[String] = Array[String]()
   
   // Set the default values
   setDefault
@@ -58,19 +59,35 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
   if(fileName != null) {
     val ini : Ini = Ini.fromResourcePath(ClassLoader.getSystemResource(fileName).getPath)
     val sectionNames = ini.getSectionNames
-    
+
     sectionNames.map(sectionName => {
-     val section : Section = ini.getSection(sectionName.trim)
-     addDatasourceNames(sectionName)
-     section.entrySet.toArray.map(property => {
-       val prop = property.asInstanceOf[Entry[String, String]]
-       if(!prop.getValue.trim.isEmpty) {
-         val key = AcumeConf.getKeyName(prop.getKey, sectionName)
-         settings(key) = prop.getValue.trim
-         System.setProperty(key, prop.getValue.trim)
-       }
-     })
+      val section: Section = ini.getSection(sectionName.trim)
+
+      breakable {
+        section.entrySet.toArray.map(property => {
+          val prop = property.asInstanceOf[Entry[String, String]]
+          
+          if (!prop.getValue.trim.isEmpty) {
+            val key = AcumeConf.getKeyName(prop.getKey, sectionName)
+            settings(key) = prop.getValue.trim
+            System.setProperty(key, prop.getValue.trim)
+          }
+
+          if(ConfConstants.enableDatasource.equals(prop.getKey)) {
+            if("false".equalsIgnoreCase(prop.getValue.trim)) {
+            	//Skip this section if this section is disabled
+            	break
+            } else {
+              // Add to the list of enabled datasources
+              addDatasourceNames(sectionName)
+            }
+          }
+
+        })
+      }
+
     })
+
 //	  PropertyValidator.validate(settings)
   }
   
@@ -249,11 +266,11 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
     datasourceName = dsName
   }
   
-  def getAllDatasourceNames : Array[String] = allDatasourceNames
+  def getEnabledDatasourceNames : Array[String] = enabledDatasourceNames
   
   def addDatasourceNames(dsName: String) {
     if(!dsName.equals("common"))
-      allDatasourceNames = allDatasourceNames.+:(dsName)
+      enabledDatasourceNames = enabledDatasourceNames.+:(dsName)
   }
 }
 

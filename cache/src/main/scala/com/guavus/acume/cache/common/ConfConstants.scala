@@ -62,7 +62,8 @@ private [acume] object ConfConstants {
   val cacheTypeConfigClassName = "acume.cache.type.config.classname"
   val acumecorelevelmap = "acume.cache.global.levelpolicymap"
   val acumeEvictionPolicyClass = "acume.cache.global.evictionpolicyclass"
-  val enableScheduler ="acume.scheduler.enable"
+  val enableScheduler = "acume.scheduler.enable"
+  val enableDatasource = "acume.datasource.enable"
 
   /* For HIVE. Thin client properties */
   val useInsta = "acume.core.use.insta"

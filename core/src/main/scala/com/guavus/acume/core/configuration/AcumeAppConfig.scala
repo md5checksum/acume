@@ -77,7 +77,7 @@ class AcumeAppConfig extends AcumeAppConfigTrait {
   @Bean
   @Autowired
   override def datasourceNames : DataSourceNames = {
-    DataSourceNames(AcumeContextTraitUtil.acumeConf.getAllDatasourceNames)
+    DataSourceNames(AcumeContextTraitUtil.acumeConf.getEnabledDatasourceNames)
   }
   
 }
