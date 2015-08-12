@@ -9,7 +9,7 @@ import com.guavus.acume.core.AcumeContextTrait
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.columnar.InMemoryColumnarTableScan
 import org.apache.spark.storage.RDDBlockId
-import org.apache.spark.sql.catalyst.plans.logical.Prune
+//import org.apache.spark.sql.catalyst.plans.logical.Prune
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import com.guavus.acume.core.AcumeContextTraitUtil
