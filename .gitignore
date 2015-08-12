@@ -2,10 +2,8 @@ core/target/*
 cache/target/*
 war/target/*
 cache/.cache
-cache/.classpath
 cache/.project
 core/.cache
-core/.classpath
 core/.project
 core/.settings/
 war/.classpath
