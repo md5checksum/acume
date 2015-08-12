@@ -62,37 +62,43 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
 
   acumeValue.acumeContext = acumeContext
   val context = AcumeTreeCacheValue.getContext(acumeContext.cacheConf.getInt(ConfConstants.threadPoolSize))
-  var isSuccessWritingToDisk = false
+  var isFailureWritingToDisk = false
   
   if(acumeValue.isInstanceOf[AcumeInMemoryValue]) {
     val f: Future[AcumeDiskValue] = Future({
       
-      var value : AcumeDiskValue = null
-      val diskDirectory = Utility.getDiskDirectoryForPoint(acumeContext, acumeValue.cube, acumeValue.levelTimestamp)
-      Utility.deleteDirectory(diskDirectory, acumeContext)
+      try {
+        var value : AcumeDiskValue = null
+        val diskDirectory = Utility.getDiskDirectoryForPoint(acumeContext, acumeValue.cube, acumeValue.levelTimestamp)
+        Utility.deleteDirectory(diskDirectory, acumeContext)
       
-      // Check if the point is outside the diskLevelPolicyMap
-      val levelTimeStamp = acumeValue.levelTimestamp
-      val cube = acumeValue.cube
-      val priority = Utility.getPriority(levelTimeStamp.timestamp, levelTimeStamp.level.localId, levelTimeStamp.aggregationLevel.localId, cube.diskLevelPolicyMap, acumeContext.getLastBinPersistedTime(cube.binsource))
+        // Check if the point is outside the diskLevelPolicyMap
+        val levelTimeStamp = acumeValue.levelTimestamp
+        val cube = acumeValue.cube
+        val priority = Utility.getPriority(levelTimeStamp.timestamp, levelTimeStamp.level.localId, levelTimeStamp.aggregationLevel.localId, cube.diskLevelPolicyMap, acumeContext.getLastBinPersistedTime(cube.binsource))
       
-      // if the timestamp lies in the disk cache range then only write it to disk. Else not.
-      if(priority != 0) {
-        acumeContext.cacheSqlContext.sparkContext.setLocalProperty("spark.scheduler.pool", "scheduler")
-        acumeContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Writing " + diskDirectory, false)
-        acumeValue.measureSchemaRdd.saveAsParquetFile(diskDirectory)
-        acumeContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Reading " + diskDirectory, false)
-        val rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
-        value = new AcumeDiskValue(acumeValue.levelTimestamp, acumeValue.cube, rdd)
-        value.acumeContext = acumeContext
-        logger.info("Disk write complete for {}" + acumeValue.levelTimestamp.toString() + " for cube " + cube.getAbsoluteCubeName)
-        this.acumeValue = value
-        if (!shouldCache) {
-          acumeValue.evictFromMemory
+        // if the timestamp lies in the disk cache range then only write it to disk. Else not.
+        if(priority != 0) {
+          acumeContext.cacheSqlContext.sparkContext.setLocalProperty("spark.scheduler.pool", "scheduler")
+          acumeContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Writing " + diskDirectory, false)
+          acumeValue.measureSchemaRdd.saveAsParquetFile(diskDirectory)
+          acumeContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Reading " + diskDirectory, false)
+          val rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
+          value = new AcumeDiskValue(acumeValue.levelTimestamp, acumeValue.cube, rdd)
+          value.acumeContext = acumeContext
+          logger.info("Disk write complete for {}" + acumeValue.levelTimestamp.toString() + " for cube " + cube.getAbsoluteCubeName)
+          this.acumeValue = value
+          if (!shouldCache) {
+            acumeValue.evictFromMemory
+          }
         }
+        value
+      } catch {
+        case ex:Exception => logger.error("Failure creating AcumeDiskValue", ex)
+        isFailureWritingToDisk = true
+        null
       }
-      isSuccessWritingToDisk = true
-      value
+      
     })(context)
     
   }
@@ -113,12 +119,11 @@ trait AcumeValue {
     }
   }
 
-  def registerAndCacheDataInMemory(tableName : String) {
+  def registerAndCacheDataInMemory(tableName: String) {
     measureSchemaRdd.registerTempTable(tableName)
-    // use eager caching
-    measureSchemaRdd.sqlContext.sql("cache table " + tableName)
+    measureSchemaRdd.sqlContext.cacheTable(tableName)
+    measureSchemaRdd.sqlContext.table(tableName).count
   }
-
 }
 
 case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measureSchemaRdd: SchemaRDD, parentPoints: Seq[(AcumeValue, SchemaRDD)] = Seq()) extends AcumeValue {
@@ -140,7 +145,10 @@ case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measur
       logger.info("Unpersisting Data object {} for temp_memory_only for cube " + cube.getAbsoluteCubeName, levelTimestamp)
       logger.info("Dropping temp tables {}", tempTables.mkString(","))
       evictFromMemory
-      tempTables.get.asInstanceOf[scala.collection.mutable.ArrayBuffer[String]].map(x => measureSchemaRdd.sqlContext.dropTempTable(x))
+      tempTables match {
+        case Some(table) => table.asInstanceOf[scala.collection.mutable.ArrayBuffer[String]].map(x => measureSchemaRdd.sqlContext.dropTempTable(x))
+        case None =>
+      }
       measureSchemaRdd.sqlContext.dropTempTable(tableName)
     } catch {
       case e: Exception => logger.error("", e)
@@ -200,5 +208,4 @@ object AcumeTreeCacheValue {
     }
     context
   }
-
 }

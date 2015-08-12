@@ -23,6 +23,8 @@ import com.guavus.insta.InstaCubeMetaInfo
 import com.guavus.insta.InstaRequest
 import com.guavus.acume.cache.common.CacheLevel
 import com.guavus.acume.cache.common.LevelTimestamp
+import com.google.common.util.concurrent.ThreadFactoryBuilder
+import java.util.concurrent.ThreadFactory
 
 class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @transient  conf: AcumeCacheConf, @transient acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends DataLoader(acumeCacheContext, conf, null) {
 
@@ -42,7 +44,8 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
     }
   };
   
-  private val service : ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor()
+  val namedThreadFactory : ThreadFactory = new ThreadFactoryBuilder().setNameFormat("BinAvailabilityPoller-%d").build()
+  private val service : ScheduledExecutorService = Executors.newSingleThreadScheduledExecutor(namedThreadFactory)
   service.scheduleAtFixedRate(runnable, 0, acumeCacheContext.cacheConf.getInt(ConfConstants.instaAvailabilityPollInterval), TimeUnit.SECONDS);
 
   private def synchronizedGetAndUpdateMap() {

@@ -44,6 +44,7 @@ class QueryPrefetchTask(private var acumeService: AcumeService, @BeanProperty va
     breakable{
       while (true){
     	acumeContext.acumeConf.setLocalProperty(ConfConstants.queryTimeOut, String.valueOf(acumeContext.acumeConf.get(ConfConstants.schedulerQueryTimeOut)* (reTryCount + 2)))
+      acumeContext.acumeConf.setLocalProperty(ConfConstants.schedulerQuery, "true")
         flag = false
         if (version != taskManager.getVersion) {
           logger.info("Not executing older prefetching task as view has changed")

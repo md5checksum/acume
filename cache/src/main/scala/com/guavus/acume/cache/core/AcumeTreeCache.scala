@@ -204,7 +204,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         	  cachePointToTable.put(aggregatedTimestamp, cachevalue)
         	  notifyObserverList
         	  var diskWritingComplete = false;
-        	  while(cachevalue.getAcumeValue.isInstanceOf[AcumeInMemoryValue]) {
+        	  while(cachevalue.getAcumeValue.isInstanceOf[AcumeInMemoryValue] && !cachevalue.isFailureWritingToDisk) {
         	    Thread.sleep(1000)
         	  }
         	  Some(cachevalue)
@@ -235,10 +235,9 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
 
   def mergePathRdds(rdds : Iterable[SchemaRDD]) = {
     Utility.withDummyCallSite(acumeCacheContext.cacheSqlContext.sparkContext) {
-        rdds.reduce(_.unionAll(_))
+      rdds.reduce(_.unionAll(_))
     }
   }
-
 }
 
 object AcumeTreeCache {
@@ -252,7 +251,7 @@ object AcumeTreeCache {
         if(context == null) {
           val executorService = new ThreadPoolExecutor(1, 1,
                                         0L, TimeUnit.MILLISECONDS,
-                                        new LimitedQueue[Runnable](queueSize),new NamedThreadPoolFactory("CompactionWriter"));
+                                        new LinkedBlockingQueue[Runnable](),new NamedThreadPoolFactory("CompactionWriter"));
           context = ExecutionContext.fromExecutorService(executorService)
         }
       }

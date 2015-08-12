@@ -21,28 +21,7 @@ object GracefullShutdownExecutor {
 
 class GracefullShutdownExecutor(corePoolSize: Int, maximumPoolSize: Int, keepAliveTime: Long, unit: TimeUnit, workQueue: BlockingQueue[Runnable], threadFactory : ThreadFactory) extends ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory) {
 
-  var futureTasks: ArrayBuffer[Future[_]] = _
-
-  init()
-
-//  def this(corePoolSize: Int, maximumPoolSize: Int, keepAliveTime: Long, unit: TimeUnit, workQueue: BlockingQueue[Runnable], threadFactory: ThreadFactory) {
-//    super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory)
-//    init()
-//  }
-//
-//  def this(corePoolSize: Int, maximumPoolSize: Int, keepAliveTime: Long, unit: TimeUnit, workQueue: BlockingQueue[Runnable], handler: RejectedExecutionHandler) {
-//    super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, handler)
-//    init()
-//  }
-//
-//  def this(corePoolSize: Int, maximumPoolSize: Int, keepAliveTime: Long, unit: TimeUnit, workQueue: BlockingQueue[Runnable], threadFactory: ThreadFactory, handler: RejectedExecutionHandler) {
-//    super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue, threadFactory, handler)
-//    init()
-//  }
-
-  private def init() {
-    futureTasks = ArrayBuffer[Future[_]]()
-  }
+  var futureTasks: ArrayBuffer[Future[_]] = ArrayBuffer[Future[_]]()
 
   override def submit(task: Runnable): Future[_] = {
     val future = super.submit(task)

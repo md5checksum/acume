@@ -61,7 +61,8 @@ class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: Quer
       this.synchronized {
         this.notify()
       }
-    var binSourceToIntervalMap = manager.getBinSourceToCacheAvailability
+    val policy = manager.acumeCacheAvailabilityMapPolicy
+    val binSourceToIntervalMap = manager.getBinSourceToCacheAvalabilityMap 
     binSourceToIntervalMap.getOrElseUpdate(getBinSource, new scala.collection.mutable.HashMap[Long, Interval]())
     val map = new java.util.TreeMap[Long, Interval](Collections.reverseOrder[Long]())
     map.putAll(binSourceToIntervalMap.get(getBinSource).get)
@@ -128,22 +129,13 @@ class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: Quer
         logger.info("Not populating RubixDataAvailability in Distributed cache {} because view has changed" + binSourceToIntervalMap)
       } else {
         binSourceToIntervalMap.+=(getBinSource ->  (scala.collection.mutable.HashMap() ++= map.toMap))
-        /*logger.info("Full Mode RubixDataAvailability: {} ", policy.getTrueCacheAvailabilityMap(this.version))
+        logger.info("Full Mode RubixDataAvailability: {} ", policy.getTrueCacheAvailabilityMap(this.version))
         logger.info("Combiner Version:" + this.version)
-        logger.info("Partial Mode RubixDataAvailability {}", policy.getCacheAvalabilityMap)*/
-        logger.info("Putting RubixDataAvailability in Distributed cache {} ", binSourceToIntervalMap)
-        manager.updateBinSourceToRubixAvailabiltyMap(binSourceToIntervalMap)
-        logger.info("BinReplay: UI RubixDataAvaiabilty {}", manager.getBinClassToBinSourceToRubixAvailabiltyMapFromCoordinator)
-        /*policy.update(binSourceToIntervalMap)
-        logger.info("BinReplay: UI RubixDataAvaiabilty {}", policy.getTrueCacheAvalabilityMap)*/
-        
-        /*logger.info("Putting RubixDataAvailability in Distributed cache {} ", binSourceToIntervalMap)
-//        policy.update(binSourceToIntervalMap)
-        logger.info("BinReplay: UI RubixDataAvaiabilty {}", policy.getTrueCacheAvailabilityMap)*/
+        logger.info("Partial Mode RubixDataAvailability {}", policy.getCacheAvalabilityMap)
       }
     
-    /*if(!manager.oldCombinerRunning)
-      manager.acumeCacheAvailabilityMapPolicy.onBackwardCombinerCompleted(this.version)*/
+    if(!manager.oldCombinerRunning)
+      manager.acumeCacheAvailabilityMapPolicy.onBackwardCombinerCompleted(this.version)
       
     this.synchronized {
       this.notify()
