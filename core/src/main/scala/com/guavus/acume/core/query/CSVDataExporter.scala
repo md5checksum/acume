@@ -131,7 +131,7 @@ object CSVDataExporter {
     val string = new StringBuilder()
     for (i <- columnIndex) {
       if (columns(i).isInstanceOf[java.lang.Double]) {
-        string.append(new BigDecimal(columns(i).asInstanceOf[java.lang.Double]))
+        string.append(new BigDecimal(("%.5f").format(columns(i).asInstanceOf[java.lang.Double])))
       } else {
         string.append(columns(i).toString)
       }
@@ -148,9 +148,9 @@ object CSVDataExporter {
         val index = validColumnNames.indexOf(columnName)
         val values = validColumnValues(index)
         if (values.isInstanceOf[java.lang.Double]) {
-          string.append(new BigDecimal(values.asInstanceOf[java.lang.Double]))
+          string.append(new BigDecimal(("%.5f").format(values.asInstanceOf[java.lang.Double])))
         } else if(values.isInstanceOf[Double]){
-          string.append(new BigDecimal(values.asInstanceOf[Double]))
+          string.append(new BigDecimal(("%.5f").format(values.asInstanceOf[Double])))
         }else {
           string.append(values.toString)
         }
