@@ -1187,7 +1187,7 @@ Please don't use the following reserved property names:
             <name>ACUMECORECACHEAVAILABILITYMAPPOLICY</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
-            <default><![CDATA[com.guavus.acume.core.scheduler.AcumeCacheAvailabiltyPolicy]]></default>
+            <default><![CDATA[com.guavus.acume.core.scheduler.AcumeCacheAvailabilityPolicy]]></default>
             <targets>
                 <target>
                     <file><![CDATA[acume.ini]]></file>
