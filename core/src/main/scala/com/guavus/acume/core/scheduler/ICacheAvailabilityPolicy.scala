@@ -96,11 +96,11 @@ abstract class ICacheAvalabilityUpdatePolicy(acumeConf: AcumeConf, sqlContext: S
 
 object ICacheAvalabiltyUpdatePolicy {
   
-  val objectgetter = HashMap[String, ICacheAvalabiltyUpdatePolicy]()
-  def getICacheAvalabiltyUpdatePolicy(acumeConf: AcumeConf, sqlContext: SQLContext): ICacheAvalabiltyUpdatePolicy = {
+  val objectgetter = HashMap[String, ICacheAvalabilityUpdatePolicy]()
+  def getICacheAvalabiltyUpdatePolicy(acumeConf: AcumeConf, sqlContext: SQLContext): ICacheAvalabilityUpdatePolicy = {
     val _$key = ConfConstants.acumecacheavailablitymappolicy
     val _$value = objectgetter.getOrElse(_$key, Class.forName(acumeConf.getOption(_$key).getOrElse("com.guavus.acume.core.scheduler.AcumeCacheAvailabilityPolicy")).getConstructor(classOf[AcumeConf], classOf[SQLContext]).newInstance(acumeConf, sqlContext)
-    .asInstanceOf[ICacheAvalabiltyUpdatePolicy])
+    .asInstanceOf[ICacheAvalabilityUpdatePolicy])
     if(!objectgetter.contains(_$key)) {
       objectgetter.put(_$key, _$value)
     }

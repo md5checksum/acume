@@ -19,14 +19,14 @@ import com.guavus.acume.cache.common.ConfConstants
  *
  * @author archit.thakur
  */
-class AcumeCacheAvailabilityPolicy(acumeConf: AcumeConf, sqlContext: SQLContext) extends ICacheAvalabiltyUpdatePolicy(acumeConf, sqlContext) {
+class AcumeCacheAvailabilityPolicy(acumeConf: AcumeConf, sqlContext: SQLContext) extends ICacheAvalabilityUpdatePolicy(acumeConf, sqlContext) {
 
   override def getCacheAvalabilityMap: HashMap[String, HashMap[Long, Interval]] = {
     super.getCacheAvalabilityMap
   }
 }
 
-class UnionizedCacheAvailabilityPolicy(acumeConf: AcumeConf, sqlContext: SQLContext) extends ICacheAvalabiltyUpdatePolicy(acumeConf, sqlContext) {
+class UnionizedCacheAvailabilityPolicy(acumeConf: AcumeConf, sqlContext: SQLContext) extends ICacheAvalabilityUpdatePolicy(acumeConf, sqlContext) {
 
   private val list = MutableList[HashMap[String, HashMap[Long, Interval]]]()
 
