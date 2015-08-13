@@ -1031,7 +1031,7 @@
         </Property>
         <Property>
             <Property_Name>application.${acumeApp}.AcumeCoreCacheAvailabilityMapPolicy</Property_Name>
-            <Property_Value>com.guavus.acume.core.scheduler.AcumeCacheAvailabiltyPolicy</Property_Value>
+            <Property_Value>com.guavus.acume.core.scheduler.AcumeCacheAvailabilityPolicy</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.AcumeCoreCacheAvailabilityMapPolicy</Property_OriginalName>

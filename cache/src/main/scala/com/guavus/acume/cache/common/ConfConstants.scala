@@ -70,7 +70,7 @@ private [acume] object ConfConstants {
   val instaAvailabilityPollInterval = "acume.insta.availability.poll.interval" 
   val cacheBaseDirectory = "acume.core.cache.base.directory"
   val cacheDirectory = "acume.core.cache.directory"
-  val acumecacheavailablitymappolicy = "acume.core.cache.cacheavailabiltymap.policy"
+  val acumecacheavailablitymappolicy = "acume.core.cache.cacheavailabilitymap.policy"
   val schedulerQuery = "acume.core.scheduler.query"
   
   /* Insta Properties */

@@ -1776,7 +1776,7 @@ Please don't use the following reserved property names:
     <property>
         <name>AcumeCoreCacheAvailabilityMapPolicy</name>
         <help><![CDATA[ - Which CacheAvailabilityMapPolicy to be used for updating CacheAvailabilityMap of Acume]]></help>
-        <default><![CDATA[com.guavus.acume.core.scheduler.AcumeCacheAvailabiltyPolicy]]></default>
+        <default><![CDATA[com.guavus.acume.core.scheduler.AcumeCacheAvailabilityPolicy]]></default>
         <targets>
             <target>
                 <file><![CDATA[acume.conf]]></file>
