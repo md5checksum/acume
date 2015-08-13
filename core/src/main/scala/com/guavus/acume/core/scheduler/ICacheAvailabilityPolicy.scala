@@ -22,7 +22,7 @@ import com.guavus.acume.core.configuration.ConfigFactory
  * 
  * @author archit.thakur
  */
-abstract class ICacheAvalabiltyUpdatePolicy {
+abstract class ICacheAvalabilityUpdatePolicy {
   
   protected var mode = "full"
 //  private val acumeCacheAvailabilityMap: HashMap[String, HashMap[Long, Interval]] = HashMap[String, HashMap[Long, Interval]]()
@@ -97,13 +97,13 @@ abstract class ICacheAvalabiltyUpdatePolicy {
   }
 }
 
-object ICacheAvalabiltyUpdatePolicy {
+object ICacheAvalabilityUpdatePolicy {
   
-  val objectgetter = HashMap[String, ICacheAvalabiltyUpdatePolicy]()
-  def getICacheAvalabiltyUpdatePolicy : ICacheAvalabiltyUpdatePolicy = {
+  val objectgetter = HashMap[String, ICacheAvalabilityUpdatePolicy]()
+  def getICacheAvalabiltyUpdatePolicy : ICacheAvalabilityUpdatePolicy = {
     val _$key = ConfConstants.acumecacheavailablitymappolicy
-    val _$value = objectgetter.getOrElse(_$key, Class.forName(AcumeContextTraitUtil.acumeConf.getOption(_$key).getOrElse("com.guavus.acume.core.scheduler.AcumeCacheAvailabiltyPolicy")).getConstructor(classOf[AcumeConf], classOf[SQLContext]).newInstance()
-    .asInstanceOf[ICacheAvalabiltyUpdatePolicy])
+    val _$value = objectgetter.getOrElse(_$key, Class.forName(AcumeContextTraitUtil.acumeConf.getOption(_$key).getOrElse("com.guavus.acume.core.scheduler.AcumeCacheAvailabilityPolicy")).getConstructor().newInstance()
+    .asInstanceOf[ICacheAvalabilityUpdatePolicy])
     if(!objectgetter.contains(_$key)) {
       objectgetter.put(_$key, _$value)
     }

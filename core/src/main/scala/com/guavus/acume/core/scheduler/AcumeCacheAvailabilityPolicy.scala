@@ -20,12 +20,12 @@ import com.guavus.acume.cache.common.ConfConstants
  *
  * @author archit.thakur
  */
-class AcumeCacheAvailabiltyPolicy extends ICacheAvalabiltyUpdatePolicy {
+class AcumeCacheAvailabilityPolicy extends ICacheAvalabilityUpdatePolicy {
   
   override def getCacheAvalabilityMap: HashMap[String, HashMap[Long, Interval]] = super.getCacheAvalabilityMap
 }
 
-class UnionizedCacheAvailabiltyPolicy extends ICacheAvalabiltyUpdatePolicy {
+class UnionizedCacheAvailabilityPolicy extends ICacheAvalabilityUpdatePolicy {
 
   private val list = MutableList[HashMap[String, HashMap[Long, Interval]]]()
 
