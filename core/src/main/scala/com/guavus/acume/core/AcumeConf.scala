@@ -87,8 +87,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
       }
 
     })
-
-//	  PropertyValidator.validate(settings)
+	  PropertyValidator.validate(settings)
   }
   
   private def setDefault = {
