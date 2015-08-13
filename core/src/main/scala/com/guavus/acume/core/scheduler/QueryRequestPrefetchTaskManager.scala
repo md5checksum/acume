@@ -42,7 +42,7 @@ class QueryRequestPrefetchTaskManager(@BeanProperty var schemas: List[QueryBuild
   private var scheduledFuture: ScheduledFuture[_] = _
   private var queryPrefetchTaskProducer: QueryPrefetchTaskProducer = new QueryPrefetchTaskProducer(schemas, this, acumeService, false, schedulerPolicy, controller)
   private val acumeConf = AcumeContextTraitUtil.acumeConf
-  private [core] val acumeCacheAvailabilityMapPolicy = ICacheAvalabiltyUpdatePolicy.getICacheAvalabiltyUpdatePolicy
+  private [core] val acumeCacheAvailabilityMapPolicy = ICacheAvalabilityUpdatePolicy.getICacheAvalabiltyUpdatePolicy
   private val combinerpriority = new PriorityBlockingQueue[Runnable](QueryRequestPrefetchTaskManager.INITIAL_TASK_QUEUE_SIZE)
 
   def oldCombinerRunning: Boolean = {
