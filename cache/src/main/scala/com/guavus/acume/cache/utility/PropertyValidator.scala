@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 import com.guavus.acume.cache.common.ConfConstants
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
+import com.guavus.acume.cache.core.TimeGranularity
 
 case class PropertyValidator()
 
@@ -17,7 +18,7 @@ object PropertyValidator {
   def validate(settings : HashMap[String, String]) = {
     if(settings.filter(property => property._1.contains(ConfConstants.schedulerVariableRetentionMap)).map(x => validateRetentionMap(Option(x._2), x._1)).filter(x => x==true).size != 0
         && settings.filter(property => property._1.contains(ConfConstants.acumecorelevelmap)).map(x => validateRetentionMap(Option(x._2), x._1)).filter(x => x==true).size != 0
-        && settings.filter(property => property._1.contains(ConfConstants.acumecoretimeserieslevelmap)).map(x => validateRetentionMap(Option(x._2), x._1)).filter(x => x==true).size != 0
+        && settings.filter(property => property._1.contains(ConfConstants.acumecoretimeserieslevelmap)).map(x => validateTimeSeriesRetentionMap(Option(x._2), x._1)).filter(x => x==true).size != 0
         && settings.filter(property => property._1.contains(ConfConstants.rrcacheconcurrenylevel)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
         && settings.filter(property => property._1.contains(ConfConstants.rrsize._1)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
         && settings.filter(property => property._1.contains(ConfConstants.prefetchTaskRetryIntervalInMillis)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
@@ -78,6 +79,10 @@ object PropertyValidator {
         logger.error("Format of " + key + " is invalid...")
         return false
       }
+      if (inValidFormatCheck(subentry(0))) {
+         logger.error("Format of " + key + " is invalid...")
+         return false
+       }
     })
     true
   }
@@ -101,6 +106,17 @@ object PropertyValidator {
       return false
     }
 
+    if (!splitAndFormatCheck(inMemoryPolicy, key)) {
+      logger.error("Format of " + key + " is invalid for memoryPolicy")
+      return false
+    }
+    
+    if (diskPolicy != inMemoryPolicy) {
+      if (!splitAndFormatCheck(diskPolicy, key)) {
+        logger.error("Format of " + key + " is invalid for diskPolicy")
+        return false
+      }
+    }
     val inMemoryPolicyMap = Utility.getLevelPointMap(inMemoryPolicy)
     val diskPolicyMap = Utility.getLevelPointMap(diskPolicy)
     
@@ -135,6 +151,35 @@ object PropertyValidator {
       
     }
     true
+  }
+  
+  def splitAndFormatCheck(policyMap: String, key: String = "key"): Boolean = {
+    val entries = policyMap.split(";")
+
+    if (entries.length == 0) {
+      return false
+    }
+
+    entries.foreach(entry => {
+      val subentry = entry.split(":")
+      if (!(subentry.length == 2 || subentry.length == 3) && !isNumber(Some(subentry(1)), key)) {
+        return false
+      }
+      if (subentry.length != 2) {
+        if (inValidFormatCheck(subentry(0)) || inValidFormatCheck(subentry(2))) {
+          return false
+        }
+      } else {
+        if (inValidFormatCheck(subentry(0))) {
+          return false
+        }
+      }
+    })
+    return true
+  }
+
+  def inValidFormatCheck(subSubEntry: String): Boolean = {
+    return (TimeGranularity.getTimeGranularityForVariableRetentionName(subSubEntry) == None)
   }
 
 }
