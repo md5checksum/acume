@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory
 import org.apache.spark.scheduler.SparkListenerBlockManagerRemoved
 import com.guavus.acume.core.configuration.ConfigFactory
 import com.guavus.acume.core.scheduler.QueryRequestPrefetchTaskManager
-import com.guavus.acume.core.scheduler.ICacheAvalabiltyUpdatePolicy
+import com.guavus.acume.core.scheduler.ICacheAvalabilityUpdatePolicy
 import com.guavus.acume.core.AcumeConf
 import org.apache.spark.sql.SQLContext
 
@@ -28,7 +28,7 @@ class AcumeBlockManagerRemovedListener extends SparkListener {
   
   override def onBlockManagerRemoved(blockManagerRemoved : SparkListenerBlockManagerRemoved) {
     logger.info("Block manager {} removed from spark application at : {}", blockManagerRemoved.blockManagerId, blockManagerRemoved.time/1000)
-    ICacheAvalabiltyUpdatePolicy.getICacheAvalabiltyUpdatePolicy.onBlockManagerRemoved
+    ICacheAvalabilityUpdatePolicy.getICacheAvalabiltyUpdatePolicy.onBlockManagerRemoved
     ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).restartPrefetchScheduler
   }
 }
