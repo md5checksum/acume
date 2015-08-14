@@ -47,7 +47,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeCacheContext])
   
-  override private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
   val dataLoader: DataLoader = DataLoader.getDataLoader(this, conf, null)
   private [cache] val baseCubeList = MutableList[BaseCube]()
   private [cache] val cubeMap = new HashMap[CubeKey, Cube]

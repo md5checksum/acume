@@ -43,8 +43,6 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
   
   val dataLoader = new InstaDataLoaderThinAcume(this, conf, null)
 
-  override private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
-
   private [acume] def cacheSqlContext() : SQLContext = sqlContext
   
   private [acume] def cacheConf = conf

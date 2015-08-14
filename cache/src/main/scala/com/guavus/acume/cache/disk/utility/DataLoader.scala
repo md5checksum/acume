@@ -66,6 +66,7 @@ abstract class DataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: Acume
 
 object DataLoader {
   private val metadataMap = new ConcurrentHashMap[AcumeCache[_ >: Any, _ >: Any], DataLoadedMetadata]
+  private val dataloadermap = new ConcurrentHashMap[String, DataLoader]
 
   private[cache] def getMetadata(key: AcumeCache[_ >: Any, _ >: Any]) = metadataMap.get(key)
   private[cache] def putMetadata(key: AcumeCache[_ >: Any, _ >: Any], value: DataLoadedMetadata) = metadataMap.put(key, value)
@@ -89,22 +90,17 @@ object DataLoader {
 
   def getDataLoader[k,v](acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, acumeCache: AcumeCache[k, v]) = {
 
-    val dataloadermap = acumeCacheContext.dataloadermap
     val dataLoaderClass = StorageType.getStorageType(conf.get(ConfConstants.storagetype)).dataClass
     val instance = dataloadermap.get(dataLoaderClass)
-    //    if(dataloadermap.contains(dataLoaderClass)) {
-    //      dataloadermap.get(dataLoaderClass)
-    //    }
-    if (instance == null) {
+    val dataloaderinstance = if (instance == null) {
       val loadedClass = Class.forName(dataLoaderClass)
       val newInstance = loadedClass.getConstructor(classOf[AcumeCacheContextTrait], classOf[AcumeCacheConf], classOf[AcumeCache[_ >: Any,_ >: Any]]).newInstance(acumeCacheContext, conf, acumeCache)
       dataloadermap.put(dataLoaderClass, newInstance.asInstanceOf[DataLoader])
       newInstance.asInstanceOf[DataLoader]
     } else {
-      {
-        instance
-      }
+      instance 
     }
+    dataloaderinstance
   }
 }
 
