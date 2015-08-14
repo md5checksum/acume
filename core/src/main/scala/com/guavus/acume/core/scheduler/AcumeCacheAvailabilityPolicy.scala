@@ -113,10 +113,10 @@ class UnionizedCacheAvailabilityPolicy extends ICacheAvalabilityUpdatePolicy {
     if (i1 == null) i2
     else if (i2 == null) i1
     else {
-      val i3: Interval = new Interval
-      i3.startTime = if (i1.startTime > i2.startTime) i2.startTime else i1.startTime
-      i3.endTime = if (i1.endTime < i2.endTime) i2.endTime else i1.endTime
-      i3
+      val _$startTime = if (i1.startTime > i2.startTime) i2.startTime else i1.startTime
+      val _$endTime = if (i1.endTime < i2.endTime) i2.endTime else i1.endTime
+      val interval = new Interval(_$startTime, _$endTime)
+      interval
     }
   }
 
