@@ -712,7 +712,7 @@ Please don't use the following reserved property names:
             <name>docBase</name>
             <type>basic</type>
             <help><![CDATA[ - Path of the application]]></help>
-            <default><![CDATA[/opt/tms/rubix-atlas3.0]]></default>
+            <default><![CDATA[/opt/tms/acume-atlas3.0]]></default>
             <targets>
                 <target>
                     <file><![CDATA[server.xml]]></file>
@@ -1676,7 +1676,7 @@ Please don't use the following reserved property names:
     	<property>
     		<name>rootLoggingLevel</name>
     		<help><![CDATA[ - Root Logging level]]></help>
-    		<default><![CDATA[info]]></default>
+    		<default><![CDATA[INFO]]></default>
     		<targets>
     			<target>
     				<file><![CDATA[log4j.xml]]></file>
