@@ -8,7 +8,6 @@ import TimeseriesResponse._
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
 import java.util.ArrayList
 import com.guavus.acume.core.configuration.ConfigFactory
-import com.guavus.acume.core.AcumeContext
 import java.util.List
 import com.guavus.acume.core.AcumeContextTrait
 

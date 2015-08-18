@@ -18,7 +18,6 @@ import java.util.concurrent.CancellationException
 import java.util.concurrent.ExecutionException
 import java.util.Collections
 import scala.util.control.Breaks._
-import com.guavus.acume.core.AcumeContext
 import com.guavus.acume.core.AcumeContextTrait
 import com.guavus.acume.cache.core.Level
 

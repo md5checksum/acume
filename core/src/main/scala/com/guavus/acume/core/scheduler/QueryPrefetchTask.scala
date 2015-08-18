@@ -19,7 +19,6 @@ import com.guavus.acume.workflow.RequestDataType
 import com.guavus.rubix.user.management.utils.HttpUtils
 import com.guavus.acume.core.AcumeContextTrait
 import com.guavus.acume.cache.common.ConfConstants
-import com.guavus.acume.core.AcumeContext
 import java.util.concurrent.TimeoutException
 
 object QueryPrefetchTask {

@@ -34,7 +34,6 @@ import org.apache.hive.service.server.{HiveServer2, ServerOptionsProcessor}
 import org.apache.spark.Logging
 import org.apache.spark.sql.hive.HiveContext
 import com.guavus.acume.core.configuration.ConfigFactory
-import com.guavus.acume.core.AcumeContext
 import org.apache.spark.sql.hive.thriftserver.ReflectionUtils._
 import com.guavus.acume.core.AcumeContextTrait
 import org.apache.hadoop.security.UserGroupInformation

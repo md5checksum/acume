@@ -7,7 +7,6 @@ import org.scalatest.Matchers
 import org.scalatest.junit.JUnitRunner
 import org.apache.hadoop.fs.FileSystem
 import org.apache.hadoop.fs.Path
-import com.guavus.acume.core.AcumeContext
 import com.guavus.acume.core.AcumeContextTrait
 import com.guavus.acume.core.DataService
 import com.guavus.acume.core.AcumeConf

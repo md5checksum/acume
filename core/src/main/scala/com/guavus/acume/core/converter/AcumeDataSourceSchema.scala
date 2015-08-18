@@ -5,7 +5,6 @@ import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import com.guavus.qb.cube.schema.ICube
 import com.guavus.acume.core.configuration.ConfigFactory
-import com.guavus.acume.core.AcumeContext
 import com.guavus.qb.cube.schema.FieldType
 import com.guavus.qb.cube.schema.IField
 import scala.collection.mutable.ArrayBuffer

@@ -7,7 +7,6 @@ import scala.reflect.BeanProperty
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.guavus.acume.core.AcumeConf
-import com.guavus.acume.core.AcumeContext
 import com.guavus.acume.core.configuration.ConfigFactory
 import AggregateResponse._
 import javax.xml.bind.annotation.XmlRootElement
