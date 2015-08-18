@@ -16,27 +16,35 @@ object PropertyValidator {
   private var logger: Logger = LoggerFactory.getLogger(classOf[PropertyValidator])
   
   def validate(settings : HashMap[String, String]) = {
-    if(settings.filter(property => property._1.contains(ConfConstants.schedulerVariableRetentionMap)).map(x => validateRetentionMap(Option(x._2), x._1)).filter(x => x==true).size != 0
-        && settings.filter(property => property._1.contains(ConfConstants.acumecorelevelmap)).map(x => validateRetentionMap(Option(x._2), x._1)).filter(x => x==true).size != 0
-        && settings.filter(property => property._1.contains(ConfConstants.acumecoretimeserieslevelmap)).map(x => validateTimeSeriesRetentionMap(Option(x._2), x._1)).filter(x => x==true).size != 0
-        && settings.filter(property => property._1.contains(ConfConstants.rrcacheconcurrenylevel)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
-        && settings.filter(property => property._1.contains(ConfConstants.rrsize._1)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
-        && settings.filter(property => property._1.contains(ConfConstants.prefetchTaskRetryIntervalInMillis)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
-        && settings.filter(property => property._1.contains(ConfConstants.schedulerThreadPoolSize)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
-        && settings.filter(property => property._1.contains(ConfConstants.instaComboPoints)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
-        && settings.filter(property => property._1.contains(ConfConstants.variableRetentionCombinePoints)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
-        && settings.filter(property => property._1.contains(ConfConstants.queryPrefetchTaskNoOfRetries)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
-        && settings.filter(property => property._1.contains(ConfConstants.maxSegmentDuration)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
-        && settings.filter(property => property._1.contains(ConfConstants.maxQueryLogRecords)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
-        && settings.filter(property => property._1.contains(ConfConstants.schedulerCheckInterval)).map(x => isNumber(Option(x._2), x._1)).filter(x => x==true).size != 0
-        && settings.filter(property => property._1.contains(ConfConstants.enableJDBCServer)).map(x => isBoolean(Option(x._2), x._1)).filter(x => x==true).size != 0
-        && settings.filter(property => property._1.contains(ConfConstants.enableScheduler)).map(x => isBoolean(Option(x._2), x._1)).filter(x => x==true).size != 0
+    
+    if(isValidProperty(settings, ConfConstants.schedulerVariableRetentionMap, validateRetentionMap) && 
+       isValidProperty(settings, ConfConstants.acumecorelevelmap, validateRetentionMap) && 
+       isValidProperty(settings, ConfConstants.acumecoretimeserieslevelmap, validateTimeSeriesRetentionMap) && 
+       isValidProperty(settings, ConfConstants.rrsize._1, isNumber) && 
+       isValidProperty(settings, ConfConstants.prefetchTaskRetryIntervalInMillis, isNumber) && 
+       isValidProperty(settings, ConfConstants.schedulerThreadPoolSize, isNumber) && 
+       isValidProperty(settings, ConfConstants.instaComboPoints, isNumber) && 
+       isValidProperty(settings, ConfConstants.variableRetentionCombinePoints, isNumber) && 
+       isValidProperty(settings, ConfConstants.queryPrefetchTaskNoOfRetries, isNumber) && 
+       isValidProperty(settings, ConfConstants.maxSegmentDuration, isNumber) &&
+       isValidProperty(settings, ConfConstants.maxQueryLogRecords, isNumber) && 
+       isValidProperty(settings, ConfConstants.schedulerCheckInterval, isNumber) && 
+       isValidProperty(settings, ConfConstants.enableJDBCServer, isBoolean) && 
+       isValidProperty(settings, ConfConstants.enableScheduler, isBoolean)
       )
     {
       logger.info("Valid properties")
     } else {
       throw new RuntimeException("Invalid acume properties...")
     }
+  }
+  
+  private def isValidProperty(settings : HashMap[String, String], propertyName: String, validationFunc: (Option[String], String) => Boolean): Boolean = {
+    val propertySettings = settings.filter(property => property._1.contains(propertyName))
+    if(propertySettings.size > 0) {
+      return (propertySettings.map(setting => validationFunc(Option(setting._2), setting._1)).filter(_==false).size == 0)
+    }
+    true
   }
   
   def isBoolean(value : Option[String], key : String = "Key") : Boolean = {
