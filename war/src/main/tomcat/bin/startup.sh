@@ -233,7 +233,7 @@ echo "SPARK_JAR = $SPARK_JAR" >> "$CATALINA_OUT"
 #-------------------------------------
 
 dirpath="$DOCBASE/WEB-INF/classes/"
-FILE_NAME=$dirpath"acume.conf"
+FILE_NAME=$dirpath"acume.ini"
 prop_key="acume.global.udf.configurationxml"
 prop_value=`cat ${FILE_NAME} 2>/dev/null | grep ${prop_key} | cut -d ' ' -f2`
 
