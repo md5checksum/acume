@@ -48,6 +48,8 @@ private [acume] object ConfConstants {
   val datasourceInterpreterPolicy = "acume.global.datasource.interpreter.policy"
   val defaultDatasource = "acume.global.default.datasource"
   val acumecacheavailablitymappolicy = "acume.global.scheduler.cacheavailabilitymapupdatepolicy"
+  val acumecachesqlcorrector = "acume.global.sql.corrector"
+  val acumecachesqlparser = "acume.global.sql.parser"
 
   /* Cache properties */
   val acumecoretimeserieslevelmap  = "acume.core.global.timeserieslevelpolicymap"
@@ -57,8 +59,6 @@ private [acume] object ConfConstants {
   val rrsize = ("acume.cache.rrcachesize", 3)
   val storagetype ="acume.cache.baselayer.storagetype"
   val acumeCacheDefaultType = "acume.cache.default.cache.type"
-  val acumecachesqlcorrector = "acume.cache.sql.corrector"
-  val acumecachesqlparser = "acume.cache.sql.parser"
   val acumeCacheSingleEntityCacheSize = "acume.cache.singleentity.cache.size"
   val cacheTypeConfigClassName = "acume.cache.type.config.classname"
   val acumecorelevelmap = "acume.cache.global.levelpolicymap"
