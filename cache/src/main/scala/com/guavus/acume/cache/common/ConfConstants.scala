@@ -83,13 +83,11 @@ private [acume] object ConfConstants {
   val queryPoolSchedPolicyClass = "com.guavus.acume.core.QueryPoolPolicySchedulerImpl"
   
   val defaultValueMap = Map[String, String]()
-  defaultValueMap += businesscubexml -> "src/test/resources/cubedefinition1.xml"
   defaultValueMap += acumeCacheDefaultType -> AcumeCacheType.acumeFlatSchemaTreeCache.name
   defaultValueMap += cacheTypeConfigClassName -> "com.guavus.acume.cache.core.AcumeCacheType"
   defaultValueMap += queryTimeOut -> "30"
   defaultValueMap += instaAvailabilityPollInterval -> "300"
   defaultValueMap += queryThreadPoolSize -> "16"
-  defaultValueMap += useInsta -> "false"
   defaultValueMap += schedulerQuery -> "false"
 
 }
