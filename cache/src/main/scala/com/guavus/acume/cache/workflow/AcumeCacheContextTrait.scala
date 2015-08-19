@@ -17,6 +17,8 @@ import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.disk.utility.DataLoader
 import java.util.concurrent.ConcurrentHashMap
+import com.guavus.acume.cache.common.BaseCube
+import scala.collection.mutable.MutableList
  
 /**
  * @author archit.thakur
@@ -29,6 +31,11 @@ trait AcumeCacheContextTrait extends Serializable {
   private [cache] val dimensionMap = new InsensitiveStringKeyHashMap[Dimension]
   private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
   private [cache] val poolThreadLocal = new InheritableThreadLocal[HashMap[String, Any]]()
+  private [cache] val baseCubeList = MutableList[BaseCube]()
+  private [cache] val cubeMap = new HashMap[CubeKey, Cube]
+  private [cache] val cubeList = MutableList[Cube]()
+  
+  val dataLoader : DataLoader = null
   
   def acql(sql: String): AcumeCacheResponse = {
     acql(sql, null)
@@ -93,7 +100,37 @@ trait AcumeCacheContextTrait extends Serializable {
       measureMap.get(fieldName).get.getDefaultValue
   }
   
-  private [acume] def getCubeMap: Map[CubeKey, Cube]
+  private [acume] def getCubeList = cubeList.toList
+  
+  private [acume] def getFieldsForCube(name: String, binsource: String) = {
+      
+    val cube = cubeMap.getOrElse(CubeKey(name, binsource), throw new RuntimeException(s"Cube $name Not in AcumeCache knowledge."))
+    cube.dimension.dimensionSet.map(_.getName) ++ cube.measure.measureSet.map(_.getName)
+  }
+  
+  private [acume] def getAggregationFunction(stringname: String) = {
+    val measure = measureMap.getOrElse(stringname, throw new RuntimeException(s"Measure $stringname not in Acume knowledge."))
+    measure.getAggregationFunction
+  }
+  
+  private [acume] def getCubeListContainingFields(lstfieldNames: List[String]) = {
+    
+    val dimensionSet = scala.collection.mutable.Set[Dimension]()
+    val measureSet = scala.collection.mutable.Set[Measure]()
+    for(field <- lstfieldNames)
+      if(isDimension(field))
+        dimensionSet.+=(dimensionMap.get(field).get)
+      else
+        measureSet.+=(measureMap.get(field).get)
+      val kCube = 
+        for(cube <- cubeList if(dimensionSet.toSet.subsetOf(cube.dimension.dimensionSet.toSet) && 
+            measureSet.toSet.subsetOf(cube.measure.measureSet.toSet))) yield {
+          cube
+        }
+    kCube.toList
+  }
+  
+  private [acume] def getCubeMap: Map[CubeKey, Cube] = cubeMap.toMap
   
   private [acume] def executeQuery(sql : String, qltype : QLType.QLType) : AcumeCacheResponse
   
@@ -101,37 +138,22 @@ trait AcumeCacheContextTrait extends Serializable {
   
   private [acume] def cacheSqlContext() : SQLContext
   
-  private[acume] def getCubeList: List[Cube] = {
-    throw new NoSuchMethodException("Method not present")
-  }
-
-  private[acume] def getFieldsForCube(name: String, binsource: String): List[String] = {
-    throw new NoSuchMethodException("Method not present")
-  }
-
-  private[acume] def getAggregationFunction(stringname: String): String = {
-    throw new NoSuchMethodException("Method not present")
-  }
-
-  private[acume] def getCubeListContainingFields(lstfieldNames: List[String]): List[Cube] = {
-    throw new NoSuchMethodException("Method not present")
+  def getFirstBinPersistedTime(binSource: String): Long = {
+    dataLoader.getFirstBinPersistedTime(binSource)
   }
   
-  def getFirstBinPersistedTime(binSource : String) : Long =  {
-    throw new NoSuchMethodException("Method not present")
+  def getLastBinPersistedTime(binSource: String): Long = {
+    dataLoader.getLastBinPersistedTime(binSource)
   }
   
-  def getLastBinPersistedTime(binSource : String) : Long =  {
-    throw new NoSuchMethodException("Method not present")
-  }
-  
-  def getBinSourceToIntervalMap(binSource : String) : Map[Long, (Long,Long)] =  {
-    throw new NoSuchMethodException("Method not present")
+  def getBinSourceToIntervalMap(binSource: String): Map[Long, (Long, Long)] = {
+    dataLoader.getBinSourceToIntervalMap(binSource)
   }
   
   def getAllBinSourceToIntervalMap() : Map[String, Map[Long, (Long,Long)]] =  {
-    throw new NoSuchMethodException("Method not present")
+    dataLoader.getAllBinSourceToIntervalMap
   }
+  
 }
 
 

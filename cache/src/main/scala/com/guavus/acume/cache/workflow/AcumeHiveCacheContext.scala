@@ -38,36 +38,20 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
     case sqlContext: SQLContext => 
     case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
-  Utility.init(conf)
-  Utility.unmarshalXML(conf.get(ConfConstants.businesscubexml), dimensionMap, measureMap)
   
-  val dataLoader = new InstaDataLoaderThinAcume(this, conf, null)
+  Utility.init(conf)
+  Utility.loadXML(conf, dimensionMap, measureMap, cubeMap, cubeList)
+  
+  override val dataLoader = new InstaDataLoaderThinAcume(this, conf, null)
 
   private [acume] def cacheSqlContext() : SQLContext = sqlContext
   
   private [acume] def cacheConf = conf
   
-  private [acume] def getCubeMap = throw new RuntimeException("Operation not supported")
-  
-  override def getFirstBinPersistedTime(binSource: String): Long = {
-    dataLoader.getFirstBinPersistedTime(binSource)
-  }
-
-  override def getLastBinPersistedTime(binSource: String): Long = {
-    dataLoader.getLastBinPersistedTime(binSource)
-  }
-
-  override def getBinSourceToIntervalMap(binSource: String): Map[Long, (Long, Long)] = {
-    dataLoader.getBinSourceToIntervalMap(binSource)
-  }
-  
-  override def getAllBinSourceToIntervalMap() : Map[String, Map[Long, (Long,Long)]] =  {
-		dataLoader.getAllBinSourceToIntervalMap
-  }
-  
   val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]()(implicitly[Ordering[Long]].reverse) ++ Utility.getLevelPointMap(conf.get(ConfConstants.acumecoretimeserieslevelmap)).map(x=> (x._1.level, x._2)))
   
-  private [acume] def executeQuery(sql: String, qltype: QLType.QLType) = {
+  override private [acume] def executeQuery(sql: String, qltype: QLType.QLType) = {
+    
     if(!cacheConf.getBoolean(ConfConstants.useInsta, false)) {
       val resultSchemaRdd = sqlContext.sql(sql)
       new AcumeCacheResponse(resultSchemaRdd, resultSchemaRdd, new MetaData(-1, Nil))

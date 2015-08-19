@@ -47,11 +47,8 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeCacheContext])
   
-  val dataLoader: DataLoader = DataLoader.getDataLoader(this, conf, null)
-  private [cache] val baseCubeList = MutableList[BaseCube]()
-  private [cache] val cubeMap = new HashMap[CubeKey, Cube]
-  private [cache] val cubeList = MutableList[Cube]()
-
+  override val dataLoader: DataLoader = DataLoader.getDataLoader(this, conf, null)
+  
   sqlContext match {
     case hiveContext: HiveContext =>
     case sqlContext: SQLContext => 
@@ -60,33 +57,12 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   Utility.init(conf)
   Utility.loadXML(conf, dimensionMap, measureMap, cubeMap, cubeList)
+  
+  override private [acume] def cacheConf() = conf
+  
+  override private [acume] def cacheSqlContext() = sqlContext
 
-  
-  override def getCubeMap = cubeMap.toMap
-  
-  private [acume] def cacheConf() = conf
-  
-  private [acume] def cacheSqlContext() = sqlContext
-
-  override def getFirstBinPersistedTime(binSource: String): Long = {
-    dataLoader.getFirstBinPersistedTime(binSource)
-  }
-
-  override def getLastBinPersistedTime(binSource: String): Long = {
-    dataLoader.getLastBinPersistedTime(binSource)
-  }
-
-  override def getBinSourceToIntervalMap(binSource: String): Map[Long, (Long, Long)] = {
-    dataLoader.getBinSourceToIntervalMap(binSource)
-  }
-  
-  override def getAllBinSourceToIntervalMap() : Map[String, Map[Long, (Long,Long)]] =  {
-		dataLoader.getAllBinSourceToIntervalMap
-  }
-  
-  override private [acume] def getCubeList = cubeList.toList
-   
-  private [acume] def executeQuery(sql: String, qltype: QLType.QLType) = {
+  override private [acume] def executeQuery(sql: String, qltype: QLType.QLType) = {
     
     val originalparsedsql = AcumeCacheContext.parseSql(sql)
     
@@ -144,34 +120,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     AcumeCacheContext.ACQL(qltype, sqlContext)(updatedsql)
   }
 
-  override private [acume] def getFieldsForCube(name: String, binsource: String) = {
-      
-    val cube = cubeMap.getOrElse(CubeKey(name, binsource), throw new RuntimeException(s"Cube $name Not in AcumeCache knowledge."))
-    cube.dimension.dimensionSet.map(_.getName) ++ cube.measure.measureSet.map(_.getName)
-  }
-  
-  override private [acume] def getAggregationFunction(stringname: String) = {
-    val measure = measureMap.getOrElse(stringname, throw new RuntimeException(s"Measure $stringname not in Acume knowledge."))
-    measure.getAggregationFunction
-  }
-  
-  override private [acume] def getCubeListContainingFields(lstfieldNames: List[String]) = {
-    
-    val dimensionSet = scala.collection.mutable.Set[Dimension]()
-    val measureSet = scala.collection.mutable.Set[Measure]()
-    for(field <- lstfieldNames)
-      if(isDimension(field))
-        dimensionSet.+=(dimensionMap.get(field).get)
-      else
-        measureSet.+=(measureMap.get(field).get)
-      val kCube = 
-        for(cube <- cubeList if(dimensionSet.toSet.subsetOf(cube.dimension.dimensionSet.toSet) && 
-            measureSet.toSet.subsetOf(cube.measure.measureSet.toSet))) yield {
-          cube
-        }
-    kCube.toList
-  }
-  
   private [cache] def getCube(cube: CubeKey) = cubeMap.get(cube).getOrElse(throw new RuntimeException(s"cube $cube not found."))
   
   private [workflow] def loadBaseXML(filedir: String) = {
