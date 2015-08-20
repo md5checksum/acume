@@ -39,6 +39,7 @@ import com.guavus.acume.cache.common.AcumeConstants
 import java.util.concurrent.ConcurrentHashMap
 import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 import DataService._
+import com.guavus.acume.core.configuration.DataServiceFactory
 
 
 /**
@@ -66,7 +67,8 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     servSearchRequest(queryRequest.toSql)
   }
 
-  def servSearchRequest(sql: String): SearchResponse = {
+  def servSearchRequest(unUpdatedSql: String): SearchResponse = {
+    val sql = DataServiceFactory.dsInterpreterPolicy.updateQuery(unUpdatedSql)
     val response = execute(sql)
     val responseRdd = response.rowRDD
     val schema = response.schemaRDD.schema
@@ -149,8 +151,10 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     }
   }
 
-  def servRequest(sql: String, property: HashMap[String, Any] = null): Any = {
-
+  def servRequest(unUpdatedSql: String, property: HashMap[String, Any] = null): Any = {
+    
+    val sql = DataServiceFactory.dsInterpreterPolicy.updateQuery(unUpdatedSql)
+    
     val jobGroupId = Thread.currentThread().getName() + "-" + Thread.currentThread().getId() + "-" + counter.getAndIncrement
     try {
       if (AcumeCacheContextTraitUtil.poolThreadLocal.get() == null) {
