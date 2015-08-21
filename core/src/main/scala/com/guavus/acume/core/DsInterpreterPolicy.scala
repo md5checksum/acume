@@ -6,7 +6,6 @@ import com.guavus.acume.cache.utility.SQLParserFactory
 import net.sf.jsqlparser.statement.select.PlainSelect
 import net.sf.jsqlparser.statement.select.Select
 import net.sf.jsqlparser.statement.select.PlainSelect
-import java.util.regex.Pattern
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
@@ -20,6 +19,8 @@ abstract class DsInterpreterPolicy {
   
   def updateQuery(query: String) : String
   
+  def getTableNameFromQuery(query: String): String
+  
 }
 
 class DsInterpreterPolicyImpl extends DsInterpreterPolicy {
@@ -28,9 +29,8 @@ class DsInterpreterPolicyImpl extends DsInterpreterPolicy {
   
   def interpretDsName(query: String) : String = {
     var defaultDsName : String = AcumeContextTraitUtil.acumeConf.get(ConfConstants.defaultDatasource)
-    val sql = SQLParserFactory.getParserManager
-    val statement = sql.parse(new StringReader(query)).asInstanceOf[Select].getSelectBody.asInstanceOf[PlainSelect]
-    val tableName = statement.getFromItem().toString
+    
+    val tableName = getTableNameFromQuery(query)
 
      /*
      * if tableName is global use the defaultDatasourceName
@@ -59,15 +59,28 @@ class DsInterpreterPolicyImpl extends DsInterpreterPolicy {
       case 1 =>
         logger.info("Selecting datasourceName " + dsNames(0) + " interpreted from datasourceNames")
         return dsNames(0)
-      case _ => throw new RuntimeException("TableName nither a cubeName nor a datasourceName. Failing query " + query)
+      case _ => throw new RuntimeException("TableName neither a cubeName nor a datasourceName. Failing query " + query)
     }
 
   }
-    
+  
   def updateQuery(query: String) : String = {
     var updatedQuery : String  = query
-    val dsNameRegex = "\\b" + Pattern.quote(query) + "\\b"
+    val tableName = getTableNameFromQuery(query)
+    
+    // If the tableName is a cubeName dont replace with global. Otherwise relace the tableName with global
+    if(AcumeCacheContextTraitUtil.cubeList.filter(cube => cube.cubeName.equalsIgnoreCase(tableName)).size != 0)
+      return updatedQuery
+    
+    val dsNameRegex = "\\b" + tableName + "\\b"
     AcumeContextTraitUtil.acumeConf.getEnabledDatasourceNames.map(dsName => updatedQuery = updatedQuery.replaceAll(dsNameRegex, "global"))
+    logger.info("Updated query is " + updatedQuery)
     updatedQuery
+  }
+  
+  def getTableNameFromQuery(query: String): String = {
+    val sql = SQLParserFactory.getParserManager
+    val statement = sql.parse(new StringReader(query)).asInstanceOf[Select].getSelectBody.asInstanceOf[PlainSelect]
+    statement.getFromItem().toString
   }
 }
