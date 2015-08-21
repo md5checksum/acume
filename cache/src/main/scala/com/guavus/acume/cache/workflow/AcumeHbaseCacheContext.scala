@@ -1,8 +1,6 @@
 package com.guavus.acume.cache.workflow
 
 import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.hbase.HBaseSQLContext
-import org.apache.spark.sql.hive.HiveContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -10,16 +8,14 @@ import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConversionToSpark
 import com.guavus.acume.cache.common.Cube
 
-class AcumeHbaseCacheContext(override val cacheSqlContext: SQLContext, override val cacheConf: AcumeCacheConf) extends AcumeCacheContextTrait {
+/**
+ * @author kashish.jain
+ *
+ */
+class AcumeHbaseCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheConf) extends AcumeCacheContextTrait(cacheSqlContext, cacheConf) {
 
   private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeHbaseCacheContext])
    
-  cacheSqlContext match {
-    case hiveContext: HiveContext =>
-    case hbaseContext : HBaseSQLContext =>
-    case rest => throw new RuntimeException("This type of SQLContext is not supported.")
-  }
-  
   initHbase
   
   private def constructQueryFromCube(cube: Cube) : String = {
@@ -64,8 +60,8 @@ class AcumeHbaseCacheContext(override val cacheSqlContext: SQLContext, override 
     	  cacheSqlContext.sql("drop table " + cubeName).collect
         logger.info(s"temp table $cubeName dropped")
       } catch {
-        case e: Exception => logger.error(s"Dropping temp table $cubeName failed. " + e.getMessage)
-        case th : Throwable => logger.error(s"Dropping temp table $cubeName failed. " + th.getMessage)
+        case e: Exception => logger.error(s"Dropping temp table $cubeName failed. ", e)
+        case th : Throwable => logger.error(s"Dropping temp table $cubeName failed. ", th)
       }
       
       //Create table with cubename
@@ -73,8 +69,8 @@ class AcumeHbaseCacheContext(override val cacheSqlContext: SQLContext, override 
         cacheSqlContext.sql(query).collect
         logger.info(s"temp table $cubeName created")
       } catch {
-        case e: Exception => throw new RuntimeException(s"Creating temp table $cubeName failed. " + e.getMessage)
-        case th : Throwable => throw new RuntimeException(s"Creating temp table $cubeName failed. " + th.getMessage)
+        case e: Exception => throw new RuntimeException(s"Creating temp table $cubeName failed. " , e)
+        case th : Throwable => throw new RuntimeException(s"Creating temp table $cubeName failed. ", th)
       }
     })
   }

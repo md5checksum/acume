@@ -7,8 +7,6 @@ import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.JavaConversions.mapAsScalaMap
 
 import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.hbase.HBaseSQLContext
-import org.apache.spark.sql.hive.HiveContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -37,15 +35,9 @@ import net.sf.jsqlparser.statement.select.Select
  * @author archit.thakur
  *
  */
-class AcumeCacheContext(override val cacheSqlContext: SQLContext, override val cacheConf: AcumeCacheConf) extends AcumeCacheContextTrait {
+class AcumeCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheConf) extends AcumeCacheContextTrait(cacheSqlContext, cacheConf) {
   
   private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeCacheContext])
-  
-  cacheSqlContext match {
-    case hiveContext: HiveContext =>
-    case hbaseContext : HBaseSQLContext =>
-    case rest => throw new RuntimeException("This type of SQLContext is not supported.")
-  }
   
   override val dataLoader = DataLoader.getDataLoader(this, cacheConf, null)
   

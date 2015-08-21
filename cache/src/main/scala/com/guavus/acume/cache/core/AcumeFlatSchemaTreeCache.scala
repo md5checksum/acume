@@ -243,9 +243,9 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
             }
             level
           } else
-            Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(cube.binsource)))
+            Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource)))
         case None =>
-          Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(cube.binsource)))
+          Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource)))
       }
 
     val startTimeCeiling = cacheLevelPolicy.getCeilingToLevel(startTime, level)
@@ -319,7 +319,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
         	  val intervals = Utility.getAllIntervals(tempStart, tempEnd, level)
         	  for(interval <- intervals) yield {
         	    val levelTimestamp = new LevelTimestamp(CacheLevel.getCacheLevel(level), interval, CacheLevel.getCacheLevel(level))
-        	    logger.info("Selecting table with timestamp {} for interval {}, {}", levelTimestamp, startTime.toString, endTime.toString)
+        	    //logger.info("Selecting table with timestamp {} for interval {}, {}", levelTimestamp.toString, startTime.toString, endTime.toString)
         	    val innerAcumeValue = cachePointToTable.get(levelTimestamp).getAcumeValue.measureSchemaRdd
 //        	    populateParent(levelTimestamp.level.localId, levelTimestamp.timestamp)
         	    combineLevels(levelTimestamp.level.localId, levelTimestamp.timestamp)

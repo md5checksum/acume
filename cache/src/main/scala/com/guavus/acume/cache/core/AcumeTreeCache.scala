@@ -77,7 +77,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         val levelDirectoryName = Utility.getlevelDirectoryName(presentLevel._1, presentLevel._2)
         val timestamps = fs.listStatus(new Path(cacheBaseDirectory + File.separator + levelDirectoryName)).map(_.getPath().getName().toLong)
         for (timestamp <- timestamps)
-          if (Utility.getPriority(timestamp, presentLevel._1.localId, presentLevel._2.localId, cube.diskLevelPolicyMap, BinAvailabilityPoller.getLastBinPersistedTime(cube.binsource)) == 0) {
+          if (Utility.getPriority(timestamp, presentLevel._1.localId, presentLevel._2.localId, cube.diskLevelPolicyMap, BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource)) == 0) {
             val directoryToBeDeleted = Utility.getDiskDirectoryForPoint(acumeCacheContext, cube, new LevelTimestamp(presentLevel._1, timestamp, presentLevel._2))
             Utility.deleteDirectory(directoryToBeDeleted, acumeCacheContext)
           }
@@ -94,7 +94,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       val diskDirectory = Utility.getDiskDirectoryForPoint(acumeCacheContext, cube, levelTimestamp)
       val diskDirpath = new Path(diskDirectory)
 	    //Do previous run cleanup
-        val priority = Utility.getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, levelTimestamp.aggregationLevel.localId, cube.diskLevelPolicyMap, BinAvailabilityPoller.getLastBinPersistedTime(cube.binsource))
+        val priority = Utility.getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, levelTimestamp.aggregationLevel.localId, cube.diskLevelPolicyMap, BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource))
 	    if (priority == 1 && Utility.isPathExisting(diskDirpath, acumeCacheContext) && Utility.isDiskWriteComplete(diskDirectory, acumeCacheContext)) {
 	      
         acumeCacheContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk cache reading " + diskDirectory, false)

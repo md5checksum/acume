@@ -55,7 +55,7 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
       }).map(x => x._1 + " as " + x._2).mkString(",")
       
     val instaDimRequest = InstaRequest(startTime, endTime,
-        businessCube.binSource, dimSet.cubeName, List(rowFilters), measureFilters)
+        businessCube.superBinSource, dimSet.cubeName, List(rowFilters), measureFilters)
     logger.info("Firing aggregate query on insta "  + instaDimRequest)
     val dimensionTblTemp = "dimensionDataInstaTemp" + businessCube.getAbsoluteCubeName+ endTime
     val newTuplesRdd = InstaUtil.getInstaClient.getNewTuples(instaDimRequest)
@@ -94,10 +94,10 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
       })
 
       val instaMeasuresRequest = InstaRequest(startTime, endTime,
-        businessCube.binSource, dimSet.cubeName, List(), measureFilters)
+        businessCube.superBinSource, dimSet.cubeName, List(), measureFilters)
         logger.info("Firing aggregate query on insta "  + instaMeasuresRequest)
       val aggregatedMeasureDataInsta = InstaUtil.getInstaClient.getAggregatedData(instaMeasuresRequest)
-      val aggregatedTblTemp = "aggregatedMeasureDataInstaTemp" + businessCube.cubeName + level + "_" + startTime
+      val aggregatedTblTemp = "aggregatedMeasureDataInstaTemp" + businessCube.superCubeName + level + "_" + startTime
       aggregatedMeasureDataInsta.registerTempTable(aggregatedTblTemp)
       AcumeCacheContextTraitUtil.setInstaTempTable(aggregatedTblTemp)
       //change schema for this schema rdd
@@ -126,8 +126,8 @@ class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @tra
           }
         }
       }
-      if (isValidCubeGran && cube.binSource == businessCube.binSource && CubeUtil.getCubeBaseFields(businessCube).toSet.subsetOf((cube.dimensions.map(_._1) ++ cube.measures.map(_._1)).toSet)) {
-        if(cube.cubeName.equalsIgnoreCase(businessCube.cubeName)) {
+      if (isValidCubeGran && cube.binSource == businessCube.superBinSource && CubeUtil.getCubeBaseFields(businessCube).toSet.subsetOf((cube.dimensions.map(_._1) ++ cube.measures.map(_._1)).toSet)) {
+        if(cube.cubeName.equalsIgnoreCase(businessCube.superCubeName)) {
           return cube
         } else if (bestCube == null) {
           bestCube = cube

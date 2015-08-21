@@ -1,31 +1,35 @@
 package com.guavus.acume.cache.workflow
 
 import org.apache.spark.sql.SQLContext
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.Dimension
 import com.guavus.acume.cache.common.Measure
 import com.guavus.acume.cache.disk.utility.DataLoader
+import org.apache.spark.sql.hbase.HBaseSQLContext
+import org.apache.spark.sql.hive.HiveContext
 
 /**
  * @author archit.thakur
  * 
  */
-trait AcumeCacheContextTrait extends Serializable {
+abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cacheConf: AcumeCacheConf) extends Serializable {
   
   @transient
   private [cache] var rrCacheLoader : RRCache = Class.forName(cacheConf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, cacheConf).asInstanceOf[RRCache]
   private [cache] val dataLoader : DataLoader = null
-  private [acume] val cacheSqlContext : SQLContext
-	private [acume] val cacheConf: AcumeCacheConf
 	
   lazy private [cache] val measureMap = AcumeCacheContextTraitUtil.measureMap
 	lazy private [cache] val dimensionMap = AcumeCacheContextTraitUtil.dimensionMap
-  lazy private [cache] val cubeMap = AcumeCacheContextTraitUtil.cubeMap.filter(cubeKey => cubeKey._2.dataSourceName.equalsIgnoreCase(cacheConf.getDataSourceName))
-  lazy private [cache] val cubeList = AcumeCacheContextTraitUtil.cubeList.filter(cube => cube.dataSourceName.equalsIgnoreCase(	cacheConf.getDataSourceName))
+  lazy private [cache] val cubeMap = AcumeCacheContextTraitUtil.cubeMap.filter(cubeKey => cubeKey._2.dataSource.equalsIgnoreCase(cacheConf.getDataSourceName))
+  lazy private [cache] val cubeList = AcumeCacheContextTraitUtil.cubeList.filter(cube => cube.dataSource.equalsIgnoreCase(	cacheConf.getDataSourceName))
 
+  cacheSqlContext match {
+    case hiveContext: HiveContext =>
+    case hbaseContext : HBaseSQLContext =>
+    case rest => throw new RuntimeException("This type of SQLContext is not supported.")
+  }
   
   def acql(sql: String): AcumeCacheResponse = {
   AcumeCacheContextTraitUtil.setQuery(sql)

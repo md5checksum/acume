@@ -907,7 +907,7 @@ object Utility extends Logging {
     diskBaseDirectory
   }
   def getCubeBaseDirectory(acumeContext : AcumeCacheContextTrait, cube : Cube) : String = {
-    var cubeBaseDirectory = getDiskBaseDirectory(acumeContext) + File.separator + cube.binsource + File.separator + cube.cubeName
+    var cubeBaseDirectory = getDiskBaseDirectory(acumeContext) + File.separator + cube.binSource + File.separator + cube.cubeName
     cubeBaseDirectory
   }
 

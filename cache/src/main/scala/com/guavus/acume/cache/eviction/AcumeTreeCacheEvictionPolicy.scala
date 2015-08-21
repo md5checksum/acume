@@ -53,12 +53,11 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextT
   }
   
   private def isEvictiable(levelTimestamp: LevelTimestamp, variableRetentionMap: Map[Level, Int]): Boolean = {
-    if (Utility.getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, levelTimestamp.aggregationLevel.localId, variableRetentionMap, BinAvailabilityPoller.getLastBinPersistedTime(cube.binsource)) == 0) true else false
+    if (Utility.getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, levelTimestamp.aggregationLevel.localId, variableRetentionMap, BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource)) == 0) true else false
   }
 
   private def intializeMetaData(variableRetentionMap: Map[Long, Int]): HashMap[Long, Long] = {
-    val lastBinTime = BinAvailabilityPoller.getLastBinPersistedTime(cube.binsource) //Controller.getInstance.getLastBinPersistedTime(ConfigFactory.getInstance.getBean(classOf[TimeGranularity])
-      //.getName, BinSource.getDefault.name(), Controller.RETRY_COUNT)
+    val lastBinTime = BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource)
     val map = HashMap[Long, Long]()
     for ((key, value) <- variableRetentionMap) {
       val numPoints = value

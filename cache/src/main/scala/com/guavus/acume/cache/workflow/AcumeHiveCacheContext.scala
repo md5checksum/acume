@@ -4,8 +4,6 @@ import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.immutable.SortedMap
 
 import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.hbase.HBaseSQLContext
-import org.apache.spark.sql.hive.HiveContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -23,17 +21,11 @@ import com.guavus.acume.cache.utility.Utility
  * @author kashish.jain
  *
  */
-class AcumeHiveCacheContext(override val cacheSqlContext: SQLContext, override val cacheConf: AcumeCacheConf) extends AcumeCacheContextTrait { 
+class AcumeHiveCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheConf) extends AcumeCacheContextTrait(cacheSqlContext, cacheConf) { 
  
   private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeHiveCacheContext])
   private [cache] val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]()(implicitly[Ordering[Long]].reverse) ++ Utility.getLevelPointMap(cacheConf.get(ConfConstants.acumecoretimeserieslevelmap)).map(x=> (x._1.level, x._2)))
   private val useInsta : Boolean = cacheConf.getBoolean(ConfConstants.useInsta).getOrElse(false)
-  
-  cacheSqlContext match {
-    case hiveContext: HiveContext =>
-    case hbaseContext : HBaseSQLContext =>
-    case rest => throw new RuntimeException("This type of SQLContext is not supported.")
-  }
   
   override val dataLoader : DataLoader = {
     if(!useInsta)
