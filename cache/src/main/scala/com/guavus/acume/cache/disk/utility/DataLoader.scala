@@ -15,7 +15,7 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
  * @author archit.thakur
  *
  */
-abstract class DataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, acumeCache: AcumeCache[_ >: Any , _ >: Any]) extends Serializable {
+abstract class DataLoader(@transient val acumeCacheContext: AcumeCacheContextTrait, @transient val  conf: AcumeCacheConf, @transient val  acumeCache: AcumeCache[_ >: Any , _ >: Any]) extends Serializable {
 
   def loadData(keyMap : Map[String, Any], businessCubeTrait: CubeTrait, startTime : Long, endTime : Long, level: Long): SchemaRDD
 //  def loadData(businessCubeTrait: CubeTrait, levelTimestamp: LevelTimestamp, dTableName: DimensionTable, instabase: String, instainstanceid: String): Tuple2[SchemaRDD, String]

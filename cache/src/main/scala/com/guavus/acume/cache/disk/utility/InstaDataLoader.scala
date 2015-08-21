@@ -16,7 +16,7 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 import com.guavus.insta.InstaCubeMetaInfo
 import com.guavus.insta.InstaRequest
 
-class InstaDataLoader(@transient acumeCacheContext: AcumeCacheContextTrait, @transient  conf: AcumeCacheConf, @transient acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends DataLoader(acumeCacheContext, conf, null) {
+class InstaDataLoader(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends DataLoader(acumeCacheContext, conf, null) {
 
   @transient val sqlContext = acumeCacheContext.cacheSqlContext
   @transient var cubeList: List[InstaCubeMetaInfo] = InstaUtil.getInstaClient.getInstaCubeList

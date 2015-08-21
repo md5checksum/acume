@@ -9,7 +9,7 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import com.guavus.insta.InstaCubeMetaInfo
 import com.guavus.insta.InstaRequest
 
-class InstaDataLoaderThinAcume(@transient acumeCacheContext: AcumeCacheContextTrait, @transient conf: AcumeCacheConf, @transient acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends InstaDataLoader(acumeCacheContext, conf, acumeCache) {
+class InstaDataLoaderThinAcume(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, acumeCache: AcumeCache[_ <: Any, _ <: Any]) extends InstaDataLoader(acumeCacheContext, conf, acumeCache) {
 
   override def loadData(keyMap : Map[String, Any], businessCube: CubeTrait, startTime : Long, endTime : Long, level: Long): SchemaRDD = {
     var dimSet  :InstaCubeMetaInfo = null 
