@@ -73,8 +73,8 @@ class AcumeHbaseCacheContext(override val cacheSqlContext: SQLContext, override 
         cacheSqlContext.sql(query).collect
         logger.info(s"temp table $cubeName created")
       } catch {
-        case e: Exception => logger.error(s"Creating temp table $cubeName failed. " + e.getMessage)
-        case th : Throwable => logger.error(s"Creating temp table $cubeName failed. " + th.getMessage)
+        case e: Exception => throw new RuntimeException(s"Creating temp table $cubeName failed. " + e.getMessage)
+        case th : Throwable => throw new RuntimeException(s"Creating temp table $cubeName failed. " + th.getMessage)
       }
     })
   }
