@@ -53,14 +53,14 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
    * Takes QueryRequest i.e. Rubix query and return aggregate Response.
    */
   def servAggregate(queryRequest: QueryRequest, property: HashMap[String, Any] = null): AggregateResponse = {
-    servRequest(queryRequest.toSql(""), property).asInstanceOf[AggregateResponse]
+    servRequest(queryRequest.toSql(""), RequestDataType.Aggregate, property).asInstanceOf[AggregateResponse]
   }
 
   /**
    * Takes QueryRequest i.e. Rubix query and return timeseries Response.
    */
   def servTimeseries(queryRequest: QueryRequest, property: HashMap[String, Any] = null): TimeseriesResponse = {
-    servRequest(queryRequest.toSql("ts,"), property).asInstanceOf[TimeseriesResponse]
+    servRequest(queryRequest.toSql("ts,"), RequestDataType.TimeSeries, property).asInstanceOf[TimeseriesResponse]
   }
 
   def servSearchRequest(queryRequest: SearchRequest): SearchResponse = {
@@ -151,7 +151,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     }
   }
 
-  def servRequest(unUpdatedSql: String, property: HashMap[String, Any] = null): Any = {
+  def servRequest(unUpdatedSql: String, requestDataType: RequestDataType.RequestDataType, property: HashMap[String, Any] = null): Any = {
     
     val sql = DataServiceFactory.dsInterpreterPolicy.updateQuery(unUpdatedSql)
     
@@ -194,11 +194,17 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       val dimsNames = new ArrayBuffer[String]()
       val measuresNames = new ArrayBuffer[String]()
       var j = 0
-      var isTimeseries = false
+      var isTimeseries = RequestDataType.TimeSeries.equals(requestDataType)
+
       var tsIndex = 0
       for (field <- fields) {
         if (field.equalsIgnoreCase("ts")) {
-          isTimeseries = true
+          isTimeseries = {
+            if(RequestDataType.NotDefined.equals(requestDataType))
+              true
+            else
+               RequestDataType.TimeSeries.equals(requestDataType)
+          }
           tsIndex = j
         } else if (queryBuilderService.get(0).isFieldDimension(field)) {
           dimsNames += field

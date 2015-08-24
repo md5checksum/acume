@@ -11,6 +11,8 @@ object RequestDataType extends Enumeration {
   val Min = new RequestDataType()
 
   val TimeSeries = new RequestDataType()
+  
+  val NotDefined = new RequestDataType()
 
   class RequestDataType extends Val {
 
