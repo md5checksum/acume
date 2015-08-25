@@ -400,20 +400,26 @@ object Utility extends Logging {
         
         
         // Get specific properties from the property map
-        val levelPolicyString = getProperty(propertyMap, ConfConstants.levelpolicymap, ConfConstants.acumecorelevelmap, conf, cubeName)
-        val levelpolicymap = levelPolicyString.split("\\|")
-        val inMemoryPolicyMap = Utility.getLevelPointMap(levelpolicymap(0))
-        val diskLevelPolicyMap = 
-          if(levelpolicymap.size == 1) {
-          	inMemoryPolicyMap
-        	} else {
-        	  Utility.getLevelPointMap(levelpolicymap(1))
-        	}
-
-        if(!PropertyValidator.validateRetentionMap(Some(levelPolicyString), ConfConstants.acumecorelevelmap)) {
-          throw new RuntimeException(ConfConstants.acumecorelevelmap + " is not configured correctly")
+        var inMemoryPolicyMap : Map[Level, Int] = Map[Level, Int]()
+        var diskLevelPolicyMap : Map[Level, Int] = Map[Level, Int]()
+        
+        if(conf.getOption(ConfConstants.acumecorelevelmap) != None) {
+          val levelPolicyString = getProperty(propertyMap, ConfConstants.levelpolicymap, ConfConstants.acumecorelevelmap, conf, cubeName)
+          val levelpolicymap = levelPolicyString.split("\\|")
+          inMemoryPolicyMap = Utility.getLevelPointMap(levelpolicymap(0))
+          diskLevelPolicyMap = 
+            if(levelpolicymap.size == 1) {
+              inMemoryPolicyMap
+            } else {
+              Utility.getLevelPointMap(levelpolicymap(1))
+            }
+  
+          if(!PropertyValidator.validateRetentionMap(Some(levelPolicyString), ConfConstants.acumecorelevelmap)) {
+            throw new RuntimeException(ConfConstants.acumecorelevelmap + " is not configured correctly")
+          }
         }
-
+        
+        // Get the timeseriesPolicyMap
         val timeSeriesLevelPolicyString = getProperty(propertyMap, ConfConstants.timeserieslevelpolicymap, ConfConstants.acumecoretimeserieslevelmap, conf, cubeName)
         if(!PropertyValidator.validateTimeSeriesRetentionMap(Some(timeSeriesLevelPolicyString), ConfConstants.acumecoretimeserieslevelmap)) {
           throw new RuntimeException(ConfConstants.acumecoretimeserieslevelmap + " is not configured correctly")
