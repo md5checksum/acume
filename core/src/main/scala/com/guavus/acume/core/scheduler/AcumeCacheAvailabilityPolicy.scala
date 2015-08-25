@@ -28,26 +28,37 @@ class AcumeCacheAvailabilityPolicy(acumeConf: AcumeConf, sqlContext: SQLContext)
 
 class UnionizedCacheAvailabilityPolicy(acumeConf: AcumeConf, sqlContext: SQLContext) extends ICacheAvalabilityUpdatePolicy(acumeConf, sqlContext) {
 
-  private val list = MutableList[HashMap[String, HashMap[Long, Interval]]]()
-
-  private def unionList = {
-    if (list.isEmpty) HashMap.empty[String, HashMap[Long, Interval]]
-    else list.reduce(union(_, _))
+  private var map = HashMap[String, HashMap[Long, Interval]]()
+  
+  private def syncGet = {
+    map = HashMap[String, HashMap[Long, Interval]]()
   }
-
-  override def getTrueCacheAvailabilityMap(version: Int): HashMap[String, HashMap[Long, Interval]] = super.getTrueCacheAvailabilityMap(version)
-
-  override def getCacheAvalabilityMap: HashMap[String, HashMap[Long, Interval]] = {
+  
+  private def syncUnion = {
     val _$version = ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).getVersion
-    list.+=(getTrueCacheAvailabilityMap(_$version).clone)
-    unionList
+    val newmap = super.getLocalTrueCacheAvailabilityMap(_$version)
+    if(!newmap.isEmpty)
+      map = union(newmap, map)
+  }
+  
+  override def getCacheAvalabilityMap: HashMap[String, HashMap[Long, Interval]] = {
+    
+    if(mode.equals("full")) {
+      val _$version = ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).getVersion
+      return super.getLocalTrueCacheAvailabilityMap(_$version)
+    }
+    else {
+      val _$version = ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).getVersion
+      val maps = union(map, super.getLocalTrueCacheAvailabilityMap(_$version))
+      return maps
+    }
   }
 
   override def onBlockManagerRemoved: Unit = {
-
-    mode = "partial"
-    val _$version = ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).getVersion
-    list.+=(getTrueCacheAvailabilityMap(_$version).clone)
+    this.synchronized {
+      mode = "partial"
+      syncUnion
+    }
     super.onBlockManagerRemoved
   }
 
@@ -68,10 +79,11 @@ class UnionizedCacheAvailabilityPolicy(acumeConf: AcumeConf, sqlContext: SQLCont
 
   override def onBackwardCombinerCompleted(version: Int) {
 
-    mode = "full"
-    if (ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).getVersion == version) {
-      list.clear
-      list.+=(super.getTrueCacheAvailabilityMap(version).clone)
+    this.synchronized {
+      mode = "full"
+      if (ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).getVersion == version) {
+        syncGet
+      }
     }
   }
 
