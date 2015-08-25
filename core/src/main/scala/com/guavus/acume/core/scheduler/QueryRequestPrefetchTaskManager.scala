@@ -45,12 +45,13 @@ class QueryRequestPrefetchTaskManager(@BeanProperty var schemas: List[QueryBuild
   private [core] val acumeCacheAvailabilityMapPolicy = ICacheAvalabilityUpdatePolicy.getICacheAvalabiltyUpdatePolicy
   private val combinerpriority = new PriorityBlockingQueue[Runnable](QueryRequestPrefetchTaskManager.INITIAL_TASK_QUEUE_SIZE)
 
-  def oldCombinerRunning: Boolean = {
-    combinerpriority.toArray().map(_.asInstanceOf[QueryPrefetchTaskCombiner]).filter(_.getIsOlderTask()).size >= 1 ||
+  def oldCombinerRunning(combiner: QueryPrefetchTaskCombiner): Boolean = {
+    combinerpriority.toArray().map(_.asInstanceOf[QueryPrefetchTaskCombiner]).filter(task => task.getIsOlderTask() && !(task == combiner)).size >= 1 ||
       consumerCombinerThreadPool.asInstanceOf[CombinerExecutor].
-      getRunningExecutorsRunnable.toArray.map(_.asInstanceOf[QueryPrefetchTaskCombiner]).filter(_.getIsOlderTask()).size >= 1
+      getRunningExecutorsRunnable.toArray.map(_.asInstanceOf[QueryPrefetchTaskCombiner]).filter(task => task.getIsOlderTask() && !(task == combiner)).size >= 1
   }
   
+  // this api is used only once in combiner. this returns the original instance of availability map. please use it wisely. 
   private[core] def getBinSourceToCacheAvalabilityMap: HashMap[String, HashMap[Long, Interval]] = {
     acumeCacheAvailabilityMapPolicy.getTrueCacheAvailabilityMap(getVersion())
   } 

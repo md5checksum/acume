@@ -136,7 +136,7 @@ class QueryPrefetchTaskCombiner(private var isOlderTasks: Boolean, manager: Quer
         logger.info("Partial Mode RubixDataAvailability {}", policy.getCacheAvalabilityMap)
       }
     
-    if(!manager.oldCombinerRunning)
+    if(version == taskManager.getVersion && !manager.oldCombinerRunning(this))
       manager.acumeCacheAvailabilityMapPolicy.onBackwardCombinerCompleted(this.version)
       
     this.synchronized {

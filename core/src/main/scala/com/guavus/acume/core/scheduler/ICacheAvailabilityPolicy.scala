@@ -25,7 +25,6 @@ import com.guavus.acume.core.configuration.ConfigFactory
 abstract class ICacheAvalabilityUpdatePolicy {
   
   protected var mode = "full"
-//  private val acumeCacheAvailabilityMap: HashMap[String, HashMap[Long, Interval]] = HashMap[String, HashMap[Long, Interval]]()
   private var acumeCacheAvailabilityMapWithVersion: HashMap[Int, HashMap[String, HashMap[Long, Interval]]] = HashMap[Int, HashMap[String, HashMap[Long, Interval]]]()
   
   /**
@@ -33,8 +32,22 @@ abstract class ICacheAvalabilityUpdatePolicy {
    * API targeted for scheduler.
    */
   def getTrueCacheAvailabilityMap(version: Int): HashMap[String, HashMap[Long, Interval]] = {
-//    val version = ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).getVersion
-    acumeCacheAvailabilityMapWithVersion.getOrElseUpdate(version, HashMap[String, HashMap[Long, Interval]]())
+    if(acumeCacheAvailabilityMapWithVersion.contains(version))
+      return acumeCacheAvailabilityMapWithVersion.get(version).get
+    else {
+      this.synchronized {
+        return acumeCacheAvailabilityMapWithVersion.getOrElseUpdate(version, HashMap[String, HashMap[Long, Interval]]())
+      }
+    }
+  }
+  
+  protected def getLocalTrueCacheAvailabilityMap(version: Int): HashMap[String, HashMap[Long, Interval]] = {
+
+    if(acumeCacheAvailabilityMapWithVersion.contains(version))
+      return acumeCacheAvailabilityMapWithVersion.get(version).get.clone
+    else {
+      return HashMap[String, HashMap[Long, Interval]]()
+    }
   }
   
   /**
@@ -43,7 +56,7 @@ abstract class ICacheAvalabilityUpdatePolicy {
    */
   def getCacheAvalabilityMap: HashMap[String, HashMap[Long, Interval]] = {
     val _$version = ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).getVersion
-    this.getTrueCacheAvailabilityMap(_$version).clone
+    this.getLocalTrueCacheAvailabilityMap(_$version)
   }
     
   /**
@@ -74,14 +87,15 @@ abstract class ICacheAvalabilityUpdatePolicy {
     val processed = unprocessed
     processed
   }
-  
+
   /**
    * should not be overriden.
    * API could be used by any component.
    */
-  private [core] def reset(version: Int): Unit = {
-//    acumeCacheAvailabilityMapWithVersion.getOrElse(version, HashMap.empty).clear
-    acumeCacheAvailabilityMapWithVersion.+=(version -> HashMap[String, HashMap[Long, Interval]]())
+  private[core] def reset(version: Int): Unit = {
+    this.synchronized {
+      acumeCacheAvailabilityMapWithVersion.+=(version -> HashMap[String, HashMap[Long, Interval]]())
+    }
   }
   
   /**
@@ -98,15 +112,21 @@ abstract class ICacheAvalabilityUpdatePolicy {
 }
 
 object ICacheAvalabilityUpdatePolicy {
-  
+
   val objectgetter = HashMap[String, ICacheAvalabilityUpdatePolicy]()
-  def getICacheAvalabiltyUpdatePolicy : ICacheAvalabilityUpdatePolicy = {
+  def getICacheAvalabiltyUpdatePolicy: ICacheAvalabilityUpdatePolicy = {
     val _$key = ConfConstants.acumecacheavailablitymappolicy
-    val _$value = objectgetter.getOrElse(_$key, Class.forName(AcumeContextTraitUtil.acumeConf.getOption(_$key).getOrElse("com.guavus.acume.core.scheduler.AcumeCacheAvailabilityPolicy")).getConstructor().newInstance()
-    .asInstanceOf[ICacheAvalabilityUpdatePolicy])
-    if(!objectgetter.contains(_$key)) {
-      objectgetter.put(_$key, _$value)
+    if (objectgetter.contains(_$key))
+      return objectgetter.get(_$key).get.asInstanceOf[ICacheAvalabilityUpdatePolicy]
+
+    this.synchronized {
+      val _$value = objectgetter.getOrElse(_$key, Class.forName(AcumeContextTraitUtil.acumeConf.getOption(_$key).getOrElse("com.guavus.acume.core.scheduler.AcumeCacheAvailabilityPolicy")).getConstructor().newInstance()
+        .asInstanceOf[ICacheAvalabilityUpdatePolicy])
+      if (!objectgetter.contains(_$key)) {
+        objectgetter.put(_$key, _$value)
+      }
+      _$value
     }
-    _$value
+
   }
 }
