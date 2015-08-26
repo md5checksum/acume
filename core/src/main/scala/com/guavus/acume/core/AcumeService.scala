@@ -1,5 +1,6 @@
 package com.guavus.acume.core
 
+import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.core.configuration.ConfigFactory
 import com.guavus.rubix.query.remote.flex.AggregateResponse
 import com.guavus.rubix.query.remote.flex.QueryRequest
@@ -35,6 +36,8 @@ import com.guavus.rubix.logging.util.AcumeThreadLocal
 import java.util.concurrent.atomic.AtomicInteger
 import com.guavus.rubix.logging.util.LoggingInfoWrapper
 import com.guavus.rubix.query.remote.flex.QueryExecutor
+import com.guavus.acume.core.executor.CustomExecutor
+
 import com.guavus.acume.user.management.utils.HttpUtils
 import com.guavus.acume.cache.utility.Utility
 import com.google.common.base.Function
@@ -171,7 +174,7 @@ class AcumeService {
       runWithTimeout[T](callable)
     }
   }
-  
+
   private def checkJobPropertiesAndUpdateStats(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): (List[(String, HashMap[String, Any])], List[String]) = {
     var poolname: String = null
     var classificationname: String = null
@@ -185,7 +188,149 @@ class AcumeService {
     }
   }
   
-  
+  // Generic API for custom executors
+  def servMultiple[T](callableResponses: java.util.ArrayList[CustomExecutor[T]], checkJobProperty: Boolean = true): java.util.ArrayList[T] = {
+
+    val starttime = System.currentTimeMillis()
+
+    def runWithTimeout[T](callable: Callable[java.util.ArrayList[T]]): java.util.ArrayList[T] = {
+      val response = QueryExecutorThreads.getPoolMultiple.submit(callable)
+      try {
+        response.get(dataService.acumeContext.acumeConf.getLong(ConfConstants.queryTimeOut, 30l), TimeUnit.SECONDS)
+      } catch {
+        case e : Exception => {
+          if(!response.isDone()) {
+            response.cancel(true)
+          }
+          throw e;
+        }
+      }
+    }
+
+    def run[T](callable: Callable[java.util.ArrayList[T]]): java.util.ArrayList[T] = {
+      callable.call()
+    }
+
+    val callable = new Callable[java.util.ArrayList[T]]() {
+      def call() = {
+
+        val futureResponses = new java.util.ArrayList[Future[T]]();
+        val threadPool = QueryExecutorThreads.getPool();
+        val isIDSet = false;
+
+        callableResponses foreach (callableResponse => {
+          if (dataService.acumeContext.acumeConf.getBoolean(ConfConstants.schedulerQuery, false))
+            futureResponses.add(new AcumeCustomizedFuture[T](callableResponse))
+          else
+            futureResponses.add(threadPool.submit(callableResponse))
+        })
+
+        val responses = new java.util.ArrayList[T]()
+        // var classificationIterator: Iterator[String] = null
+        // var poolIterator: Iterator[String] = null
+        /* if (checkJobProperty) {
+          classificationIterator = classificationList.iterator
+          poolIterator = poolList.iterator
+        } */
+
+        try {
+          for (futureResponse <- futureResponses) {
+            try {
+              responses.add(futureResponse.get())
+              if (checkJobProperty /* && poolIterator.hasNext */)
+                dataService.queryPoolPolicy.updateStats("default", "default", dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+            } catch {
+              case e: ExecutionException => {
+                Utility.throwIfRubixException(e)
+                //TO DO print the exact query which throw exception
+                throw new RuntimeException("Exception encountered while getting response for ", e)
+              }
+              case e: InterruptedException => {
+                Utility.throwIfRubixException(e);
+                //TO DO print the exact query which throw exception
+                throw new RuntimeException("Exception encountered while getting response for ", e);
+              }
+            }
+          }
+        } finally {
+          for (futureResponse <- futureResponses) {
+            if (!futureResponse.isDone()) {
+              futureResponse.cancel(true)
+            }
+          }
+          if (checkJobProperty) {
+            /* while (poolIterator.hasNext) {
+              dataService.queryPoolPolicy.updateStats(poolIterator.next(), classificationIterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+            } */
+            dataService.queryPoolPolicy.updateFinalStats("default", "default", dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+          }
+        }
+        responses
+      }
+    }
+
+    if (dataService.acumeContext.acumeConf.getBoolean(ConfConstants.schedulerQuery, false)) {
+      run(callable)
+    } else {
+      runWithTimeout[T](callable)
+    }
+  }
+
+  // Developer API for serving custom requests from acumce cache
+
+  /* def servCustom[Q: ClassTag, T](indexDimensionValue: Long, startTime: String, endTime: String,
+      granList: List[TimeGranularity.TimeGranularity], cubeName: String, checkJobProperty: Boolean = true): java.util.ArrayList[T] = {
+
+    try {
+
+      // val starttime = System.currentTimeMillis()
+      // var classificationList: List[(String, HashMap[String, Any])] = null
+      // var poolList: List[String] = null
+
+      /* if (checkJobProperty) {
+        val values = checkJobPropertiesAndUpdateStats(requests, requestDataType)
+        classificationList = values._1
+        poolList = values._2
+      } */
+
+      val callableResponses = new java.util.ArrayList[Callable[T]]();
+      val isIDSet = false;
+      val itr = granList.iterator
+      // TODO Find out use of spark.scheduler.pool when running on spark core
+      // val classificationIterator = if (classificationList != null) classificationList.iterator else null
+      // val poolIterator = if (poolList != null) poolList.iterator else null
+      while (itr.hasNext) {
+        val key = itr.next()
+        /* var classificationDetail: (String, HashMap[String, Any]) = (null, null)
+        var poolName: String = null
+        if (poolIterator != null && poolIterator.hasNext) {
+          poolName = poolIterator.next()
+        } */
+
+        // No need to set scheduler pool for this query
+        /* if (classificationIterator != null && classificationIterator.hasNext) {
+          classificationDetail = classificationIterator.next()
+          classificationDetail._2.put("spark.scheduler.pool", poolName)
+        } */
+
+        // TODO check use of this
+        if (!isIDSet) {
+          setCallId(key);
+        }
+
+        val queryExecutorTask = new Q(dataService.acumeContext, indexDimensionValue, startTime, endTime, key, HttpUtils.getLoginInfo())
+        callableResponses.add(queryExecutorTask)
+      }
+
+      servMultiple[T](callableResponses, checkJobProperty)
+    } catch {
+      case e: TimeoutException =>
+        throw new AcumeException(AcumeExceptionConstants.TIMEOUT_EXCEPTION.name);
+      case e: Throwable =>
+        throw e;
+    }
+  } */
+
   //Developer API for not calling checkJobproperties and directly calling the QueryExecutor
   def servMultiple[T](requestDataType: RequestDataType.RequestDataType,
                               requests: java.util.ArrayList[_ <: Any], checkJobProperty: Boolean = true): java.util.ArrayList[T] = {
