@@ -64,12 +64,12 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
   }
 
   def servSearchRequest(queryRequest: SearchRequest): SearchResponse = {
-    servSearchRequest(queryRequest.toSql)
+    servSearchRequest(queryRequest.toSql, RequestDataType.SQL)
   }
 
-  def servSearchRequest(unUpdatedSql: String): SearchResponse = {
+  def servSearchRequest(unUpdatedSql: String, requestDataType: RequestDataType.RequestDataType): SearchResponse = {
     val sql = DataServiceFactory.dsInterpreterPolicy.updateQuery(unUpdatedSql)
-    val response = execute(sql)
+    val response = execute(sql, requestDataType)
     val responseRdd = response.rowRDD
     val schema = response.schemaRDD.schema
     val fields = schema.fieldNames
@@ -177,7 +177,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
           conf.setDatasourceName(datasourceName)
           //AcumeConf.setConf(conf) This is redundant
           acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
-          val cacheResponse = execute(sql)
+          val cacheResponse = execute(sql, requestDataType)
           val responseRdd = cacheResponse.rowRDD
           (cacheResponse, responseRdd.collect)
         } finally {
@@ -200,10 +200,13 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       for (field <- fields) {
         if (field.equalsIgnoreCase("ts")) {
           isTimeseries = {
-            if(RequestDataType.NotDefined.equals(requestDataType))
-              true
+            if(RequestDataType.Aggregate.equals(requestDataType)) {
+              // In hbase, ts is a dimension. Adding ts to dimfields even in case of Aggregate
+              dimsNames += field
+            	false
+            }
             else
-               RequestDataType.TimeSeries.equals(requestDataType)
+              true
           }
           tsIndex = j
         } else if (queryBuilderService.get(0).isFieldDimension(field)) {
@@ -313,11 +316,10 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     }
   }
 
-  def execute(sql: String): AcumeCacheResponse = {
+  def execute(sql: String, requestDataType: RequestDataType.RequestDataType): AcumeCacheResponse = {
 
     var isFirst: Boolean = true
     val modifiedSql: String = queryBuilderService.foldLeft("") { (result, current) =>
-
       if (isFirst) {
         isFirst = false
         current.buildQuery(sql)
@@ -330,7 +332,8 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       if (!queryBuilderService.iterator.next.isSchedulerQuery(sql)) {
         logger.info(modifiedSql)
         val resp = acumeContext.acc.acql(modifiedSql)
-        if (!queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql) && !acumeContext.acumeConf.getDisableTotalForAggregateQueries(datasourceName)) {
+        
+        if ((RequestDataType.Aggregate.equals(requestDataType) || !queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql)) && !acumeContext.acumeConf.getDisableTotalForAggregateQueries(datasourceName)) {
           resp.metadata.totalRecords = acumeContext.acc.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getLong(0)
         }
         resp
