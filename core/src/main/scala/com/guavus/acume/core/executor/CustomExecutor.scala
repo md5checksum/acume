@@ -2,8 +2,10 @@ package com.guavus.acume.core.executor
 
 import java.util.concurrent.Callable
 import com.guavus.acume.cache.common.Cube
-import com.guavus.acume.cache.core.TimeGranularity
-import com.guavus.acume.cache.workflow.{AcumeCacheContextTrait, CubeKey}
+import com.guavus.acume.cache.core.{AcumeCache, TimeGranularity}
+import com.guavus.acume.cache.utility.QueryOptionalParam
+import com.guavus.acume.cache.workflow.{AcumeCacheContext, AcumeCacheContextTrait, CubeKey}
+
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import com.guavus.rubix.logging.util.LoggingInfoWrapper
@@ -48,12 +50,16 @@ abstract class CustomExecutor[T](
     AcumeThreadLocal.set(LoggingInfoWrapper)
     try {
 
+      // Get cache instance
+      val instance = getCacheInstance(indexDimensionValue, startTime, endTime, cube)
+
 			// get cache points corresponding to this cube
       // default behaviour is timeseries
-      val (rdds, acumeCube) = getCubeAndCachePoints(indexDimensionValue, startTime, endTime, gran, cube)
+      val tableName = AcumeCacheContext.getTable(cube.name)
+      val (rdds, timeStampList) = getCachePoints(instance, startTime, endTime, tableName, None, true)
 
 			// execute custom processing part
-			response = customExec(rdds, acumeCube)
+			response = customExec(rdds, timeStampList, instance.cube)
 
     } finally {
       HttpUtils.recycle()
@@ -63,15 +69,24 @@ abstract class CustomExecutor[T](
     response
   }
 
-  def getCubeAndCachePoints(
+  def getCacheInstance[k, v](
       indexDimensionValue: Long,
       startTime: Long,
       endTime: Long,
-      gran: TimeGranularity.TimeGranularity,
-      cube: CubeKey): (Seq[SchemaRDD], Cube) = {
-    acumeCacheContext.getCachePoints(indexDimensionValue, startTime, endTime, gran, cube)
+      cube: CubeKey): AcumeCache[k, v] = {
+
+    acumeCacheContext.getCacheInstance(indexDimensionValue, startTime, endTime, cube)
   }
 
-	def customExec(rdds: Seq[SchemaRDD], cube: Cube): T
+  def getCachePoints[k, v](
+      instance: AcumeCache[k, v],
+      startTime: Long,
+      endTime: Long,
+      tableName: String,
+      queryOptionalParam: Option[QueryOptionalParam],
+      isMetaData: Boolean): (Seq[SchemaRDD], List[Long]) = {
+    instance.getCachePoints(startTime, endTime, tableName, None, true)
+  }
 
+    def customExec(rdds: Seq[SchemaRDD], timeStampList: List[Long], cube: Cube): T
 }

@@ -12,7 +12,7 @@ import com.guavus.acume.cache.common.Measure
 import com.guavus.acume.cache.common.QLType
 import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
-import com.guavus.acume.cache.core.{TimeGranularity, AcumeTreeCacheValue}
+import com.guavus.acume.cache.core.{AcumeCache, TimeGranularity, AcumeTreeCacheValue}
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.common.AcumeConstants
@@ -101,20 +101,18 @@ trait AcumeCacheContextTrait extends Serializable {
       measureMap.get(fieldName).get.getDefaultValue
   }
 
-  def getCachePoints(
+  def getCacheInstance[k, v](
       indexDimensionValue: Long,
       startTime: Long,
       endTime: Long,
-      gran: TimeGranularity.TimeGranularity,
-      cube: CubeKey): (Seq[SchemaRDD], Cube) =
+      cube: CubeKey): AcumeCache[k, v] =
     throw new NotImplementedError("AcumeCacheContextTrait does not implement getCachePoints().")
 
-  def getAggregateCachePoints(
+  def getAggregateCacheInstance[k, v](
       indexDimensionValue: Long,
       startTime: Long,
       endTime: Long,
-      gran: TimeGranularity.TimeGranularity,
-      cube: CubeKey): (Seq[SchemaRDD], Cube) =
+      cube: CubeKey): AcumeCache[k, v] =
     throw new NotImplementedError("AcumeCacheContextTrait does not implement getAggregateCachePoints().")
 
   private [acume] def getCubeList = cubeList.toList

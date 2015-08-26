@@ -192,12 +192,12 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     }
   }
 
-  protected[cache] override def getAggregateCachePoints(
+  override def getAggregateCachePoints(
       startTime: Long,
       endTime: Long,
       tableName: String,
       queryOptionalParam: Option[QueryOptionalParam],
-      isMetaData: Boolean) : Seq[SchemaRDD] = {
+      isMetaData: Boolean) : (Seq[SchemaRDD], List[Long]) = {
 
     val duration = endTime - startTime
     val timestampMap : Option[MutableMap[Long, MutableList[(Long, Long)]]] = queryOptionalParam match {
@@ -214,12 +214,12 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     getCachePointsForIntervals(levelTimestampMap, tableName, isMetaData)
   }
 
-  protected[cache] override def getCachePoints(
+  override def getCachePoints(
       startTime: Long,
       endTime: Long,
       tableName: String,
       queryOptionalParam: Option[QueryOptionalParam],
-      isMetaData: Boolean): Seq[SchemaRDD] = {
+      isMetaData: Boolean): (Seq[SchemaRDD], List[Long]) = {
 
     val baseLevel = cube.baseGran.getGranularity
     val level =
@@ -251,7 +251,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
       getCachePointsForIntervals(intervals, tableName, isMetaData)
 
     } else {
-      Seq(Utility.getEmptySchemaRDD(acumeCacheContext.sqlContext, cube))
+      (Seq(Utility.getEmptySchemaRDD(acumeCacheContext.sqlContext, cube)), Nil)
     }
   }
 
@@ -414,7 +414,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
   private def getCachePointsForIntervals(
       levelTimestampMap: MutableMap[Long, MutableList[(Long, Long)]],
       tableName: String,
-      isMetaData: Boolean): Seq[SchemaRDD] = {
+      isMetaData: Boolean): (Seq[SchemaRDD], List[Long]) = {
     import acumeCacheContext.sqlContext._
     logger.info("Total timestamps are : {}", cachePointToTable.asMap().keySet())
     val finalTimestamps: MutableList[Long] = MutableList[Long]()
@@ -466,7 +466,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     }
     logger.info("Timestamps in final output are {}", finalTimestamps)
 
-    levelTime.flatten.toList
+    (levelTime.flatten.toList, finalTimestamps.toList)
 
   }
 

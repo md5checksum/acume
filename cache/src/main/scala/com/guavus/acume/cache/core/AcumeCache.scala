@@ -42,20 +42,20 @@ abstract class AcumeCache[k, v](val acumeCacheContext: AcumeCacheContextTrait, v
   
   def createTempTableAndMetadata(keyMap : List[Map[String, Any]], startTime : Long, endTime : Long, requestType : RequestType, tableName: String, queryOptionalParam: Option[QueryOptionalParam]): MetaData
 
-  protected[cache] def getCachePoints(
+  def getCachePoints(
       startTime: Long,
       endTime: Long,
       tableName: String,
       queryOptionalParam: Option[QueryOptionalParam],
-      isMetaData: Boolean): Seq[SchemaRDD] =
+      isMetaData: Boolean): (Seq[SchemaRDD], List[Long]) =
     throw new NotImplementedError("AcumeCache does not implement getCachePoints().")
 
-  protected[cache] def getAggregateCachePoints(
+  def getAggregateCachePoints(
       startTime: Long,
       endTime: Long,
       tableName: String,
       queryOptionalParam: Option[QueryOptionalParam],
-      isMetaData: Boolean): Seq[SchemaRDD] =
+      isMetaData: Boolean): (Seq[SchemaRDD], List[Long]) =
     throw new NotImplementedError("AcumeCache does not implement getCachePoints().")
 
   def notifyObserverList = {
