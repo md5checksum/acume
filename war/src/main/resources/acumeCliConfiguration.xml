@@ -838,7 +838,7 @@ Please don't use the following reserved property names:
         <property>
             <name>unRestrictedResources</name>
             <help><![CDATA[ - TODO]]></help>
-            <default><![CDATA[main.swf]]></default>
+            <default><![CDATA[main.swf,appCenter.swf]]></default>
             <targets>
                 <target>
                     <file><![CDATA[usermanagement.properties]]></file>
