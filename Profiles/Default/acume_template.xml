@@ -506,7 +506,7 @@
         </Property>
     	<Property>
             <Property_Name> application.${acumeApp}.unRestrictedResources</Property_Name>
-            <Property_Value>main.swf</Property_Value>
+            <Property_Value>main.swf,appCenter.swf</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.unRestrictedResources</Property_OriginalName>
