@@ -44,7 +44,7 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
   
   override val dataLoader = new InstaDataLoaderThinAcume(this, conf, null)
 
-  private [acume] def cacheSqlContext() : SQLContext = sqlContext
+  override def cacheSqlContext() : SQLContext = sqlContext
   
   private [acume] def cacheConf = conf
   

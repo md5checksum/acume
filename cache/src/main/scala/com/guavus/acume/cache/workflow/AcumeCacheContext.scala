@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap
 import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.{SchemaRDD, SQLContext}
 import org.apache.spark.sql.hive.HiveContext
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
@@ -19,8 +19,7 @@ import com.guavus.acume.cache.common.Dimension
 import com.guavus.acume.cache.common.Measure
 import com.guavus.acume.cache.common.QLType
 import com.guavus.acume.cache.common.QLType.QLType
-import com.guavus.acume.cache.core.AcumeCacheFactory
-import com.guavus.acume.cache.core.CacheIdentifier
+import com.guavus.acume.cache.core.{TimeGranularity, AcumeCacheFactory, CacheIdentifier}
 import com.guavus.acume.cache.disk.utility.DataLoader
 import com.guavus.acume.cache.sql.ISqlCorrector
 import com.guavus.acume.cache.utility.SQLParserFactory
@@ -60,7 +59,7 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   override private [acume] def cacheConf() = conf
   
-  override private [acume] def cacheSqlContext() = sqlContext
+  override def cacheSqlContext() = sqlContext
 
   override private [acume] def executeQuery(sql: String, qltype: QLType.QLType) = {
     
@@ -108,6 +107,40 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     val klist = list.flatMap(_.timestamps)
     val kfg = execute(qltype, updatedsql)
     AcumeCacheResponse(kfg, kfg, MetaData(-1, klist))
+  }
+
+  override def getCachePoints(indexDimensionValue: Long,
+      startTime: Long,
+      endTime: Long,
+      gran: TimeGranularity.TimeGranularity,
+      cube: CubeKey): (Seq[SchemaRDD], Cube) = {
+
+    validateQuery(startTime, endTime, cube.binsource)
+
+    val i = AcumeCacheContext.getTable(cube.name)
+    val idd = new CacheIdentifier()
+    val id = getCube(cube)
+    idd.put("cube", id.hashCode)
+    val instance = AcumeCacheFactory.getInstance(this, conf, idd, id)
+    val rdds = instance.getCachePoints(startTime, endTime, i, None, true)
+    (rdds, instance.cube)
+  }
+
+  override def getAggregateCachePoints(indexDimensionValue: Long,
+      startTime: Long,
+      endTime: Long,
+      gran: TimeGranularity.TimeGranularity,
+      cube: CubeKey): (Seq[SchemaRDD], Cube) = {
+
+    validateQuery(startTime, endTime, cube.binsource)
+
+    val i = AcumeCacheContext.getTable(cube.name)
+    val idd = new CacheIdentifier()
+    val id = getCube(cube)
+    idd.put("cube", id.hashCode)
+    val instance = AcumeCacheFactory.getInstance(this, conf, idd, id)
+    val rdds = instance.getAggregateCachePoints(startTime, endTime, i, None, true)
+    (rdds, instance.cube)
   }
   
   private [acume] def validateQuery(startTime : Long, endTime : Long, binSource : String) {

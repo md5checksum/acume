@@ -1,5 +1,7 @@
 package com.guavus.acume.core
 
+import com.guavus.acume.cache.core.TimeGranularity
+
 import com.guavus.rubix.query.remote.flex.TimeseriesResponse
 import com.guavus.rubix.query.remote.flex.AggregateResponse
 import org.apache.spark.rdd.RDD
@@ -30,7 +32,7 @@ import com.guavus.rubix.user.management.utils.HttpUtils
 import org.apache.shiro.SecurityUtils
 import java.util.concurrent.atomic.AtomicLong
 import org.slf4j.LoggerFactory
-import java.util.concurrent.TimeoutException
+import java.util.concurrent.{Callable, TimeoutException, ConcurrentHashMap}
 import scala.concurrent._
 import scala.concurrent.duration._
 import ExecutionContext.Implicits.global
@@ -39,7 +41,6 @@ import acume.exception.AcumeException
 import com.guavus.acume.core.exceptions.AcumeExceptionConstants
 import com.guavus.acume.workflow.RequestDataType
 import com.guavus.acume.cache.common.AcumeConstants
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * This class interacts with query builder and Olap cache.

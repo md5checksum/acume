@@ -6,6 +6,8 @@ object RequestDataType extends Enumeration {
   
   val SQL = new RequestDataType()
 
+  val GetCachePoints = new RequestDataType()
+
   val Peak = new RequestDataType()
 
   val Min = new RequestDataType()

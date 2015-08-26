@@ -1,6 +1,7 @@
 package com.guavus.acume.cache.workflow
 
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.{SchemaRDD, SQLContext}
 import AcumeCacheContextTrait._
 import org.apache.spark.sql.hive.HiveContext
 import com.guavus.acume.cache.common.AcumeCacheConf
@@ -11,7 +12,7 @@ import com.guavus.acume.cache.common.Measure
 import com.guavus.acume.cache.common.QLType
 import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
-import com.guavus.acume.cache.core.AcumeTreeCacheValue
+import com.guavus.acume.cache.core.{TimeGranularity, AcumeTreeCacheValue}
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.common.AcumeConstants
@@ -99,7 +100,23 @@ trait AcumeCacheContextTrait extends Serializable {
     else
       measureMap.get(fieldName).get.getDefaultValue
   }
-  
+
+  def getCachePoints(
+      indexDimensionValue: Long,
+      startTime: Long,
+      endTime: Long,
+      gran: TimeGranularity.TimeGranularity,
+      cube: CubeKey): (Seq[SchemaRDD], Cube) =
+    throw new NotImplementedError("AcumeCacheContextTrait does not implement getCachePoints().")
+
+  def getAggregateCachePoints(
+      indexDimensionValue: Long,
+      startTime: Long,
+      endTime: Long,
+      gran: TimeGranularity.TimeGranularity,
+      cube: CubeKey): (Seq[SchemaRDD], Cube) =
+    throw new NotImplementedError("AcumeCacheContextTrait does not implement getAggregateCachePoints().")
+
   private [acume] def getCubeList = cubeList.toList
   
   private [acume] def getFieldsForCube(name: String, binsource: String) = {
@@ -135,8 +152,9 @@ trait AcumeCacheContextTrait extends Serializable {
   private [acume] def executeQuery(sql : String, qltype : QLType.QLType) : AcumeCacheResponse
   
   private [acume] def cacheConf : AcumeCacheConf
-  
-  private [acume] def cacheSqlContext() : SQLContext
+
+  // Solutions can access this ?
+  def cacheSqlContext() : SQLContext
   
   def getFirstBinPersistedTime(binSource: String): Long = {
     dataLoader.getFirstBinPersistedTime(binSource)
