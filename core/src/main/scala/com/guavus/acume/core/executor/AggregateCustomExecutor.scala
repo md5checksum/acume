@@ -1,7 +1,8 @@
 package com.guavus.acume.core.executor
 
 import com.guavus.acume.cache.common.Cube
-import com.guavus.acume.cache.core.TimeGranularity
+import com.guavus.acume.cache.core.{AcumeCache, TimeGranularity}
+import com.guavus.acume.cache.utility.QueryOptionalParam
 import com.guavus.acume.cache.workflow.{AcumeCacheContextTrait, CubeKey}
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -33,13 +34,14 @@ abstract class AggregateCustomExecutor[T](
   extends CustomExecutor[T](acumeCacheContext, indexDimensionValue, startTime, endTime, gran, cube) {
 
 
-  override def getCubeAndCachePoints(
-      indexDimensionValue: Long,
+  override def getCachePoints[k, v](
+      instance: AcumeCache[k, v],
       startTime: Long,
       endTime: Long,
-      gran: TimeGranularity.TimeGranularity,
-      cube: CubeKey): (Seq[SchemaRDD], Cube) = {
-    acumeCacheContext.getAggregateCachePoints(indexDimensionValue, startTime, endTime, gran, cube)
+      tableName: String,
+      queryOptionalParam: Option[QueryOptionalParam],
+      isMetaData: Boolean): (Seq[SchemaRDD], List[Long]) = {
+    instance.getAggregateCachePoints(startTime, endTime, tableName, None, true)
   }
 
 }

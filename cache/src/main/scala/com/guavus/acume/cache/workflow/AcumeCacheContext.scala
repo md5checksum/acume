@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory
 
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.{Cube, ConfConstants}
-import com.guavus.acume.cache.core.{AcumeCacheFactory, CacheIdentifier, TimeGranularity} 
+import com.guavus.acume.cache.core.{AcumeCache, AcumeCacheFactory, CacheIdentifier, TimeGranularity} 
 import com.guavus.acume.cache.disk.utility.{BinAvailabilityPoller, DataLoader}
 import com.guavus.acume.cache.sql.ISqlCorrector
 
@@ -78,38 +78,29 @@ class AcumeCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheConf) 
     }
   }
 
-  override def getCachePoints(indexDimensionValue: Long,
+  override def getCacheInstance[k, v](indexDimensionValue: Long,
       startTime: Long,
       endTime: Long,
-      gran: TimeGranularity.TimeGranularity,
-      cube: CubeKey): (Seq[SchemaRDD], Cube) = {
+      cube: CubeKey): AcumeCache[k, v] = {
 
     validateQuery(startTime, endTime, cube.binsource)
 
-    val i = AcumeCacheContextTraitUtil.getTable(cube.name)
     val idd = new CacheIdentifier()
     val id = getCube(cube)
     idd.put("cube", id.hashCode)
-    val instance = AcumeCacheFactory.getInstance(this, cacheConf, idd, id)
-    val rdds = instance.getCachePoints(startTime, endTime, i, None, true)
-    (rdds, instance.cube)
+    AcumeCacheFactory.getInstance(this, cacheConf, idd, id)
   }
 
-  override def getAggregateCachePoints(indexDimensionValue: Long,
+  override def getAggregateCacheInstance[k , v](indexDimensionValue: Long,
       startTime: Long,
       endTime: Long,
-      gran: TimeGranularity.TimeGranularity,
-      cube: CubeKey): (Seq[SchemaRDD], Cube) = {
+      cube: CubeKey): AcumeCache[k, v] = {
 
     validateQuery(startTime, endTime, cube.binsource)
 
-    val i = AcumeCacheContextTraitUtil.getTable(cube.name)
     val idd = new CacheIdentifier()
     val id = getCube(cube)
     idd.put("cube", id.hashCode)
-    val instance = AcumeCacheFactory.getInstance(this, cacheConf, idd, id)
-    val rdds = instance.getAggregateCachePoints(startTime, endTime, i, None, true)
-    (rdds, instance.cube)
+    AcumeCacheFactory.getInstance(this, cacheConf, idd, id)
   }
-  
 }

@@ -7,7 +7,7 @@ import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.Dimension
 import com.guavus.acume.cache.common.Measure
 
-import com.guavus.acume.cache.core.TimeGranularity
+import com.guavus.acume.cache.core.{AcumeCache, TimeGranularity}
 import com.guavus.acume.cache.disk.utility.DataLoader
 import org.apache.spark.sql.hbase.HBaseSQLContext
 import org.apache.spark.sql.hive.HiveContext
@@ -67,20 +67,18 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
 
   lazy private[acume] val getCubeList : List[Cube] = cubeList.toList
 
-  def getCachePoints(
+  def getCacheInstance[k, v](
       indexDimensionValue: Long,
       startTime: Long,
       endTime: Long,
-      gran: TimeGranularity.TimeGranularity,
-      cube: CubeKey): (Seq[SchemaRDD], Cube) =
+      cube: CubeKey): AcumeCache[k, v] =
     throw new NotImplementedError("AcumeCacheContextTrait does not implement getCachePoints().")
 
-  def getAggregateCachePoints(
+  def getAggregateCacheInstance[k, v](
       indexDimensionValue: Long,
       startTime: Long,
       endTime: Long,
-      gran: TimeGranularity.TimeGranularity,
-      cube: CubeKey): (Seq[SchemaRDD], Cube) =
+      cube: CubeKey): AcumeCache[k, v] =
     throw new NotImplementedError("AcumeCacheContextTrait does not implement getAggregateCachePoints().")
 
   
