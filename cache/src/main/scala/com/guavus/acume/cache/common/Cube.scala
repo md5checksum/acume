@@ -20,9 +20,18 @@ case class BaseCube(override val cubeName: String, binsource: String, dimension:
   }
 }
 
-case class Function(functionClass: String, functionName: String) extends Serializable 
-case class DimensionSet(dimensionSet: List[Dimension]) extends Serializable 
-case class MeasureSet(measureSet: List[Measure]) extends Serializable 
+case class Function(functionClass: String, functionName: String) extends Serializable
+
+case class DimensionSet(dimensionSet: List[Dimension]) extends Serializable {
+  val defaultValueMap = new scala.collection.mutable.HashMap[String, Any]() ++
+    dimensionSet.map(x => x.getName -> x.getDefaultValue)
+}
+
+case class MeasureSet(measureSet: List[Measure]) extends Serializable {
+  val defaultValueMap = new scala.collection.mutable.HashMap[String, Any]() ++
+    measureSet.map(x => x.getName -> x.getDefaultValue)
+}
+
 case class DimensionTable(var tblnm: String, var maxid: Long) extends Serializable {
   
   def Modify {
