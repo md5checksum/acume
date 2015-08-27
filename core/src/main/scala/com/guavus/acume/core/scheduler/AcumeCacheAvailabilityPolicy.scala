@@ -15,6 +15,7 @@ import org.apache.spark.sql.SQLContext
 import com.guavus.acume.core.AcumeContextTraitUtil
 import com.guavus.acume.core.configuration.ConfigFactory
 import com.guavus.acume.cache.common.ConfConstants
+import org.slf4j.LoggerFactory
 
 /**
  *
@@ -27,6 +28,7 @@ class AcumeCacheAvailabilityPolicy extends ICacheAvalabilityUpdatePolicy {
 
 class UnionizedCacheAvailabilityPolicy extends ICacheAvalabilityUpdatePolicy {
 
+  val logger = LoggerFactory.getLogger(classOf[UnionizedCacheAvailabilityPolicy])
   private var map = HashMap[String, HashMap[Long, Interval]]()
   
   private def syncGet = {
@@ -56,6 +58,7 @@ class UnionizedCacheAvailabilityPolicy extends ICacheAvalabilityUpdatePolicy {
   override def onBlockManagerRemoved: Unit = {
     this.synchronized {
       mode = "partial"
+      logger.info("Acume Mode switched to Partial.")
       syncUnion
     }
     super.onBlockManagerRemoved
@@ -83,6 +86,7 @@ class UnionizedCacheAvailabilityPolicy extends ICacheAvalabilityUpdatePolicy {
 
     this.synchronized {
       mode = "full"
+      logger.info("Acume Mode switched to Full.")
       if (ConfigFactory.getInstance.getBean(classOf[QueryRequestPrefetchTaskManager]).getVersion == version) {
         syncGet
       }
@@ -108,6 +112,7 @@ class UnionizedCacheAvailabilityPolicy extends ICacheAvalabilityUpdatePolicy {
         }
       }
     }
+    if(!flag) logger.info("partition "+id + "_" + partitionId + " pruned")
     flag
   }
 
