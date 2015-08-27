@@ -21,7 +21,7 @@ import com.guavus.acume.core.configuration.ConfigFactory
  * 
  * @author archit.thakur
  */
-abstract class ICacheAvalabilityUpdatePolicy(acumeConf: AcumeConf, sqlContext: SQLContext) {
+abstract class ICacheAvalabilityUpdatePolicy(acumeConf: AcumeConf, sqlContext: SQLContext) extends Serializable {
   
   protected var mode = "full"
   private var acumeCacheAvailabilityMapWithVersion: HashMap[Int, HashMap[String, HashMap[Long, Interval]]] = HashMap[Int, HashMap[String, HashMap[Long, Interval]]]()
