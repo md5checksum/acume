@@ -48,8 +48,6 @@ import com.guavus.acume.core.configuration.DataServiceFactory
  */
 class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeContext: AcumeContextTrait, datasourceName: String) {
 
-  val counter = new AtomicLong(0l)
-  
   /**
    * Takes QueryRequest i.e. Rubix query and return aggregate Response.
    */
@@ -354,6 +352,7 @@ object DataService {
   val logger = LoggerFactory.getLogger(this.getClass())
   var poolStats: PoolStats = new PoolStats()
   var classificationStats: ClassificationStats = new ClassificationStats()
+  val counter = new AtomicLong(0l)
 
   val policyclass = AcumeContextTraitUtil.acumeConf.getSchedulerPolicyClass
   val throttleMap = AcumeContextTraitUtil.acumeConf.getMaxAllowedQueriesPerClassification.split(",")map(x => {
