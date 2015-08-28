@@ -1,11 +1,9 @@
 package com.guavus.acume.cache.workflow
 
 import java.util.concurrent.ConcurrentHashMap
-
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.Cube
@@ -15,6 +13,15 @@ import com.guavus.acume.cache.core.AcumeTreeCacheValue
 import com.guavus.acume.cache.disk.utility.DataLoader
 import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
 import com.guavus.acume.cache.utility.Utility
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo
+import net.sf.jsqlparser.expression.Parenthesis
+import net.sf.jsqlparser.expression.operators.conditional.OrExpression
+import net.sf.jsqlparser.schema.Column
+import net.sf.jsqlparser.expression.Expression
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression
+import com.guavus.acume.cache.utility.SQLUtility
+import java.util.Random
+import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
 
 /**
  * @author kashish.jain
@@ -111,5 +118,182 @@ object AcumeCacheContextTraitUtil {
     unsetAcumeTreeCacheValue
   }
   
+  /*
+   * Common functionalities to be used by all acumeCacheContextTraits
+   */
+  
+  private def edit(parentExpression: Expression, expression: Expression): Boolean = {
+
+    def checkNode(expression3: Expression) = {
+      if (expression3.isInstanceOf[EqualsTo]) {
+        val e1 = expression3.asInstanceOf[EqualsTo]
+        val e2 = e1.getLeftExpression
+        val e3 = e1.getRightExpression
+        if (e2.isInstanceOf[Column] && e2.asInstanceOf[Column].getColumnName.equalsIgnoreCase("binsource") ||
+          e3.isInstanceOf[Column] && e3.asInstanceOf[Column].getColumnName.equalsIgnoreCase("binsource")) {
+          true
+        } else {
+          false
+        }
+      } else false
+    }
+    if (expression.isInstanceOf[Parenthesis]) {
+      val childExpression = expression.asInstanceOf[Parenthesis].getExpression
+      
+      if(checkNode(expression.asInstanceOf[Parenthesis].getExpression)) {
+        if(parentExpression.isInstanceOf[AndExpression]) {
+          val parentE = parentExpression.asInstanceOf[AndExpression]
+          if(parentE.getLeftExpression == expression) {
+            parentE.setLeftExpression(childExpression)
+          }
+          else if(parentE.getRightExpression == expression) {
+            parentE.setRightExpression(childExpression)
+          }
+        }
+        else if(parentExpression.isInstanceOf[OrExpression]) {
+          val parentE = parentExpression.asInstanceOf[OrExpression]
+          if(parentE.getLeftExpression == expression) {
+            parentE.setLeftExpression(childExpression)
+          }
+          else if(parentE.getRightExpression == expression) {
+            parentE.setRightExpression(childExpression)
+          }
+        }
+        else if(parentExpression.isInstanceOf[Parenthesis]) {
+          parentExpression.asInstanceOf[Parenthesis].setExpression(expression)
+        }
+      }
+      edit(expression, childExpression)
+      false
+    } else if (expression.isInstanceOf[AndExpression]) {
+      val andE = expression.asInstanceOf[AndExpression]
+      val leftE = andE.getLeftExpression
+      val rightE = andE.getRightExpression
+      
+      if(checkNode(leftE)) { 
+        
+        if(parentExpression.isInstanceOf[AndExpression]) {
+          val parentE = parentExpression.asInstanceOf[AndExpression]
+          if(parentE.getLeftExpression == expression) {
+            parentE.setLeftExpression(rightE)
+          }
+          else if(parentE.getRightExpression == expression) {
+            parentE.setRightExpression(rightE)
+          }
+        }
+        else if(parentExpression.isInstanceOf[OrExpression]) {
+          val parentE = parentExpression.asInstanceOf[OrExpression]
+          if(parentE.getLeftExpression == expression) {
+            parentE.setLeftExpression(rightE)
+          }
+          else if(parentE.getRightExpression == expression) {
+            parentE.setRightExpression(rightE)
+          }
+        }
+        else if(parentExpression.isInstanceOf[Parenthesis]) {
+          parentExpression.asInstanceOf[Parenthesis].setExpression(rightE)
+        }
+      }
+      if(checkNode(rightE)) { 
+        
+        if(parentExpression.isInstanceOf[AndExpression]) {
+          val parentE = parentExpression.asInstanceOf[AndExpression]
+          if(parentE.getLeftExpression == expression) {
+            parentE.setLeftExpression(leftE)
+          }
+          else if(parentE.getRightExpression == expression) {
+            parentE.setRightExpression(leftE)
+          }
+        }
+        else if(parentExpression.isInstanceOf[OrExpression]) {
+          val parentE = parentExpression.asInstanceOf[OrExpression]
+          if(parentE.getLeftExpression == expression) {
+            parentE.setLeftExpression(leftE)
+          }
+          else if(parentE.getRightExpression == expression) {
+            parentE.setRightExpression(leftE)
+          }
+        }
+        else if(parentExpression.isInstanceOf[Parenthesis]) {
+          parentExpression.asInstanceOf[Parenthesis].setExpression(leftE)
+        }
+      }
+      
+      edit(expression, andE.getLeftExpression)
+      edit(expression, andE.getRightExpression)
+        
+      false
+    } else if (expression.isInstanceOf[OrExpression]) {
+      val orE = expression.asInstanceOf[OrExpression]
+      val leftE = orE.getLeftExpression
+      val rightE = orE.getRightExpression
+      
+      if(checkNode(leftE)) { 
+        
+        if(parentExpression.isInstanceOf[AndExpression]) {
+          val parentE = parentExpression.asInstanceOf[AndExpression]
+          if(parentE.getLeftExpression == expression) {
+            parentE.setLeftExpression(rightE)
+          }
+          else if(parentE.getRightExpression == expression) {
+            parentE.setRightExpression(rightE)
+          }
+        }
+        else if(parentExpression.isInstanceOf[OrExpression]) {
+          val parentE = parentExpression.asInstanceOf[OrExpression]
+          if(parentE.getLeftExpression == expression) {
+            parentE.setLeftExpression(rightE)
+          }
+          else if(parentE.getRightExpression == expression) {
+            parentE.setRightExpression(rightE)
+          }
+        }
+      }
+      if(checkNode(rightE)) { 
+        
+        if(parentExpression.isInstanceOf[AndExpression]) {
+          val parentE = parentExpression.asInstanceOf[AndExpression]
+          if(parentE.getLeftExpression == expression) {
+            parentE.setLeftExpression(leftE)
+          }
+          else if(parentE.getRightExpression == expression) {
+            parentE.setRightExpression(leftE)
+          }
+        }
+        else if(parentExpression.isInstanceOf[OrExpression]) {
+          val parentE = parentExpression.asInstanceOf[OrExpression]
+          if(parentE.getLeftExpression == expression) {
+            parentE.setLeftExpression(leftE)
+          }
+          else if(parentE.getRightExpression == expression) {
+            parentE.setRightExpression(leftE)
+          }
+        }
+      }
+      edit(expression, orE.getLeftExpression)
+      edit(expression, orE.getRightExpression)
+      false
+    } 
+    false
+    
+  }
+  
+  private [cache] def getTable(cube: String) = cube + "_" + getUniqueRandomNo   
+  
+  private [cache] def getUniqueRandomNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt())
+  
+  private [workflow] def parseSql(sql: String) = { 
+    
+    val util = new SQLUtility();
+    val list = util.getList(sql);
+    val requestType = util.getRequestType(sql);
+    (list, RequestType.getRequestType(requestType))
+  }
+  
+  private [acume] def validateQuery(startTime : Long, endTime : Long, binSource : String) {
+    if(startTime < BinAvailabilityPoller.getFirstBinPersistedTime(binSource) || endTime > BinAvailabilityPoller.getLastBinPersistedTime(binSource)){
+      throw new RuntimeException("Cannot serve query. StartTime and endTime doesn't fall in the availability range.")
+    }
+  }
   
 }

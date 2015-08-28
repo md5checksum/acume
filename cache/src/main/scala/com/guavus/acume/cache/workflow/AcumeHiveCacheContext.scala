@@ -39,18 +39,19 @@ class AcumeHiveCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheCo
       val resultSchemaRdd = cacheSqlContext.sql(sql)
       new AcumeCacheResponse(resultSchemaRdd, resultSchemaRdd.rdd, new MetaData(-1, Nil))
     } else {
-      val originalparsedsql = AcumeCacheContext.parseSql(sql)
+      
+      val originalparsedsql = AcumeCacheContextTraitUtil.parseSql(sql)
 
       println("AcumeRequest obtained " + sql)
       var correctsql = ISqlCorrector.getSQLCorrector(cacheConf).correctSQL(this, sql, (originalparsedsql._1.toList, originalparsedsql._2))
       var updatedsql = correctsql._1._1
       val queryOptionalParams = correctsql._1._2
       var updatedparsedsql = correctsql._2
-
       val rt = updatedparsedsql._2
 
       var i = ""
       var timestamps = scala.collection.mutable.MutableList[Long]()
+      
       val list = for (l <- updatedparsedsql._1) yield {
         val cube = l.getCubeName
         val binsource = l.getBinsource
@@ -62,10 +63,12 @@ class AcumeHiveCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheCo
             binsource
           else
             cacheConf.get(ConfConstants.acumecorebinsource)
-
-        i = AcumeCacheContext.getTable(cube)
+            
+        i = AcumeCacheContextTraitUtil.getTable(cube)
         updatedsql = updatedsql.replaceAll(s"$cube", s"$i")
+
         val finalRdd = if (rt == RequestType.Timeseries) {
+          
           val level =
             if (queryOptionalParams.getTimeSeriesGranularity() != 0) {
               queryOptionalParams.getTimeSeriesGranularity()
@@ -75,19 +78,22 @@ class AcumeHiveCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheCo
           val startTimeCeiling = Utility.floorFromGranularity(startTime, level)
           val endTimeFloor = Utility.floorFromGranularity(endTime, level)
           timestamps = Utility.getAllIntervals(startTimeCeiling, endTimeFloor, level)
+          
           val tables = for (timestamp <- timestamps) yield {
             val rdd = dataLoader.loadData(Map[String, Any](), new BaseCube(cube, binsource, null, null, null, null, null), timestamp, Utility.getNextTimeFromGranularity(timestamp, level, Utility.newCalendar), level)
-            val tempTable = AcumeCacheContext.getTable(cube)
+            val tempTable = AcumeCacheContextTraitUtil.getTable(cube)
             rdd.registerTempTable(tempTable)
-            val tempTable1 = AcumeCacheContext.getTable(cube)
+            val tempTable1 = AcumeCacheContextTraitUtil.getTable(cube)
             cacheSqlContext.sql(s"select *, $timestamp as ts from $tempTable").registerTempTable(tempTable1)
             tempTable1
           }
+          
           val finalQuery = tables.map(x => s" select * from $x ").mkString(" union all ")
           cacheSqlContext.sql(finalQuery)
+          
         } else {
           val rdd = dataLoader.loadData(Map[String, Any](), new BaseCube(cube, binsource, null, null, null, null, null), startTime, endTime, 0l)
-          val tempTable = AcumeCacheContext.getTable(cube)
+          val tempTable = AcumeCacheContextTraitUtil.getTable(cube)
           rdd.registerTempTable(tempTable)
           cacheSqlContext.sql(s"select *, $startTime as ts from $tempTable")
         }

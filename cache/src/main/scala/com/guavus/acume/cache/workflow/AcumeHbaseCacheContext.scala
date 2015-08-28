@@ -3,10 +3,12 @@ package com.guavus.acume.cache.workflow
 import org.apache.spark.sql.SQLContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConversionToSpark
 import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.sql.ISqlCorrector
+import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
 
 /**
  * @author kashish.jain
@@ -76,7 +78,23 @@ class AcumeHbaseCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheC
   }
   
   override private [acume] def executeQuery(sql: String) = {
-    val resultSchemaRDD = cacheSqlContext.sql(sql)
+    val originalparsedsql = AcumeCacheContextTraitUtil.parseSql(sql)
+    println("AcumeRequest obtained on HBASE: " + sql)
+    
+    var correctsql = ISqlCorrector.getSQLCorrector(cacheConf).correctSQL(this, sql, (originalparsedsql._1.toList, originalparsedsql._2))
+    
+    var updatedsql = correctsql._1._1
+    var updatedparsedsql = correctsql._2
+  
+    val l = updatedparsedsql._1(0)
+    val binsource = l.getBinsource
+    val startTime = l.getStartTime
+    val endTime = l.getEndTime
+    
+    AcumeCacheContextTraitUtil.validateQuery(startTime, endTime, binsource)
+    
+    logger.info("Firing corrected query on HBASE " +  updatedsql)
+    val resultSchemaRDD = cacheSqlContext.sql(updatedsql)
     new AcumeCacheResponse(resultSchemaRDD, resultSchemaRDD.rdd, MetaData(-1, Nil))
   }
   
