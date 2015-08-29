@@ -420,6 +420,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
       isMetaData: Boolean): (Seq[SchemaRDD], List[Long]) = {
     import acumeCacheContext.cacheSqlContext.implicits._
     logger.info("Total timestamps are : {}", cachePointToTable.asMap().keySet())
+    val cal = Utility.newCalendar
     val finalTimestamps: MutableList[Long] = MutableList[Long]()
     var finalSchema = null.asInstanceOf[StructType]
     val x = getCubeName(tableName)
@@ -438,7 +439,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
               val aggregatedTimestamp = new LevelTimestamp(CacheLevel.getCacheLevel(level), timestamp, LoadType.DISK, CacheLevel.getCacheLevel(aggregationlevel))
               (aggregatedTimestamp, tryGet(aggregatedTimestamp))
             }
-          val (tempStart, tempEnd) = (Math.max(startTime, timestamp), Math.min(endTime, Utility.getNextTimeFromGranularity(timestamp, aggregationlevel, Utility.newCalendar)))
+          val (tempStart, tempEnd) = (Math.max(startTime, timestamp), Math.min(endTime, Utility.getNextTimeFromGranularity(timestamp, aggregationlevel, cal)))
           finalTimestamps.++=(Utility.getAllIntervals(tempStart, tempEnd, level))
           val acumeValues = if(acumeValue == null) {
             logger.info("Table not found for timestamp {}", aggregatedTimestamp)
@@ -460,7 +461,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
               Seq(acumeValue.getAcumeValue.measureSchemaRdd.where('ts >= startTime).where('ts < endTime))
             }
           }
-          timestamp = Utility.getNextTimeFromGranularity(timestamp, aggregationlevel, Utility.newCalendar)
+          timestamp = Utility.getNextTimeFromGranularity(timestamp, aggregationlevel, cal)
           finalRdds ++= acumeValues
         }
         finalRdds
