@@ -135,7 +135,7 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
               //aggregate over measures after union
               val selectMeasures = CubeUtil.getMeasureSet(cube).map(x=> x.getAggregationFunction + "(" + x.getName + ") as " + x.getName).mkString(",")
               val selectDimensions = CubeUtil.getDimensionSet(cube).map(_.getName).mkString(",")
-              val parentRdd = acumeCacheContext.sqlContext.sql("select tupleid, " + key.timestamp + " as ts, " + selectMeasures + " from " + _tableName + " group by tupleid)")
+              val parentRdd = acumeCacheContext.sqlContext.sql("select tupleid, " + s"${key.timestamp}L" + " as ts, " + selectMeasures + " from " + _tableName + " group by tupleid)")
               parentRdd.registerTempTable(_tableName)
               
               cacheTable(_tableName)
@@ -246,7 +246,8 @@ private[cache] class AcumeStarSchemaTreeCache(keyMap: Map[String, Any], acumeCac
   def correctMTable(businessCube: Cube, joinedTbl: String, timestamp: Long) = {
 
     val measureSet = CubeUtil.getMeasureSet(businessCube).map(_.getName).mkString(",")
-    sqlContext.sql(s"select id as tupleid, $timestamp as ts, $measureSet from $joinedTbl")
+    val tstring = s"${timestamp}L"
+    sqlContext.sql(s"select id as tupleid, $tstring as ts, $measureSet from $joinedTbl")
   }
 
   private def getUniqueRandomeNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt)

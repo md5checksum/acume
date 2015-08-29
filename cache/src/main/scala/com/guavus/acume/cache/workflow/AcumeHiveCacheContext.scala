@@ -97,7 +97,8 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
         	  val tempTable = AcumeCacheContext.getTable(cube)
         	  rdd.registerTempTable(tempTable)
         	  val tempTable1 = AcumeCacheContext.getTable(cube)
-        	  sqlContext.sql(s"select *, $timestamp as ts from $tempTable").registerTempTable(tempTable1)
+              val tString = s"{timestamp}L"
+        	  sqlContext.sql(s"select *, $tString as ts from $tempTable").registerTempTable(tempTable1)
         	  tempTable1
           }
         val finalQuery = tables.map(x => s" select * from $x ").mkString(" union all ")
@@ -106,7 +107,8 @@ class AcumeHiveCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf
     	  val rdd = dataLoader.loadData(Map[String, Any](), new BaseCube(cube, binsource, null, null, null), startTime, endTime, 0l)
     	  val tempTable = AcumeCacheContext.getTable(cube)
         	  rdd.registerTempTable(tempTable)
-        	  sqlContext.sql(s"select *, $startTime as ts from $tempTable")
+              val sString = s"{startTime}L"
+        	  sqlContext.sql(s"select *, $sString as ts from $tempTable")
       }
       print("Registering Temp Table " + i)
       finalRdd.registerTempTable(i)
