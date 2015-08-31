@@ -1,7 +1,7 @@
 package com.guavus.acume.core.scheduler
 
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
-import com.guavus.acume.cache.core.Interval
+import com.guavus.rubix.cache.Interval
 
 class PrefetchLastCacheUpdateTimeAndInterval {
 

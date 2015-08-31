@@ -15,9 +15,8 @@ import scala.util.control.Breaks.break
 import scala.util.control.Breaks.breakable
 
 import org.slf4j.LoggerFactory
-
-import com.guavus.acume.cache.core.Interval
 import com.guavus.acume.cache.core.Level
+import com.guavus.rubix.cache.Interval
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.core.AcumeContextTraitUtil
 import com.guavus.acume.core.AcumeService

@@ -1,6 +1,6 @@
 package com.guavus.acume.cache.utility
 
-import com.guavus.acume.cache.core.Interval
+import com.guavus.rubix.cache.Interval
 import com.guavus.acume.cache.query.QueryRequestMode._
 import scala.reflect.BeanProperty
 import scala.collection.JavaConversions._

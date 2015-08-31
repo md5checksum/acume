@@ -1,6 +1,6 @@
 package com.guavus.acume.core.scheduler
 
-import com.guavus.acume.cache.core.Interval
+import com.guavus.rubix.cache.Interval
 import scala.collection.immutable.HashMap
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
