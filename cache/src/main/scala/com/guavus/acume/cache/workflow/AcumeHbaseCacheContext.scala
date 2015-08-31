@@ -91,7 +91,7 @@ class AcumeHbaseCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheC
     val startTime = l.getStartTime
     val endTime = l.getEndTime
     
-    AcumeCacheContextTraitUtil.validateQuery(startTime, endTime, binsource)
+    AcumeCacheContextTraitUtil.validateQuery(startTime, endTime, binsource, cacheConf.getDataSourceName)
     
     logger.info("Firing corrected query on HBASE " +  updatedsql)
     val resultSchemaRDD = cacheSqlContext.sql(updatedsql)

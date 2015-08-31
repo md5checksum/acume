@@ -23,7 +23,7 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
   lazy private [cache] val measureMap = AcumeCacheContextTraitUtil.measureMap
 	lazy private [cache] val dimensionMap = AcumeCacheContextTraitUtil.dimensionMap
   lazy private [cache] val cubeMap = AcumeCacheContextTraitUtil.cubeMap.filter(cubeKey => cubeKey._2.dataSource.equalsIgnoreCase(cacheConf.getDataSourceName))
-  lazy private [cache] val cubeList = AcumeCacheContextTraitUtil.cubeList.filter(cube => cube.dataSource.equalsIgnoreCase(	cacheConf.getDataSourceName))
+  lazy private [cache] val cubeList = AcumeCacheContextTraitUtil.cubeList.filter(cube => cube.dataSource.equalsIgnoreCase(cacheConf.getDataSourceName))
 
   cacheSqlContext match {
     case hiveContext: HiveContext =>
