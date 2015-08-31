@@ -252,7 +252,7 @@ class AcumeService {
   
   def  servSingleQuery(queryRequest : String, property: HashMap[String, Any] = null) : Serializable = {
     val dataService = DataServiceFactory.getDataserviceInstance(queryRequest, RequestDataType.SQL)
-    dataService.servRequest(queryRequest, property).asInstanceOf[Serializable]
+    dataService.servRequest(queryRequest, RequestDataType.SQL, property).asInstanceOf[Serializable]
   }
   
   def  servAggregateMultiple(queryRequests : java.util.ArrayList[QueryRequest]) : java.util.ArrayList[AggregateResponse] = {
@@ -281,7 +281,7 @@ class AcumeService {
   
   def  servSqlQuery2(queryRequest : String) = {
     val dataService = DataServiceFactory.getDataserviceInstance(queryRequest, RequestDataType.SQL)
-    dataService.execute(queryRequest)
+    dataService.execute(queryRequest, RequestDataType.SQL)
   }
   
   def searchRequest(searchRequest : SearchRequest) : SearchResponse = {

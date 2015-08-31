@@ -1,7 +1,7 @@
 package com.guavus.acume.core.scheduler
 
 import com.guavus.acume.core.AcumeConf
-import com.guavus.acume.cache.core.Interval
+import com.guavus.rubix.cache.Interval
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
 import org.apache.spark.sql.SchemaRDD

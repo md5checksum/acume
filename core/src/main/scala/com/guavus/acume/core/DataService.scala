@@ -39,6 +39,8 @@ import com.guavus.acume.cache.common.AcumeConstants
 import java.util.concurrent.ConcurrentHashMap
 import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 import DataService._
+import com.guavus.acume.core.configuration.DataServiceFactory
+import com.guavus.acume.cache.common.DataType
 
 
 /**
@@ -52,22 +54,23 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
    * Takes QueryRequest i.e. Rubix query and return aggregate Response.
    */
   def servAggregate(queryRequest: QueryRequest, property: HashMap[String, Any] = null): AggregateResponse = {
-    servRequest(queryRequest.toSql(""), property).asInstanceOf[AggregateResponse]
+    servRequest(queryRequest.toSql(""), RequestDataType.Aggregate, property).asInstanceOf[AggregateResponse]
   }
 
   /**
    * Takes QueryRequest i.e. Rubix query and return timeseries Response.
    */
   def servTimeseries(queryRequest: QueryRequest, property: HashMap[String, Any] = null): TimeseriesResponse = {
-    servRequest(queryRequest.toSql("ts,"), property).asInstanceOf[TimeseriesResponse]
+    servRequest(queryRequest.toSql("ts,"), RequestDataType.TimeSeries, property).asInstanceOf[TimeseriesResponse]
   }
 
   def servSearchRequest(queryRequest: SearchRequest): SearchResponse = {
-    servSearchRequest(queryRequest.toSql)
+    servSearchRequest(queryRequest.toSql, RequestDataType.SQL)
   }
 
-  def servSearchRequest(sql: String): SearchResponse = {
-    val response = execute(sql)
+  def servSearchRequest(unUpdatedSql: String, requestDataType: RequestDataType.RequestDataType): SearchResponse = {
+    val sql = DataServiceFactory.dsInterpreterPolicy.updateQuery(unUpdatedSql)
+    val response = execute(sql, requestDataType)
     val responseRdd = response.rowRDD
     val schema = response.schemaRDD.schema
     val fields = schema.fieldNames
@@ -149,8 +152,10 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     }
   }
 
-  def servRequest(sql: String, property: HashMap[String, Any] = null): Any = {
-
+  def servRequest(unUpdatedSql: String, requestDataType: RequestDataType.RequestDataType, property: HashMap[String, Any] = null): Any = {
+    
+    val sql = DataServiceFactory.dsInterpreterPolicy.updateQuery(unUpdatedSql)
+    
     val jobGroupId = Thread.currentThread().getName() + "-" + Thread.currentThread().getId() + "-" + counter.getAndIncrement
     try {
       if (AcumeCacheContextTraitUtil.poolThreadLocal.get() == null) {
@@ -173,7 +178,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
           conf.setDatasourceName(datasourceName)
           //AcumeConf.setConf(conf) This is redundant
           acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
-          val cacheResponse = execute(sql)
+          val cacheResponse = execute(sql, requestDataType)
           val responseRdd = cacheResponse.rowRDD
           (cacheResponse, responseRdd.collect)
         } finally {
@@ -190,11 +195,20 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       val dimsNames = new ArrayBuffer[String]()
       val measuresNames = new ArrayBuffer[String]()
       var j = 0
-      var isTimeseries = false
+      var isTimeseries = RequestDataType.TimeSeries.equals(requestDataType)
+
       var tsIndex = 0
       for (field <- fields) {
         if (field.equalsIgnoreCase("ts")) {
-          isTimeseries = true
+          isTimeseries = {
+            if(RequestDataType.Aggregate.equals(requestDataType)) {
+              // In hbase, ts is a dimension. Adding ts to dimfields even in case of Aggregate
+              dimsNames += field
+            	false
+            }
+            else
+              true
+          }
           tsIndex = j
         } else if (queryBuilderService.get(0).isFieldDimension(field)) {
           dimsNames += field
@@ -204,11 +218,13 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         j += 1
       }
       if (isTimeseries) {
+
         val sortedRows = rows.sortBy(row => row(tsIndex).toString)
         val timestamps : List[Long] = {
+          val tsDataType = AcumeCacheContextTraitUtil.dimensionMap.get("ts").get.getDataType
           val metaDataTimeStamps = cacheResponse.metadata.timestamps
           if(metaDataTimeStamps == null || metaDataTimeStamps.isEmpty)
-            sortedRows.map(row => row(tsIndex).asInstanceOf[String].toLong).toList.distinct
+            sortedRows.map(row => DataType.convertToLong(row(tsIndex), tsDataType)).toList.distinct
           else
             metaDataTimeStamps
         }
@@ -303,11 +319,10 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     }
   }
 
-  def execute(sql: String): AcumeCacheResponse = {
+  def execute(sql: String, requestDataType: RequestDataType.RequestDataType): AcumeCacheResponse = {
 
     var isFirst: Boolean = true
     val modifiedSql: String = queryBuilderService.foldLeft("") { (result, current) =>
-
       if (isFirst) {
         isFirst = false
         current.buildQuery(sql)
@@ -320,7 +335,8 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       if (!queryBuilderService.iterator.next.isSchedulerQuery(sql)) {
         logger.info(modifiedSql)
         val resp = acumeContext.acc.acql(modifiedSql)
-        if (!queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql) && !acumeContext.acumeConf.getDisableTotalForAggregateQueries(datasourceName)) {
+        
+        if ((RequestDataType.Aggregate.equals(requestDataType) || !queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql)) && !acumeContext.acumeConf.getDisableTotalForAggregateQueries(datasourceName)) {
           resp.metadata.totalRecords = acumeContext.acc.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getLong(0)
         }
         resp

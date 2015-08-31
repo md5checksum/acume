@@ -19,7 +19,7 @@ import javax.xml.bind.annotation.XmlRootElement
 object DataServiceFactory {
   
   private lazy val dataserviceMapBean = ConfigFactory.getInstance().getBean(classOf[DataServiceMap])
-  private lazy val dsInterpreterPolicy = Class.forName(AcumeContextTraitUtil.acumeConf.get(ConfConstants.datasourceInterpreterPolicy)).getConstructors()(0).newInstance().asInstanceOf[DsInterpreterPolicy]
+  lazy val dsInterpreterPolicy = Class.forName(AcumeContextTraitUtil.acumeConf.get(ConfConstants.datasourceInterpreterPolicy)).getConstructors()(0).newInstance().asInstanceOf[DsInterpreterPolicy]
   
   def initDataServiceFactory(queryBuilderServiceMap: HashMap[String, Seq[IQueryBuilderService]], acumeContextMap : HashMap[String, AcumeContextTrait]) : HashMap[String, DataService] = {
    

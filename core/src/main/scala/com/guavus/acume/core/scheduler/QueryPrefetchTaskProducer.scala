@@ -23,10 +23,10 @@ import com.guavus.qb.cube.schema.ICube
 import com.guavus.acume.core.DataService
 import com.guavus.qb.cube.schema.QueryBuilderSchema
 import com.guavus.rubix.query.remote.flex.QueryRequest
-import com.guavus.acume.cache.core.Interval
+import com.guavus.rubix.cache.Interval
 import scala.collection.immutable.IntMap.Bin
 import com.guavus.acume.cache.core.EvictionDetails
-import com.guavus.acume.cache.core.Interval
+import com.guavus.rubix.cache.Interval
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.core.AcumeConf

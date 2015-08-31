@@ -40,6 +40,14 @@ object DataType extends Enumeration {
   
   class DataType(val typeString: String) extends Val
   
+  def convertToLong(value: Any, datatype: DataType.DataType) : Long = {
+    datatype match {
+      case ACInt => value.asInstanceOf[Int].toLong
+      case ACLong => value.asInstanceOf[Long].toLong
+      case ACString => value.asInstanceOf[String].toLong
+    }
+  }
+  
   def getDataType(datatype: String): DataType = {
     for(typeValue <- DataType.values if(datatype == typeValue.typeString))
       return typeValue

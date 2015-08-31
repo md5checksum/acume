@@ -1,25 +1,23 @@
 package com.guavus.acume.cache.workflow
 
 import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.hbase.HBaseSQLContext
-import org.apache.spark.sql.hive.HiveContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConversionToSpark
 import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.sql.ISqlCorrector
+import scala.collection.JavaConverters._
+import scala.collection.JavaConversions._
 
-class AcumeHbaseCacheContext(override val cacheSqlContext: SQLContext, override val cacheConf: AcumeCacheConf) extends AcumeCacheContextTrait {
+/**
+ * @author kashish.jain
+ *
+ */
+class AcumeHbaseCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheConf) extends AcumeCacheContextTrait(cacheSqlContext, cacheConf) {
 
   private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeHbaseCacheContext])
    
-  cacheSqlContext match {
-    case hiveContext: HiveContext =>
-    case hbaseContext : HBaseSQLContext =>
-    case rest => throw new RuntimeException("This type of SQLContext is not supported.")
-  }
-  
   initHbase
   
   private def constructQueryFromCube(cube: Cube) : String = {
@@ -64,8 +62,8 @@ class AcumeHbaseCacheContext(override val cacheSqlContext: SQLContext, override 
     	  cacheSqlContext.sql("drop table " + cubeName).collect
         logger.info(s"temp table $cubeName dropped")
       } catch {
-        case e: Exception => logger.error(s"Dropping temp table $cubeName failed. " + e.getMessage)
-        case th : Throwable => logger.error(s"Dropping temp table $cubeName failed. " + th.getMessage)
+        case e: Exception => logger.error(s"Dropping temp table $cubeName failed. ", e)
+        case th : Throwable => logger.error(s"Dropping temp table $cubeName failed. ", th)
       }
       
       //Create table with cubename
@@ -73,14 +71,30 @@ class AcumeHbaseCacheContext(override val cacheSqlContext: SQLContext, override 
         cacheSqlContext.sql(query).collect
         logger.info(s"temp table $cubeName created")
       } catch {
-        case e: Exception => logger.error(s"Creating temp table $cubeName failed. " + e.getMessage)
-        case th : Throwable => logger.error(s"Creating temp table $cubeName failed. " + th.getMessage)
+        case e: Exception => throw new RuntimeException(s"Creating temp table $cubeName failed. " , e)
+        case th : Throwable => throw new RuntimeException(s"Creating temp table $cubeName failed. ", th)
       }
     })
   }
   
   override private [acume] def executeQuery(sql: String) = {
-    val resultSchemaRDD = cacheSqlContext.sql(sql)
+    val originalparsedsql = AcumeCacheContextTraitUtil.parseSql(sql)
+    println("AcumeRequest obtained on HBASE: " + sql)
+    
+    var correctsql = ISqlCorrector.getSQLCorrector(cacheConf).correctSQL(this, sql, (originalparsedsql._1.toList, originalparsedsql._2))
+    
+    var updatedsql = correctsql._1._1
+    var updatedparsedsql = correctsql._2
+  
+    val l = updatedparsedsql._1(0)
+    val binsource = l.getBinsource
+    val startTime = l.getStartTime
+    val endTime = l.getEndTime
+    
+    AcumeCacheContextTraitUtil.validateQuery(startTime, endTime, binsource)
+    
+    logger.info("Firing corrected query on HBASE " +  updatedsql)
+    val resultSchemaRDD = cacheSqlContext.sql(updatedsql)
     new AcumeCacheResponse(resultSchemaRDD, resultSchemaRDD.rdd, MetaData(-1, Nil))
   }
   

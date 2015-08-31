@@ -24,11 +24,17 @@ import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
 object AcumeContextTraitUtil {
   
   // Initialize sparkContext, hiveContext, HbaseSQLContext only  once
+  @transient
   val sparkContext = new SparkContext(new SparkConf())
   sparkContext.addSparkListener(new AcumeSparkListener)
   sparkContext.addSparkListener(new AcumeBlockManagerRemovedListener)
+  
+  @transient
   val hiveContext : HiveContext = new HiveContext(sparkContext)
+  
+  @transient
   val hBaseSQLContext : HBaseSQLContext = new HBaseSQLContext(sparkContext)
+  
   val acumeConf = new AcumeConf(true, "acume.ini")
 
   def initAcumeContextTraitFactory(datsourceNames : Array[String]) : HashMap[String, AcumeContextTrait] = {

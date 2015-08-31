@@ -3,7 +3,7 @@ package com.guavus.acume.core.scheduler
 import scala.collection.mutable.HashMap
 import com.guavus.acume.core.AcumeConf
 import com.guavus.acume.cache.common.ConfConstants
-import com.guavus.acume.cache.core.Interval
+import com.guavus.rubix.cache.Interval
 import org.apache.spark.sql.SchemaRDD
 import com.guavus.acume.core.AcumeContextTrait
 import org.apache.spark.SparkContext
@@ -128,6 +128,5 @@ object ICacheAvalabilityUpdatePolicy {
       }
       _$value
     }
-
   }
 }

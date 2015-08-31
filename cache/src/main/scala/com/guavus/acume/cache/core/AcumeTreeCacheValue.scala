@@ -71,7 +71,7 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
         // Check if the point is outside the diskLevelPolicyMap
         val levelTimeStamp = acumeValue.levelTimestamp
         val cube = acumeValue.cube
-        val priority = Utility.getPriority(levelTimeStamp.timestamp, levelTimeStamp.level.localId, levelTimeStamp.aggregationLevel.localId, cube.diskLevelPolicyMap, BinAvailabilityPoller.getLastBinPersistedTime(cube.binsource))
+        val priority = Utility.getPriority(levelTimeStamp.timestamp, levelTimeStamp.level.localId, levelTimeStamp.aggregationLevel.localId, cube.diskLevelPolicyMap, BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource))
       
         // if the timestamp lies in the disk cache range then only write it to disk. Else not.
         if(priority != 0) {
@@ -106,6 +106,7 @@ trait AcumeValue {
   val measureSchemaRdd: SchemaRDD
   var acumeContext : AcumeCacheContextTrait = null
   val logger: Logger = LoggerFactory.getLogger(classOf[AcumeValue])
+  val skipCount: Boolean = false
   
   def evictFromMemory() {
     try {
@@ -118,7 +119,9 @@ trait AcumeValue {
   def registerAndCacheDataInMemory(tableName : String) {
     measureSchemaRdd.registerTempTable(tableName)
     measureSchemaRdd.sqlContext.cacheTable(tableName)
-    measureSchemaRdd.sqlContext.table(tableName).count
+    if(!skipCount) {
+      measureSchemaRdd.sqlContext.table(tableName).count
+    }
   }
 }
 
@@ -153,7 +156,7 @@ case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measur
   }
 }
 
-case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measureSchemaRdd: SchemaRDD) extends AcumeValue {
+case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measureSchemaRdd: SchemaRDD, override val skipCount: Boolean = false) extends AcumeValue {
   var tableName = cube.getAbsoluteCubeName
   tableName = tableName + Utility.getlevelDirectoryName(levelTimestamp.level, levelTimestamp.aggregationLevel)
   tableName = tableName + "_" + levelTimestamp.timestamp + "_memory_disk"

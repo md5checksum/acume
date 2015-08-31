@@ -712,7 +712,7 @@ Please don't use the following reserved property names:
             <name>docBase</name>
             <type>basic</type>
             <help><![CDATA[ - Path of the application]]></help>
-            <default><![CDATA[/opt/tms/rubix-atlas3.0]]></default>
+            <default><![CDATA[/opt/tms/acume-atlas3.0]]></default>
             <targets>
                 <target>
                     <file><![CDATA[server.xml]]></file>
@@ -1196,6 +1196,31 @@ Please don't use the following reserved property names:
             </targets>
         </property>
 
+          <property>
+            <name>ACUMESQLCORRECTOR</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.acume.cache.sql.AcumeCacheSQLCorrector]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.ini]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
+            <name>ACUMESQLPARSER</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.acume.cache.sql.AcumeCacheSQLParser]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.ini]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
 
 
         <!-- Acume Cache configs -->
@@ -1282,32 +1307,6 @@ Please don't use the following reserved property names:
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[AcumeFlatSchemaTreeCache]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.ini]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
-            <name>CACHESQLCORRECTOR</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[com.guavus.acume.cache.sql.AcumeCacheSQLCorrector]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.ini]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
-            <name>CACHESQLPARSER</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[com.guavus.acume.cache.sql.AcumeCacheSQLParser]]></default>
             <targets>
                 <target>
                     <file><![CDATA[acume.ini]]></file>
@@ -1676,7 +1675,7 @@ Please don't use the following reserved property names:
     	<property>
     		<name>rootLoggingLevel</name>
     		<help><![CDATA[ - Root Logging level]]></help>
-    		<default><![CDATA[info]]></default>
+    		<default><![CDATA[INFO]]></default>
     		<targets>
     			<target>
     				<file><![CDATA[log4j.xml]]></file>

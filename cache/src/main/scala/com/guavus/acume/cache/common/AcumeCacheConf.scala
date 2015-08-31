@@ -57,6 +57,7 @@ class AcumeCacheConf(var datasourceName: String, loadSystemPropertyOverDefault: 
     val sectionNames = ini.getSectionNames
     
     sectionNames.map(sectionName => {
+      
      val section : Section = ini.getSection(sectionName.trim)
      section.entrySet.map(property => {
        if(!property.getValue.trim.equals("")) {
@@ -97,12 +98,12 @@ class AcumeCacheConf(var datasourceName: String, loadSystemPropertyOverDefault: 
 
   /** Get a parameter as an Option */
   def getOption(key: String): Option[String] = {
-    val globalFound = settings.get(key)
-    globalFound match {
-      case None => 
-        return settings.get(AcumeCacheConf.getKeyName(key, datasourceName))
+    val dsFound = settings.get(AcumeCacheConf.getKeyName(key, datasourceName))
+    
+    dsFound match {
+      case None => return settings.get(key)
       case _ =>
-        return globalFound
+        return dsFound
     }
   }
 
