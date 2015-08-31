@@ -1,4 +1,4 @@
-package com.guavus.acume.cache.core
+package com.guavus.rubix.cache
 
 import java.io.Serializable
 import java.util.Set
