@@ -1,4 +1,4 @@
-package com.guavus.acume.cache.core
+package com.guavus.rubix.cache
 
 import Intervals._
 import scala.collection.JavaConversions._

@@ -3,7 +3,7 @@ package com.guavus.acume.core.scheduler
 import VariableGranularitySchedulerPolicy._
 import scala.collection.JavaConversions._
 import com.guavus.acume.cache.utility.Utility
-import com.guavus.acume.cache.core.Interval
+import com.guavus.rubix.cache.Interval
 import com.guavus.acume.core.configuration.ConfigFactory
 import com.guavus.acume.core.AcumeConf
 import com.guavus.acume.core.AcumeConf

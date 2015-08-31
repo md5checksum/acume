@@ -13,7 +13,7 @@ import scala.util.control.Breaks._
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import com.guavus.acume.cache.core.EvictionDetails
-import com.guavus.acume.cache.core.Interval
+import com.guavus.rubix.cache.Interval
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.core.AcumeConf
