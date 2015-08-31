@@ -290,10 +290,15 @@ object AcumeCacheContextTraitUtil {
     (list, RequestType.getRequestType(requestType))
   }
   
-  private [acume] def validateQuery(startTime : Long, endTime : Long, binSource : String) {
+  private [acume] def validateQuery(startTime : Long, endTime : Long, binSource : String, dsName: String) {
     if(startTime < BinAvailabilityPoller.getFirstBinPersistedTime(binSource) || endTime > BinAvailabilityPoller.getLastBinPersistedTime(binSource)){
       throw new RuntimeException("Cannot serve query. StartTime and endTime doesn't fall in the availability range.")
     }
+    
+    val numberOfCubes = AcumeCacheContextTraitUtil.cubeList.filter(cube => cube.dataSource.equalsIgnoreCase(dsName)).filter(cube => cube.binSource.equalsIgnoreCase(binSource)).size
+    if(numberOfCubes == 0)
+      throw new RuntimeException(s"The binsource $binSource does not belong to the datasource $dsName")    
+      
   }
   
 }

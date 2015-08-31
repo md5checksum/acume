@@ -45,19 +45,12 @@ class AcumeCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheConf) 
       val startTime = l.getStartTime
       val endTime = l.getEndTime
     
-      AcumeCacheContextTraitUtil.validateQuery(startTime, endTime, binsource)
+      AcumeCacheContextTraitUtil.validateQuery(startTime, endTime, binsource, cacheConf.getDataSourceName)
       
-      val key_binsource = 
-        if(binsource != null)
-          binsource
-      else
-        cacheConf.get(ConfConstants.acumecorebinsource)
-
       i = AcumeCacheContextTraitUtil.getTable(cube)
       updatedsql = updatedsql.replaceAll(s"$cube", s"$i")
       
-      
-      val id = getCube(CubeKey(cube, key_binsource))
+      val id = getCube(CubeKey(cube, binsource))
       val idd = new CacheIdentifier()
       idd.put("cube", id.hashCode)
       
