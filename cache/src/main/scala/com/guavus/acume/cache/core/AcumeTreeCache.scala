@@ -108,7 +108,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
     null
   }
   
-  def get(key: LevelTimestamp) = {
+  def getAndNotify(key: LevelTimestamp) = {
     val cacheValue = cachePointToTable.get(key)
     AcumeCacheContextTrait.addAcumeTreeCacheValue(cacheValue)
     notifyObserverList
@@ -122,6 +122,21 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       cacheValue = cachePointToTable.get(key)
       notifyObserverList
       cacheValue
+    } catch {
+      case e : java.util.concurrent.ExecutionException => if(e.getCause().isInstanceOf[NoDataException]) null else throw e
+    }
+  }
+
+  def get(key: LevelTimestamp) = {
+    val cacheValue = cachePointToTable.get(key)
+    AcumeCacheContextTrait.addAcumeTreeCacheValue(cacheValue)
+    cacheValue
+  }
+   
+  def getTry(key : LevelTimestamp) = {
+    try {
+      key.loadType = LoadType.DISK
+      cachePointToTable.get(key)
     } catch {
       case e : java.util.concurrent.ExecutionException => if(e.getCause().isInstanceOf[NoDataException]) null else throw e
     }
