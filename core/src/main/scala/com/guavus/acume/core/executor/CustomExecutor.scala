@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicLong
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.core.{AcumeCache, TimeGranularity}
 import com.guavus.acume.cache.utility.QueryOptionalParam
-import com.guavus.acume.cache.workflow.{AcumeCacheContextTrait, AcumeCacheContextTraitUtil, CubeKey}
+import com.guavus.acume.cache.workflow.{AcumeCacheContextTrait, CubeKey}
 import CustomExecutor._
 
 import org.slf4j.Logger
@@ -71,8 +71,7 @@ abstract class CustomExecutor[T](
 
 	  // get cache points corresponding to this cube
       // default behaviour is timeseries
-      val tableName = AcumeCacheContextTraitUtil.getTable(cube.name)
-      val (rdds, timeStampList) = getCachePoints(instance, startTime, endTime, tableName, None, true)
+      val (rdds, timeStampList) = getCachePoints(instance, startTime, endTime, None, true)
 
 	  // execute custom processing part
 	  response = customExec(rdds, timeStampList, instance.cube)
@@ -103,10 +102,9 @@ abstract class CustomExecutor[T](
       instance: AcumeCache[k, v],
       startTime: Long,
       endTime: Long,
-      tableName: String,
       queryOptionalParam: Option[QueryOptionalParam],
       isMetaData: Boolean): (Seq[SchemaRDD], List[Long]) = {
-    instance.getCachePoints(startTime, endTime, tableName, None, true)
+    instance.getCachePoints(startTime, endTime, None, true)
   }
 
     def customExec(rdds: Seq[SchemaRDD], timeStampList: List[Long], cube: Cube): T
