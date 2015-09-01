@@ -32,7 +32,7 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
   }
   
   def acql(sql: String): AcumeCacheResponse = {
-  AcumeCacheContextTraitUtil.setQuery(sql)
+    AcumeCacheContextTraitUtil.setQuery(sql)
     try {
       if (cacheConf.getInt(ConfConstants.rrsize._1).get == 0) {
         executeQuery(sql)
