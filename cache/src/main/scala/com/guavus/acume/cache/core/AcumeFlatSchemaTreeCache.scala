@@ -87,9 +87,11 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
   .build(
       new CacheLoader[LevelTimestamp, AcumeTreeCacheValue]() {
         def load(key: LevelTimestamp): AcumeTreeCacheValue = {
+          
           val output = checkIfTableAlreadyExist(key)
           if (output != null || key.loadType == LoadType.DISK) {
             if(output != null) {
+              notifyObserverList
             	return output
             } else {
               throw new NoDataException
@@ -97,6 +99,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
           } else {
             logger.info(s"Getting data from Insta for $key as it was never calculated")
           }
+          
           //First check if point can be populated through children
           try {
         	var schema: StructType = null
@@ -159,16 +162,21 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
               floorTime = tempEndTime
         	}
           if (schema != null) {
-            return populateParentPointFromChildren(key, rdds, schema)
+            val cachePoint = populateParentPointFromChildren(key, rdds, schema)
+            notifyObserverList
+            return cachePoint
           }
           
         } catch {
           case e: Exception => logger.info(s"Couldnt populate data for $key as all children are not present.")
         }
 
+        // Load from insta
         if (key.loadType == LoadType.Insta) {
           logger.info(s"Getting data from Insta for $key as all children are not present ")
-          return getDataFromBackend(key);
+          val cachePoint = getDataFromBackend(key)
+          notifyObserverList
+          return cachePoint
         } else {
             throw new NoDataException
         }
