@@ -1,22 +1,21 @@
 package com.guavus.acume.cache.common
 
-import org.apache.spark.sql.types.StringType
-import org.apache.spark.sql.types.NullType
-import org.apache.spark.sql.types.LongType
-import org.apache.spark.sql.types.IntegerType
-import org.apache.spark.sql.types.TimestampType
-import org.apache.spark.sql.types.DoubleType
 import org.apache.spark.sql.types.BinaryType
 import org.apache.spark.sql.types.BooleanType
 import org.apache.spark.sql.types.ByteType
+import org.apache.spark.sql.types.DoubleType
 import org.apache.spark.sql.types.FloatType
+import org.apache.spark.sql.types.IntegerType
+import org.apache.spark.sql.types.LongType
+import org.apache.spark.sql.types.NullType
 import org.apache.spark.sql.types.ShortType
-import java.lang.RuntimeException
-import com.guavus.crux.core.ByteBuffer
-import com.guavus.crux.jaxb.classes.{DataType => CruxDataType}
-import com.guavus.crux.df.core.FieldDataType
-import com.guavus.crux.df.core.FieldDataType._
+import org.apache.spark.sql.types.StringType
+import org.apache.spark.sql.types.TimestampType
+
+import com.guavus.crux.df.core.FieldDataType.FieldDataType
 import com.guavus.crux.df.util.DataTypeConverter
+import com.guavus.crux.jaxb.classes.{ DataType => CruxDataType }
+
 
 /**
  * @author archit.thakur
@@ -39,14 +38,6 @@ object DataType extends Enumeration {
   val ACByte = new DataType("byte")
   
   class DataType(val typeString: String) extends Val
-  
-  def convertToLong(value: Any, datatype: DataType.DataType) : Long = {
-    datatype match {
-      case ACInt => value.asInstanceOf[Int].toLong
-      case ACLong => value.asInstanceOf[Long].toLong
-      case ACString => value.asInstanceOf[String].toLong
-    }
-  }
   
   def getDataType(datatype: String): DataType = {
     for(typeValue <- DataType.values if(datatype == typeValue.typeString))
