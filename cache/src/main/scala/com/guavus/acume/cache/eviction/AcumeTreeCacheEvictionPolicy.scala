@@ -1,22 +1,15 @@
 package com.guavus.acume.cache.eviction
 
-import com.guavus.acume.cache.utility.Utility
-import java.util.Calendar
-import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.common.ConfConstants
-import scala.collection.immutable.TreeMap
-import com.guavus.acume.cache.common.LevelTimestamp
-import scala.collection.mutable.HashMap
-import com.guavus.acume.cache.core.TimeGranularity
-import com.guavus.acume.cache.common.Cube
-import scala.collection.mutable.MutableList
-import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
-import com.guavus.acume.cache.core.Level
-import java.util.concurrent.ConcurrentMap
-import com.guavus.acume.cache.core.AcumeTreeCacheValue
-import org.slf4j.LoggerFactory
 import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
+import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.core.AcumeTreeCacheValue
+import com.guavus.acume.cache.core.Level
 import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
+import com.guavus.acume.cache.utility.Utility
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 
 /**
  * @author archit.thakur
@@ -56,13 +49,4 @@ class AcumeTreeCacheEvictionPolicy(cube: Cube, cacheContext : AcumeCacheContextT
     if (Utility.getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, levelTimestamp.aggregationLevel.localId, variableRetentionMap, BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource)) == 0) true else false
   }
 
-  private def intializeMetaData(variableRetentionMap: Map[Long, Int]): HashMap[Long, Long] = {
-    val lastBinTime = BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource)
-    val map = HashMap[Long, Long]()
-    for ((key, value) <- variableRetentionMap) {
-      val numPoints = value
-      map.put(key, Utility.getRangeStartTime(lastBinTime, key, numPoints))
-    }
-    map
-  }
 }

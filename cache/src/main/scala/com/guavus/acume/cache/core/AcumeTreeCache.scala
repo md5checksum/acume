@@ -32,6 +32,7 @@ import java.util.concurrent.TimeUnit
 import com.guavus.acume.threads.NamedThreadPoolFactory
 import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
+import org.apache.hadoop.fs.FileSystem
 
 abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy)
   extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf, cube) {
@@ -42,10 +43,12 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
   
   def deleteExtraDataFromDiskAtStartUp() {
     logger.info("Starting deleting file")
+    var fs : FileSystem = null
+    
     try {
       val cacheBaseDirectory = Utility.getCubeBaseDirectory(acumeCacheContext, cube)
       val path = new Path(cacheBaseDirectory)
-      val fs = path.getFileSystem(acumeCacheContext.cacheSqlContext.sparkContext.hadoopConfiguration)
+      fs = path.getFileSystem(acumeCacheContext.cacheSqlContext.sparkContext.hadoopConfiguration)
       
       // Get all the levels persisted in diskCache
       val directoryLevelValues = fs.listStatus(path).map(directory => {
@@ -85,6 +88,9 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       
     } catch {
       case e: Exception => logger.warn(e.getMessage())
+    } finally {
+      //Close file handle
+      fs.close
     }
   }
 
@@ -94,9 +100,9 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       val diskDirectory = Utility.getDiskDirectoryForPoint(acumeCacheContext, cube, levelTimestamp)
       val diskDirpath = new Path(diskDirectory)
 	    //Do previous run cleanup
-        val priority = Utility.getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, levelTimestamp.aggregationLevel.localId, cube.diskLevelPolicyMap, BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource))
-	    if (priority == 1 && Utility.isPathExisting(diskDirpath, acumeCacheContext) && Utility.isDiskWriteComplete(diskDirectory, acumeCacheContext)) {
-	      
+      val priority = Utility.getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, levelTimestamp.aggregationLevel.localId, cube.diskLevelPolicyMap, BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource))
+
+      if (priority == 1 && Utility.isPathExisting(diskDirpath, acumeCacheContext) && Utility.isDiskWriteComplete(diskDirectory, acumeCacheContext)) {
         acumeCacheContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk cache reading " + diskDirectory, false)
         val rdd = acumeCacheContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
         return new AcumeFlatSchemaCacheValue(new AcumeDiskValue(levelTimestamp, cube, rdd, true), acumeCacheContext)
@@ -110,7 +116,6 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
   def get(key: LevelTimestamp) = {
     val cacheValue = cachePointToTable.get(key)
     AcumeCacheContextTraitUtil.addAcumeTreeCacheValue(cacheValue)
-    notifyObserverList
     cacheValue
   }
   
@@ -119,7 +124,6 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       key.loadType = LoadType.DISK
       var cacheValue : AcumeTreeCacheValue = null
       cacheValue = cachePointToTable.get(key)
-      notifyObserverList
       cacheValue
     } catch {
       case e : java.util.concurrent.ExecutionException => if(e.getCause().isInstanceOf[NoDataException]) null else throw e
@@ -148,7 +152,6 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         }
         if (shouldPopulateParent) {
           val parentData = cachePointToTable.get(new LevelTimestamp(CacheLevel.getCacheLevel(parent), parentTimestamp, LoadType.InMemory))
-          notifyObserverList
           populateParent(parent, Utility.floorFromGranularity(childTimestamp, parent))
         }
       }

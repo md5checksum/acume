@@ -40,7 +40,6 @@ import java.util.concurrent.ConcurrentHashMap
 import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 import DataService._
 import com.guavus.acume.core.configuration.DataServiceFactory
-import com.guavus.acume.cache.common.DataType
 
 
 /**
@@ -217,14 +216,14 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         }
         j += 1
       }
-      if (isTimeseries) {
 
+      if (isTimeseries) {
         val sortedRows = rows.sortBy(row => row(tsIndex).toString)
+       
         val timestamps : List[Long] = {
-          val tsDataType = AcumeCacheContextTraitUtil.dimensionMap.get("ts").get.getDataType
           val metaDataTimeStamps = cacheResponse.metadata.timestamps
           if(metaDataTimeStamps == null || metaDataTimeStamps.isEmpty)
-            sortedRows.map(row => DataType.convertToLong(row(tsIndex), tsDataType)).toList.distinct
+            sortedRows.map(row => row(tsIndex).toString.toLong).toList.distinct
           else
             metaDataTimeStamps
         }
