@@ -65,6 +65,7 @@ import com.google.common.collect.Iterables
 import acume.exception.AcumeException
 import com.guavus.acume.cache.common.HbaseConfigs
 import com.guavus.qb.ds.DatasourceType
+import org.apache.hadoop.fs.FileStatus
 
 /**
  * @author archit.thakur
@@ -931,4 +932,11 @@ object Utility extends Logging {
     diskDirectoryForPoints
   }
   
+  def listStatus(acumeContext : AcumeCacheContextTrait, dir: String) : Array[FileStatus] = {
+    val path = new Path(dir)
+    val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
+    val ls = fs.listStatus(path)
+    fs.close
+    ls
+  }
 }
