@@ -1,22 +1,20 @@
 package com.guavus.acume.cache.core
 
 import java.util.Random
+
 import scala.Array.canBuildFrom
+import scala.collection.JavaConversions._
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable.ArrayBuffer
-import scala.collection.mutable.{Map => MutableMap}
+import scala.collection.mutable.{ Map => MutableMap }
 import scala.collection.mutable.MutableList
-import scala.collection.mutable.SortedSet
-import scala.collection.JavaConversions._
-import scala.util.control.Breaks._
-import org.apache.spark.AccumulatorParam
-import org.apache.spark.rdd.RDD
+
 import org.apache.spark.sql.SchemaRDD
-import org.apache.spark.sql.catalyst.expressions.Expression
 import org.apache.spark.sql.catalyst.expressions.Row
+import org.apache.spark.sql.types.StructType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.apache.spark.sql.types.StructType
+
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import com.google.common.cache.RemovalListener
@@ -26,35 +24,16 @@ import com.guavus.acume.cache.common.CacheLevel
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.LevelTimestamp
+import com.guavus.acume.cache.common.LoadType
+import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
 import com.guavus.acume.cache.disk.utility.CubeUtil
 import com.guavus.acume.cache.disk.utility.DataLoader
 import com.guavus.acume.cache.utility.QueryOptionalParam
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.workflow.AcumeCacheContext
-import com.guavus.acume.cache.workflow.MetaData
-import com.guavus.acume.cache.workflow.RequestType.Aggregate
-import com.guavus.acume.cache.workflow.RequestType.RequestType
-import com.guavus.acume.cache.workflow.RequestType.Timeseries
-import org.apache.spark.sql.SchemaRDD
-import org.slf4j.LoggerFactory
-import org.slf4j.Logger
-import com.guavus.acume.cache.disk.utility.CubeUtil
-import org.apache.spark.sql.types.StructField
-import com.guavus.acume.cache.common.ConversionToSpark
-import org.apache.spark.sql.types.LongType
-import org.apache.spark.AccumulatorParam
-import java.util.Arrays
-import scala.collection.mutable.LinkedList
-import scala.collection.mutable.HashMap
-import org.apache.spark.sql.catalyst.expressions.Expression
-import org.apache.spark.sql.catalyst.expressions.Sum
-import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.common.CacheLevel
-import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
-import com.guavus.acume.cache.common.LoadType
-import org.apache.spark.sql.catalyst.dsl._
 import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
-import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
+import com.guavus.acume.cache.workflow.MetaData
+import com.guavus.acume.cache.workflow.RequestType._
 
 /**
  * @author archit.thakur
@@ -329,7 +308,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
         	    val levelTimestamp = new LevelTimestamp(CacheLevel.getCacheLevel(level), interval, CacheLevel.getCacheLevel(level))
         	    //logger.info("Selecting table with timestamp {} for interval {}, {}", levelTimestamp.toString, startTime.toString, endTime.toString)
         	    val innerAcumeValue = cachePointToTable.get(levelTimestamp).getAcumeValue.measureSchemaRdd
-//        	    populateParent(levelTimestamp.level.localId, levelTimestamp.timestamp)
+//       	    populateParent(levelTimestamp.level.localId, levelTimestamp.timestamp)
         	    combineLevels(levelTimestamp.level.localId, levelTimestamp.timestamp)
         	    innerAcumeValue
         	  }
