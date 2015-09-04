@@ -1,6 +1,13 @@
 #!/bin/sh
 
 #-------------------------------------
+# RPM Mode Support
+#-------------------------------------
+
+. /etc/reflex/reflexpaths.sh
+
+
+#-------------------------------------
 #The default values of the arguments in case args not provided
 #-------------------------------------
 
@@ -191,17 +198,17 @@ fi
 # Finding crux jar
 #-------------------------------------
 
-num_crux_jars=$(ls -d /opt/tms/java/crux2.0-*-jar-with-dependencies.jar 2>>"$CATALINA_OUT" | wc -l )
+num_crux_jars=$(ls -d ${REFLEX_ROOT_PREFIX}/opt/tms/java/crux2.0-*-jar-with-dependencies.jar 2>>"$CATALINA_OUT" | wc -l )
 
 if [ "$num_crux_jars" -eq 1 ]; then
-    crux_jar=$(ls -d /opt/tms/java/crux2.0-*-jar-with-dependencies.jar )
+    crux_jar=$(ls -d ${REFLEX_ROOT_PREFIX}/opt/tms/java/crux2.0-*-jar-with-dependencies.jar )
     echo "INFO: Found crux jar $crux_jar" >> "$CATALINA_OUT"
 elif [ "$num_crux_jars" -eq 0 ]; then
-    echo "ERROR: Failed to find crux jar in /opt/tms/java/" >> "$CATALINA_OUT"
+    echo "ERROR: Failed to find crux jar in ${REFLEX_ROOT_PREFIX}/opt/tms/java/" >> "$CATALINA_OUT"
     exit 1
 elif [ "$num_crux_jars" -gt 1 ]; then
-    jars_list=$(ls -d /opt/tms/java/crux2.0-*-jar-with-dependencies.jar)
-    echo "ERROR: Found multiple crux jars in /opt/tms/java/" >> "$CATALINA_OUT"
+    jars_list=$(ls -d ${REFLEX_ROOT_PREFIX}/opt/tms/java/crux2.0-*-jar-with-dependencies.jar)
+    echo "ERROR: Found multiple crux jars in ${REFLEX_ROOT_PREFIX}/opt/tms/java/" >> "$CATALINA_OUT"
     echo "$jars_list" >> "$CATALINA_OUT"
     echo "Please remove all but one jar." >> "$CATALINA_OUT"
     exit 1
@@ -259,11 +266,11 @@ fi
 # HBASE Jar for Spark Classpath
 #-------------------------------------
 
-SPARK_HBASE_JAR=$(ls -1 /opt/tms/java/hbase-spark/spark-hbase*-jar-with-dependencies.jar 2>/dev/null)
+SPARK_HBASE_JAR=$(ls -1 ${REFLEX_ROOT_PREFIX}/opt/tms/java/hbase-spark/spark-hbase*-jar-with-dependencies.jar 2>/dev/null)
 if [[ ! -z $SPARK_HBASE_JAR ]];then
     echo "INFO: Using HBASE Jar : $SPARK_HBASE_JAR" >> "$CATALINA_OUT"
 else
-    echo "WARNING: No SPARK HBASE Jar found at :/opt/tms/java/hbase-spark/" >> "$CATALINA_OUT"
+    echo "WARNING: No SPARK HBASE Jar found at :${REFLEX_ROOT_PREFIX}/opt/tms/java/hbase-spark/" >> "$CATALINA_OUT"
 fi
 
 
@@ -281,7 +288,7 @@ if [ ! -z $ACUMECOLONSEP_UDFPATHS ];then
     colonSepUdfJarPath=":"$colonSepUdfJarPath
 fi
 
-export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:$spark_jars:$SCRIPT_DIR/../lib/*:$crux_jar:-Djava.io.tmpdir=$CATALINA_BASE:/opt/tms/java/attvaludf.jar:/opt/tms/java/attval.jar:/opt/tms/java/pcsaudf.jar$colonSepUdfJarPath:$SPARK_HBASE_JAR"
+export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:$spark_jars:$SCRIPT_DIR/../lib/*:$crux_jar:-Djava.io.tmpdir=$CATALINA_BASE:${REFLEX_ROOT_PREFIX}/opt/tms/java/attvaludf.jar:${REFLEX_ROOT_PREFIX}/opt/tms/java/attval.jar:${REFLEX_ROOT_PREFIX}/opt/tms/java/pcsaudf.jar$colonSepUdfJarPath:$SPARK_HBASE_JAR"
 echo "SPARK_CLASSPATH = $SPARK_CLASSPATH" >> "$CATALINA_OUT"
 
 
@@ -311,7 +318,7 @@ fi
 # Add Attval jars to classpath
 #-------------------------------------
 
-ATTVALJARPATH=",/opt/tms/java/attvaludf.jar,/opt/tms/java/attval.jar"
+ATTVALJARPATH=",${REFLEX_ROOT_PREFIX}/opt/tms/java/attvaludf.jar,${REFLEX_ROOT_PREFIX}/opt/tms/java/attval.jar"
 
 
 #-------------------------------------
