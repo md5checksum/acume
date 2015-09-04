@@ -113,7 +113,6 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
       val schemaRdd = cacheResponse.schemaRDD
       val schema = schemaRdd.schema
       val fields = schema.fieldNames
-      val rows = schemaRdd.collect
       val acumeSchema: QueryBuilderSchema = queryBuilderService.get(0).getQueryBuilderSchema
       val dimsNames = new ArrayBuffer[String]()
       val measuresNames = new ArrayBuffer[String]()
@@ -131,13 +130,8 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], acumeContext: 
         }
         j += 1
       }
+      val (rows, timestamps) = NdfTimeSeriesCompleter().completeTimeSeries(cacheResponse, queryBuilderService.get(0), sql)
       if (isTimeseries) {
-        val sortedRows = rows.sortBy(row => row(tsIndex).toString)
-        var timestamps = cacheResponse.metadata.timestamps
-        if(timestamps == Nil) {
-          timestamps = sortedRows.toList.map(row => row(tsIndex).asInstanceOf[Long]).distinct
-        }
-        
         val timestampsToIndexMap = new scala.collection.mutable.HashMap[Long, Int]()
         var index = -1
         timestamps.foreach(x => { index += 1; timestampsToIndexMap += (x -> index) })
