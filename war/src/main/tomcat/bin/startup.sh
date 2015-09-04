@@ -318,7 +318,7 @@ ATTVALJARPATH=",/opt/tms/java/attvaludf.jar,/opt/tms/java/attval.jar"
 # Add log4j property file for executors
 #-------------------------------------
 
-ARG_EXECUTOR_LOGFILE="--files $DOCBASE/WEB-INF/classes/log4j-executor.properties"
+ARG_EXECUTOR_LOGFILE="--files $DOCBASE/WEB-INF/classes/log4j-executor.properties,$DOCBASE/WEB-INF/classes/acume.ini"
 
 
 #-------------------------------------

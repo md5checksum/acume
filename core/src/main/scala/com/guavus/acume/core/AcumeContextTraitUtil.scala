@@ -35,7 +35,8 @@ object AcumeContextTraitUtil {
   @transient
   val hBaseSQLContext : HBaseSQLContext = new HBaseSQLContext(sparkContext)
   
-  val acumeConf = new AcumeConf(true, "acume.ini")
+  
+  val acumeConf = new AcumeConf(true, "/acume.ini")
 
   def initAcumeContextTraitFactory(datsourceNames : Array[String]) : HashMap[String, AcumeContextTrait] = {
     val acumeContextMap = HashMap[String, AcumeContextTrait]()
