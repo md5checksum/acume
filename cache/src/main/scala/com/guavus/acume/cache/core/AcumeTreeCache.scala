@@ -5,8 +5,7 @@ import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
 
-import scala.collection.JavaConversions.asScalaSet
-import scala.collection.JavaConversions.mapAsJavaMap
+import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContextExecutorService
 import scala.concurrent.Future
@@ -96,21 +95,11 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
           }
         }
       }
-      
-      // Cleanup. Find all such directories which are empty (doesnot contain any timestamp). Delete the base directory folder
-      logger.info("Cleaning up empty directories")
-      val cleanUpDirectoryNames = Utility.listStatus(acumeCacheContext, cacheBaseDirectory).map(directory => {
-        val directoryTobeCheckedForDelete = cacheBaseDirectory + File.separator + directory
-        val numOftimestamps = Utility.listStatus(acumeCacheContext, directoryTobeCheckedForDelete).size
-        if(numOftimestamps == 0) {
-          Utility.deleteDirectory(directoryTobeCheckedForDelete, acumeCacheContext)
-        }
-      })
-      
+
       logger.info("Deleting finished on startup.")
       
     } catch {
-      case e: Exception => logger.warn(e.getMessage())
+      case e: Exception => logger.warn("Error while deleting points on startup " + e.getMessage())
     }
   }
 

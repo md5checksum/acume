@@ -66,6 +66,7 @@ import acume.exception.AcumeException
 import com.guavus.acume.cache.common.HbaseConfigs
 import com.guavus.qb.ds.DatasourceType
 import org.apache.hadoop.fs.FileStatus
+import java.io.FileNotFoundException
 
 /**
  * @author archit.thakur
@@ -935,8 +936,15 @@ object Utility extends Logging {
   def listStatus(acumeContext : AcumeCacheContextTrait, dir: String) : Array[FileStatus] = {
     val path = new Path(dir)
     val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
-    val ls = fs.listStatus(path)
-    fs.close
-    ls
+    try {
+      val ls = fs.listStatus(path)
+      ls
+    } catch {
+      case ex : FileNotFoundException => 
+        logError("File not present on diskCache: "  + ex.getMessage)
+        Array[FileStatus]()
+    } finally {
+    	fs.close
+    }
   }
 }
