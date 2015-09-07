@@ -187,8 +187,16 @@ class AcumeService {
       classificationandpool
     }
   }
-  
-  // Generic API for custom executors
+
+  /**
+   * The main entry point for executing custom transformations on acume cache values.
+   * This special functionality is being added for low latency tmo query requirements.
+   * @param callableResponses Callables that are to be executed via Acume; Acume retrieves the AcumeCacheValues based on
+   *                          start/end time on which custom transformations can be applied
+   * @param checkJobProperty  same as in original servMultiple
+   * @tparam T                type of output (currently we keep it as a basic generic type : Serializable)
+   * @return                  Seq[Output of type T] after running all the callables
+   */
   def servMultiple[T](callableResponses: java.util.ArrayList[CustomExecutor[T]], checkJobProperty: Boolean = true): java.util.ArrayList[T] = {
 
     val starttime = System.currentTimeMillis()
@@ -242,12 +250,10 @@ class AcumeService {
             } catch {
               case e: ExecutionException => {
                 Utility.throwIfRubixException(e)
-                //TO DO print the exact query which throw exception
                 throw new RuntimeException("Exception encountered while getting response for ", e)
               }
               case e: InterruptedException => {
                 Utility.throwIfRubixException(e);
-                //TO DO print the exact query which throw exception
                 throw new RuntimeException("Exception encountered while getting response for ", e);
               }
             }
@@ -275,61 +281,6 @@ class AcumeService {
       runWithTimeout[T](callable)
     }
   }
-
-  // Developer API for serving custom requests from acumce cache
-
-  /* def servCustom[Q: ClassTag, T](indexDimensionValue: Long, startTime: String, endTime: String,
-      granList: List[TimeGranularity.TimeGranularity], cubeName: String, checkJobProperty: Boolean = true): java.util.ArrayList[T] = {
-
-    try {
-
-      // val starttime = System.currentTimeMillis()
-      // var classificationList: List[(String, HashMap[String, Any])] = null
-      // var poolList: List[String] = null
-
-      /* if (checkJobProperty) {
-        val values = checkJobPropertiesAndUpdateStats(requests, requestDataType)
-        classificationList = values._1
-        poolList = values._2
-      } */
-
-      val callableResponses = new java.util.ArrayList[Callable[T]]();
-      val isIDSet = false;
-      val itr = granList.iterator
-      // TODO Find out use of spark.scheduler.pool when running on spark core
-      // val classificationIterator = if (classificationList != null) classificationList.iterator else null
-      // val poolIterator = if (poolList != null) poolList.iterator else null
-      while (itr.hasNext) {
-        val key = itr.next()
-        /* var classificationDetail: (String, HashMap[String, Any]) = (null, null)
-        var poolName: String = null
-        if (poolIterator != null && poolIterator.hasNext) {
-          poolName = poolIterator.next()
-        } */
-
-        // No need to set scheduler pool for this query
-        /* if (classificationIterator != null && classificationIterator.hasNext) {
-          classificationDetail = classificationIterator.next()
-          classificationDetail._2.put("spark.scheduler.pool", poolName)
-        } */
-
-        // TODO check use of this
-        if (!isIDSet) {
-          setCallId(key);
-        }
-
-        val queryExecutorTask = new Q(dataService.acumeContext, indexDimensionValue, startTime, endTime, key, HttpUtils.getLoginInfo())
-        callableResponses.add(queryExecutorTask)
-      }
-
-      servMultiple[T](callableResponses, checkJobProperty)
-    } catch {
-      case e: TimeoutException =>
-        throw new AcumeException(AcumeExceptionConstants.TIMEOUT_EXCEPTION.name);
-      case e: Throwable =>
-        throw e;
-    }
-  } */
 
   //Developer API for not calling checkJobproperties and directly calling the QueryExecutor
   def servMultiple[T](requestDataType: RequestDataType.RequestDataType,

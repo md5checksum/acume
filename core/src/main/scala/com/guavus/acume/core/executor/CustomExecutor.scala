@@ -1,7 +1,6 @@
 package com.guavus.acume.core.executor
 
 import java.util.concurrent.Callable
-import java.util.concurrent.atomic.AtomicLong
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.core.{AcumeCache, TimeGranularity}
 import com.guavus.acume.cache.utility.QueryOptionalParam
@@ -11,13 +10,10 @@ import CustomExecutor._
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import com.guavus.rubix.logging.util.LoggingInfoWrapper
-import com.guavus.rubix.logging.util.AcumeThreadLocal
 import com.guavus.acume.user.management.utils.HttpUtils
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
 import com.guavus.rubix.logging.util.AcumeThreadLocal
 import com.guavus.acume.core.{AcumeConf, AcumeContextTraitUtil, DataService}
-import com.guavus.acume.workflow.RequestDataType
-import scala.collection.mutable.HashMap
 
 import org.apache.spark.sql.SchemaRDD
 
@@ -27,6 +23,16 @@ private var logger: Logger = LoggerFactory.getLogger(classOf[CustomExecutor[Any]
 
 }
 
+/**
+ * Main class that gives a structure to what callable could be passed to acume
+ * @param acumeCacheContext
+ * @param indexDimensionValue value for index dimension filter
+ * @param startTime start time for retrieving acume cache values
+ * @param endTime end time for retrieving acume cache values
+ * @param gran gran for retrieving acume cache values
+ * @param cube cube for retrieving acume cache values
+ * @tparam T Output type T
+ */
 abstract class CustomExecutor[T](
     acumeCacheContext: AcumeCacheContextTrait,
     indexDimensionValue: Long,
