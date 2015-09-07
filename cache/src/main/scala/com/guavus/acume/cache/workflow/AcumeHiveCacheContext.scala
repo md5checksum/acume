@@ -1,7 +1,6 @@
 package com.guavus.acume.cache.workflow
 
 import scala.collection.JavaConversions.asScalaBuffer
-import scala.collection.immutable.SortedMap
 
 import org.apache.spark.sql.SQLContext
 import org.slf4j.Logger
@@ -10,7 +9,6 @@ import org.slf4j.LoggerFactory
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.BaseCube
 import com.guavus.acume.cache.common.ConfConstants
-import com.guavus.acume.cache.core.CacheTimeSeriesLevelPolicy
 import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
 import com.guavus.acume.cache.disk.utility.DataLoader
 import com.guavus.acume.cache.disk.utility.InstaDataLoaderThinAcume
@@ -24,7 +22,6 @@ import com.guavus.acume.cache.utility.Utility
 class AcumeHiveCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheConf) extends AcumeCacheContextTrait(cacheSqlContext, cacheConf) { 
  
   private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeHiveCacheContext])
-  private [cache] val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]()(implicitly[Ordering[Long]].reverse) ++ Utility.getLevelPointMap(cacheConf.get(ConfConstants.acumecoretimeserieslevelmap)).map(x=> (x._1.level, x._2)))
   private val useInsta : Boolean = cacheConf.getBoolean(ConfConstants.useInsta).getOrElse(false)
   
   override val dataLoader : DataLoader = {
@@ -59,12 +56,6 @@ class AcumeHiveCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheCo
         val startTime = l.getStartTime
         val endTime = l.getEndTime
 
-        val key_binsource =
-          if (binsource != null)
-            binsource
-          else
-            cacheConf.get(ConfConstants.acumecorebinsource)
-            
         i = AcumeCacheContextTraitUtil.getTable(cube)
         updatedsql = updatedsql.replaceAll(s"$cube", s"$i")
 
@@ -74,7 +65,7 @@ class AcumeHiveCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheCo
             if (queryOptionalParams.getTimeSeriesGranularity() != 0) {
               queryOptionalParams.getTimeSeriesGranularity()
             } else
-              cacheTimeseriesLevelPolicy.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(key_binsource))
+              cacheTimeseriesLevelPolicy.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(binsource))
 
           val startTimeCeiling = Utility.floorFromGranularity(startTime, level)
           val endTimeFloor = Utility.floorFromGranularity(endTime, level)

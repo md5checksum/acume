@@ -1,7 +1,6 @@
 package com.guavus.acume.cache.workflow
 
-import scala.collection.JavaConversions.asScalaBuffer
-import scala.collection.JavaConversions.mapAsScalaMap
+import scala.collection.JavaConversions._
 
 import org.apache.spark.sql.{SchemaRDD, SQLContext}
 import org.slf4j.Logger
@@ -12,6 +11,7 @@ import com.guavus.acume.cache.common.{Cube, ConfConstants}
 import com.guavus.acume.cache.core.{AcumeCache, AcumeCacheFactory, CacheIdentifier, TimeGranularity} 
 import com.guavus.acume.cache.disk.utility.{BinAvailabilityPoller, DataLoader}
 import com.guavus.acume.cache.sql.ISqlCorrector
+
 
 /**
  * @author archit.thakur
@@ -44,7 +44,7 @@ class AcumeCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheConf) 
       val startTime = l.getStartTime
       val endTime = l.getEndTime
     
-      AcumeCacheContextTraitUtil.validateQuery(startTime, endTime, binsource, cacheConf.getDataSourceName)
+      validateQuery(startTime, endTime, binsource, cacheConf.getDataSourceName, cube)
       
       i = AcumeCacheContextTraitUtil.getTable(cube)
       updatedsql = updatedsql.replaceAll(s"$cube", s"$i")
