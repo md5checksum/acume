@@ -7,6 +7,9 @@ import com.google.common.collect.Lists
 import java.util.Collections
 import com.guavus.acume.core.query.DataExportRequest
 import com.guavus.acume.core.query.DataExportResponse
+import com.guavus.rubix.user.management.vo.LoginRequest
+import com.guavus.rubix.user.management.vo.ValidateSessionRequest
+import com.guavus.rubix.user.management.vo.LoginResponse
 
 
 object QueryJsonUtil {
@@ -46,7 +49,24 @@ object QueryJsonUtil {
   def fromJsonToSearchRequest(json: String): SearchRequest = {
     gson.fromJson(json, classOf[SearchRequest])
   }
-
+  
+  def fromJsonToZoneInfoRequest(json: String): ZoneInfoRequest = {
+    gson.fromJson(json, classOf[ZoneInfoRequest])
+  }
+  
+  def ZoneInfoRequestToJson(response: ZoneInfoRequest): String = gson.toJson(response)
+   
+  def fromJsonToLoginRequest(json: String): LoginRequest = {
+    gson.fromJson(json, classOf[LoginRequest])
+  }
+  
+  def LoginResponseToJson(response: LoginResponse): String = gson.toJson(response)
+  
+  def fromJsonToValidateSessionRequest(json: String): ValidateSessionRequest = {
+    gson.fromJson(json, classOf[ValidateSessionRequest])
+  }
+  
+  def ValidateSessionRequestToJson(response: ValidateSessionRequest): String = gson.toJson(response)
 /*
 Original Java:
 package com.guavus.acume.rest.beans;

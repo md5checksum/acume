@@ -161,6 +161,22 @@
     	<servlet-name>raeSql</servlet-name>
     	<servlet-class>com.guavus.acume.core.servlet.RaeSqlRequestServlet</servlet-class>
   	</servlet>
+  	<servlet>
+    	<servlet-name>ValidateSession</servlet-name>
+    	<servlet-class>com.guavus.acume.core.servlet.ValidateSessionServlet</servlet-class>
+  	</servlet>
+  	<servlet>
+    	<servlet-name>Login</servlet-name>
+    	<servlet-class>com.guavus.acume.core.servlet.LoginRequestServlet</servlet-class>
+  	</servlet>
+  	<servlet>
+    	<servlet-name>TimeRange</servlet-name>
+    	<servlet-class>com.guavus.acume.core.servlet.TimeRangeRequestServlet</servlet-class>
+  	</servlet>
+  	<servlet>
+    	<servlet-name>ZoneInfo</servlet-name>
+    	<servlet-class>com.guavus.acume.core.servlet.ZoneInfoRequestServlet</servlet-class>
+  	</servlet>
   	
   	<servlet-mapping>
     	<servlet-name>Sql</servlet-name>
@@ -193,6 +209,22 @@
   	<servlet-mapping>
     	<servlet-name>DataAvailability</servlet-name>
 	<url-pattern>/queryresponse/dataAvailability</url-pattern>
+  	</servlet-mapping>
+  	<servlet-mapping>
+    	<servlet-name>ValidateSession</servlet-name>
+	<url-pattern>/queryresponse/validateSession</url-pattern>
+  	</servlet-mapping>
+  	<servlet-mapping>
+    	<servlet-name>Login</servlet-name>
+	<url-pattern>/queryresponse/login</url-pattern>
+  	</servlet-mapping>
+  	<servlet-mapping>
+    	<servlet-name>TimeRange</servlet-name>
+	<url-pattern>/queryresponse/getTimeRange</url-pattern>
+  	</servlet-mapping>
+  	<servlet-mapping>
+    	<servlet-name>ZoneInfo</servlet-name>
+	<url-pattern>/queryresponse/zoneInfo</url-pattern>
   	</servlet-mapping>
 
 

@@ -11,6 +11,7 @@ import javax.xml.bind.annotation.XmlRootElement
 import com.guavus.rubix.query.remote.flex.SearchResponse
 import javax.servlet.ServletException
 import java.io.Serializable
+import com.guavus.rubix.user.management.vo.LoginResponse
 
 abstract class AbstractRequestServlet extends HttpServlet {
 
@@ -29,6 +30,8 @@ abstract class AbstractRequestServlet extends HttpServlet {
 	} else if(response.isInstanceOf[SearchResponse]) {
 	  //search response
 	  finalResponse = TimeseriesResponse.gson.toJson(response)
+  } else if(response.isInstanceOf[LoginResponse]) {
+    finalResponse = TimeseriesResponse.gson.toJson(response)
 	} else if(response.isInstanceOf[Serializable]) {
 	  finalResponse = response.toString
 	} else {
@@ -39,6 +42,23 @@ abstract class AbstractRequestServlet extends HttpServlet {
 	resp.flushBuffer()
     
   }
+  
+  override def doGet(req : HttpServletRequest, resp : HttpServletResponse){
+    
+    val response = getResponse(req)
+    
+    var finalResponse :String = null
+  
+   if(response.isInstanceOf[Serializable]) {
+      finalResponse = TimeseriesResponse.gson.toJson(response)
+    } else {
+      throw new ServletException("Invalid response");
+    }
+    
+  resp.getOutputStream().print(finalResponse)
+  resp.flushBuffer()
+    
+    }
   
   def getResponse(req: HttpServletRequest) : Serializable
   

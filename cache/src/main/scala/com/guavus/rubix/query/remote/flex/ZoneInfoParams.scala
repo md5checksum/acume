@@ -1,8 +1,10 @@
 package com.guavus.rubix.query.remote.flex
 
 import scala.reflect.BeanProperty
+import javax.xml.bind.annotation.XmlRootElement
 
-class ZoneInfoParams {
+@XmlRootElement
+class ZoneInfoParams extends Serializable {
 
   @BeanProperty
   var startYear: String = _
