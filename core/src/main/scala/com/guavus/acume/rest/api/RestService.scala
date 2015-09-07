@@ -22,6 +22,17 @@ import java.io.Serializable
 import com.guavus.acume.core.scheduler.Controller
 import com.guavus.acume.core.configuration.ConfigFactory
 import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.rubix.user.management.vo.CurrentSessionInfo
+import org.apache.shiro.subject.Subject
+import org.apache.shiro.session.Session
+import org.apache.shiro.SecurityUtils
+import com.guavus.rubix.user.management.exceptions.HttpUMException
+import com.guavus.rubix.user.management.vo.LoginRequest
+import com.guavus.rubix.user.management.vo.LoginResponse
+import com.guavus.acume.core.PSUserService
+import com.guavus.rubix.query.remote.flex.TimeZoneInfo
+import com.guavus.rubix.query.remote.flex.ZoneInfoRequest
+import com.guavus.rubix.user.management.vo.ValidateSessionRequest
 
 @Path("/" + "queryresponse")
 /**
@@ -169,6 +180,40 @@ class RestService {
 	  new java.util.ArrayList()
 	}
   
+  @POST
+  @Path("validateSession")
+  def getValidSession(validateSessionRequest : ValidateSessionRequest) : CurrentSessionInfo = {
+    try{
+      UserManagementUtils.getIWebUMService().validateSession(validateSessionRequest);
+    } catch {
+      case ex : HttpUMException =>{
+        throw ex
+      } //logger.warn("Invalid session. Trying to authenticate through rubix db")
+        
+    }
+  }
+  
+  @POST
+  @Path("login")
+  def getLoginResponse(loginRequest : LoginRequest) : LoginResponse = {
+    UserManagementUtils.getIWebUMService().login(loginRequest)
+  }
+  
+  @GET
+  @Path("getTimeRange")
+  def getTimeRange(@QueryParam(value = "super") userinfo : String,
+      @QueryParam("user") user : String, @QueryParam("password") password : String) : Array[Long] = {
+    Authentication.authenticate(userinfo, user, password)
+      new PSUserService().getTimeRange()
+  }
+  
+  @POST
+  @Path("zoneInfo")
+  def getZoneInfo(zoneInfo : ZoneInfoRequest,@QueryParam(value = "super") userinfo : String,
+      @QueryParam("user") user : String, @QueryParam("password") password : String) : java.util.List[TimeZoneInfo] = {
+    Authentication.authenticate(userinfo, user, password)
+    new PSUserService().getZoneInfo(zoneInfo.getIdsList(), zoneInfo.getZoneInfoParams())
+  }
   /**
    * Takes rubix like query as input with additional params and return response. This handles timeseries as well as aggregate queries
    */

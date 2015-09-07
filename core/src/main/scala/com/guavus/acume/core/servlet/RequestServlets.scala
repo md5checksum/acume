@@ -7,6 +7,11 @@ import com.guavus.rubix.query.remote.flex.QueryRequest
 import com.guavus.rubix.query.remote.flex.SearchRequest
 
 import javax.servlet.http.HttpServletRequest
+import com.guavus.rubix.query.remote.flex.ZoneInfoRequest
+import com.guavus.rubix.user.management.vo.LoginRequest
+import com.guavus.rubix.user.management.vo.ValidateSessionRequest
+import com.guavus.rubix.user.management.vo.LoginResponse
+
 
 class SearchRequestServlet extends AbstractRequestServlet {
 
@@ -105,4 +110,39 @@ class DataAvailabilityServlet extends AbstractRequestServlet {
     service.getDataAvailability(req.getParameter("super"),
 			req.getParameter("user"), req.getParameter("password"), false).asInstanceOf[Serializable]
    }
+}
+
+class ValidateSessionServlet extends AbstractRequestServlet {
+
+   override def getResponse(req : HttpServletRequest) : Serializable = {
+    val validateSessionRequest : ValidateSessionRequest = QueryJsonUtil.fromJsonToValidateSessionRequest(req.getReader().readLine())
+    service.getValidSession(validateSessionRequest).asInstanceOf[Serializable]
+  }
+ 
+}
+   
+class LoginRequestServlet extends AbstractRequestServlet {
+
+   override def getResponse(req : HttpServletRequest) : Serializable = {
+    val loginRequest : LoginRequest = QueryJsonUtil.fromJsonToLoginRequest(req.getReader().readLine())
+    service.getLoginResponse(loginRequest).asInstanceOf[Serializable]
+  }
+ 
+}
+
+class ZoneInfoRequestServlet extends AbstractRequestServlet {
+
+   override def getResponse(req : HttpServletRequest) : Serializable = {
+    val zoneInfo : ZoneInfoRequest = QueryJsonUtil.fromJsonToZoneInfoRequest(req.getReader().readLine())
+    service.getZoneInfo(zoneInfo, req.getParameter("super"),req.getParameter("user"), req.getParameter("password")).asInstanceOf[Serializable]
+  }
+ 
+}
+
+class TimeRangeRequestServlet extends AbstractRequestServlet {
+
+   override def getResponse(req : HttpServletRequest) : Serializable = {
+    service.getTimeRange(req.getParameter("super"),req.getParameter("user"), req.getParameter("password")).asInstanceOf[Serializable]
+  }
+ 
 }
