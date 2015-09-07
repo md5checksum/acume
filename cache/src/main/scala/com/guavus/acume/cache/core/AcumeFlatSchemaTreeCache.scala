@@ -240,9 +240,9 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
             }
             level
           } else
-            Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, acumeCacheContext.getLastBinPersistedTime(cube.binsource)))
+            Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource)))
         case None =>
-          Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, acumeCacheContext.getLastBinPersistedTime(cube.binsource)))
+          Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource)))
       }
 
     val startTimeCeiling = cacheLevelPolicy.getCeilingToLevel(startTime, level)
@@ -254,7 +254,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
       getCachePointsForIntervals(intervals, tableName, isMetaData)
 
     } else {
-      Seq(Utility.getEmptySchemaRDD(acumeCacheContext.sqlContext, cube))
+      Seq(Utility.getEmptySchemaRDD(acumeCacheContext.cacheSqlContext, cube))
     }
   }
 
@@ -418,7 +418,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
       levelTimestampMap: MutableMap[Long, MutableList[(Long, Long)]],
       tableName: String,
       isMetaData: Boolean): Seq[SchemaRDD] = {
-    import acumeCacheContext.sqlContext._
+    import acumeCacheContext.cacheSqlContext.implicits._
     logger.info("Total timestamps are : {}", cachePointToTable.asMap().keySet())
     val finalTimestamps: MutableList[Long] = MutableList[Long]()
     var finalSchema = null.asInstanceOf[StructType]

@@ -196,7 +196,7 @@ class AcumeService {
     def runWithTimeout[T](callable: Callable[java.util.ArrayList[T]]): java.util.ArrayList[T] = {
       val response = QueryExecutorThreads.getPoolMultiple.submit(callable)
       try {
-        response.get(dataService.acumeContext.acumeConf.getLong(ConfConstants.queryTimeOut, 30l), TimeUnit.SECONDS)
+        response.get(AcumeConf.acumeConf.getLong(ConfConstants.queryTimeOut).getOrElse(30l), TimeUnit.SECONDS)
       } catch {
         case e : Exception => {
           if(!response.isDone()) {
@@ -219,7 +219,7 @@ class AcumeService {
         val isIDSet = false;
 
         callableResponses foreach (callableResponse => {
-          if (dataService.acumeContext.acumeConf.getBoolean(ConfConstants.schedulerQuery, false))
+          if (AcumeConf.acumeConf.getBoolean(ConfConstants.schedulerQuery).getOrElse(false))
             futureResponses.add(new AcumeCustomizedFuture[T](callableResponse))
           else
             futureResponses.add(threadPool.submit(callableResponse))
@@ -238,7 +238,7 @@ class AcumeService {
             try {
               responses.add(futureResponse.get())
               if (checkJobProperty /* && poolIterator.hasNext */)
-                dataService.queryPoolPolicy.updateStats("default", "default", dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+                DataService.queryPoolPolicy.updateStats("default", "default", DataService.poolStats, DataService.classificationStats, starttime, System.currentTimeMillis())
             } catch {
               case e: ExecutionException => {
                 Utility.throwIfRubixException(e)
@@ -262,14 +262,14 @@ class AcumeService {
             /* while (poolIterator.hasNext) {
               dataService.queryPoolPolicy.updateStats(poolIterator.next(), classificationIterator.next(), dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
             } */
-            dataService.queryPoolPolicy.updateFinalStats("default", "default", dataService.poolStats, dataService.classificationStats, starttime, System.currentTimeMillis())
+            DataService.queryPoolPolicy.updateFinalStats("default", "default", DataService.poolStats, DataService.classificationStats, starttime, System.currentTimeMillis())
           }
         }
         responses
       }
     }
 
-    if (dataService.acumeContext.acumeConf.getBoolean(ConfConstants.schedulerQuery, false)) {
+    if (AcumeConf.acumeConf.getBoolean(ConfConstants.schedulerQuery).getOrElse(false)) {
       run(callable)
     } else {
       runWithTimeout[T](callable)
