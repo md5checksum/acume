@@ -57,7 +57,14 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
   
   // Read the acume.ini file. 
   if(fileName != null) {
-    val ini : Ini = Ini.fromResourcePath(ClassLoader.getSystemResource(fileName).getPath)
+    val ini : Ini = new Ini()
+    try{
+    	val in = this.getClass.getResourceAsStream(fileName)
+    	ini.load(in)
+    } catch {
+      case ex : NullPointerException => throw new RuntimeException(s"Cannot find acume configuration file  $fileName" , ex)
+    }
+    
     val sectionNames = ini.getSectionNames
 
     sectionNames.map(sectionName => {

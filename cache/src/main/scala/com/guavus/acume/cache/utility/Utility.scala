@@ -65,6 +65,8 @@ import com.google.common.collect.Iterables
 import acume.exception.AcumeException
 import com.guavus.acume.cache.common.HbaseConfigs
 import com.guavus.qb.ds.DatasourceType
+import org.apache.hadoop.fs.FileStatus
+import java.io.FileNotFoundException
 
 /**
  * @author archit.thakur
@@ -461,8 +463,8 @@ object Utility extends Logging {
   }
   
   def getPriority(timeStamp: Long, level: Long, aggregationLevel: Long, variableRetentionMap: Map[Level, Int], lastBinTime : Long): Int = {
-    if (!variableRetentionMap.contains(new Level(level))) return 0
-    val numPoints = variableRetentionMap.get(new Level(level)).getOrElse(throw new RuntimeException("Level not in VariableRetentionMap."))
+    if (!variableRetentionMap.contains(Level(level))) return 0
+    val numPoints = variableRetentionMap.get(Level(level)).getOrElse(throw new RuntimeException("Level not in VariableRetentionMap."))
     val rangeStarTime = getRangeStartTime(lastBinTime, level, numPoints)
     var timeStampTobeChecked = timeStamp
     if(aggregationLevel != level) {
@@ -894,12 +896,15 @@ object Utility extends Logging {
     val path = new Path(dir)
     val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
     fs.delete(path, true)
+    fs.close
   }
 
   def isPathExisting(path : Path, acumeContext : AcumeCacheContextTrait) : Boolean = {
     logDebug("Checking if path exists => " + path)
     val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
-    return fs.exists(path)
+    val isPathExisting = fs.exists(path)
+    fs.close
+    isPathExisting
   }
   
   def isDiskWriteComplete(diskDirectory : String, acumeContext : AcumeCacheContextTrait) : Boolean = {
@@ -928,4 +933,18 @@ object Utility extends Logging {
     diskDirectoryForPoints
   }
   
+  def listStatus(acumeContext : AcumeCacheContextTrait, dir: String) : Array[FileStatus] = {
+    val path = new Path(dir)
+    val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
+    try {
+      val ls = fs.listStatus(path)
+      ls
+    } catch {
+      case ex : FileNotFoundException => 
+        logError("File not present on diskCache: "  + ex.getMessage)
+        Array[FileStatus]()
+    } finally {
+    	fs.close
+    }
+  }
 }

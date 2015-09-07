@@ -1,37 +1,36 @@
 package com.guavus.acume.cache.core
 
 import java.io.File
-import java.util.concurrent.Executors
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit
+
 import scala.collection.JavaConversions._
-import scala.concurrent._
+import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContextExecutorService
 import scala.concurrent.Future
 import scala.util.Failure
 import scala.util.Success
 import scala.util.control.Breaks._
+
 import org.apache.hadoop.fs.Path
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.catalyst.expressions.Row
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.CacheLevel
+import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.LevelTimestamp
 import com.guavus.acume.cache.common.LoadType
+import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
-import com.guavus.acume.cache.common.CacheLevel
-import com.guavus.acume.cache.utility.Utility
-import org.apache.spark.sql.DataFrame
-import org.apache.hadoop.fs.Path
-import com.guavus.acume.cache.common.LoadType
-import com.guavus.acume.cache.common.ConfConstants
-import org.apache.spark.sql.catalyst.expressions.Row
-import org.apache.spark.rdd.RDD
-import java.util.concurrent.LinkedBlockingQueue
-import java.util.concurrent.ThreadPoolExecutor
-import java.util.concurrent.TimeUnit
-import com.guavus.acume.threads.NamedThreadPoolFactory
 import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
-import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
+import com.guavus.acume.threads.NamedThreadPoolFactory
+
 
 abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy)
   extends AcumeCache[LevelTimestamp, AcumeTreeCacheValue](acumeCacheContext, conf, cube) {
@@ -42,13 +41,12 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
   
   def deleteExtraDataFromDiskAtStartUp() {
     logger.info("Starting deleting file")
+    
     try {
       val cacheBaseDirectory = Utility.getCubeBaseDirectory(acumeCacheContext, cube)
-      val path = new Path(cacheBaseDirectory)
-      val fs = path.getFileSystem(acumeCacheContext.cacheSqlContext.sparkContext.hadoopConfiguration)
       
       // Get all the levels persisted in diskCache
-      val directoryLevelValues = fs.listStatus(path).map(directory => {
+      val directoryLevelValues = Utility.listStatus(acumeCacheContext, cacheBaseDirectory).map(directory => {
     	  val splitPath = directory.getPath().getName().split("-")
     	  if(splitPath.size ==1)
     		  (CacheLevel.nameToLevelMap.get(splitPath(0)).getOrElse(null),CacheLevel.nameToLevelMap.get(splitPath(0)).getOrElse(null))
@@ -56,35 +54,52 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
     		  (CacheLevel.nameToLevelMap.get(splitPath(0)).getOrElse(null),CacheLevel.nameToLevelMap.get(splitPath(1)).getOrElse(null))
         })
       
-      // Delete all the levels not present in diskLevelPolicyMap
-      val notPresentLevels = directoryLevelValues.filter( x => {
-        cube.diskLevelPolicyMap.entrySet().filter( level => {level.getKey().level == x._1.localId && level.getKey().aggregationLevel == x._2.localId}).size == 0
+      logger.info("Levels on disk are {}", directoryLevelValues.map(level => level._1 + "-" + level._2).mkString(", "))
+        
+      // FilterOut combinedDirectories from diskCache
+      val onlyRolledUpLevelValues = directoryLevelValues.filter(levelTuple => levelTuple._1 != levelTuple._2)
+      
+      // FilterOut only combineEnabled levels from diskPolicyMap
+      val onlyRollingEnabledLevels = cube.diskLevelPolicyMap.entrySet.filter( level => level.getKey.level != level.getKey.aggregationLevel)
+      
+      //Find all the rolled-up directories which should not be present in diskCache.  
+      val notPresentRolledUpLevels = onlyRolledUpLevelValues.filter(levelTuple => {
+        onlyRollingEnabledLevels.filter( level => { 
+          level.getKey().level == levelTuple._1.localId && level.getKey().aggregationLevel == levelTuple._2.localId
+        }).size == 0
       })
-      logger.info("Not present levels are {} " + notPresentLevels.map(x=> x._1 + "-" + x._2).mkString(","))
-      for (notPresent <- notPresentLevels) {
+      logger.info("Not present rolled-up levels are {} ", notPresentRolledUpLevels.map(x=> x._1 + "-" + x._2).mkString(","))
+      
+      /*
+       * Delete all the rolled-up directories which are not present in diskLevelPolicyMap
+       * Note: Not deleting the non rolled-up directories/timestamps. They will be removed according to eviction logic.
+       * We could use the eviction logic to evict the rolledup points as well but this is to make deletion faster.
+       */
+      logger.info("Deleting the redundant rolled-up points from diskCache")
+      for (notPresent <- notPresentRolledUpLevels) {
         val basedir = Utility.getCubeBaseDirectory(acumeCacheContext, cube) 
-        val directoryToBeDeleted = Utility.getlevelDirectoryName(notPresent._1, notPresent._2) 
-        Utility.deleteDirectory(basedir + File.separator + directoryToBeDeleted, acumeCacheContext)
+        val directoryToBeDeleted = basedir + File.separator + Utility.getlevelDirectoryName(notPresent._1, notPresent._2) 
+        Utility.deleteDirectory(directoryToBeDeleted, acumeCacheContext)
       }
-      
-      //>> Evict the evictable timestamps of the levels present in diskLevelPolicyMap
-      val presentLevels = directoryLevelValues.filter( x => {
-        !(cube.diskLevelPolicyMap.entrySet().filter( level => {level.getKey().level == x._1.localId && level.getKey().aggregationLevel == x._2.localId}).size == 0)
-      })
-      logger.info("Present levels are " + presentLevels.map(x=> x._1 + "-" + x._2).mkString(","))
-      
-      for (presentLevel <- presentLevels) {
+
+      // Evict the evictable timestamps of the levels persisted in diskCache
+      logger.info("Deleting points based on eviction logic")
+      for (presentLevel <- directoryLevelValues) {
         val levelDirectoryName = Utility.getlevelDirectoryName(presentLevel._1, presentLevel._2)
-        val timestamps = fs.listStatus(new Path(cacheBaseDirectory + File.separator + levelDirectoryName)).map(_.getPath().getName().toLong)
-        for (timestamp <- timestamps)
+        val directoryName = cacheBaseDirectory + File.separator + levelDirectoryName
+        val timestamps = Utility.listStatus(acumeCacheContext, directoryName).map(_.getPath().getName().toLong)
+        for (timestamp <- timestamps) {
           if (Utility.getPriority(timestamp, presentLevel._1.localId, presentLevel._2.localId, cube.diskLevelPolicyMap, BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource)) == 0) {
             val directoryToBeDeleted = Utility.getDiskDirectoryForPoint(acumeCacheContext, cube, new LevelTimestamp(presentLevel._1, timestamp, presentLevel._2))
             Utility.deleteDirectory(directoryToBeDeleted, acumeCacheContext)
           }
+        }
       }
+
+      logger.info("Deleting finished on startup.")
       
     } catch {
-      case e: Exception => logger.warn(e.getMessage())
+      case e: Exception => logger.warn("Error while deleting points on startup " + e.getMessage())
     }
   }
 
@@ -94,9 +109,9 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       val diskDirectory = Utility.getDiskDirectoryForPoint(acumeCacheContext, cube, levelTimestamp)
       val diskDirpath = new Path(diskDirectory)
 	    //Do previous run cleanup
-        val priority = Utility.getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, levelTimestamp.aggregationLevel.localId, cube.diskLevelPolicyMap, BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource))
-	    if (priority == 1 && Utility.isPathExisting(diskDirpath, acumeCacheContext) && Utility.isDiskWriteComplete(diskDirectory, acumeCacheContext)) {
-	      
+      val priority = Utility.getPriority(levelTimestamp.timestamp, levelTimestamp.level.localId, levelTimestamp.aggregationLevel.localId, cube.diskLevelPolicyMap, BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource))
+
+      if (priority == 1 && Utility.isPathExisting(diskDirpath, acumeCacheContext) && Utility.isDiskWriteComplete(diskDirectory, acumeCacheContext)) {
         acumeCacheContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk cache reading " + diskDirectory, false)
         val rdd = acumeCacheContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
         return new AcumeFlatSchemaCacheValue(new AcumeDiskValue(levelTimestamp, cube, rdd, true), acumeCacheContext)
@@ -110,7 +125,6 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
   def get(key: LevelTimestamp) = {
     val cacheValue = cachePointToTable.get(key)
     AcumeCacheContextTraitUtil.addAcumeTreeCacheValue(cacheValue)
-    notifyObserverList
     cacheValue
   }
   
@@ -119,7 +133,6 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       key.loadType = LoadType.DISK
       var cacheValue : AcumeTreeCacheValue = null
       cacheValue = cachePointToTable.get(key)
-      notifyObserverList
       cacheValue
     } catch {
       case e : java.util.concurrent.ExecutionException => if(e.getCause().isInstanceOf[NoDataException]) null else throw e
@@ -148,7 +161,6 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         }
         if (shouldPopulateParent) {
           val parentData = cachePointToTable.get(new LevelTimestamp(CacheLevel.getCacheLevel(parent), parentTimestamp, LoadType.InMemory))
-          notifyObserverList
           populateParent(parent, Utility.floorFromGranularity(childTimestamp, parent))
         }
       }

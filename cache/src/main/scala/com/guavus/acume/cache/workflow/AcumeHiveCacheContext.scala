@@ -35,14 +35,15 @@ class AcumeHiveCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheCo
   } 
     
   override private[acume] def executeQuery(sql: String) = {
+    
+    logger.info("AcumeRequest obtained " + sql)
+    
     if (!useInsta) {
       val resultSchemaRdd = cacheSqlContext.sql(sql)
       new AcumeCacheResponse(resultSchemaRdd, resultSchemaRdd.rdd, new MetaData(-1, Nil))
     } else {
-      
       val originalparsedsql = AcumeCacheContextTraitUtil.parseSql(sql)
 
-      println("AcumeRequest obtained " + sql)
       var correctsql = ISqlCorrector.getSQLCorrector(cacheConf).correctSQL(this, sql, (originalparsedsql._1.toList, originalparsedsql._2))
       var updatedsql = correctsql._1._1
       val queryOptionalParams = correctsql._1._2

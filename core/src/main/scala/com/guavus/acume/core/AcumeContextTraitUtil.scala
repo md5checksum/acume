@@ -35,7 +35,8 @@ object AcumeContextTraitUtil {
   @transient
   val hBaseSQLContext : HBaseSQLContext = new HBaseSQLContext(sparkContext)
   
-  val acumeConf = new AcumeConf(true, "acume.ini")
+  
+  val acumeConf = new AcumeConf(true, "/acume.ini")
 
   def initAcumeContextTraitFactory(datsourceNames : Array[String]) : HashMap[String, AcumeContextTrait] = {
     val acumeContextMap = HashMap[String, AcumeContextTrait]()
@@ -75,6 +76,7 @@ object AcumeContextTraitUtil {
       val path = new Path(dir)
       val fs = path.getFileSystem(sparkContext.hadoopConfiguration)
       fs.delete(path, true)
+      fs.close
     }
 
     val diskBaseDirectory = getDiskBaseDirectory
