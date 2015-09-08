@@ -1,3 +1,4 @@
+
 package com.guavus.acume.core
 
 import scala.collection.mutable.HashMap
@@ -26,7 +27,8 @@ case class NdfTimeSeriesCompleter {
 
   def completeTimeSeries(cacheResponse: com.guavus.acume.cache.workflow.AcumeCacheResponse,
     queryBuilderService: com.guavus.qb.services.IQueryBuilderService, inputQuery: String): (Array[org.apache.spark.sql.Row], List[Long]) = {
-
+      
+    // println("in ndf time series completer with query: |" + inputQuery + "|")
     val schemaRdd = cacheResponse.schemaRDD
     val schema = schemaRdd.schema
 
@@ -51,13 +53,14 @@ case class NdfTimeSeriesCompleter {
         defaultValues(tsIndex) = ts.asInstanceOf[Any]
         new org.apache.spark.sql.catalyst.expressions.GenericRow(defaultValues.clone)
       } else {
-        Nil.asInstanceOf[org.apache.spark.sql.catalyst.expressions.GenericRow]
+        null.asInstanceOf[org.apache.spark.sql.catalyst.expressions.GenericRow]
       }
     }
     
-    (rows ++ missingRows.filter(row => row != Nil), timeseries.toList)
+    // println("out ndf time series completer with query: |" + inputQuery + "| after adding missing rows: |" + missingRows.filter(row => row != null))
+    (rows ++ missingRows.filter(row => row != null), timeseries.toList)
   }
-
+  
   def getTimeRangeAndCallType(inputQuery: String): (Long, Long, Boolean) = {
     val startTime = inputQuery.split("startTime = ")(1).split("""[ )]""")(0).toInt
     val endTime = inputQuery.split("endTime = ")(1).split("""[ )]""")(0).toInt

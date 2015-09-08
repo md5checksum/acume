@@ -126,7 +126,7 @@
 			<version>2.5</version>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>com.guavus.rubix.user.management</groupId>
 			<artifactId>user-management</artifactId>
@@ -295,6 +295,30 @@
 			</exclusions>
 		</dependency>
 
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-core</artifactId>
+      <version>1.2.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.shiro</groupId>
+      <artifactId>shiro-aspectj</artifactId>
+      <version>1.2.0</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>libCache</groupId>
+      <artifactId>javalib</artifactId>
+      <version>4.9</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-service</artifactId>
+      <version>0.13.0</version>
+    </dependency>
+    
 		<!-- UI jars. Flex and blazeds -->
 		<dependency>
 			<groupId>com.adobe.blazeds</groupId>
