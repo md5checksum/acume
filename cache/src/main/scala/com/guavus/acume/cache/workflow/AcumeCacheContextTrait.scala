@@ -68,14 +68,12 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
   lazy private[acume] val getCubeList : List[Cube] = cubeList.toList
 
   def getCacheInstance[k, v](
-      indexDimensionValue: Long,
       startTime: Long,
       endTime: Long,
       cube: CubeKey): AcumeCache[k, v] =
     throw new NotImplementedError("AcumeCacheContextTrait does not implement getCachePoints().")
 
   def getAggregateCacheInstance[k, v](
-      indexDimensionValue: Long,
       startTime: Long,
       endTime: Long,
       cube: CubeKey): AcumeCache[k, v] =

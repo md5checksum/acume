@@ -72,8 +72,8 @@ abstract class CustomExecutor[T](
     sc.setJobGroup(jobGroupId, jobDescription, false)
     try {
 
-      // Get cache instance
-      val instance = getCacheInstance(indexDimensionValue, startTime, endTime, cube)
+      // Validate query and get cache instance
+      val instance = getCacheInstance(startTime, endTime, cube)
 
 	  // get cache points corresponding to this cube
       // default behaviour is timeseries
@@ -96,12 +96,11 @@ abstract class CustomExecutor[T](
   }
 
   def getCacheInstance[k, v](
-      indexDimensionValue: Long,
       startTime: Long,
       endTime: Long,
       cube: CubeKey): AcumeCache[k, v] = {
 
-    acumeCacheContext.getCacheInstance(indexDimensionValue, startTime, endTime, cube)
+    acumeCacheContext.getCacheInstance(startTime, endTime, cube)
   }
 
   def getCachePoints[k, v](

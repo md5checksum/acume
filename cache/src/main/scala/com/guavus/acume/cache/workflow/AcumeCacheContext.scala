@@ -78,7 +78,18 @@ class AcumeCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheConf) 
     }
   }
 
-  override def getCacheInstance[k, v](indexDimensionValue: Long,
+  /**
+   * Gets the cache instance object for retreiving acume cache values on which transformations will be applied
+   * Used by customExecution path
+   * @param startTime time range for which acume cache values are to be retrieved
+   *                  start and end times are used for validation purposes here
+   * @param endTime
+   * @param cube CubeName, binsoource for which acume values are to be retrieved
+   * @tparam k
+   * @tparam v
+   * @return
+   */
+  override def getCacheInstance[k, v](
       startTime: Long,
       endTime: Long,
       cube: CubeKey): AcumeCache[k, v] = {
@@ -91,16 +102,21 @@ class AcumeCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheConf) 
     AcumeCacheFactory.getInstance(this, cacheConf, idd, id)
   }
 
-  override def getAggregateCacheInstance[k , v](indexDimensionValue: Long,
+  /**
+   * Separate function for aggregation flow, could be used for future modifications
+   * Currently same as getCacheInstance
+   * @param startTime
+   * @param endTime
+   * @param cube
+   * @tparam k
+   * @tparam v
+   * @return
+   */
+  override def getAggregateCacheInstance[k , v](
       startTime: Long,
       endTime: Long,
       cube: CubeKey): AcumeCache[k, v] = {
 
-    validateQuery(startTime, endTime, cube.binsource)
-
-    val idd = new CacheIdentifier()
-    val id = getCube(cube)
-    idd.put("cube", id.hashCode)
-    AcumeCacheFactory.getInstance(this, cacheConf, idd, id)
+    getCacheInstance(startTime, endTime, cube)
   }
 }
