@@ -75,7 +75,6 @@ object AcumeContextTraitUtil {
       val path = new Path(dir)
       val fs = path.getFileSystem(sparkContext.hadoopConfiguration)
       fs.delete(path, true)
-      fs.close
     }
 
     val diskBaseDirectory = getDiskBaseDirectory

@@ -896,14 +896,12 @@ object Utility extends Logging {
     val path = new Path(dir)
     val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
     fs.delete(path, true)
-    fs.close
   }
 
   def isPathExisting(path : Path, acumeContext : AcumeCacheContextTrait) : Boolean = {
     logDebug("Checking if path exists => " + path)
     val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
     val isPathExisting = fs.exists(path)
-    fs.close
     isPathExisting
   }
   
@@ -943,8 +941,6 @@ object Utility extends Logging {
       case ex : FileNotFoundException => 
         logError("File not present on diskCache: "  + ex.getMessage)
         Array[FileStatus]()
-    } finally {
-    	fs.close
     }
   }
 }
