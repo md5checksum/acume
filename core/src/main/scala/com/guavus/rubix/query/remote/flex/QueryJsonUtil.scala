@@ -56,17 +56,10 @@ object QueryJsonUtil {
   
   def ZoneInfoRequestToJson(response: ZoneInfoRequest): String = gson.toJson(response)
    
-  def fromJsonToLoginRequest(json: String): LoginRequest = {
-    gson.fromJson(json, classOf[LoginRequest])
-  }
-  
-  def LoginResponseToJson(response: LoginResponse): String = gson.toJson(response)
-  
   def fromJsonToValidateSessionRequest(json: String): ValidateSessionRequest = {
     gson.fromJson(json, classOf[ValidateSessionRequest])
   }
   
-  def ValidateSessionRequestToJson(response: ValidateSessionRequest): String = gson.toJson(response)
 /*
 Original Java:
 package com.guavus.acume.rest.beans;
