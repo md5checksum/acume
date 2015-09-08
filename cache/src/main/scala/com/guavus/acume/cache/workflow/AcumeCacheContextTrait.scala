@@ -1,20 +1,28 @@
 package com.guavus.acume.cache.workflow
 
-import org.apache.spark.sql.{SchemaRDD, SQLContext}
+import scala.collection.JavaConversions._
+import scala.collection.immutable.SortedMap
+import scala.collection.mutable.MutableList
+
+import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.hbase.HBaseSQLContext
+import org.apache.spark.sql.hive.HiveContext
+
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.Dimension
 import com.guavus.acume.cache.common.Measure
-
-import com.guavus.acume.cache.core.{AcumeCache, TimeGranularity}
-import com.guavus.acume.cache.disk.utility.DataLoader
-import org.apache.spark.sql.hbase.HBaseSQLContext
-import org.apache.spark.sql.hive.HiveContext
+import com.guavus.acume.cache.core.AcumeCache
 import com.guavus.acume.cache.core.CacheTimeSeriesLevelPolicy
-import scala.collection.immutable.SortedMap
-import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
+import com.guavus.acume.cache.disk.utility.DataLoader
+import com.guavus.acume.cache.sql.ISqlCorrector
+import com.guavus.acume.cache.utility.QueryOptionalParam
+import com.guavus.acume.cache.utility.Tuple
+import com.guavus.acume.cache.utility.Utility
+import com.guavus.acume.cache.workflow.RequestType.RequestType
+
 
 /**
  * @author archit.thakur
@@ -121,6 +129,42 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
       throw new RuntimeException("Cannot serve query. StartTime and endTime doesn't fall in the availability range.")
     }
     cubeMap.get(CubeKey(cubeName, binSource)).getOrElse(throw new RuntimeException(s"Cube not found with name $cubeName and binsource $binSource"))
+  }
+  
+  protected def getTimestampsAndSql(sql: String) : (MutableList[Long], ((String, QueryOptionalParam), (List[Tuple], RequestType)),  Long) = {
+    
+    val originalparsedsql = AcumeCacheContextTraitUtil.parseSql(sql)
+    var correctsql = ISqlCorrector.getSQLCorrector(cacheConf).correctSQL(this, sql, (originalparsedsql._1.toList, originalparsedsql._2))
+    
+    var updatedsql = correctsql._1._1
+    var updatedparsedsql = correctsql._2
+  
+    val l = updatedparsedsql._1(0)
+    val cubeName = l.getCubeName
+    val binsource = l.getBinsource
+    val startTime = l.getStartTime
+    val endTime = l.getEndTime
+    val rt =  updatedparsedsql._2
+    val queryOptionalParams = correctsql._1._2
+    var timestamps : MutableList[Long] = MutableList[Long]()
+    
+    validateQuery(startTime, endTime, binsource, cacheConf.getDataSourceName, cubeName)
+
+    val level : Long = {
+      if (queryOptionalParams.getTimeSeriesGranularity() != 0) {
+          queryOptionalParams.getTimeSeriesGranularity()
+      } else {
+        cubeMap.get(CubeKey(cubeName, binsource)).getOrElse(throw new RuntimeException(s"Cube not found with name $cubeName and binsource $binsource")).baseGran.granularity
+      }
+    }
+    
+    if(rt == RequestType.Timeseries) {
+      val startTimeCeiling = Utility.floorFromGranularity(startTime, level)
+      val endTimeFloor = Utility.floorFromGranularity(endTime, level)
+      timestamps = Utility.getAllIntervals(startTimeCeiling, endTimeFloor, level)
+    }
+    
+    (timestamps, correctsql, level)
   }
   
 }

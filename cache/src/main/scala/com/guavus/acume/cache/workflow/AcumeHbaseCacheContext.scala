@@ -85,38 +85,10 @@ class AcumeHbaseCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheC
   }
   
   override private [acume] def executeQuery(sql: String) = {
-    val originalparsedsql = AcumeCacheContextTraitUtil.parseSql(sql)
-    println("AcumeRequest obtained on HBASE: " + sql)
-    
-    var correctsql = ISqlCorrector.getSQLCorrector(cacheConf).correctSQL(this, sql, (originalparsedsql._1.toList, originalparsedsql._2))
-    
-    var updatedsql = correctsql._1._1
-    var updatedparsedsql = correctsql._2
-  
-    val l = updatedparsedsql._1(0)
-    val cubeName = l.getCubeName
-    val binsource = l.getBinsource
-    val startTime = l.getStartTime
-    val endTime = l.getEndTime
-    val rt =  updatedparsedsql._2
-    val queryOptionalParams = correctsql._1._2
-    var timestamps : MutableList[Long] = MutableList[Long]()
-    
-    validateQuery(startTime, endTime, binsource, cacheConf.getDataSourceName, cubeName)
+    logger.info("AcumeRequest obtained on HBASE: " + sql)
 
-    val level : Long = {
-      if (queryOptionalParams.getTimeSeriesGranularity() != 0) {
-          queryOptionalParams.getTimeSeriesGranularity()
-      } else {
-        cubeMap.get(CubeKey(cubeName, binsource)).getOrElse(throw new RuntimeException(s"Cube not found with name $cubeName and binsource $binsource")).baseGran.granularity
-      }
-    }
-    
-    if(rt != RequestType.Aggregate) {
-      val startTimeCeiling = Utility.floorFromGranularity(startTime, level)
-      val endTimeFloor = Utility.floorFromGranularity(endTime, level)
-      timestamps = Utility.getAllIntervals(startTimeCeiling, endTimeFloor, level)
-    }
+    val (timestamps, correctsql, level) = getTimestampsAndSql(sql)
+    var updatedsql = correctsql._1._1
     
     logger.info("Firing corrected query on HBASE " +  updatedsql)
     val resultSchemaRDD = cacheSqlContext.sql(updatedsql)
