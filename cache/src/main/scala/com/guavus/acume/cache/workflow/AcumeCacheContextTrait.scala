@@ -1,14 +1,20 @@
 package com.guavus.acume.cache.workflow
 
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.{SchemaRDD, SQLContext}
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.Dimension
 import com.guavus.acume.cache.common.Measure
+
+import com.guavus.acume.cache.core.{AcumeCache, TimeGranularity}
 import com.guavus.acume.cache.disk.utility.DataLoader
 import org.apache.spark.sql.hbase.HBaseSQLContext
 import org.apache.spark.sql.hive.HiveContext
+import com.guavus.acume.cache.core.CacheTimeSeriesLevelPolicy
+import scala.collection.immutable.SortedMap
+import com.guavus.acume.cache.utility.Utility
+import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
 
 /**
  * @author archit.thakur
@@ -24,6 +30,7 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
 	lazy private [cache] val dimensionMap = AcumeCacheContextTraitUtil.dimensionMap
   lazy private [cache] val cubeMap = AcumeCacheContextTraitUtil.cubeMap.filter(cubeKey => cubeKey._2.dataSource.equalsIgnoreCase(cacheConf.getDataSourceName))
   lazy private [cache] val cubeList = AcumeCacheContextTraitUtil.cubeList.filter(cube => cube.dataSource.equalsIgnoreCase(cacheConf.getDataSourceName))
+  private [cache] val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]()(implicitly[Ordering[Long]]) ++ Utility.getLevelPointMap(cacheConf.get(ConfConstants.acumecoretimeserieslevelmap)).map(x=> (x._1.level, x._2)))
 
   cacheSqlContext match {
     case hiveContext: HiveContext =>
@@ -64,6 +71,19 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
   lazy private [acume] val getCubeMap : Map[CubeKey, Cube] = cubeMap.toMap
 
   lazy private[acume] val getCubeList : List[Cube] = cubeList.toList
+
+  def getCacheInstance[k, v](
+      startTime: Long,
+      endTime: Long,
+      cube: CubeKey): AcumeCache[k, v] =
+    throw new NotImplementedError("AcumeCacheContextTrait does not implement getCachePoints().")
+
+  def getAggregateCacheInstance[k, v](
+      startTime: Long,
+      endTime: Long,
+      cube: CubeKey): AcumeCache[k, v] =
+    throw new NotImplementedError("AcumeCacheContextTrait does not implement getAggregateCachePoints().")
+
   
   private [acume] def getCube(cube: CubeKey) = getCubeMap.get(cube).getOrElse(throw new RuntimeException(s"cube $cube not found."))
   
@@ -94,6 +114,13 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
           cube
         }
     kCube.toList
+  }
+  
+  private [acume] def validateQuery(startTime : Long, endTime : Long, binSource : String, dsName: String, cubeName: String) {
+    if(startTime < BinAvailabilityPoller.getFirstBinPersistedTime(binSource) || endTime > BinAvailabilityPoller.getLastBinPersistedTime(binSource)){
+      throw new RuntimeException("Cannot serve query. StartTime and endTime doesn't fall in the availability range.")
+    }
+    cubeMap.get(CubeKey(cubeName, binSource)).getOrElse(throw new RuntimeException(s"Cube not found with name $cubeName and binsource $binSource"))
   }
   
 }

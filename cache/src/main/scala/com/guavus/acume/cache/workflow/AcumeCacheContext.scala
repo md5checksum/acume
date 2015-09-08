@@ -1,18 +1,17 @@
 package com.guavus.acume.cache.workflow
 
-import scala.collection.JavaConversions.asScalaBuffer
-import scala.collection.JavaConversions.mapAsScalaMap
+import scala.collection.JavaConversions._
 
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.{SchemaRDD, SQLContext}
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.common.ConfConstants
-import com.guavus.acume.cache.core.AcumeCacheFactory
-import com.guavus.acume.cache.core.CacheIdentifier
-import com.guavus.acume.cache.disk.utility.DataLoader
+import com.guavus.acume.cache.common.{Cube, ConfConstants}
+import com.guavus.acume.cache.core.{AcumeCache, AcumeCacheFactory, CacheIdentifier, TimeGranularity} 
+import com.guavus.acume.cache.disk.utility.{BinAvailabilityPoller, DataLoader}
 import com.guavus.acume.cache.sql.ISqlCorrector
+
 
 /**
  * @author archit.thakur
@@ -45,7 +44,7 @@ class AcumeCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheConf) 
       val startTime = l.getStartTime
       val endTime = l.getEndTime
     
-      AcumeCacheContextTraitUtil.validateQuery(startTime, endTime, binsource, cacheConf.getDataSourceName)
+      validateQuery(startTime, endTime, binsource, cacheConf.getDataSourceName, cube)
       
       i = AcumeCacheContextTraitUtil.getTable(cube)
       updatedsql = updatedsql.replaceAll(s"$cube", s"$i")
@@ -64,12 +63,60 @@ class AcumeCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheConf) 
         }).toList
         instance.createTempTableAndMetadata(singleEntityKeys, startTime, endTime, rt, i,Some(queryOptionalParams))
       }
-      
+
     }
-    
+
     val klist = list.flatMap(_.timestamps)
     val kfg = cacheSqlContext.sql(updatedsql)
     AcumeCacheResponse(kfg, kfg.rdd, MetaData(-1, klist))
+ 
   }
-  
+
+  private [acume] def validateQuery(startTime : Long, endTime : Long, binSource : String) {
+    if(startTime < BinAvailabilityPoller.getFirstBinPersistedTime(binSource) || endTime > BinAvailabilityPoller.getLastBinPersistedTime(binSource)){
+      throw new RuntimeException("Cannot serve query. StartTime and endTime doesn't fall in the availability range.")
+    }
+  }
+
+  /**
+   * Gets the cache instance object for retreiving acume cache values on which transformations will be applied
+   * Used by customExecution path
+   * @param startTime time range for which acume cache values are to be retrieved
+   *                  start and end times are used for validation purposes here
+   * @param endTime
+   * @param cube CubeName, binsoource for which acume values are to be retrieved
+   * @tparam k
+   * @tparam v
+   * @return
+   */
+  override def getCacheInstance[k, v](
+      startTime: Long,
+      endTime: Long,
+      cube: CubeKey): AcumeCache[k, v] = {
+
+    validateQuery(startTime, endTime, cube.binsource)
+
+    val idd = new CacheIdentifier()
+    val id = getCube(cube)
+    idd.put("cube", id.hashCode)
+    AcumeCacheFactory.getInstance(this, cacheConf, idd, id)
+  }
+
+  /**
+   * Separate function for aggregation flow, could be used for future modifications
+   * Currently same as getCacheInstance
+   * @param startTime
+   * @param endTime
+   * @param cube
+   * @tparam k
+   * @tparam v
+   * @return
+   */
+  override def getAggregateCacheInstance[k , v](
+      startTime: Long,
+      endTime: Long,
+      cube: CubeKey): AcumeCache[k, v] = {
+
+    getCacheInstance(startTime, endTime, cube)
+  }
 }

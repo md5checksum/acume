@@ -9,6 +9,13 @@ import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.sql.ISqlCorrector
 import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
+import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
+import com.guavus.acume.cache.utility.Utility
+import scala.collection.mutable.MutableList
+import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.cache.core.TimeGranularity
+import com.guavus.acume.cache.utility.SQLParserFactory
+import java.io.StringReader
 
 /**
  * @author kashish.jain
@@ -87,15 +94,33 @@ class AcumeHbaseCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheC
     var updatedparsedsql = correctsql._2
   
     val l = updatedparsedsql._1(0)
+    val cubeName = l.getCubeName
     val binsource = l.getBinsource
     val startTime = l.getStartTime
     val endTime = l.getEndTime
+    val rt =  updatedparsedsql._2
+    val queryOptionalParams = correctsql._1._2
+    var timestamps : MutableList[Long] = MutableList[Long]()
     
-    AcumeCacheContextTraitUtil.validateQuery(startTime, endTime, binsource, cacheConf.getDataSourceName)
+    validateQuery(startTime, endTime, binsource, cacheConf.getDataSourceName, cubeName)
+
+    val level : Long = {
+      if (queryOptionalParams.getTimeSeriesGranularity() != 0) {
+          queryOptionalParams.getTimeSeriesGranularity()
+      } else {
+        cubeMap.get(CubeKey(cubeName, binsource)).getOrElse(throw new RuntimeException(s"Cube not found with name $cubeName and binsource $binsource")).baseGran.granularity
+      }
+    }
+    
+    if(rt != RequestType.Aggregate) {
+      val startTimeCeiling = Utility.floorFromGranularity(startTime, level)
+      val endTimeFloor = Utility.floorFromGranularity(endTime, level)
+      timestamps = Utility.getAllIntervals(startTimeCeiling, endTimeFloor, level)
+    }
     
     logger.info("Firing corrected query on HBASE " +  updatedsql)
     val resultSchemaRDD = cacheSqlContext.sql(updatedsql)
-    new AcumeCacheResponse(resultSchemaRDD, resultSchemaRDD.rdd, MetaData(-1, Nil))
+    new AcumeCacheResponse(resultSchemaRDD, resultSchemaRDD.rdd, MetaData(-1, timestamps.toList))
   }
   
 }

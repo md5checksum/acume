@@ -1,9 +1,12 @@
 package com.guavus.acume.cache.workflow
 
+import java.util.Random
 import java.util.concurrent.ConcurrentHashMap
+
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
+
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.Cube
@@ -12,16 +15,15 @@ import com.guavus.acume.cache.common.Measure
 import com.guavus.acume.cache.core.AcumeTreeCacheValue
 import com.guavus.acume.cache.disk.utility.DataLoader
 import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
-import com.guavus.acume.cache.utility.Utility
-import net.sf.jsqlparser.expression.operators.relational.EqualsTo
-import net.sf.jsqlparser.expression.Parenthesis
-import net.sf.jsqlparser.expression.operators.conditional.OrExpression
-import net.sf.jsqlparser.schema.Column
-import net.sf.jsqlparser.expression.Expression
-import net.sf.jsqlparser.expression.operators.conditional.AndExpression
 import com.guavus.acume.cache.utility.SQLUtility
-import java.util.Random
-import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
+import com.guavus.acume.cache.utility.Utility
+
+import net.sf.jsqlparser.expression.Expression
+import net.sf.jsqlparser.expression.Parenthesis
+import net.sf.jsqlparser.expression.operators.conditional.AndExpression
+import net.sf.jsqlparser.expression.operators.conditional.OrExpression
+import net.sf.jsqlparser.expression.operators.relational.EqualsTo
+import net.sf.jsqlparser.schema.Column
 
 /**
  * @author kashish.jain
@@ -34,7 +36,7 @@ object AcumeCacheContextTraitUtil {
   val cubeList = MutableList[Cube]()
   val cacheConf = new AcumeCacheConf
   val dataloadermap : ConcurrentHashMap[String, DataLoader] = new ConcurrentHashMap[String, DataLoader]
-
+  
   private val inheritablePoolThreadLocal = new InheritableThreadLocal[HashMap[String, Any]]()
   
   /*
@@ -278,7 +280,7 @@ object AcumeCacheContextTraitUtil {
     
   }
   
-  private [cache] def getTable(cube: String) = cube + "_" + getUniqueRandomNo   
+  def getTable(cube: String) = cube + "_" + getUniqueRandomNo   
   
   private [cache] def getUniqueRandomNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt())
   
@@ -290,15 +292,5 @@ object AcumeCacheContextTraitUtil {
     (list, RequestType.getRequestType(requestType))
   }
   
-  private [acume] def validateQuery(startTime : Long, endTime : Long, binSource : String, dsName: String) {
-    if(startTime < BinAvailabilityPoller.getFirstBinPersistedTime(binSource) || endTime > BinAvailabilityPoller.getLastBinPersistedTime(binSource)){
-      throw new RuntimeException("Cannot serve query. StartTime and endTime doesn't fall in the availability range.")
-    }
-    
-    val numberOfCubes = AcumeCacheContextTraitUtil.cubeList.filter(cube => cube.dataSource.equalsIgnoreCase(dsName)).filter(cube => cube.binSource.equalsIgnoreCase(binSource)).size
-    if(numberOfCubes == 0)
-      throw new RuntimeException(s"The binsource $binSource does not belong to the datasource $dsName")    
-      
-  }
   
 }
