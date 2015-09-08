@@ -278,7 +278,7 @@ object AcumeCacheContextTraitUtil {
     
   }
   
-  private [cache] def getTable(cube: String) = cube + "_" + getUniqueRandomNo   
+  def getTable(cube: String) = cube + "_" + getUniqueRandomNo   
   
   private [cache] def getUniqueRandomNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt())
   

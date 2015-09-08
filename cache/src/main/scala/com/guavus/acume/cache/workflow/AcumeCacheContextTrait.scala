@@ -1,11 +1,13 @@
 package com.guavus.acume.cache.workflow
 
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.{SchemaRDD, SQLContext}
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.Dimension
 import com.guavus.acume.cache.common.Measure
+
+import com.guavus.acume.cache.core.{AcumeCache, TimeGranularity}
 import com.guavus.acume.cache.disk.utility.DataLoader
 import org.apache.spark.sql.hbase.HBaseSQLContext
 import org.apache.spark.sql.hive.HiveContext
@@ -64,6 +66,19 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
   lazy private [acume] val getCubeMap : Map[CubeKey, Cube] = cubeMap.toMap
 
   lazy private[acume] val getCubeList : List[Cube] = cubeList.toList
+
+  def getCacheInstance[k, v](
+      startTime: Long,
+      endTime: Long,
+      cube: CubeKey): AcumeCache[k, v] =
+    throw new NotImplementedError("AcumeCacheContextTrait does not implement getCachePoints().")
+
+  def getAggregateCacheInstance[k, v](
+      startTime: Long,
+      endTime: Long,
+      cube: CubeKey): AcumeCache[k, v] =
+    throw new NotImplementedError("AcumeCacheContextTrait does not implement getAggregateCachePoints().")
+
   
   private [acume] def getCube(cube: CubeKey) = getCubeMap.get(cube).getOrElse(throw new RuntimeException(s"cube $cube not found."))
   

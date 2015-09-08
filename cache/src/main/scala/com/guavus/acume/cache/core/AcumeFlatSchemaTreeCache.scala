@@ -177,7 +177,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     val tempTable = _tableName + "Temp"
     value.registerTempTable(tempTable)
     AcumeCacheContextTraitUtil.setInstaTempTable(tempTable)
-    val timestamp = key.timestamp
+    val timestamp = s"${key.timestamp}L"
     val parentRdd = acumeCacheContext.cacheSqlContext.sql(s"select $timestamp as ts " + (if(!selectDimensions.isEmpty) s", $selectDimensions " else "") + (if(!selectMeasures.isEmpty) s", $selectMeasures" else "") + s" from $tempTable " + groupBy)
     return new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(key, cube, parentRdd, acumeValRdds), acumeCacheContext)
   }
@@ -192,6 +192,85 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     requestType match {
       case Aggregate => createTableForAggregate(startTime, endTime, tableName, queryOptionalParam, true)
       case Timeseries => createTableForTimeseries(startTime, endTime, tableName, queryOptionalParam, true)
+    }
+  }
+
+  /**
+   * Based on createTableForAggregate for retreiving acume cache values on which custom executors could be called
+   * Used by customExecutor path
+   * @param startTime
+   * @param endTime
+   * @param queryOptionalParam
+   * @param isMetaData
+   * @return
+   */
+  override def getAggregateCachePoints(
+      startTime: Long,
+      endTime: Long,
+      queryOptionalParam: Option[QueryOptionalParam],
+      isMetaData: Boolean) : (Seq[SchemaRDD], List[Long]) = {
+
+    val duration = endTime - startTime
+    val timestampMap : Option[MutableMap[Long, MutableList[(Long, Long)]]] = queryOptionalParam match {
+      case Some(param) =>
+        if (param.getTimeSeriesGranularity() != 0) {
+          val level = param.getTimeSeriesGranularity
+          val startTimeCeiling = cacheLevelPolicy.getCeilingToLevel(startTime, level)
+          val endTimeFloor = cacheLevelPolicy.getFloorToLevel(endTime, level)
+          Some(MutableMap(level -> MutableList((startTimeCeiling, endTimeFloor))))
+        } else None
+      case None => None
+    }
+    val levelTimestampMap = timestampMap.getOrElse(cacheLevelPolicy.getRequiredIntervals1(startTime, endTime))
+    getCachePointsForIntervals(levelTimestampMap, isMetaData)
+  }
+
+  /**
+   * Based on createTableForTimeSeries for retreiving acume cache values on which custom executors could be called
+   * Used by customExecutor path
+   * @param startTime
+   * @param endTime
+   * @param queryOptionalParam
+   * @param isMetaData
+   * @return
+   */
+  override def getCachePoints(
+      startTime: Long,
+      endTime: Long,
+      queryOptionalParam: Option[QueryOptionalParam],
+      isMetaData: Boolean): (Seq[SchemaRDD], List[Long]) = {
+
+    val baseLevel = cube.baseGran.getGranularity
+    val level =
+      queryOptionalParam match {
+        case Some(param) =>
+          if (param.getTimeSeriesGranularity() != 0) {
+            var level = Math.max(baseLevel, param.getTimeSeriesGranularity());
+            val variableRetentionMap = getVariableRetentionMap
+            if (!variableRetentionMap.contains(new Level(level))) {
+              val headMap = variableRetentionMap.filterKeys(_.level < level);
+              if (headMap.size == 0) {
+                throw new IllegalArgumentException("Wrong granularity " + level + " passed in request which is not present in variableRetentionMap ");
+              }
+              level = headMap.lastKey.level
+            }
+            level
+          } else
+            Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource)))
+        case None =>
+          Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource)))
+      }
+
+    val startTimeCeiling = cacheLevelPolicy.getCeilingToLevel(startTime, level)
+    val endTimeFloor = cacheLevelPolicy.getFloorToLevel(endTime, level)
+    // val list = Utility.getAllIntervals(startTimeCeiling, endTimeFloor, level)
+
+    if (startTimeCeiling < endTimeFloor) {
+      val intervals: MutableMap[Long, MutableList[(Long, Long)]] = MutableMap(level -> MutableList((startTimeCeiling, endTimeFloor)))
+      getCachePointsForIntervals(intervals, isMetaData)
+
+    } else {
+      (Seq(Utility.getEmptySchemaRDD(acumeCacheContext.cacheSqlContext, cube)), Nil)
     }
   }
 
@@ -265,7 +344,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     val _tableNameTemp = cube.getAbsoluteCubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString + "_temp"
     processedDiskLoaded.registerTempTable(_tableNameTemp)
     AcumeCacheContextTraitUtil.setInstaTempTable(_tableNameTemp)
-    val timestamp = levelTimestamp.timestamp
+    val timestamp = s"${levelTimestamp.timestamp}L"
     val measureSet = (CubeUtil.getDimensionSet(cube) ++ CubeUtil.getMeasureSet(cube)).map(_.getName).mkString(",")
     val cachePoint = sqlContext.sql(s"select $timestamp as ts, $measureSet from " + _tableNameTemp)
     new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(levelTimestamp, cube, cachePoint), acumeCacheContext)
@@ -277,7 +356,6 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
 
   private def getUniqueRandomeNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt)
   
-
   private def buildTableForIntervals(levelTimestampMap: MutableMap[Long, MutableList[(Long, Long)]], tableName: String, isMetaData: Boolean): MetaData = {
     import acumeCacheContext.cacheSqlContext.implicits._
     logger.info("Total timestamps are : {}", cachePointToTable.asMap().keySet())
@@ -351,5 +429,75 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     val klist = finalTimestamps.toList
     MetaData(-1, klist)
   }
+
+  /**
+   * Based on buildTableForIntervals, but instead of registering a temp table of the acume cache values retrieved, simply
+   * returns them to be processes upon by custom executors
+   * Used by customExecutor path
+   * @param levelTimestampMap
+   * @param isMetaData
+   * @return Seq[SchemaRDDs] from acume cache values and the List of timestamps for those values
+   */
+  private def getCachePointsForIntervals(
+      levelTimestampMap: MutableMap[Long, MutableList[(Long, Long)]],
+      isMetaData: Boolean): (Seq[SchemaRDD], List[Long]) = {
+    import acumeCacheContext.cacheSqlContext.implicits._
+    logger.info("Total timestamps are : {}", cachePointToTable.asMap().keySet())
+    val cal = Utility.newCalendar
+    val finalTimestamps: MutableList[Long] = MutableList[Long]()
+    val finalRdds = ArrayBuffer[SchemaRDD]()
+    val iterator = levelTimestampMap.iterator
+    while(iterator.hasNext) {
+      val (level, timestamps) = iterator.next
+        val aggregationlevel = cacheLevelPolicy.getAggregationLevel(level)
+        var i = 0
+        while (i < timestamps.length) {
+          val (startTime, endTime) = timestamps(i)
+          i += 1
+          var timestamp = Utility.floorFromGranularity(startTime, aggregationlevel)
+
+          while (timestamp < endTime) {
+            val acumeValue =
+              if (level == aggregationlevel) {
+                val aggregatedTimestamp = new LevelTimestamp(CacheLevel.getCacheLevel(level), timestamp, LoadType.Insta, CacheLevel.getCacheLevel(aggregationlevel))
+                get(aggregatedTimestamp)
+              } else {
+                val aggregatedTimestamp = new LevelTimestamp(CacheLevel.getCacheLevel(level), timestamp, LoadType.DISK, CacheLevel.getCacheLevel(aggregationlevel))
+                tryGet(aggregatedTimestamp)
+              }
+            val (tempStart, tempEnd) = (Math.max(startTime, timestamp), Math.min(endTime, Utility.getNextTimeFromGranularity(timestamp, aggregationlevel, cal)))
+            finalTimestamps.++=(Utility.getAllIntervals(tempStart, tempEnd, level))
+            if (acumeValue == null) {
+              // logger.info("Table not found for timestamp {}", aggregatedTimestamp)
+              val intervals = Utility.getAllIntervals(tempStart, tempEnd, level)
+              for (interval <- intervals) {
+                val levelTimestamp = new LevelTimestamp(CacheLevel.getCacheLevel(level), interval, CacheLevel.getCacheLevel(level))
+                // logger.info("Selecting table with timestamp {} for interval {}, {}", levelTimestamp, startTime.toString, endTime.toString)
+                val innerAcumeValue = cachePointToTable.get(levelTimestamp).getAcumeValue.measureSchemaRdd
+                //              populateParent(levelTimestamp.level.localId, levelTimestamp.timestamp)
+                combineLevels(levelTimestamp.level.localId, levelTimestamp.timestamp)
+                finalRdds += innerAcumeValue
+              }
+            } else {
+
+              // logger.info("Selecting table with timestamp {}", aggregatedTimestamp)
+              if (level == aggregationlevel) {
+                finalRdds += acumeValue.getAcumeValue.measureSchemaRdd
+              } else {
+                finalRdds += acumeValue.getAcumeValue.measureSchemaRdd.where('ts >= startTime).where('ts < endTime)
+              }
+            }
+            timestamp = Utility.getNextTimeFromGranularity(timestamp, aggregationlevel, cal)
+            // finalRdds ++= acumeValues
+          }
+        }
+    }
+
+    logger.info("Timestamps in final output are {}", finalTimestamps)
+
+    (finalRdds.toList, finalTimestamps.toList)
+
+  }
+
 }
 class NoDataException extends Exception
