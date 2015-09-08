@@ -33,7 +33,7 @@ abstract class AbstractRequestServlet extends HttpServlet {
   } else if(response.isInstanceOf[LoginResponse]) {
     finalResponse = TimeseriesResponse.gson.toJson(response)
 	} else if(response.isInstanceOf[Serializable]) {
-	  finalResponse = response.toString
+	  finalResponse = TimeseriesResponse.gson.toJson(response)
 	} else {
 	  throw new ServletException("Invalid response");
 	}

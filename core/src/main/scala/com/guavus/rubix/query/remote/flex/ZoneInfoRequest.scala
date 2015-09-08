@@ -18,12 +18,6 @@ class ZoneInfoRequest extends Serializable {
   @BeanProperty
   var idList: java.util.List[String] = _
   
-//  @BeanProperty
-//  var startYear: String = _
-//
-//  @BeanProperty
-//  var endYear: String = _
-  
   def this(zoneInfoParams: ZoneInfoParams, idList: java.util.List[String]) {
     this()
     this.zoneInfoParams = zoneInfoParams
@@ -51,10 +45,6 @@ class ZoneInfoRequest extends Serializable {
       if (other.zoneInfoParams != null) return false
     } else if (zoneInfoParams.equals(other.zoneInfoParams)) return false
     true
-  }
-  
-  def getIdsList() : java.util.List[String] = {
-    idList
   }
   
 }

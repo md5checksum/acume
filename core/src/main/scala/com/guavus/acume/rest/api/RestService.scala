@@ -29,6 +29,7 @@ import org.apache.shiro.SecurityUtils
 import com.guavus.rubix.user.management.exceptions.HttpUMException
 import com.guavus.rubix.user.management.vo.LoginRequest
 import com.guavus.rubix.user.management.vo.LoginResponse
+import com.guavus.rubix.user.management.ui.RoleVO;
 import com.guavus.acume.core.PSUserService
 import com.guavus.rubix.query.remote.flex.TimeZoneInfo
 import com.guavus.rubix.query.remote.flex.ZoneInfoRequest
@@ -195,8 +196,17 @@ class RestService {
   
   @POST
   @Path("login")
-  def getLoginResponse(loginRequest : LoginRequest) : LoginResponse = {
-    UserManagementUtils.getIWebUMService().login(loginRequest)
+  def getLoginResponse(@QueryParam("user") user : String, @QueryParam("password") password : String) : LoginResponse = {
+    val loginRequest : LoginRequest = new LoginRequest()
+    loginRequest.setUserName(user)
+    loginRequest.setPassword(password)
+    loginRequest.setAuthToken(null)
+    val response : LoginResponse = UserManagementUtils.getIWebUMService().login(loginRequest)
+    for (roles:RoleVO <- response.getCurrentSessionInfo.getRoles){
+      roles.setGroups(null)
+      roles.setUsers(null)
+    }
+    response
   }
   
   @GET
@@ -212,7 +222,7 @@ class RestService {
   def getZoneInfo(zoneInfo : ZoneInfoRequest,@QueryParam(value = "super") userinfo : String,
       @QueryParam("user") user : String, @QueryParam("password") password : String) : java.util.List[TimeZoneInfo] = {
     Authentication.authenticate(userinfo, user, password)
-    new PSUserService().getZoneInfo(zoneInfo.getIdsList(), zoneInfo.getZoneInfoParams())
+    new PSUserService().getZoneInfo(zoneInfo.getIdList(), zoneInfo.getZoneInfoParams())
   }
   /**
    * Takes rubix like query as input with additional params and return response. This handles timeseries as well as aggregate queries

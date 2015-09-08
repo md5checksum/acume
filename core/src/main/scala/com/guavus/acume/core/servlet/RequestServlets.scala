@@ -8,9 +8,7 @@ import com.guavus.rubix.query.remote.flex.SearchRequest
 
 import javax.servlet.http.HttpServletRequest
 import com.guavus.rubix.query.remote.flex.ZoneInfoRequest
-import com.guavus.rubix.user.management.vo.LoginRequest
 import com.guavus.rubix.user.management.vo.ValidateSessionRequest
-import com.guavus.rubix.user.management.vo.LoginResponse
 
 
 class SearchRequestServlet extends AbstractRequestServlet {
@@ -124,8 +122,7 @@ class ValidateSessionServlet extends AbstractRequestServlet {
 class LoginRequestServlet extends AbstractRequestServlet {
 
    override def getResponse(req : HttpServletRequest) : Serializable = {
-    val loginRequest : LoginRequest = QueryJsonUtil.fromJsonToLoginRequest(req.getReader().readLine())
-    service.getLoginResponse(loginRequest).asInstanceOf[Serializable]
+    service.getLoginResponse(req.getParameter("user"), req.getParameter("password")).asInstanceOf[Serializable]
   }
  
 }
