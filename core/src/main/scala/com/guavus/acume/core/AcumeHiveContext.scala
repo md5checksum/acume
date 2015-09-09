@@ -3,7 +3,6 @@ package com.guavus.acume.core
 import org.apache.spark.sql.hive.HiveContext
 
 import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.workflow.AcumeHiveCacheContext
 
 /**
@@ -18,14 +17,6 @@ class AcumeHiveContext(val datasourceName: String) extends AcumeContextTrait {
   override def acc() = acumeCacheContext
   
   override def sqlContext() = hiveContext
-  
-  val chooseHiveDatabase = {
-    try{
-       hiveContext.sql("use " + acumeConf.get(ConfConstants.backendDbName))
-    } catch {
-      case ex : Exception => throw new RuntimeException("Cannot use the database " + acumeConf.get(ConfConstants.backendDbName), ex)
-    }
-  }
   
   AcumeContextTraitUtil.registerUserDefinedFunctions
 

@@ -920,7 +920,7 @@
             <Property_OriginalName>application.${acumeApp}.CACHEDATASOURCEENABLE</Property_OriginalName>
         </Property>
 
-	<Property>
+		<Property>
             <Property_Name>application.${acumeApp}.CACHEBESTCUBECLASSNAME</Property_Name>
             <Property_Value>com.guavus.qb.bestcube.AcumeBestCube</Property_Value>
             <Property_Type>read-write</Property_Type>
@@ -1060,7 +1060,7 @@
             <Property_OriginalName>application.${acumeApp}.HBASEDATASOURCEENABLE</Property_OriginalName>
         </Property>
 	
-	 <Property>
+	 	<Property>
             <Property_Name>application.${acumeApp}.HBASEBESTCUBECLASSNAME</Property_Name>
             <Property_Value>com.guavus.qb.bestcube.HBaseBestCube</Property_Value>
             <Property_Type>read-write</Property_Type>

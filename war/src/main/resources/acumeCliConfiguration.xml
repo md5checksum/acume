@@ -1393,7 +1393,7 @@ Please don't use the following reserved property names:
             </targets>
         </property>
 
-		<property>
+	<property>
             <name>CACHEBESTCUBECLASSNAME</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
@@ -1620,7 +1620,7 @@ Please don't use the following reserved property names:
             </targets>
         </property>
 
-		<property>
+	<property>
             <name>HBASEBESTCUBECLASSNAME</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
