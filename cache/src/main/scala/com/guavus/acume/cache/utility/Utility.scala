@@ -150,9 +150,9 @@ object Utility extends Logging {
     val sparkContext = sqlContext.sparkContext
     val _$rdd = sparkContext.emptyRDD[Row]
     val cubeFieldList = cube.dimension.dimensionSet ++ cube.measure.measureSet
-    val schema = cubeFieldList.map(field => { 
-            StructField(field.getName, ConversionToSpark.convertToSparkDataType(CubeUtil.getFieldType(field)), true)
-          })
+    val schema = cubeFieldList.map(field => {
+      StructField(field.getName, ConversionToSpark.convertToSparkDataType(CubeUtil.getFieldType(field)), true)
+    })
     val latestschema = StructType(schema.+:(StructField("ts", LongType, true)))
     sqlContext.applySchema(_$rdd, latestschema)
     

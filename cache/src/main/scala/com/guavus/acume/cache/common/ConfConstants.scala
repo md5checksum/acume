@@ -65,6 +65,7 @@ private [acume] object ConfConstants {
   val acumeEvictionPolicyClass = "acume.cache.global.evictionpolicyclass"
   val enableScheduler = "acume.scheduler.enable"
   val enableDatasource = "acume.datasource.enable"
+  val timeStampFieldName = "acume.core.timeStampFieldName"
 
   /* For HIVE. Thin client properties */
   val useInsta = "acume.core.use.insta"
