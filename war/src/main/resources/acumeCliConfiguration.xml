@@ -1406,6 +1406,18 @@ Please don't use the following reserved property names:
             </targets>
         </property>
 
+		<property>
+            <name>CACHEBESTCUBECLASSNAME</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.qb.bestcube.AcumeBestCube]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.ini]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
 
 
         <!-- HIVE related configs -->
@@ -1648,6 +1660,18 @@ Please don't use the following reserved property names:
             </targets>
         </property>
 
+		<property>
+            <name>HBASEBESTCUBECLASSNAME</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[com.guavus.qb.bestcube.HBaseBestCube]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[acume.ini]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
 
             
         <!-- Logging properties -->

@@ -928,6 +928,14 @@
             <Property_OriginalName>application.${acumeApp}.CACHEDATASOURCEENABLE</Property_OriginalName>
         </Property>
 
+	<Property>
+            <Property_Name>application.${acumeApp}.CACHEBESTCUBECLASSNAME</Property_Name>
+            <Property_Value>com.guavus.qb.bestcube.AcumeBestCube</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.CACHEBESTCUBECLASSNAME</Property_OriginalName>
+        </Property>
+
         <!-- HIVE related configs -->
 
         <Property>
@@ -1074,6 +1082,14 @@
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.HBASEDATASOURCEENABLE</Property_OriginalName>
+        </Property>
+	
+	 <Property>
+            <Property_Name>application.${acumeApp}.HBASEBESTCUBECLASSNAME</Property_Name>
+            <Property_Value>com.guavus.qb.bestcube.HBaseBestCube</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.HBASEBESTCUBECLASSNAME</Property_OriginalName>
         </Property>
 
         <!-- Logging properties -->
