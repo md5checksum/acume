@@ -19,10 +19,16 @@ import com.guavus.acume.cache.common.ConfConstants
 import org.apache.hadoop.fs.Path
 import com.guavus.acume.cache.disk.utility.InstaUtil
 import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
+
+case class AcumeContextTraitUtil()
 
 object AcumeContextTraitUtil {
   
+  private var logger: Logger = LoggerFactory.getLogger(classOf[AcumeContextTraitUtil])
+   
   // Initialize sparkContext, hiveContext, HbaseSQLContext only  once
   @transient
   val sparkContext = new SparkContext(new SparkConf())
@@ -56,10 +62,20 @@ object AcumeContextTraitUtil {
     })
     
     initCheckpointDir
+    chooseHiveDatabase
     BinAvailabilityPoller.init(insta)
     acumeContextMap
   }
 
+  lazy  val chooseHiveDatabase = {
+    try{
+       logger.info("Choosing database on Hive" + acumeConf.get(ConfConstants.backendDbName))
+       hiveContext.sql("use " + acumeConf.get(ConfConstants.backendDbName))
+    } catch {
+      case ex : Exception => throw new RuntimeException("Cannot use the database " + acumeConf.get(ConfConstants.backendDbName), ex)
+    }
+  }
+  
   lazy val initCheckpointDir = {
     //initialize anything
     // This must be called after creating acumeContext
@@ -71,7 +87,7 @@ object AcumeContextTraitUtil {
     }
 
     def deleteDirectory(dir: String) = {
-      println("deleting checkpoint directory " + dir)
+      logger.info("deleting checkpoint directory " + dir)
       val path = new Path(dir)
       val fs = path.getFileSystem(sparkContext.hadoopConfiguration)
       fs.delete(path, true)
@@ -82,7 +98,7 @@ object AcumeContextTraitUtil {
     val checkpointDirectory = diskBaseDirectory + File.separator + "checkpoint"
     deleteDirectory(checkpointDirectory)
     sparkContext.setCheckpointDir(checkpointDirectory)
-    println(s"setting checkpoint directory as $checkpointDirectory")
+    logger.info(s"setting checkpoint directory as $checkpointDirectory")
 
   }
   
