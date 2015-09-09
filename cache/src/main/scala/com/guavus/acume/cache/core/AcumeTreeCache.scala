@@ -133,6 +133,8 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       key.loadType = LoadType.DISK
       var cacheValue : AcumeTreeCacheValue = null
       cacheValue = cachePointToTable.get(key)
+      AcumeCacheContextTraitUtil.addAcumeTreeCacheValue(cacheValue)
+      AcumeCacheContextTraitUtil.addAcumeTreeCacheValue(cacheValue.getAcumeValue)
       cacheValue
     } catch {
       case e : java.util.concurrent.ExecutionException => if(e.getCause().isInstanceOf[NoDataException]) null else throw e
@@ -216,12 +218,12 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         	  logger.info("Finally Combining level {} to aggregationlevel " + aggregationLevel + " and levelTimeStamp {} ", childlevel, aggregatedTimestamp)
             acumeCacheContext.cacheSqlContext.sparkContext.setJobGroup(Thread.currentThread().getName + "-" + Thread.currentThread().getId(), "Combining childLevel " + childlevel + " to aggregationlevel " + aggregationLevel, false)
         	  val cachevalue = new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(aggregatedTimestamp, cube, zipChildPoints(childrenData.map(_.measureSchemaRdd))), acumeCacheContext)
-        	  cachePointToTable.put(aggregatedTimestamp, cachevalue)
         	  notifyObserverList
         	  var diskWritingComplete = false;
         	  while(cachevalue.getAcumeValue.isInstanceOf[AcumeInMemoryValue] && !cachevalue.isFailureWritingToDisk) {
         	    Thread.sleep(1000)
         	  }
+         	  cachePointToTable.put(aggregatedTimestamp, cachevalue)
         	  Some(cachevalue)
           } else {
             logger.info("Already present {}", aggregatedTimestamp)
