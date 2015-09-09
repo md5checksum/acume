@@ -13,26 +13,31 @@ import CustomExecutor._
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
 import com.guavus.rubix.logging.util.AcumeThreadLocal
 import com.guavus.acume.core.{AcumeContextTrait, AcumeService}
+import com.guavus.acume.core.configuration.{AcumeContextTraitMap, ConfigFactory, AcumeAppConfig}
 import com.guavus.acume.workflow.RequestDataType
-import scala.collection.mutable.HashMap
+
+import com.guavus.qb.ds.DatasourceType
 
 import org.apache.spark.sql.SchemaRDD
 
 object AggregateCustomExecutor {
 
-private var logger: Logger = LoggerFactory.getLogger(classOf[CustomExecutor[Any]])
+private val logger: Logger = LoggerFactory.getLogger(classOf[AggregateCustomExecutor[Any]])
+
+// Get acumeCacheContext for AcumeCache dataSource
+// TODO: make this callalbe generic for other data sources. Currently only acume cache is supported
+private val acumeCacheContext: AcumeCacheContextTrait =
+  ConfigFactory.getInstance.getBean(classOf[AcumeContextTraitMap]).a.get(DatasourceType.CACHE.dsName).get.acc
 
 }
 
 abstract class AggregateCustomExecutor[T](
-    acumeCacheContext: AcumeCacheContextTrait,
     indexDimensionValue: Long,
     startTime: Long,
     endTime: Long,
     gran: TimeGranularity.TimeGranularity,
     cube: CubeKey)
-  extends CustomExecutor[T](acumeCacheContext, indexDimensionValue, startTime, endTime, gran, cube) {
-
+  extends CustomExecutor[T](indexDimensionValue, startTime, endTime, gran, cube) {
 
   override def getCachePoints[k, v](
       instance: AcumeCache[k, v],
