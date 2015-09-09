@@ -1249,19 +1249,6 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
-
-        <property>
-            <name>CACHETIMESTAMPFIELDNAME</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[ts]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.ini]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
         
         <property>
             <name>CACHERRCACHELOADER</name>
@@ -1434,21 +1421,7 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
-
-        <property>
-            <name>HIVETIMESTAMPFIELDNAME</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[ts]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.ini]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-
+        
         <property>
             <name>HIVEDISABLETOTALQUERY</name>
             <type>basic</type>
@@ -1574,19 +1547,6 @@ Please don't use the following reserved property names:
             <type>basic</type>
             <help><![CDATA[]]></help>
             <default><![CDATA[false]]></default>
-            <targets>
-                <target>
-                    <file><![CDATA[acume.ini]]></file>
-                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
-                </target>
-            </targets>
-        </property>
-
-        <property>
-            <name>HBASETIMESTAMPFIELDNAME</name>
-            <type>basic</type>
-            <help><![CDATA[]]></help>
-            <default><![CDATA[ts]]></default>
             <targets>
                 <target>
                     <file><![CDATA[acume.ini]]></file>

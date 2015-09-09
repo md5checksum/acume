@@ -3,7 +3,6 @@ package com.guavus.acume.cache.workflow
 import org.apache.spark.sql.SQLContext
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.BaseCube
 import com.guavus.acume.cache.common.ConfConstants
@@ -43,8 +42,12 @@ class AcumeHiveCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheCo
 
     if (!useInsta) {
       // Firing on thin client
-      val resultSchemaRdd = cacheSqlContext.sql(updatedsql)
-      logger.info(s"Firing thin client Query $updatedsql")
+      //Replace the ts with "timestamp"
+      val tsRegex = "\\b" + "ts" + "\\b"
+      val tsReplacedSql = updatedsql.replaceAll(tsRegex, "timestamp")
+      
+      val resultSchemaRdd = cacheSqlContext.sql(tsReplacedSql)
+      logger.info(s"Firing thin client Query $tsReplacedSql")
       new AcumeCacheResponse(resultSchemaRdd, resultSchemaRdd.rdd, new MetaData(-1, timestamps.toList))
     
     } else {

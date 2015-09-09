@@ -33,8 +33,8 @@ object AcumeMain {
      */
     if(AcumeContextTraitUtil.acumeConf.getEnableJDBCServer.toBoolean)
 		  AcumeThriftServer.main(Array[String]())
-      
-	  /*
+
+     /*
      * Initiate the session Factory for user management db
      */
     SessionFactory.getInstance(SessionContext.DISTRIBUTED)

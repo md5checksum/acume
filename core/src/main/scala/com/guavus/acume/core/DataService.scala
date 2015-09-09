@@ -42,6 +42,7 @@ import java.util.concurrent.ConcurrentHashMap
 import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 import DataService._
 import com.guavus.acume.core.configuration.DataServiceFactory
+import com.guavus.acume.cache.common.ConfConstants
 
 /**
  * This class interacts with query builder and Olap cache.
@@ -174,7 +175,6 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         setSparkJobLocalProperties
         try {
           conf.setDatasourceName(datasourceName)
-          //AcumeConf.setConf(conf) This is redundant
           acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
           val cacheResponse = execute(sql, requestDataType)
           val responseRdd = cacheResponse.rowRDD
@@ -197,7 +197,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
 
       var tsIndex = 0
       for (field <- fields) {
-        if (field.equalsIgnoreCase("ts")) {
+        if (field.equalsIgnoreCase("ts") || field.equalsIgnoreCase("timestamp")) {
           isTimeseries = {
             if(RequestDataType.Aggregate.equals(requestDataType)) {
               // In hbase, ts is a dimension. Adding ts to dimfields even in case of Aggregate
@@ -239,7 +239,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
           var dimIndex, measureIndex = 0
           var timestamp = 0L
           for (field <- fields) {
-            if (field.equalsIgnoreCase("ts")) {
+            if (field.equalsIgnoreCase("ts") || field.equalsIgnoreCase("timestamp")) {
               timestamp = java.lang.Long.valueOf(row(i).toString)
             } else if (queryBuilderService.get(0).isFieldDimension(field)) {
               if (row(i) != null)
