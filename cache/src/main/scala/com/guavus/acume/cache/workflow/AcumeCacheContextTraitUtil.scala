@@ -74,8 +74,8 @@ object AcumeCacheContextTraitUtil {
     threadLocal.get.put("query", null)
   }
   
-  def addAcumeTreeCacheValue(acumeTreeCacheValue : AcumeTreeCacheValue) {
-    val list = threadLocal.get.getOrElse("AcumeTreeCacheValue", new ArrayBuffer[AcumeTreeCacheValue]).asInstanceOf[ArrayBuffer[AcumeTreeCacheValue]]
+  def addAcumeTreeCacheValue(acumeTreeCacheValue : Any) {
+    val list = threadLocal.get.getOrElse("AcumeTreeCacheValue", new ArrayBuffer[Any]).asInstanceOf[ArrayBuffer[Any]]
     list.+=(acumeTreeCacheValue)
     threadLocal.get().put("AcumeTreeCacheValue", list)
   }
