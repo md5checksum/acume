@@ -47,12 +47,15 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
   }
   
   def acql(sql: String): AcumeCacheResponse = {
-    AcumeCacheContextTraitUtil.setQuery(sql)
+    
+    val tsRegex = "\\b" + "ts" + "\\b"
+    val tsReplacedSql = sql.replaceAll(tsRegex, cacheConf.get(ConfConstants.timeStampFieldName))
+    AcumeCacheContextTraitUtil.setQuery(tsReplacedSql)
     try {
       if (cacheConf.getInt(ConfConstants.rrsize._1).get == 0) {
-        executeQuery(sql)
+        executeQuery(tsReplacedSql)
       } else {
-        rrCacheLoader.getRdd((sql))
+        rrCacheLoader.getRdd((tsReplacedSql))
       }
     } finally {
       AcumeCacheContextTraitUtil.unsetQuery()

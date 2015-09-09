@@ -809,6 +809,14 @@
         </Property>
 
         <Property>
+            <Property_Name>application.${acumeApp}.CACHETIMESTAMPFIELDNAME</Property_Name>
+            <Property_Value>ts</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.CACHETIMESTAMPFIELDNAME</Property_OriginalName>
+        </Property>
+
+        <Property>
             <Property_Name>application.${acumeApp}.CACHEDISABLETOTALQUERY</Property_Name>
             <Property_Value>false</Property_Value>
             <Property_Type>read-write</Property_Type>
@@ -939,6 +947,14 @@
         </Property>
 
         <Property>
+            <Property_Name>application.${acumeApp}.HIVETIMESTAMPFIELDNAME</Property_Name>
+            <Property_Value>ts</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.HIVETIMESTAMPFIELDNAME</Property_OriginalName>
+        </Property>
+
+        <Property>
             <Property_Name>application.${acumeApp}.HIVEUSEINSTA</Property_Name>
             <Property_Value>false</Property_Value>
             <Property_Type>read-write</Property_Type>
@@ -1010,6 +1026,14 @@
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.HBASEDISABLETOTALQUERY</Property_OriginalName>
+        </Property>
+
+        <Property>
+            <Property_Name>application.${acumeApp}.HBASETIMESTAMPFIELDNAME</Property_Name>
+            <Property_Value>ts</Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.HBASETIMESTAMPFIELDNAME</Property_OriginalName>
         </Property>
 
         <Property>
