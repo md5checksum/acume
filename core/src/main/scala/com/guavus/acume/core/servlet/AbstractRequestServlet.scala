@@ -43,23 +43,6 @@ abstract class AbstractRequestServlet extends HttpServlet {
     
   }
   
-  override def doGet(req : HttpServletRequest, resp : HttpServletResponse){
-    
-    val response = getResponse(req)
-    
-    var finalResponse :String = null
-  
-   if(response.isInstanceOf[Serializable]) {
-      finalResponse = TimeseriesResponse.gson.toJson(response)
-    } else {
-      throw new ServletException("Invalid response");
-    }
-    
-  resp.getOutputStream().print(finalResponse)
-  resp.flushBuffer()
-    
-    }
-  
   def getResponse(req: HttpServletRequest) : Serializable
   
 }

@@ -55,6 +55,15 @@ class PSUserService {
 			throw new RuntimeException(e.getMessage())
 		} 
 	}
+  
+  def getInstaTimeInterval(binSource : String) : Map[Long, (Long, Long)] = {
+    if(binSource == null){
+      controller.getInstaTimeIntervalForBinSource(defaultBinSource)
+    }
+    else{
+    controller.getInstaTimeIntervalForBinSource(binSource)
+    }
+  }
 
 /*
 Original Java:
