@@ -14,18 +14,25 @@ import com.guavus.acume.user.management.utils.HttpUtils
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
 import com.guavus.rubix.logging.util.AcumeThreadLocal
 import com.guavus.acume.core.{AcumeConf, AcumeContextTraitUtil, DataService}
+import com.guavus.acume.core.configuration.{AcumeContextTraitMap, ConfigFactory, AcumeAppConfig}
+
+import com.guavus.qb.ds.DatasourceType
 
 import org.apache.spark.sql.SchemaRDD
 
 object CustomExecutor {
 
-private var logger: Logger = LoggerFactory.getLogger(classOf[CustomExecutor[Any]])
+private val logger: Logger = LoggerFactory.getLogger(classOf[CustomExecutor[Any]])
+
+// Get acumeCacheContext for AcumeCache dataSource
+// TODO: make this callalbe generic for other data sources. Currently only acume cache is supported
+private val acumeCacheContext: AcumeCacheContextTrait =
+  ConfigFactory.getInstance.getBean(classOf[AcumeContextTraitMap]).a.get(DatasourceType.CACHE.dsName).get.acc
 
 }
 
 /**
  * Main class that gives a structure to what callable could be passed to acume
- * @param acumeCacheContext
  * @param indexDimensionValue value for index dimension filter
  * @param startTime start time for retrieving acume cache values
  * @param endTime end time for retrieving acume cache values
@@ -34,7 +41,6 @@ private var logger: Logger = LoggerFactory.getLogger(classOf[CustomExecutor[Any]
  * @tparam T Output type T
  */
 abstract class CustomExecutor[T](
-    acumeCacheContext: AcumeCacheContextTrait,
     indexDimensionValue: Long,
     startTime: Long,
     endTime: Long,
@@ -80,7 +86,7 @@ abstract class CustomExecutor[T](
       val (rdds, timeStampList) = getCachePoints(instance, startTime, endTime, None, true)
 
 	  // execute custom processing part
-	  response = customExec(rdds, timeStampList, instance.cube)
+	  response = customExec(acumeCacheContext, rdds, timeStampList, instance.cube)
 
     } catch {
       case e: Throwable =>
@@ -112,5 +118,5 @@ abstract class CustomExecutor[T](
     instance.getCachePoints(startTime, endTime, None, true)
   }
 
-    def customExec(rdds: Seq[SchemaRDD], timeStampList: List[Long], cube: Cube): T
+    def customExec(acumeCacheContext: AcumeCacheContextTrait, rdds: Seq[SchemaRDD], timeStampList: List[Long], cube: Cube): T
 }
