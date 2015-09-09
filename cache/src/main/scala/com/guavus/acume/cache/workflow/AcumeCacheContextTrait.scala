@@ -13,6 +13,7 @@ import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
 import com.guavus.acume.cache.disk.utility.DataLoader
 import java.util.concurrent.ConcurrentHashMap
+import scala.collection.mutable.MutableList
  
 /**
  * @author archit.thakur
@@ -26,6 +27,9 @@ trait AcumeCacheContextTrait extends Serializable {
   private [cache] val measureMap = new InsensitiveStringKeyHashMap[Measure]
   private [cache] val poolThreadLocal = new InheritableThreadLocal[HashMap[String, Any]]()
   private [cache] val dataloadermap : ConcurrentHashMap[String, DataLoader]
+  private [cache] val cubeMap = new HashMap[CubeKey, Cube]
+  private [cache] val cubeList = MutableList[Cube]()
+
   
   def acql(sql: String): AcumeCacheResponse = {
     acql(sql, null)
@@ -89,6 +93,12 @@ trait AcumeCacheContextTrait extends Serializable {
       dimensionMap.get(fieldName).get.getDefaultValue
     else
       measureMap.get(fieldName).get.getDefaultValue
+  }
+  
+  private [acume] def validateQuery(startTime : Long, endTime : Long, binSource : String) {
+    if(startTime < getFirstBinPersistedTime(binSource) || endTime > getLastBinPersistedTime(binSource)){
+      throw new RuntimeException("Cannot serve query. StartTime and endTime doesn't fall in the availability range.")
+    }
   }
   
   private [acume] def getCubeMap: Map[CubeKey, Cube]

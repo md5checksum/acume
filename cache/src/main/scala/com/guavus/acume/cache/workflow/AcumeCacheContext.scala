@@ -45,9 +45,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   override private [cache] val dataloadermap = new ConcurrentHashMap[String, DataLoader]
   val dataLoader: DataLoader = DataLoader.getDataLoader(this, conf, null)
-  private [cache] val baseCubeList = MutableList[BaseCube]()
-  private [cache] val cubeMap = new HashMap[CubeKey, Cube]
-  private [cache] val cubeList = MutableList[Cube]()
 
   sqlContext match {
     case hiveContext: HiveContext =>
@@ -133,12 +130,6 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
     AcumeCacheResponse(kfg, kfg, MetaData(-1, klist))
   }
   
-  private [acume] def validateQuery(startTime : Long, endTime : Long, binSource : String) {
-    if(startTime < getFirstBinPersistedTime(binSource) || endTime > getLastBinPersistedTime(binSource)){
-      throw new RuntimeException("Cannot serve query. StartTime and endTime doesn't fall in the availability range.")
-    }
-  }
-  
   private [acume] def execute(qltype: QLType, cubes :List[Cube], updatedsql: String) = {
     AcumeCacheContext.ACQL(qltype, sqlContext)(updatedsql)
   }
@@ -173,21 +164,12 @@ class AcumeCacheContext(val sqlContext: SQLContext, val conf: AcumeCacheConf) ex
   
   private [cache] def getCube(cube: CubeKey) = cubeMap.get(cube).getOrElse(throw new RuntimeException(s"cube $cube not found."))
   
-  private [workflow] def loadBaseXML(filedir: String) = {
-  }
 }
 
 object AcumeCacheContext{
   
   def correctSQL(unparsedsql: String, parsedsql: Tuple2[List[Tuple], RequestType.RequestType]) = {
     
-    
-//			val sql = SQLParserFactory.getParserManager()
-//			val select = sql.parse(new StringReader(unparsedsql))
-//			val expression = select.asInstanceOf[PlainSelect].getWhere()
-//			expression
-//			return list;
-		
     val newunparsedsql = unparsedsql.replaceAll("\"","")
     val newparsedsql = (parsedsql._1.map(x => { 
       
@@ -361,42 +343,12 @@ object AcumeCacheContext{
     
   }
   
-//  def main(args: Array[String]) = {
-//    
-//  }
-  
   private [cache] def getTable(cube: String) = cube + "_" + getUniqueRandomNo 	
   
   private [cache] def getUniqueRandomNo: String = System.currentTimeMillis() + "" + Math.abs(new Random().nextInt())
   
   private def getCubeName(tableName: String) = tableName.substring(0, tableName.indexOf(AcumeConstants.TRIPLE_DOLLAR_SSC) + 1)
     
-  def main(args: Array[String]) { 
-    
-    val sql = "Select * from x where (binsource = 10 and xz=42) or y=z and fkd>10 and dg>24"
-    val sql1 = SQLParserFactory.getParserManager()
-    val statement = sql1.parse(new StringReader(sql));
-    edit(null, statement.asInstanceOf[Select].getSelectBody.asInstanceOf[PlainSelect].getWhere)
-    
-//    
-//    val sqlContext = new SQLContext(new SparkContext)
-//    val conf = new AcumeCacheConf
-//    conf.set(ConfConstants.businesscubexml, "/Users/archit.thakur/Documents/Code_Acume_Scala/cache/src/test/resources/cubdefinition.xml")
-//    conf.set("acume.cache.core.variableretentionmap", "1h:720")
-//    conf.set("acume.cache.baselayer.instainstanceid","0")
-//    conf.set("acume.cache.baselayer.storagetype", "orc")
-//    conf.set("acume.cache.core.timezone", "GMT")
-//    conf.set("acume.cache.baselayer.instabase","instabase")
-//    conf.set("acume.cache.baselayer.cubedefinitionxml", "cubexml")
-//    conf.set("acume.cache.execute.qltype", "sql")
-//    conf.set("acume.core.enableJDBCServer", "true")
-//    conf.set("acume.core.app.config", "com.guavus.acume.core.configuration.AcumeAppConfig")
-//    conf.set("acume.core.sql.query.engine", "acume")
-//    
-//    val cntxt = new AcumeCacheContext(sqlContext, conf)
-//    cntxt.acql("select * from searchEgressPeerCube_12345")
-  }
-  
   private [workflow] def parseSql(sql: String) = { 
     
     val util = new SQLUtility();
