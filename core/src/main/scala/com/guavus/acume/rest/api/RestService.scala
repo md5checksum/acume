@@ -29,11 +29,15 @@ import org.apache.shiro.SecurityUtils
 import com.guavus.rubix.user.management.exceptions.HttpUMException
 import com.guavus.rubix.user.management.vo.LoginRequest
 import com.guavus.rubix.user.management.vo.LoginResponse
-import com.guavus.rubix.user.management.ui.RoleVO;
+import com.guavus.rubix.user.management.ui.RoleVO
 import com.guavus.acume.core.PSUserService
 import com.guavus.rubix.query.remote.flex.TimeZoneInfo
 import com.guavus.rubix.query.remote.flex.ZoneInfoRequest
 import com.guavus.rubix.user.management.vo.ValidateSessionRequest
+import com.guavus.acume.core.scheduler.AcumeCacheAvailabilityPolicy
+import scala.collection.mutable.HashMap
+import com.guavus.rubix.cache.Interval
+import com.guavus.acume.core.scheduler.UnionizedCacheAvailabilityPolicy
 
 @Path("/" + "queryresponse")
 /**
@@ -223,6 +227,30 @@ class RestService {
       @QueryParam("user") user : String, @QueryParam("password") password : String) : java.util.List[TimeZoneInfo] = {
     Authentication.authenticate(userinfo, user, password)
     new PSUserService().getZoneInfo(zoneInfo.getIdList(), zoneInfo.getZoneInfoParams())
+  }
+  
+  @POST
+  @Path("instaAvailability")
+  def getInstaAvailabilty(@QueryParam(value = "super") userinfo : String,
+      @QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("binSource") binSource : String) : Map[Long, (Long, Long)] = {
+    Authentication.authenticate(userinfo, user, password)
+    new PSUserService().getInstaTimeInterval(binSource)
+  }
+  
+  @POST
+  @Path("acumeAvailability")
+  def getAcumeAvailabilty(@QueryParam(value = "super") userinfo : String,
+      @QueryParam("user") user : String, @QueryParam("password") password : String) : HashMap[String, HashMap[Long, Interval]] = {
+    Authentication.authenticate(userinfo, user, password)
+    new AcumeCacheAvailabilityPolicy().getCacheAvalabilityMap
+  }
+  
+  @POST
+  @Path("unionizedCache")
+  def getUnionizedCacheAvailability(@QueryParam(value = "super") userinfo : String,
+      @QueryParam("user") user : String, @QueryParam("password") password : String) : HashMap[String, HashMap[Long, Interval]] = {
+    Authentication.authenticate(userinfo, user, password)
+    new UnionizedCacheAvailabilityPolicy().getCacheAvalabilityMap
   }
   /**
    * Takes rubix like query as input with additional params and return response. This handles timeseries as well as aggregate queries

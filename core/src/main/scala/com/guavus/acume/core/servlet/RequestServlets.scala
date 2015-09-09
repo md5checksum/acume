@@ -143,3 +143,28 @@ class TimeRangeRequestServlet extends AbstractRequestServlet {
   }
  
 }
+
+class InstaAvailabilityRequestServlet extends AbstractRequestServlet {
+
+   override def getResponse(req : HttpServletRequest) : Serializable = {
+    service.getInstaAvailabilty(req.getParameter("super"),req.getParameter("user"), req.getParameter("password"), req.getParameter("binSource")).asInstanceOf[Serializable]
+  }
+ 
+}
+
+class AcumeAvailabilityRequestServlet extends AbstractRequestServlet {
+
+   override def getResponse(req : HttpServletRequest) : Serializable = {
+    service.getAcumeAvailabilty(req.getParameter("super"),req.getParameter("user"), req.getParameter("password")).asInstanceOf[Serializable]
+  }
+ 
+}
+
+class UnionizedCacheAvailabilityServlet extends AbstractRequestServlet {
+
+   override def getResponse(req : HttpServletRequest) : Serializable = {
+    service.getUnionizedCacheAvailability(req.getParameter("super"),req.getParameter("user"), req.getParameter("password")).asInstanceOf[Serializable]
+  }
+ 
+}
+

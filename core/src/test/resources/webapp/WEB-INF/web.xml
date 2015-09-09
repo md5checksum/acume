@@ -177,6 +177,18 @@
     	<servlet-name>ZoneInfo</servlet-name>
     	<servlet-class>com.guavus.acume.core.servlet.ZoneInfoRequestServlet</servlet-class>
   	</servlet>
+  	<servlet>
+  		<servlet-name>InstaAvailability</servlet-name>
+        <servlet-class>com.guavus.acume.core.servlet.InstaAvailabilityRequestServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>AcumeAvailability</servlet-name>
+        <servlet-class>com.guavus.acume.core.servlet.AcumeAvailabilityRequestServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>UnionizedCache</servlet-name>
+        <servlet-class>com.guavus.acume.core.servlet.UnionizedCacheAvailabilityServlet</servlet-class>
+    </servlet>
   	
   	<servlet-mapping>
     	<servlet-name>Sql</servlet-name>
@@ -226,6 +238,18 @@
     	<servlet-name>ZoneInfo</servlet-name>
 	<url-pattern>/queryresponse/zoneInfo</url-pattern>
   	</servlet-mapping>
+  	<servlet-mapping>
+        <servlet-name>InstaAvailability</servlet-name>
+    <url-pattern>/queryresponse/instaAvailability</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>AcumeAvailability</servlet-name>
+    <url-pattern>/queryresponse/acumeAvailability</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UnionizedCache</servlet-name>
+    <url-pattern>/queryresponse/unionizedCache</url-pattern>
+    </servlet-mapping>
 
 
   	
