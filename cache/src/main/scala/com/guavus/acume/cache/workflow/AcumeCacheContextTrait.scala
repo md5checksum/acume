@@ -4,6 +4,8 @@ import scala.collection.JavaConversions._
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable.MutableList
 
+import org.apache.hadoop.fs.Path
+
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hbase.HBaseSQLContext
 import org.apache.spark.sql.hive.HiveContext
@@ -39,6 +41,11 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
   lazy private [cache] val cubeMap = AcumeCacheContextTraitUtil.cubeMap.filter(cubeKey => cubeKey._2.dataSource.equalsIgnoreCase(cacheConf.getDataSourceName))
   lazy private [cache] val cubeList = AcumeCacheContextTraitUtil.cubeList.filter(cube => cube.dataSource.equalsIgnoreCase(cacheConf.getDataSourceName))
   private [cache] val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]()(implicitly[Ordering[Long]]) ++ Utility.getLevelPointMap(cacheConf.get(ConfConstants.acumecoretimeserieslevelmap)).map(x=> (x._1.level, x._2)))
+
+  lazy val cacheBaseDirectory = cacheConf.get(ConfConstants.cacheBaseDirectory)
+
+  // Cache the file system object. This inherits the limitation that Acume will work with one filesystem for one run.
+  lazy val fs = (new Path(cacheBaseDirectory)).getFileSystem(cacheSqlContext.sparkContext.hadoopConfiguration)
 
   cacheSqlContext match {
     case hiveContext: HiveContext =>

@@ -894,14 +894,12 @@ object Utility extends Logging {
   def deleteDirectory(dir : String, acumeContext : AcumeCacheContextTrait) {
     logDebug("Deleting directory " + dir)
     val path = new Path(dir)
-    val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
-    fs.delete(path, true)
+    acumeContext.fs.delete(path, true)
   }
 
   def isPathExisting(path : Path, acumeContext : AcumeCacheContextTrait) : Boolean = {
     logDebug("Checking if path exists => " + path)
-    val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
-    val isPathExisting = fs.exists(path)
+    val isPathExisting = acumeContext.fs.exists(path)
     isPathExisting
   }
   
@@ -933,9 +931,8 @@ object Utility extends Logging {
   
   def listStatus(acumeContext : AcumeCacheContextTrait, dir: String) : Array[FileStatus] = {
     val path = new Path(dir)
-    val fs = path.getFileSystem(acumeContext.cacheSqlContext.sparkContext.hadoopConfiguration)
     try {
-      val ls = fs.listStatus(path)
+      val ls = acumeContext.fs.listStatus(path)
       ls
     } catch {
       case ex : FileNotFoundException => 
