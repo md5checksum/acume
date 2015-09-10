@@ -62,7 +62,7 @@ class AcumeHiveCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheCo
           val tempTable = AcumeCacheContextTraitUtil.getTable(cube)
           rdd.registerTempTable(tempTable)
           val tempTable1 = AcumeCacheContextTraitUtil.getTable(cube)
-          val tString = s"{timestamp}L"
+          val tString = s"${timestamp}L"
           cacheSqlContext.sql(s"select *, $tString as ts from $tempTable").registerTempTable(tempTable1)
           tempTable1
         }
@@ -74,7 +74,7 @@ class AcumeHiveCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheCo
         val rdd = dataLoader.loadData(Map[String, Any](), new BaseCube(cube, binsource, null, null, null, null, null), startTime, endTime, 0l)
         val tempTable = AcumeCacheContextTraitUtil.getTable(cube)
         rdd.registerTempTable(tempTable)
-        val sString = s"{startTime}L"
+        val sString = s"${startTime}L"
         cacheSqlContext.sql(s"select *, $sString as ts from $tempTable")
       }
       
