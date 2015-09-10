@@ -38,6 +38,7 @@ import com.guavus.acume.core.scheduler.AcumeCacheAvailabilityPolicy
 import scala.collection.mutable.HashMap
 import com.guavus.rubix.cache.Interval
 import com.guavus.acume.core.scheduler.UnionizedCacheAvailabilityPolicy
+import com.guavus.rubix.query.remote.flex.LoginParameterRequest
 
 @Path("/" + "queryresponse")
 /**
@@ -200,10 +201,10 @@ class RestService {
   
   @POST
   @Path("login")
-  def getLoginResponse(@QueryParam("user") user : String, @QueryParam("password") password : String) : LoginResponse = {
+  def getLoginResponse(loginParameterRequest : LoginParameterRequest) : LoginResponse = {
     val loginRequest : LoginRequest = new LoginRequest()
-    loginRequest.setUserName(user)
-    loginRequest.setPassword(password)
+    loginRequest.setUserName(loginParameterRequest.getUserName())
+    loginRequest.setPassword(loginParameterRequest.getPassword())
     loginRequest.setAuthToken(null)
     val response : LoginResponse = UserManagementUtils.getIWebUMService().login(loginRequest)
     for (roles:RoleVO <- response.getCurrentSessionInfo.getRoles){
