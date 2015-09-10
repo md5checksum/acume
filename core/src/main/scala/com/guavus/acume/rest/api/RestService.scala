@@ -190,7 +190,12 @@ class RestService {
   @Path("validateSession")
   def getValidSession(validateSessionRequest : ValidateSessionRequest) : CurrentSessionInfo = {
     try{
-      UserManagementUtils.getIWebUMService().validateSession(validateSessionRequest);
+     val currentsessionInfo : CurrentSessionInfo = UserManagementUtils.getIWebUMService().validateSession(validateSessionRequest);
+     for (roles:RoleVO <- currentsessionInfo.getRoles){
+      roles.setGroups(null)
+      roles.setUsers(null)
+    }
+     currentsessionInfo
     } catch {
       case ex : HttpUMException =>{
         throw ex
