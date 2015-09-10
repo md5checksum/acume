@@ -1,14 +1,13 @@
 package com.guavus.acume.core.servlet
 
 import java.io.Serializable
-
 import com.guavus.rubix.query.remote.flex.QueryJsonUtil
 import com.guavus.rubix.query.remote.flex.QueryRequest
 import com.guavus.rubix.query.remote.flex.SearchRequest
-
 import javax.servlet.http.HttpServletRequest
 import com.guavus.rubix.query.remote.flex.ZoneInfoRequest
 import com.guavus.rubix.user.management.vo.ValidateSessionRequest
+import com.guavus.rubix.query.remote.flex.LoginParameterRequest
 
 
 class SearchRequestServlet extends AbstractRequestServlet {
@@ -122,7 +121,8 @@ class ValidateSessionServlet extends AbstractRequestServlet {
 class LoginRequestServlet extends AbstractRequestServlet {
 
    override def getResponse(req : HttpServletRequest) : Serializable = {
-    service.getLoginResponse(req.getParameter("user"), req.getParameter("password")).asInstanceOf[Serializable]
+    val loginParameterRequest : LoginParameterRequest = QueryJsonUtil.fromJsonToLoginParameterRequest(req.getReader().readLine())
+    service.getLoginResponse(loginParameterRequest).asInstanceOf[Serializable]
   }
  
 }

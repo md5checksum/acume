@@ -24,7 +24,7 @@ class ZoneInfoRequest extends Serializable {
     this.idList = new ArrayList(idList)
   }
 
-  override def toString(): String = QueryJsonUtil.ZoneInfoRequestToJson(this)
+  override def toString(): String = QueryJsonUtil.zoneInfoRequestToJson(this)
 
   override def hashCode(): Int = {
     val prime = 31

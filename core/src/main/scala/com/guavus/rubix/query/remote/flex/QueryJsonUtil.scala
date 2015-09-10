@@ -54,11 +54,17 @@ object QueryJsonUtil {
     gson.fromJson(json, classOf[ZoneInfoRequest])
   }
   
-  def ZoneInfoRequestToJson(response: ZoneInfoRequest): String = gson.toJson(response)
+  def zoneInfoRequestToJson(response: ZoneInfoRequest): String = gson.toJson(response)
    
   def fromJsonToValidateSessionRequest(json: String): ValidateSessionRequest = {
     gson.fromJson(json, classOf[ValidateSessionRequest])
   }
+  
+   def fromJsonToLoginParameterRequest(json: String): LoginParameterRequest = {
+    gson.fromJson(json, classOf[LoginParameterRequest])
+  }
+  
+  def loginParameterRequestToJson(response: LoginParameterRequest): String = gson.toJson(response)
   
 /*
 Original Java:
