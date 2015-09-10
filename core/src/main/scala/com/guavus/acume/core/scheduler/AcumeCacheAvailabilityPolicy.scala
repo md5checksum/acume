@@ -9,13 +9,13 @@ import com.guavus.acume.core.AcumeContextTrait
 import org.apache.spark.rdd.RDD
 import org.apache.spark.sql.columnar.InMemoryColumnarTableScan
 import org.apache.spark.storage.RDDBlockId
-//import org.apache.spark.sql.catalyst.plans.logical.Prune
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.SQLContext
 import com.guavus.acume.core.AcumeContextTraitUtil
 import com.guavus.acume.core.configuration.ConfigFactory
 import com.guavus.acume.cache.common.ConfConstants
 import org.slf4j.LoggerFactory
+import org.apache.spark.sql.catalyst.plans.logical.Prune
 
 /**
  *
@@ -76,10 +76,8 @@ class UnionizedCacheAvailabilityPolicy extends ICacheAvalabilityUpdatePolicy {
       executedPlan.asInstanceOf[InMemoryColumnarTableScan].relation._cachedColumnBuffers.id
     else return unprocessed
 
-    // todo: do this with spark-1.3.1.
-//    val _$processed = new SchemaRDD(sqlContext, Prune(customPartitionPruner(id), unprocessed.logicalplan))
-//    _$processed
-    unprocessed
+    val _$processed = new SchemaRDD(sqlContext, Prune(customPartitionPruner(id), unprocessed.logicalPlan))
+    _$processed
   }
 
   override def onBackwardCombinerCompleted(version: Int) {
