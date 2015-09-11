@@ -132,7 +132,7 @@
       <Cube>
          <Info>test1, __DEFAULT_BINSRC__, hbase</Info>
          <Fields>a,ts,c,d,e,col</Fields>
-         <Properties>basegranularity:1h, cubetype:normal, levelpolicymap:1h:53, timeserieslevelpolicymap:1h:720, evictionpolicyclass: com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy, primaryKeys:a;ts;c;d;e, tableName:final4tab3, columnMappings:[col->cf1.delta] 
+         <Properties>basegranularity:1h, cubetype:normal, levelpolicymap:1h:53, timeserieslevelpolicymap:1h:720, evictionpolicyclass: com.guavus.acume.cache.eviction.AcumeTreeCacheEvictionPolicy, primaryKeys:a;ts;c;d;e, nameSpace:default, tableName:final4tab3, columnMappings:[col->cf1.delta] 
 </Properties>
       </Cube>
 

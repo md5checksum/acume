@@ -31,7 +31,7 @@ class AcumeHbaseCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheC
     
     var queryString = new StringBuilder()
     queryString.append("create table ")
-    queryString.append(cube.cubeName)
+    queryString.append(cube.hbaseConfigs.nameSpace + "_" + cube.cubeName)
     queryString.append(" ( ")
     
     val dimFields = cube.dimension.dimensionSet.map(dimension => dimension.getName + " " + ConversionToSpark.convertToSparkDataType(dimension.getDataType).typeName).toArray.mkString(", ")
@@ -44,6 +44,8 @@ class AcumeHbaseCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheC
     val primaryKeys = cube.hbaseConfigs.primaryKeys.mkString(",")
     queryString.append(primaryKeys)
     queryString.append(")) mapped by (")
+    
+    queryString.append(cube.hbaseConfigs.nameSpace + ".")
     
     queryString.append(cube.hbaseConfigs.tableName)
     
@@ -62,24 +64,24 @@ class AcumeHbaseCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheC
     // Create table for every cube of hbase
     cubeList.map(cube => {
     	val query = constructQueryFromCube(cube)
-      val cubeName = cube.cubeName
+      val tableName = cube.hbaseConfigs.nameSpace + "_" + cube.cubeName
       
       //Drop table if already exists
       try{
-    	  cacheSqlContext.sql("drop table " + cubeName).collect
-        logger.info(s"temp table $cubeName dropped")
+    	  cacheSqlContext.sql(s"drop table $tableName").collect
+        logger.info(s"temp table $tableName dropped")
       } catch {
-        case e: Exception => logger.error(s"Dropping temp table $cubeName failed. ", e)
-        case th : Throwable => logger.error(s"Dropping temp table $cubeName failed. ", th)
+        case e: Exception => logger.error(s"Dropping temp table $tableName failed. ", e.getLocalizedMessage)
+        case th : Throwable => logger.error(s"Dropping temp table $tableName failed. ", th.getLocalizedMessage)
       }
       
       //Create table with cubename
       try{
         cacheSqlContext.sql(query).collect
-        logger.info(s"temp table $cubeName created")
+        logger.info(s"temp table $tableName created")
       } catch {
-        case e: Exception => throw new RuntimeException(s"Creating temp table $cubeName failed. " , e)
-        case th : Throwable => throw new RuntimeException(s"Creating temp table $cubeName failed. ", th)
+        case e: Exception => throw new RuntimeException(s"Creating temp table $tableName failed. " , e)
+        case th : Throwable => throw new RuntimeException(s"Creating temp table $tableName failed. ", th)
       }
     })
   }

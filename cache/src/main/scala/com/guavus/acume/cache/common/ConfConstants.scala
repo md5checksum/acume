@@ -78,6 +78,7 @@ private [acume] object ConfConstants {
 
   val primaryKeys = "primaryKeys"
   val tableName = "tableName"
+  val nameSpace = "nameSpace"
   val columnMappings = "columnMappings"
 
   val queryPoolSchedPolicyClass = "com.guavus.acume.core.QueryPoolPolicySchedulerImpl"
