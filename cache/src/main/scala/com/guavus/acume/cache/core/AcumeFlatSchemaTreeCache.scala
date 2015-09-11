@@ -177,7 +177,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     val tempTable = _tableName + "Temp"
     value.registerTempTable(tempTable)
     AcumeCacheContextTraitUtil.setInstaTempTable(tempTable)
-    val timestamp = s"${key.timestamp}L"
+    val timestamp = key.timestamp
     val parentRdd = acumeCacheContext.cacheSqlContext.sql(s"select $timestamp as ts " + (if(!selectDimensions.isEmpty) s", $selectDimensions " else "") + (if(!selectMeasures.isEmpty) s", $selectMeasures" else "") + s" from $tempTable " + groupBy)
     return new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(key, cube, parentRdd, acumeValRdds), acumeCacheContext)
   }
@@ -344,7 +344,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
     val _tableNameTemp = cube.getAbsoluteCubeName + levelTimestamp.level.toString + levelTimestamp.timestamp.toString + "_temp"
     processedDiskLoaded.registerTempTable(_tableNameTemp)
     AcumeCacheContextTraitUtil.setInstaTempTable(_tableNameTemp)
-    val timestamp = s"${levelTimestamp.timestamp}L"
+    val timestamp = levelTimestamp.timestamp
     val measureSet = (CubeUtil.getDimensionSet(cube) ++ CubeUtil.getMeasureSet(cube)).map(_.getName).mkString(",")
     val cachePoint = sqlContext.sql(s"select $timestamp as ts, $measureSet from " + _tableNameTemp)
     new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(levelTimestamp, cube, cachePoint), acumeCacheContext)
