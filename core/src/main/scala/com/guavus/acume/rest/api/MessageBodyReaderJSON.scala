@@ -1,24 +1,17 @@
-package com.guavus.acume.core.servlet
+package com.guavus.acume.rest.api
 
 import java.io.ByteArrayOutputStream
-import java.io.IOException
 import java.io.InputStream
 import java.lang.annotation.Annotation
 import java.lang.reflect.Type
-
-import javax.ws.rs.WebApplicationException
 import javax.ws.rs.core.MediaType
 import javax.ws.rs.core.MultivaluedMap
 import javax.ws.rs.ext.MessageBodyReader
 import javax.ws.rs.ext.Provider
-
-import org.apache.commons.lang.exception.ExceptionUtils
-
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.guavus.rubix.query.remote.flex.SearchCriterion
 import com.sun.jersey.spi.resource.Singleton
-
 import MessageBodyReaderJSON._
 
 object MessageBodyReaderJSON {
@@ -42,7 +35,7 @@ class MessageBodyReaderJSON extends MessageBodyReader[Any] {
   }
 
   override def isReadable(`type`: Class[_], genericType: Type, annotations: Array[Annotation], mediaType: MediaType): Boolean = {
-    mediaType.isCompatible(MediaType.APPLICATION_JSON_TYPE)
+    return (mediaType.isCompatible(MediaType.APPLICATION_JSON_TYPE) || mediaType.isCompatible(MediaType.APPLICATION_FORM_URLENCODED_TYPE))
   }
 
   override def readFrom(`type`: Class[Any], genericType: Type, annotations: Array[Annotation], mediaType: MediaType, httpHeaders: MultivaluedMap[String, String], entityStream: InputStream): AnyRef = {

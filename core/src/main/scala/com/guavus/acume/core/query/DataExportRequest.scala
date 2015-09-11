@@ -10,6 +10,8 @@ import com.guavus.rubix.query.remote.flex.NameValue
 import com.guavus.rubix.query.remote.flex.QueryRequest
 import javax.xml.bind.annotation.XmlRootElement
 import com.guavus.rubix.query.remote.flex.QueryJsonUtil
+import com.guavus.acume.workflow.RequestDataType
+import com.guavus.acume.workflow.RequestDataType._
 /*
 * @author kashish.jain
 */
@@ -30,10 +32,10 @@ class DataExportRequest {
   var fileType: String = _
   
   @BeanProperty
-  var requestDataType: String = "Aggregate"
+  var requestDataType: RequestDataType = _
 
   @BeanProperty
-  var columnsToSkip: Set[String] = _
+  var columnsToSkip: java.util.Set[String] = _
 
   @BeanProperty
   var fileName: String = AcumeConstants.RESULTS
