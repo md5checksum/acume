@@ -31,7 +31,7 @@ class AcumeHbaseCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheC
     
     var queryString = new StringBuilder()
     queryString.append("create table ")
-    queryString.append(cube.hbaseConfigs.nameSpace + "_" + cube.cubeName)
+    queryString.append(cube.cubeName)
     queryString.append(" ( ")
     
     val dimFields = cube.dimension.dimensionSet.map(dimension => dimension.getName + " " + ConversionToSpark.convertToSparkDataType(dimension.getDataType).typeName).toArray.mkString(", ")
@@ -64,7 +64,7 @@ class AcumeHbaseCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheC
     // Create table for every cube of hbase
     cubeList.map(cube => {
     	val query = constructQueryFromCube(cube)
-      val tableName = cube.hbaseConfigs.nameSpace + "_" + cube.cubeName
+      val tableName = cube.cubeName
       
       //Drop table if already exists
       try{
