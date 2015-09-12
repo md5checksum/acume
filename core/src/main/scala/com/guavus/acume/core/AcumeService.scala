@@ -191,6 +191,7 @@ class AcumeService {
   /**
    * The main entry point for executing custom transformations on acume cache values.
    * This special functionality is being added for low latency tmo query requirements.
+   * WARNING: This API assumes the callable are part of query execution and not scheduler prefetch tasks
    * @param callableResponses Callables that are to be executed via Acume; Acume retrieves the AcumeCacheValues based on
    *                          start/end time on which custom transformations can be applied
    * @param checkJobProperty  same as in original servMultiple
@@ -215,10 +216,6 @@ class AcumeService {
       }
     }
 
-    def run[T](callable: Callable[java.util.ArrayList[T]]): java.util.ArrayList[T] = {
-      callable.call()
-    }
-
     val callable = new Callable[java.util.ArrayList[T]]() {
       def call() = {
 
@@ -227,10 +224,7 @@ class AcumeService {
         val isIDSet = false;
 
         callableResponses foreach (callableResponse => {
-          if (AcumeConf.acumeConf.getBoolean(ConfConstants.schedulerQuery).getOrElse(false))
-            futureResponses.add(new AcumeCustomizedFuture[T](callableResponse))
-          else
-            futureResponses.add(threadPool.submit(callableResponse))
+           futureResponses.add(threadPool.submit(callableResponse))
         })
 
         val responses = new java.util.ArrayList[T]()
@@ -275,11 +269,7 @@ class AcumeService {
       }
     }
 
-    if (AcumeConf.acumeConf.getBoolean(ConfConstants.schedulerQuery).getOrElse(false)) {
-      run(callable)
-    } else {
-      runWithTimeout[T](callable)
-    }
+    runWithTimeout[T](callable)
   }
 
   //Developer API for not calling checkJobproperties and directly calling the QueryExecutor
