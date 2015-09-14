@@ -26,6 +26,8 @@ import com.guavus.acume.threads.NamedThreadPoolFactory
 import AcumeTreeCacheValue._
 import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
+import com.google.common.cache.LoadingCache
+import java.io.IOException
 
 abstract case class AcumeTreeCacheValue(dimensionTableName: String = null, acumeContext: AcumeCacheContextTrait) {
   
@@ -80,7 +82,7 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
           acumeValue.measureSchemaRdd.saveAsParquetFile(diskDirectory)
           acumeContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Reading " + diskDirectory, false)
           val rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
-          value = new AcumeDiskValue(acumeValue.levelTimestamp, acumeValue.cube, rdd)
+          value = new AcumeDiskValue(acumeValue.levelTimestamp, acumeValue.cube, rdd, acumeValue.cachePointToTable)
           value.acumeContext = acumeContext
           logger.info("Disk write complete for {}" + acumeValue.levelTimestamp.toString() + " for cube " + cube.getAbsoluteCubeName)
           this.acumeValue = value
@@ -104,6 +106,7 @@ trait AcumeValue {
   val levelTimestamp: LevelTimestamp
   val cube: Cube
   val measureSchemaRdd: SchemaRDD
+  val cachePointToTable: LoadingCache[LevelTimestamp, AcumeTreeCacheValue]
   var acumeContext : AcumeCacheContextTrait = null
   val logger: Logger = LoggerFactory.getLogger(classOf[AcumeValue])
   val skipCount: Boolean = false
@@ -125,7 +128,7 @@ trait AcumeValue {
   }
 }
 
-case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measureSchemaRdd: SchemaRDD, parentPoints: Seq[(AcumeValue, SchemaRDD)] = Seq()) extends AcumeValue {
+case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measureSchemaRdd: SchemaRDD, cachePointToTable: LoadingCache[LevelTimestamp, AcumeTreeCacheValue], parentPoints: Seq[(AcumeValue, SchemaRDD)] = Seq()) extends AcumeValue {
   val tempTables = AcumeCacheContextTraitUtil.getInstaTempTable()
 
   var tableName = cube.getAbsoluteCubeName
@@ -156,7 +159,7 @@ case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measur
   }
 }
 
-case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measureSchemaRdd: SchemaRDD, override val skipCount: Boolean = false) extends AcumeValue {
+case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measureSchemaRdd: SchemaRDD, cachePointToTable: LoadingCache[LevelTimestamp, AcumeTreeCacheValue], override val skipCount: Boolean = false) extends AcumeValue {
   var tableName = cube.getAbsoluteCubeName
   tableName = tableName + Utility.getlevelDirectoryName(levelTimestamp.level, levelTimestamp.aggregationLevel)
   tableName = tableName + "_" + levelTimestamp.timestamp + "_memory_disk"
@@ -164,10 +167,18 @@ case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measur
   registerAndCacheDataInMemory(tableName)
   
   override protected def finalize() {
-    logger.info("Unpersisting Data object " + levelTimestamp + " for cube " + cube.getAbsoluteCubeName +" from memory as well as disk ")
-    evictFromMemory
-    Utility.deleteDirectory(Utility.getDiskDirectoryForPoint(this.acumeContext, cube, levelTimestamp), acumeContext)
-    measureSchemaRdd.sqlContext.dropTempTable(tableName)
+    if(cachePointToTable.getIfPresent(levelTimestamp) == null) {
+      try {
+        logger.info("Unpersisting Data object " + levelTimestamp + " for cube " + cube.getAbsoluteCubeName +" from memory as well as disk ")
+        evictFromMemory
+        Utility.deleteDirectory(Utility.getDiskDirectoryForPoint(this.acumeContext, cube, levelTimestamp), acumeContext)
+        measureSchemaRdd.sqlContext.dropTempTable(tableName)
+      } catch {
+        case e: IOException => logger.warn(levelTimestamp + " not present on disk")
+      }
+    } else {
+      logger.info(levelTimestamp + " is present in cache map. Not deleting it from disk")
+    }
   }
 
 }
