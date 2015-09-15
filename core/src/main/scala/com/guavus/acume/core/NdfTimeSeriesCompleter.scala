@@ -7,7 +7,7 @@ import scala.collection.mutable.ListBuffer
 object NdfTimeSeriesCompleter {
 
   def getProperties = {
-    val ndfConfigFile = "/opt/tms/acumeDF-ca4.0/WEB-INF/classes/ndf.properties"
+    val ndfConfigFile = "/opt/tms/acumeDF-ca/WEB-INF/classes/ndf.properties"
     val prop = new java.util.Properties()
     try {
       prop.load(new java.io.FileInputStream(ndfConfigFile))
