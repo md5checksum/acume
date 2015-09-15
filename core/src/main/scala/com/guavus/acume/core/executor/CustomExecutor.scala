@@ -83,7 +83,7 @@ abstract class CustomExecutor[T](
 
 	  // get cache points corresponding to this cube
       // default behaviour is timeseries
-      val (rdds, timeStampList) = getCachePoints(instance, startTime, endTime, None, true)
+      val (rdds, timeStampList) = getCachePoints(instance, startTime, endTime, gran.getGranularity, None, true)
 
 	  // execute custom processing part
 	  response = customExec(acumeCacheContext, rdds, timeStampList, instance.cube)
@@ -113,9 +113,10 @@ abstract class CustomExecutor[T](
       instance: AcumeCache[k, v],
       startTime: Long,
       endTime: Long,
+      gran: Long,
       queryOptionalParam: Option[QueryOptionalParam],
       isMetaData: Boolean): (Seq[SchemaRDD], List[Long]) = {
-    instance.getCachePoints(startTime, endTime, None, true)
+    instance.getCachePoints(startTime, endTime, gran, None, true)
   }
 
     def customExec(acumeCacheContext: AcumeCacheContextTrait, rdds: Seq[SchemaRDD], timeStampList: List[Long], cube: Cube): T
