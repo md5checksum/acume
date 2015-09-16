@@ -1,14 +1,16 @@
 Name:        reflex-acume-solution
-Version:     @@VERSION@@
-Release:     1%{?dist}
+Version:     @@RPM_VERSION@@
+Release:     @@RPM_RELEASE@@%{?dist}
 Summary:     The Reflex Third Party Software Manager.
 Vendor:      Guavus Network Systems
 License:     Proprietary
 URL:         http://www.guavus.com
 BuildRoot:   %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 Packager:    Reflex ACUME Solution (acume@guavus.com)
-Source0:     reflex-acume-solution-@@VERSION@@.tar
-Requires:    reflex-acume-base = %{version}-%{release},reflex-dataminingUdaf = %{version}-%{release},reflex-crux = %{version}-%{release}
+Source0:     reflex-acume-solution-%{version}.tar
+Requires:    reflex-acume-base >= %{version}, reflex-acume-base < @@RPM_VERSION_CHANGE@@
+Requires:    reflex-dataminingUdaf >= %{version}, reflex-dataminingUdaf < @@RPM_VERSION_CHANGE@@
+Requires:    reflex-crux >= %{version}, reflex-crux < @@RPM_VERSION_CHANGE@@
 
 #SOURCE1:    filter_perl_requires.sh
 

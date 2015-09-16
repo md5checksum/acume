@@ -1,14 +1,17 @@
 Name:        reflex-acume-base
-Version:     @@VERSION@@
-Release:     1%{?dist}
+Version:     @@RPM_VERSION@@
+Release:     @@RPM_RELEASE@@%{?dist}
 Summary:     The Reflex Third Party Software Manager.
 Vendor:      Guavus Network Systems
 License:     Proprietary
 URL:         http://www.guavus.com
 BuildRoot:   %(mktemp -ud %{_tmppath}/%{name}-%{version}-%{release}-XXXXXX)
 Packager:    Reflex ACUME Base (acume@guavus.com)
-Source0:     reflex-acume-base-@@VERSION@@.tar
-Requires:    reflex-hadoop = %{version}-%{release}, reflex-sparksql = %{version}-%{release}, reflex-base = %{version}-%{release},reflex-insta-as-api = %{version}-%{release}
+Source0:     reflex-acume-base-%{version}.tar
+Requires:    reflex-base >= %{version}, reflex-base < @@RPM_VERSION_CHANGE@@
+Requires:    reflex-hadoop >= %{version}, reflex-hadoop < @@RPM_VERSION_CHANGE@@
+Requires:    reflex-sparksql >= %{version}, reflex-sparksql < @@RPM_VERSION_CHANGE@@
+Requires:    reflex-insta-as-api >= %{version}, reflex-insta-as-api < @@RPM_VERSION_CHANGE@@
 
 #SOURCE1:    filter_perl_requires.sh
 
