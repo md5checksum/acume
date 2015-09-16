@@ -207,19 +207,19 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
   override def getAggregateCachePoints(
       startTime: Long,
       endTime: Long,
+      gran: Long,
       queryOptionalParam: Option[QueryOptionalParam],
       isMetaData: Boolean) : (Seq[SchemaRDD], List[Long]) = {
 
     val duration = endTime - startTime
-    val timestampMap : Option[MutableMap[Long, MutableList[(Long, Long)]]] = queryOptionalParam match {
-      case Some(param) =>
-        if (param.getTimeSeriesGranularity() != 0) {
-          val level = param.getTimeSeriesGranularity
+    val timestampMap : Option[MutableMap[Long, MutableList[(Long, Long)]]] = 
+    if (gran != 0) {
+      val level = gran
           val startTimeCeiling = cacheLevelPolicy.getCeilingToLevel(startTime, level)
           val endTimeFloor = cacheLevelPolicy.getFloorToLevel(endTime, level)
           Some(MutableMap(level -> MutableList((startTimeCeiling, endTimeFloor))))
-        } else None
-      case None => None
+    } else { 
+      None
     }
     val levelTimestampMap = timestampMap.getOrElse(cacheLevelPolicy.getRequiredIntervals1(startTime, endTime))
     getCachePointsForIntervals(levelTimestampMap, isMetaData)
@@ -237,15 +237,13 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
   override def getCachePoints(
       startTime: Long,
       endTime: Long,
+      gran: Long,
       queryOptionalParam: Option[QueryOptionalParam],
       isMetaData: Boolean): (Seq[SchemaRDD], List[Long]) = {
 
     val baseLevel = cube.baseGran.getGranularity
-    val level =
-      queryOptionalParam match {
-        case Some(param) =>
-          if (param.getTimeSeriesGranularity() != 0) {
-            var level = Math.max(baseLevel, param.getTimeSeriesGranularity());
+    val level = if (gran != 0) {
+      var level = Math.max(baseLevel, gran);
             val variableRetentionMap = getVariableRetentionMap
             if (!variableRetentionMap.contains(new Level(level))) {
               val headMap = variableRetentionMap.filterKeys(_.level < level);
@@ -255,9 +253,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
               level = headMap.lastKey.level
             }
             level
-          } else
-            Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource)))
-        case None =>
+    } else {
           Math.max(baseLevel, timeSeriesAggregationPolicy.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(cube.binSource)))
       }
 

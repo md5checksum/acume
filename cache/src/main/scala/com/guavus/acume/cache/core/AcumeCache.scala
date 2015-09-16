@@ -45,6 +45,7 @@ abstract class AcumeCache[k, v](val acumeCacheContext: AcumeCacheContextTrait, v
   def getCachePoints(
       startTime: Long,
       endTime: Long,
+      gran: Long,
       queryOptionalParam: Option[QueryOptionalParam],
       isMetaData: Boolean): (Seq[SchemaRDD], List[Long]) =
     throw new NotImplementedError("AcumeCache does not implement getCachePoints().")
@@ -52,6 +53,7 @@ abstract class AcumeCache[k, v](val acumeCacheContext: AcumeCacheContextTrait, v
   def getAggregateCachePoints(
       startTime: Long,
       endTime: Long,
+      gran: Long,
       queryOptionalParam: Option[QueryOptionalParam],
       isMetaData: Boolean): (Seq[SchemaRDD], List[Long]) =
     throw new NotImplementedError("AcumeCache does not implement getCachePoints().")

@@ -43,9 +43,10 @@ abstract class AggregateCustomExecutor[T](
       instance: AcumeCache[k, v],
       startTime: Long,
       endTime: Long,
+      gran: Long,
       queryOptionalParam: Option[QueryOptionalParam],
       isMetaData: Boolean): (Seq[SchemaRDD], List[Long]) = {
-    instance.getAggregateCachePoints(startTime, endTime, None, true)
+    instance.getAggregateCachePoints(startTime, endTime, gran, None, true)
   }
 
 }
