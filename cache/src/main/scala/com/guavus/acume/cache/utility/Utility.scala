@@ -830,7 +830,13 @@ object Utility extends Logging {
   def getTimeZoneInfo(ids: List[String], startYear: Int, endYear: Int, timezoneDbFilePath : String): List[TimeZoneInfo] = {
     val result = new ArrayBuffer[TimeZoneInfo]()
     for (id <- ids) {
-      result.add(getTimeZoneInfo(id, startYear, endYear, timezoneDbFilePath))
+      try{
+        result.add(getTimeZoneInfo(id, startYear, endYear, timezoneDbFilePath))
+      }
+      catch{
+        case e :Exception => 
+        throw new RuntimeException("Invalid TimeZone " +id +" "+ e.getMessage())
+      }
     }
     result.toList
   }
