@@ -35,7 +35,7 @@ abstract class AggregateCustomExecutor[T](
     indexDimensionValue: Long,
     startTime: Long,
     endTime: Long,
-    gran: TimeGranularity.TimeGranularity,
+    gran: Option[TimeGranularity.TimeGranularity],
     cube: CubeKey)
   extends CustomExecutor[T](indexDimensionValue, startTime, endTime, gran, cube) {
 
