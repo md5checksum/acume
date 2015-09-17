@@ -44,7 +44,7 @@ abstract class CustomExecutor[T](
     indexDimensionValue: Long,
     startTime: Long,
     endTime: Long,
-    gran: TimeGranularity.TimeGranularity,
+    gran: Option[TimeGranularity.TimeGranularity],
     cube: CubeKey)
   extends Callable[T] {
 
@@ -80,10 +80,13 @@ abstract class CustomExecutor[T](
 
       // Validate query and get cache instance
       val instance = getCacheInstance(startTime, endTime, cube)
+      
+      // gran could be null
+      val granVal = if (gran.isDefined) gran.get.getGranularity else 0
 
 	  // get cache points corresponding to this cube
       // default behaviour is timeseries
-      val (rdds, timeStampList) = getCachePoints(instance, startTime, endTime, gran.getGranularity, None, true)
+      val (rdds, timeStampList) = getCachePoints(instance, startTime, endTime, granVal, None, true)
 
 	  // execute custom processing part
 	  response = customExec(acumeCacheContext, rdds, timeStampList, instance.cube)
