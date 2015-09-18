@@ -40,6 +40,8 @@ import com.guavus.rubix.cache.Interval
 import com.guavus.acume.core.scheduler.UnionizedCacheAvailabilityPolicy
 import com.guavus.rubix.query.remote.flex.LoginParameterRequest
 import com.guavus.acume.workflow.RequestDataType
+import com.guavus.rubix.query.remote.flex.InstaAvailabilityResponse
+import com.guavus.rubix.query.remote.flex.StartEndResponse
 
 @Path("/" + "queryresponse")
 /**
@@ -238,9 +240,14 @@ class RestService {
   @POST
   @Path("instaAvailability")
   def getInstaAvailabilty(@QueryParam(value = "super") userinfo : String,
-      @QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("binSource") binSource : String) : Map[Long, (Long, Long)] = {
+      @QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("binSource") binSource : String) : java.util.List[InstaAvailabilityResponse] = {
     Authentication.authenticate(userinfo, user, password)
-    new PSUserService().getInstaTimeInterval(binSource)
+    val response: Map[Long, (Long, Long)] = new PSUserService().getInstaTimeInterval(binSource)
+    val instaResponse: java.util.List[InstaAvailabilityResponse] = new java.util.ArrayList[InstaAvailabilityResponse]()
+    for ((k: Long, v:(Long,Long)) <- response){
+      instaResponse.add(new InstaAvailabilityResponse(k, new StartEndResponse(v._1,v._2)))
+    }
+    instaResponse
   }
   
   @POST
