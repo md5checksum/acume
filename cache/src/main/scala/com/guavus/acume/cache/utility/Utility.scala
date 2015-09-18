@@ -835,7 +835,7 @@ object Utility extends Logging {
       }
       catch{
         case e :Exception => 
-        throw new RuntimeException("Invalid TimeZone " +id +" "+ e.getMessage())
+        throw new AcumeException("Invalid TimeZone " +id +" "+ e.getMessage())
       }
     }
     result.toList

@@ -159,12 +159,3 @@ class AcumeAvailabilityRequestServlet extends AbstractRequestServlet {
   }
  
 }
-
-class UnionizedCacheAvailabilityServlet extends AbstractRequestServlet {
-
-   override def getResponse(req : HttpServletRequest) : Serializable = {
-    service.getUnionizedCacheAvailability(req.getParameter("super"),req.getParameter("user"), req.getParameter("password")).asInstanceOf[Serializable]
-  }
- 
-}
-

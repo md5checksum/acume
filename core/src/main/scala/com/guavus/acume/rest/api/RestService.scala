@@ -34,14 +34,12 @@ import com.guavus.acume.core.PSUserService
 import com.guavus.rubix.query.remote.flex.TimeZoneInfo
 import com.guavus.rubix.query.remote.flex.ZoneInfoRequest
 import com.guavus.rubix.user.management.vo.ValidateSessionRequest
-import com.guavus.acume.core.scheduler.AcumeCacheAvailabilityPolicy
 import scala.collection.mutable.HashMap
 import com.guavus.rubix.cache.Interval
-import com.guavus.acume.core.scheduler.UnionizedCacheAvailabilityPolicy
 import com.guavus.rubix.query.remote.flex.LoginParameterRequest
 import com.guavus.acume.workflow.RequestDataType
-import com.guavus.rubix.query.remote.flex.InstaAvailabilityResponse
 import com.guavus.rubix.query.remote.flex.StartEndResponse
+import com.guavus.acume.core.scheduler.ICacheAvalabilityUpdatePolicy
 
 @Path("/" + "queryresponse")
 /**
@@ -201,7 +199,7 @@ class RestService {
     } catch {
       case ex : HttpUMException =>{
         throw ex
-      } //logger.warn("Invalid session. Trying to authenticate through rubix db")
+      }
         
     }
   }
@@ -240,12 +238,12 @@ class RestService {
   @POST
   @Path("instaAvailability")
   def getInstaAvailabilty(@QueryParam(value = "super") userinfo : String,
-      @QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("binSource") binSource : String) : java.util.List[InstaAvailabilityResponse] = {
+      @QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("binSource") binSource : String) : java.util.Map[Long,StartEndResponse] = {
     Authentication.authenticate(userinfo, user, password)
     val response: Map[Long, (Long, Long)] = new PSUserService().getInstaTimeInterval(binSource)
-    val instaResponse: java.util.List[InstaAvailabilityResponse] = new java.util.ArrayList[InstaAvailabilityResponse]()
+    val instaResponse: java.util.Map[Long,StartEndResponse] = new java.util.HashMap[Long, StartEndResponse]()
     for ((k: Long, v:(Long,Long)) <- response){
-      instaResponse.add(new InstaAvailabilityResponse(k, new StartEndResponse(v._1,v._2)))
+      instaResponse.put(k, new StartEndResponse(v._1,v._2))
     }
     instaResponse
   }
@@ -253,18 +251,19 @@ class RestService {
   @POST
   @Path("acumeAvailability")
   def getAcumeAvailabilty(@QueryParam(value = "super") userinfo : String,
-      @QueryParam("user") user : String, @QueryParam("password") password : String) : HashMap[String, HashMap[Long, Interval]] = {
+      @QueryParam("user") user : String, @QueryParam("password") password : String) : java.util.Map[String, java.util.Map[Long, Interval]] = {
     Authentication.authenticate(userinfo, user, password)
-    new AcumeCacheAvailabilityPolicy().getCacheAvalabilityMap
+    val map : HashMap[String, HashMap[Long, Interval]] = ICacheAvalabilityUpdatePolicy.getICacheAvalabiltyUpdatePolicy.getCacheAvalabilityMap
+    val resultMap : java.util.Map[String, java.util.Map[Long, Interval]] = new java.util.HashMap[String, java.util.Map[Long, Interval]]()
+    for ((key: String, value:scala.collection.mutable.HashMap[Long,Interval]) <- map){
+      resultMap.put(key, new java.util.HashMap[Long, Interval]() )
+      for ((k: Long, v:Interval) <-value){
+      resultMap.get(key).put(k,v)
+      }
+    }
+    resultMap
   }
   
-  @POST
-  @Path("unionizedCache")
-  def getUnionizedCacheAvailability(@QueryParam(value = "super") userinfo : String,
-      @QueryParam("user") user : String, @QueryParam("password") password : String) : HashMap[String, HashMap[Long, Interval]] = {
-    Authentication.authenticate(userinfo, user, password)
-    new UnionizedCacheAvailabilityPolicy().getCacheAvalabilityMap
-  }
   /**
    * Takes rubix like query as input with additional params and return response. This handles timeseries as well as aggregate queries
    */

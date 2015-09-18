@@ -10,15 +10,15 @@ import scala.reflect.{BeanProperty, BooleanBeanProperty}
 @XmlRootElement
 class StartEndResponse extends Serializable{
   @BeanProperty
-  var start: Long =_
+  var startTime: Long =_
   
   @BeanProperty
-  var end: Long =_
+  var endTime: Long =_
   
-  def this(start: Long, end: Long) {
+  def this(startTime: Long, endTime: Long) {
     this()
-    this.start = start
-    this.end = end
+    this.startTime = startTime
+    this.endTime = endTime
   }
   
 }
