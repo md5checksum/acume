@@ -3,6 +3,7 @@
 		<functionName>attvaludaf</functionName>
 		<fullUdfclassName>com.guavus.attval.attvaludaf.Attvaludaf</fullUdfclassName>
 	</UserDefined>
+	
 	<UserDefined>
 		<functionName>pcsabinaryudaf</functionName>
 		<fullUdfclassName>com.guavus.pcsa.pcsaudaf.PCSABinaryudaf</fullUdfclassName>
@@ -12,4 +13,25 @@
 		<functionName>pcsacountudaf</functionName>
 		<fullUdfclassName>com.guavus.pcsa.pcsaudaf.PCSACountudaf</fullUdfclassName>
 	</UserDefined>
+
+	<UserDefined>
+		<functionName>genericUDAF</functionName>
+		<fullUdfclassName>com.guavus.densevectorudf.GenericDenseVectorUDAFResolver</fullUdfclassName>
+	</UserDefined>
+
+	<UserDefined>
+		<functionName>peakUDF</functionName>
+		<fullUdfclassName>com.guavus.densevectorudf.PeakDenseVectorUDF</fullUdfclassName>
+	</UserDefined>
+
+	<UserDefined>
+		<functionName>p95UDF</functionName>
+		<fullUdfclassName>com.guavus.densevectorudf.P95DenseVectorUDF</fullUdfclassName>
+	</UserDefined>
+
+	<UserDefined>
+		<functionName>averageUDF</functionName>
+		<fullUdfclassName>com.guavus.densevectorudf.AverageDenseVectorUDF</fullUdfclassName>
+	</UserDefined>
+
 </AcumeUdfs>

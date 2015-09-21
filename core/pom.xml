@@ -314,6 +314,11 @@
 			<artifactId>attvaludf</artifactId>
 			<version>platform5.0</version>
 		</dependency>
+		<dependency>
+			<groupId>com.guavus</groupId>
+			<artifactId>densevectorudf</artifactId>
+			<version>${pversion}</version>
+		</dependency>
 
 		<!-- UI jars. Flex and blazeds -->
 		<dependency>
