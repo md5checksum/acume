@@ -162,10 +162,6 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>RGService</servlet-name>
-        <url-pattern>/queryresponse/aggregate</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>RGService</servlet-name>
         <url-pattern>/queryresponse/gdimensions</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
