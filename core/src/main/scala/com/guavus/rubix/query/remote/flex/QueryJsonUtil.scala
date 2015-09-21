@@ -10,6 +10,7 @@ import com.guavus.acume.core.query.DataExportResponse
 import com.guavus.rubix.user.management.vo.LoginRequest
 import com.guavus.rubix.user.management.vo.ValidateSessionRequest
 import com.guavus.rubix.user.management.vo.LoginResponse
+import com.guavus.rubix.user.management.vo.LogoutRequest
 
 
 object QueryJsonUtil {
@@ -67,6 +68,10 @@ object QueryJsonUtil {
   }
   
   def loginParameterRequestToJson(response: LoginParameterRequest): String = gson.toJson(response)
+  
+  def fromJsonToLogoutRequest(json: String): LogoutRequest = {
+    gson.fromJson(json, classOf[LogoutRequest])
+  }
   
 /*
 Original Java:

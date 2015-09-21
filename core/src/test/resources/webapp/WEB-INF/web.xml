@@ -185,6 +185,10 @@
         <servlet-name>AcumeAvailability</servlet-name>
         <servlet-class>com.guavus.acume.core.servlet.AcumeAvailabilityRequestServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>Logout</servlet-name>
+        <servlet-class>com.guavus.acume.core.servlet.LogoutRequestServlet</servlet-class>
+    </servlet>
   	
   	<servlet-mapping>
     	<servlet-name>Sql</servlet-name>
@@ -241,6 +245,10 @@
     <servlet-mapping>
         <servlet-name>AcumeAvailability</servlet-name>
     <url-pattern>/queryresponse/acumeAvailability</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Logout</servlet-name>
+    <url-pattern>/queryresponse/logout</url-pattern>
     </servlet-mapping>
 
 
