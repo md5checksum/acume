@@ -269,7 +269,7 @@ class RestService {
   @POST
   @Path("logout")
   def getLogoutResponse(logoutRequest : LogoutRequest) : LogoutResponse = {
-    UserManagementUtils.getIWebUMService().logout(new LogoutRequest)
+    UserManagementUtils.getIWebUMService().logout(logoutRequest)
     new LogoutResponse()
   }
   
