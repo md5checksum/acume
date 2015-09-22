@@ -318,6 +318,12 @@
 			<groupId>com.guavus</groupId>
 			<artifactId>densevectorudf</artifactId>
 			<version>${pversion}</version>
+			<exclusions>
+				<exclusion>
+		  			<groupId>edu.berkeley.cs.shark</groupId>
+  					<artifactId>hive-exec</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- UI jars. Flex and blazeds -->
