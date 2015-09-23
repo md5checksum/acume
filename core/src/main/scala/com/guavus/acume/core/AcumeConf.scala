@@ -293,7 +293,7 @@ object AcumeConf {
    
    def acumeConf() : AcumeConf = {
      if(threadLocal.get() == null) {
-    	threadLocal.set(AcumeContextTraitUtil.acumeConf)
+    	threadLocal.set(new AcumeConf(true, "/acume.ini"))
      }
      threadLocal.get()
    }
