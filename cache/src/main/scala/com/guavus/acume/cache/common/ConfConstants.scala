@@ -66,7 +66,7 @@ private [acume] object ConfConstants {
   val enableScheduler = "acume.scheduler.enable"
   val enableDatasource = "acume.datasource.enable"
 
-  /* For HIVE. Thin client properties */
+  /* For HIVE/HBASE. Thin client properties */
   val useInsta = "acume.core.use.insta"
   
   val levelpolicymap = "levelpolicymap"

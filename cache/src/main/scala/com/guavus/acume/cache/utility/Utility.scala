@@ -428,9 +428,9 @@ object Utility extends Logging {
         }
         val timeserieslevelpolicymap = Utility.getLevelPointMap(timeSeriesLevelPolicyString).map(x =>x._1.level -> x._2)
 
-        
         //Hbase configs
         var hbaseConfig : HbaseConfigs = null
+        if(!conf.getBoolean(ConfConstants.useInsta).getOrElse(false)){
         if(DatasourceType.HBASE.equals(DatasourceType.getDataSourceTypeFromString(cubeDatasourceName))) {
           val orderedPrimaryKeys = propertyMap.getOrElse(ConfConstants.primaryKeys, "").split(";")
           val nameSpace = propertyMap.getOrElse(ConfConstants.nameSpace, "default")
@@ -441,6 +441,7 @@ object Utility extends Logging {
           }).toMap
           
           hbaseConfig = HbaseConfigs(nameSpace, tableName, cubeDatasourceName, cubeName, orderedPrimaryKeys, columnMappings)
+         }
         }
         
         
