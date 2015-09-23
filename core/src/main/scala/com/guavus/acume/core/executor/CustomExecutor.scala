@@ -41,11 +41,11 @@ private val acumeCacheContext: AcumeCacheContextTrait =
  * @tparam T Output type T
  */
 abstract class CustomExecutor[T](
-    indexDimensionValue: Long,
-    startTime: Long,
-    endTime: Long,
-    gran: Option[TimeGranularity.TimeGranularity],
-    cube: CubeKey)
+    val indexDimensionValue: Long,
+    val startTime: Long,
+    val endTime: Long,
+    val gran: Option[TimeGranularity.TimeGranularity],
+    val cube: CubeKey)
   extends Callable[T] {
 
   @BeanProperty
