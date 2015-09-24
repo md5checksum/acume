@@ -12,6 +12,7 @@ Requires:    reflex-base >= %{version}, reflex-base < @@RPM_VERSION_CHANGE@@
 Requires:    reflex-hadoop >= %{version}, reflex-hadoop < @@RPM_VERSION_CHANGE@@
 Requires:    reflex-sparksql >= %{version}, reflex-sparksql < @@RPM_VERSION_CHANGE@@
 Requires:    reflex-insta-as-api >= %{version}, reflex-insta-as-api < @@RPM_VERSION_CHANGE@@
+Requires:    reflex-rubixd >= %{version}, reflex-rubixd < @@RPM_VERSION_CHANGE@@ 
 
 #SOURCE1:    filter_perl_requires.sh
 
