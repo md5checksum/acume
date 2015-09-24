@@ -16,6 +16,8 @@ import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.utility.SQLParserFactory
 import java.io.StringReader
+import com.guavus.acume.cache.disk.utility.InstaDataLoaderThinAcume
+import com.guavus.acume.cache.disk.utility.DataLoader
 
 /**
  * @author kashish.jain
@@ -24,7 +26,15 @@ import java.io.StringReader
 class AcumeHbaseCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheConf) extends AcumeCacheContextTrait(cacheSqlContext, cacheConf) {
 
   private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeHbaseCacheContext])
-   
+  private val useInsta : Boolean = cacheConf.getBoolean(ConfConstants.useInsta).getOrElse(false)
+  
+  override val dataLoader : DataLoader = {
+    if(!useInsta)
+      null
+    else
+      new InstaDataLoaderThinAcume(this, cacheConf, null)
+  }
+  
   initHbase
   
   private def constructQueryFromCube(cube: Cube) : String = {
@@ -61,40 +71,57 @@ class AcumeHbaseCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheC
   }
   
   private def initHbase {
-    // Create table for every cube of hbase
-    cubeList.map(cube => {
-    	val query = constructQueryFromCube(cube)
-      val tableName = cube.cubeName
-      
-      //Drop table if already exists
-      try{
-    	  cacheSqlContext.sql(s"drop table $tableName").collect
-        logger.info(s"temp table $tableName dropped")
-      } catch {
-        case e: Exception => logger.error(s"Dropping temp table $tableName failed. ", e.getLocalizedMessage)
-        case th : Throwable => logger.error(s"Dropping temp table $tableName failed. ", th.getLocalizedMessage)
-      }
-      
-      //Create table with cubename
-      try{
-        cacheSqlContext.sql(query).collect
-        logger.info(s"temp table $tableName created")
-      } catch {
-        case e: Exception => throw new RuntimeException(s"Creating temp table $tableName failed. " , e)
-        case th : Throwable => throw new RuntimeException(s"Creating temp table $tableName failed. ", th)
-      }
-    })
+
+    if (!useInsta) {
+      // Create table for every cube of hbase
+      cubeList.map(cube => {
+        val query = constructQueryFromCube(cube)
+        val tableName = cube.cubeName
+
+        //Drop table if already exists
+        try {
+          cacheSqlContext.sql(s"drop table $tableName").collect
+          logger.info(s"temp table $tableName dropped")
+        } catch {
+          case e: Exception => logger.error(s"Dropping temp table $tableName failed. ", e.getLocalizedMessage)
+          case th: Throwable => logger.error(s"Dropping temp table $tableName failed. ", th.getLocalizedMessage)
+        }
+
+        //Create table with cubename
+        try {
+          cacheSqlContext.sql(query).collect
+          logger.info(s"temp table $tableName created")
+        } catch {
+          case e: Exception => throw new RuntimeException(s"Creating temp table $tableName failed. ", e)
+          case th: Throwable => throw new RuntimeException(s"Creating temp table $tableName failed. ", th)
+        }
+      })
+    }
   }
   
   override private [acume] def executeQuery(sql: String) = {
     logger.info("AcumeRequest obtained on HBASE: " + sql)
 
-    val (timestamps, correctsql, level) = getTimestampsAndSql(sql)
+    var (timestamps, correctsql, level) = getTimestampsAndSql(sql)
+
     var updatedsql = correctsql._1._1
+    val updatedparsedsql = correctsql._2
+    val cube = updatedparsedsql._1(0).getCubeName
+    val binsource = updatedparsedsql._1(0).getBinsource
+    val rt = updatedparsedsql._2
+    val startTime = updatedparsedsql._1(0).getStartTime
+    val endTime = updatedparsedsql._1(0).getEndTime
     
-    logger.info("Firing corrected query on HBASE " +  updatedsql)
-    val resultSchemaRDD = cacheSqlContext.sql(updatedsql)
-    new AcumeCacheResponse(resultSchemaRDD, resultSchemaRDD.rdd, MetaData(-1, timestamps.toList))
+    if (!useInsta) {
+      //Replace the ts with "timestamp"
+      val tsRegex = "\\b" + "ts" + "\\b"
+      val tsReplacedSql = updatedsql.replaceAll(tsRegex, "timestamp")
+      executeThinClientQuery(tsReplacedSql, timestamps)
+      } else {
+      var tableName = AcumeCacheContextTraitUtil.getTable(cube)
+      updatedsql = updatedsql.replaceAll(s"$cube", s"$tableName")
+      executeThickClientQuery(updatedsql, timestamps, cube, binsource, rt, startTime, endTime, level, tableName)
+    }
   }
   
 }

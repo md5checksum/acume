@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest
 import com.guavus.rubix.query.remote.flex.ZoneInfoRequest
 import com.guavus.rubix.user.management.vo.ValidateSessionRequest
 import com.guavus.rubix.query.remote.flex.LoginParameterRequest
+import com.guavus.rubix.user.management.vo.LogoutRequest
 
 
 class SearchRequestServlet extends AbstractRequestServlet {
@@ -156,6 +157,15 @@ class AcumeAvailabilityRequestServlet extends AbstractRequestServlet {
 
    override def getResponse(req : HttpServletRequest) : Serializable = {
     service.getAcumeAvailabilty(req.getParameter("super"),req.getParameter("user"), req.getParameter("password")).asInstanceOf[Serializable]
+  }
+ 
+}
+
+class LogoutRequestServlet extends AbstractRequestServlet {
+
+  override def getResponse(req : HttpServletRequest) : Serializable = {
+    val logoutRequest : LogoutRequest = QueryJsonUtil.fromJsonToLogoutRequest(req.getReader().readLine())
+    service.getLogoutResponse(logoutRequest).asInstanceOf[Serializable]
   }
  
 }

@@ -19,6 +19,7 @@ import com.guavus.acume.cache.common.ConfConstants
 import org.apache.hadoop.fs.Path
 import com.guavus.acume.cache.disk.utility.InstaUtil
 import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
+import com.guavus.insta.Insta
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -46,7 +47,8 @@ object AcumeContextTraitUtil {
   def initAcumeContextTraitFactory(datsourceNames : Array[String]) : HashMap[String, AcumeContextTrait] = {
     val acumeContextMap = HashMap[String, AcumeContextTrait]()
     
-    val insta = InstaUtil.initializeInstaClient(hiveContext)
+    val insta = getInstaClient()
+    
     datsourceNames.map(dsName => {
       val context: AcumeContextTrait =
         DatasourceType.getDataSourceTypeFromString(dsName.toLowerCase) match {
@@ -66,7 +68,14 @@ object AcumeContextTraitUtil {
     BinAvailabilityPoller.init(insta)
     acumeContextMap
   }
-
+  
+  def getInstaClient() : Insta = {
+		if(acumeConf.getUseInsta(DatasourceType.HBASE.toString().toLowerCase()))
+			InstaUtil.initializeInstaClient(hiveContext, hBaseSQLContext)
+		else
+			InstaUtil.initializeInstaClient(hiveContext, null)
+  }
+  
   lazy  val chooseHiveDatabase = {
     try{
        logger.info("Choosing database on Hive" + acumeConf.get(ConfConstants.backendDbName))

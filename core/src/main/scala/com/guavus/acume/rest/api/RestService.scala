@@ -40,6 +40,8 @@ import com.guavus.rubix.query.remote.flex.LoginParameterRequest
 import com.guavus.acume.workflow.RequestDataType
 import com.guavus.rubix.query.remote.flex.StartEndResponse
 import com.guavus.acume.core.scheduler.ICacheAvalabilityUpdatePolicy
+import com.guavus.rubix.user.management.vo.LogoutRequest
+import com.guavus.rubix.user.management.vo.LogoutResponse
 
 @Path("/" + "queryresponse")
 /**
@@ -265,6 +267,13 @@ class RestService {
       }
     }
     resultMap
+  }
+  
+  @POST
+  @Path("logout")
+  def getLogoutResponse(logoutRequest : LogoutRequest) : LogoutResponse = {
+    UserManagementUtils.getIWebUMService().logout(logoutRequest)
+    new LogoutResponse()
   }
   
   /**

@@ -32,11 +32,11 @@ private val acumeCacheContext: AcumeCacheContextTrait =
 }
 
 abstract class AggregateCustomExecutor[T](
-    indexDimensionValue: Long,
-    startTime: Long,
-    endTime: Long,
-    gran: Option[TimeGranularity.TimeGranularity],
-    cube: CubeKey)
+    override val indexDimensionValue: Long,
+    override val startTime: Long,
+    override val endTime: Long,
+    override val gran: Option[TimeGranularity.TimeGranularity],
+    override val cube: CubeKey)
   extends CustomExecutor[T](indexDimensionValue, startTime, endTime, gran, cube) {
 
   override def getCachePoints[k, v](
