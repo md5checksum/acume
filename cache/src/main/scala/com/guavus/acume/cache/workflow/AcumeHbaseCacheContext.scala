@@ -113,10 +113,7 @@ class AcumeHbaseCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheC
     val endTime = updatedparsedsql._1(0).getEndTime
     
     if (!useInsta) {
-      //Replace the ts with "timestamp"
-      val tsRegex = "\\b" + "ts" + "\\b"
-      val tsReplacedSql = updatedsql.replaceAll(tsRegex, "timestamp")
-      executeThinClientQuery(tsReplacedSql, timestamps)
+      executeThinClientQuery(updatedsql, timestamps)
       } else {
       var tableName = AcumeCacheContextTraitUtil.getTable(cube)
       updatedsql = updatedsql.replaceAll(s"$cube", s"$tableName")
