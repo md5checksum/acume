@@ -41,8 +41,8 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
 	lazy private [cache] val dimensionMap = AcumeCacheContextTraitUtil.dimensionMap
   lazy private [cache] val cubeMap = AcumeCacheContextTraitUtil.cubeMap.filter(cubeKey => cubeKey._2.dataSource.equalsIgnoreCase(cacheConf.getDataSourceName))
   lazy private [cache] val cubeList = AcumeCacheContextTraitUtil.cubeList.filter(cube => cube.dataSource.equalsIgnoreCase(cacheConf.getDataSourceName))
-  private [cache] val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]()(implicitly[Ordering[Long]]) ++ Utility.getLevelPointMap(cacheConf.get(ConfConstants.acumecoretimeserieslevelmap)).map(x=> (x._1.level, x._2)))
-
+  private [cache] val cubeKeycacheTimeseriesLevelPolicyMap = scala.collection.mutable.Map[String, CacheTimeSeriesLevelPolicy]() ++ cubeMap.map(x => x._1.name + "_" + x._1.binsource -> new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]()(implicitly[Ordering[Long]]) ++ x._2.cacheTimeseriesLevelPolicyMap)).toMap
+  
   lazy val cacheBaseDirectory = cacheConf.get(ConfConstants.cacheBaseDirectory)
 
   // Cache the file system object. This inherits the limitation that Acume will work with one filesystem for one run.
@@ -158,11 +158,21 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
     
     validateQuery(startTime, endTime, binsource, cacheConf.getDataSourceName, cubeName)
 
-    val level : Long = {
+    val level: Long = {
       if (queryOptionalParams.getTimeSeriesGranularity() != 0) {
-          queryOptionalParams.getTimeSeriesGranularity()
+        queryOptionalParams.getTimeSeriesGranularity()
       } else {
-        cubeMap.get(CubeKey(cubeName, binsource)).getOrElse(throw new RuntimeException(s"Cube not found with name $cubeName and binsource $binsource")).baseGran.granularity
+        val baseLevel = getCube(new CubeKey(cubeName, binsource)).baseGran.getGranularity
+        if (rt == RequestType.Timeseries) {
+          val cubetimeseriesMap = cubeKeycacheTimeseriesLevelPolicyMap.get(cubeName.toLowerCase + "_" + binsource)
+          if (cubetimeseriesMap == None || cubetimeseriesMap.isEmpty) {
+            Math.max(baseLevel, new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]()(implicitly[Ordering[Long]]) ++ Utility.getLevelPointMap(cacheConf.get(ConfConstants.acumecoretimeserieslevelmap)).map(x => (x._1.level, x._2)).toMap).getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(binsource)))
+          } else {
+            Math.max(baseLevel, cubetimeseriesMap.get.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(binsource)))
+          }
+        } else {
+          baseLevel
+        }
       }
     }
     
