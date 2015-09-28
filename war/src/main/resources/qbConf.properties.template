@@ -12,3 +12,15 @@
 
 #qb.userdefined.max=aggregate
 #qb.userdefined.ascii=nonaggregate
+
+#Sample configuration for dense vector udfs and udafs
+#qb.userdefined.peakUDF=nonaggregate,1L
+#qb.userdefined.averageUDF=nonaggregate,1L
+#qb.userdefined.p95UDF=nonaggregate,1L
+#qb.userdefined.genericUDAF=aggregate,1L
+ 
+#qb.function.derivedmeasure.genericUDAF_measure=genericUDAF(measureName)
+#qb.function.derivedmeasure.peak_val = peakUDF(genericUDAF_measure)
+#qb.function.derivedmeasure.p95_val = p95UDF(genericUDAF_measure)
+#qb.function.derivedmeasure.avg_val = averageUDF(genericUDAF_measure)
+

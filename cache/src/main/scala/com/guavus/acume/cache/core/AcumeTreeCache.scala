@@ -114,7 +114,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       if (priority == 1 && Utility.isPathExisting(diskDirpath, acumeCacheContext) && Utility.isDiskWriteComplete(diskDirectory, acumeCacheContext)) {
         acumeCacheContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk cache reading " + diskDirectory, false)
         val rdd = acumeCacheContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
-        return new AcumeFlatSchemaCacheValue(new AcumeDiskValue(levelTimestamp, cube, rdd, true), acumeCacheContext)
+        return new AcumeFlatSchemaCacheValue(new AcumeDiskValue(levelTimestamp, cube, rdd, cachePointToTable, true), acumeCacheContext)
       }
     } catch {
       case _: Exception =>
@@ -217,7 +217,7 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
           if (tryGetOrNull(aggregatedTimestamp) == null) {
         	  logger.info("Finally Combining level {} to aggregationlevel " + aggregationLevel + " and levelTimeStamp {} ", childlevel, aggregatedTimestamp)
             acumeCacheContext.cacheSqlContext.sparkContext.setJobGroup(Thread.currentThread().getName + "-" + Thread.currentThread().getId(), "Combining childLevel " + childlevel + " to aggregationlevel " + aggregationLevel, false)
-        	  val cachevalue = new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(aggregatedTimestamp, cube, zipChildPoints(childrenData.map(_.measureSchemaRdd))), acumeCacheContext)
+        	  val cachevalue = new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(aggregatedTimestamp, cube, zipChildPoints(childrenData.map(_.measureSchemaRdd)), cachePointToTable ), acumeCacheContext)
         	  notifyObserverList
         	  var diskWritingComplete = false;
         	  while(cachevalue.getAcumeValue.isInstanceOf[AcumeInMemoryValue] && !cachevalue.isFailureWritingToDisk) {

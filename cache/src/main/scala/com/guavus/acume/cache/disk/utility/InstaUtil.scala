@@ -6,6 +6,7 @@ import com.guavus.acume.cache.common.ConfConstants
 import org.apache.spark.sql.hive.HiveContext
 import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 import com.typesafe.config.ConfigFactory
+import org.apache.spark.sql.hbase.HBaseSQLContext
 
 
 /**
@@ -15,9 +16,9 @@ object InstaUtil {
   
   var insta: Insta = null
   
-  def initializeInstaClient(hiveContext: HiveContext) : Insta = {
+  def initializeInstaClient(hiveContext: HiveContext, hbaseContext: HBaseSQLContext) : Insta = {
     //Insta constructor requires HiveContext now, so we have to do explicit typecasting here
-    insta = new Insta(hiveContext)
+    insta = new Insta(hiveContext, hbaseContext)
     insta.init(AcumeCacheContextTraitUtil.cacheConf.get(ConfConstants.backendDbName), AcumeCacheContextTraitUtil.cacheConf.get(ConfConstants.cubedefinitionxml))
     insta
   }

@@ -149,6 +149,10 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
     getBoolean(AcumeConf.getKeyName(ConfConstants.enableScheduler, dsName)).getOrElse(false)
   }
 
+  def getUseInsta(dsName: String) : Boolean = {
+     getBoolean(AcumeConf.getKeyName(ConfConstants.useInsta, dsName)).getOrElse(false)
+  }
+  
   /* Get the timezone of acume */
   def getAcumeTimeZone() : String = {
     getOption(ConfConstants.timezone).getOrElse("GMT")

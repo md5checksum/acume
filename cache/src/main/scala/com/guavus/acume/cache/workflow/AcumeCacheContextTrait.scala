@@ -3,13 +3,10 @@ package com.guavus.acume.cache.workflow
 import scala.collection.JavaConversions._
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable.MutableList
-
 import org.apache.hadoop.fs.Path
-
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hbase.HBaseSQLContext
 import org.apache.spark.sql.hive.HiveContext
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
@@ -24,6 +21,9 @@ import com.guavus.acume.cache.utility.QueryOptionalParam
 import com.guavus.acume.cache.utility.Tuple
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.workflow.RequestType.RequestType
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
+import com.guavus.acume.cache.common.BaseCube
 
 
 /**
@@ -35,13 +35,14 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
   @transient
   private [cache] var rrCacheLoader : RRCache = Class.forName(cacheConf.get(ConfConstants.rrloader)).getConstructors()(0).newInstance(this, cacheConf).asInstanceOf[RRCache]
   private [cache] val dataLoader : DataLoader = null
-	
+  private val logger: Logger = LoggerFactory.getLogger(classOf[AcumeCacheContextTrait])
+  
   lazy private [cache] val measureMap = AcumeCacheContextTraitUtil.measureMap
 	lazy private [cache] val dimensionMap = AcumeCacheContextTraitUtil.dimensionMap
   lazy private [cache] val cubeMap = AcumeCacheContextTraitUtil.cubeMap.filter(cubeKey => cubeKey._2.dataSource.equalsIgnoreCase(cacheConf.getDataSourceName))
   lazy private [cache] val cubeList = AcumeCacheContextTraitUtil.cubeList.filter(cube => cube.dataSource.equalsIgnoreCase(cacheConf.getDataSourceName))
-  private [cache] val cacheTimeseriesLevelPolicy = new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]()(implicitly[Ordering[Long]]) ++ Utility.getLevelPointMap(cacheConf.get(ConfConstants.acumecoretimeserieslevelmap)).map(x=> (x._1.level, x._2)))
-
+  private [cache] val cubeKeycacheTimeseriesLevelPolicyMap = scala.collection.mutable.Map[String, CacheTimeSeriesLevelPolicy]() ++ cubeMap.map(x => x._1.name + "_" + x._1.binsource -> new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]()(implicitly[Ordering[Long]]) ++ x._2.cacheTimeseriesLevelPolicyMap)).toMap
+  
   lazy val cacheBaseDirectory = cacheConf.get(ConfConstants.cacheBaseDirectory)
 
   // Cache the file system object. This inherits the limitation that Acume will work with one filesystem for one run.
@@ -157,11 +158,21 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
     
     validateQuery(startTime, endTime, binsource, cacheConf.getDataSourceName, cubeName)
 
-    val level : Long = {
+    val level: Long = {
       if (queryOptionalParams.getTimeSeriesGranularity() != 0) {
-          queryOptionalParams.getTimeSeriesGranularity()
+        queryOptionalParams.getTimeSeriesGranularity()
       } else {
-        cubeMap.get(CubeKey(cubeName, binsource)).getOrElse(throw new RuntimeException(s"Cube not found with name $cubeName and binsource $binsource")).baseGran.granularity
+        val baseLevel = getCube(new CubeKey(cubeName, binsource)).baseGran.getGranularity
+        if (rt == RequestType.Timeseries) {
+          val cubetimeseriesMap = cubeKeycacheTimeseriesLevelPolicyMap.get(cubeName.toLowerCase + "_" + binsource)
+          if (cubetimeseriesMap == None || cubetimeseriesMap.isEmpty) {
+            Math.max(baseLevel, new CacheTimeSeriesLevelPolicy(SortedMap[Long, Int]()(implicitly[Ordering[Long]]) ++ Utility.getLevelPointMap(cacheConf.get(ConfConstants.acumecoretimeserieslevelmap)).map(x => (x._1.level, x._2)).toMap).getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(binsource)))
+          } else {
+            Math.max(baseLevel, cubetimeseriesMap.get.getLevelToUse(startTime, endTime, BinAvailabilityPoller.getLastBinPersistedTime(binsource)))
+          }
+        } else {
+          baseLevel
+        }
       }
     }
     
@@ -172,6 +183,45 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
     }
     
     (timestamps, correctsql, level)
+  }
+
+  // Firing on thin client
+  protected def executeThinClientQuery(tsReplacedSql: String, timestamps : MutableList[Long])  : AcumeCacheResponse ={
+      val resultSchemaRdd = cacheSqlContext.sql(tsReplacedSql)
+      logger.info(s"Firing thin client Query $tsReplacedSql")
+      new AcumeCacheResponse(resultSchemaRdd, resultSchemaRdd.rdd, new MetaData(-1, timestamps.toList))
+  }
+  
+  // Firing on thick client
+  protected def executeThickClientQuery(updatedsql: String, timestamps : MutableList[Long], cube : String, 
+      binsource : String, rt : RequestType, startTime: Long, endTime : Long, level : Long, tableName: String) : AcumeCacheResponse = {
+
+      val finalRdd = if (rt == RequestType.Timeseries) {
+        val tables = for (timestamp <- timestamps) yield {
+          
+          val rdd = dataLoader.loadData(Map[String, Any](), new BaseCube(cube, binsource, null, null, null, null, null), timestamp, Utility.getNextTimeFromGranularity(timestamp, level, Utility.newCalendar), level)
+          val tempTable = AcumeCacheContextTraitUtil.getTable(cube)
+          rdd.registerTempTable(tempTable)
+          val tempTable1 = AcumeCacheContextTraitUtil.getTable(cube)
+          cacheSqlContext.sql(s"select *, $timestamp as ts from $tempTable").registerTempTable(tempTable1)
+          tempTable1
+        }
+
+        val finalQuery = tables.map(x => s" select * from $x ").mkString(" union all ")
+        cacheSqlContext.sql(finalQuery)
+
+      } else {
+        val rdd = dataLoader.loadData(Map[String, Any](), new BaseCube(cube, binsource, null, null, null, null, null), startTime, endTime, 0l)
+        val tempTable = AcumeCacheContextTraitUtil.getTable(cube)
+        rdd.registerTempTable(tempTable)
+        cacheSqlContext.sql(s"select *, $startTime as ts from $tempTable")
+      }
+      
+      logger.info(s"Registering Temp Table $tableName")
+      finalRdd.registerTempTable(tableName)
+      logger.info(s"Firing thick client Query $updatedsql")
+      val resultSchemaRDD = cacheSqlContext.sql(updatedsql)
+      new AcumeCacheResponse(resultSchemaRDD, resultSchemaRDD.rdd, MetaData(-1, timestamps.toList))
   }
   
 }

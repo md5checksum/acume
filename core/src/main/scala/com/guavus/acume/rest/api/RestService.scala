@@ -135,6 +135,7 @@ class RestService {
 	}
   
 	@POST
+	@Consumes(Array("text/plain"))
 	@Produces(Array("application/json"))
 	@Path("sql")
 	def servSqlQuery(query : String,  @QueryParam(value = "super") userinfo : String,
@@ -146,6 +147,7 @@ class RestService {
 	}
 	
 	@POST
+	@Consumes(Array("text/plain"))
 	@Path("raeSql")
 	def raeServSqlQueryOnDataSource(query : String, @DefaultValue("cache") @QueryParam("datasource") datasource : String, @QueryParam(value = "super") userinfo : String,
 			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
@@ -173,6 +175,7 @@ class RestService {
 	}
 	
 	@POST
+	@Consumes(Array("text/plain"))
 	@Path("validateQuery")
 	def isValidQuery(sql : String, @DefaultValue("cache") @QueryParam("datasource") datasource : String, @QueryParam(value = "super") userinfo : String,
 			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : java.lang.Boolean = {

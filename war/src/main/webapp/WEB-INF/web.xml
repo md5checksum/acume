@@ -1,284 +1,226 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE web-app PUBLIC "-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN" "http://java.sun.com/dtd/web-app_2_3.dtd">
+<!DOCTYPE web-app
+  PUBLIC '-//Sun Microsystems, Inc.//DTD Web Application 2.3//EN'
+  'http://java.sun.com/dtd/web-app_2_3.dtd'>
 <web-app>
-
-	<distributable/>
-	<display-name>BlazeDS</display-name>
-	<description>BlazeDS Application</description>
-
-	<listener>
-		<listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
-	</listener>
-
-	<filter>
-		<filter-name>ShiroFilter</filter-name>
-		<filter-class>org.apache.shiro.web.servlet.ShiroFilter</filter-class>
-		<init-param>
-			<param-name>staticSecurityManagerEnabled</param-name>
-			<param-value>true</param-value>
-		</init-param>
-	</filter>
-	<filter>
-		<filter-name>SessionFilter</filter-name>
-		<filter-class>com.guavus.acume.core.servletfilters.SessionFilter</filter-class>
-	</filter>
-
-	<filter-mapping>
-		<filter-name>ShiroFilter</filter-name>
-		<url-pattern>/*</url-pattern>
-		<dispatcher>REQUEST</dispatcher>
-		<dispatcher>FORWARD</dispatcher>
-		<dispatcher>INCLUDE</dispatcher>
-		<dispatcher>ERROR</dispatcher>
-	</filter-mapping>
-
-	<filter-mapping>
-		<filter-name>
-			SessionFilter
-		</filter-name>
-		<url-pattern>
-			/*
-		</url-pattern>
-	</filter-mapping>
-
-	<listener>
-		<listener-class>flex.messaging.HttpFlexSession</listener-class>
-	</listener>
-
-	<context-param>
-    	<param-name>shiroEnvironmentClass</param-name>
-    	<param-value>com.guavus.rubix.user.shiro.StaticSecurityManagerIniWebEnvironment</param-value>
-	</context-param>
-
-	<servlet>
-		<servlet-name>MessageBrokerServlet</servlet-name>
-		<display-name>MessageBrokerServlet</display-name>
-		<servlet-class>flex.messaging.MessageBrokerServlet</servlet-class>
-		<init-param>
-			<param-name>services.configuration.file</param-name>
-			<param-value>/WEB-INF/flex/services-config.xml</param-value>
-		</init-param>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-
-	<servlet>
-		<servlet-name>RDSDispatchServlet</servlet-name>
-		<display-name>RDSDispatchServlet</display-name>
-		<servlet-class>flex.rds.server.servlet.FrontEndServlet</servlet-class>
-		<init-param>
-			<param-name>useAppserverSecurity</param-name>
-			<param-value>false</param-value>
-		</init-param>
-		<load-on-startup>10</load-on-startup>
-	</servlet>
-
-	<servlet-mapping id="RDS_DISPATCH_MAPPING">
-		<servlet-name>RDSDispatchServlet</servlet-name>
-		<url-pattern>/CFIDE/main/ide.cfm</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>MessageBrokerServlet</servlet-name>
-		<url-pattern>/messagebroker/*</url-pattern>
-	</servlet-mapping>
-
-
-	<filter>
-		<filter-name>CacheControlFilter</filter-name>
-		<filter-class>com.guavus.acume.core.servletfilters.CacheControlFilter</filter-class>
-	</filter>
-
-	<filter-mapping>
-		<filter-name>CacheControlFilter</filter-name>
-		<url-pattern>/*</url-pattern>
-	</filter-mapping>
-	<!-- servlet>
-		<servlet-name>RGService</servlet-name>
-		<servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
-		<init-param>
-			<param-name>com.sun.jersey.config.property.packages</param-name>
-			<param-value>com.guavus.acume.rest.api</param-value>
-		</init-param>
-		<init-param>
-			<param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
-			<param-value>true</param-value>
-		</init-param>
-		<load-on-startup>1</load-on-startup>
-	</servlet-->
-	<servlet>
-		<servlet-name>AcumeInitServlet</servlet-name>
-		<servlet-class>com.guavus.acume.servlet.AcumeInitServlet</servlet-class>
-		<load-on-startup>1</load-on-startup>
-	</servlet>
-	<!-- servlet-mapping>
-		<servlet-name>RGService</servlet-name>
-		<url-pattern>/queryresponse/aggregate</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>RGService</servlet-name>
-		<url-pattern>/queryresponse/timeseries</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>RGService</servlet-name>
-		<url-pattern>/queryresponse/search</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>RGService</servlet-name>
-		<url-pattern>/queryresponse/sql</url-pattern>
-	</servlet-mapping-->
-
-	<servlet>
-    	<servlet-name>Sql</servlet-name>
-    	<servlet-class>com.guavus.acume.core.servlet.SqlRequestServlet</servlet-class>
-  	</servlet>
-  	<servlet>
-    	<servlet-name>Aggregate</servlet-name>
-    	<servlet-class>com.guavus.acume.core.servlet.AggregateRequestServlet</servlet-class>
-  	</servlet>
-
-	<servlet>
-        <servlet-name>AggregateMultiple</servlet-name>
-        <servlet-class>com.guavus.acume.core.servlet.AggregateMultipleRequestServlet</servlet-class>
-        </servlet>
-
-  	<servlet>
-    	<servlet-name>Search</servlet-name>
-    	<servlet-class>com.guavus.acume.core.servlet.SearchRequestServlet</servlet-class>
-  	</servlet>
-  	<servlet>
-    	<servlet-name>TimeSeries</servlet-name>
-    	<servlet-class>com.guavus.acume.core.servlet.TimeSeriesRequestServlet</servlet-class>
-  	</servlet>
-
-	<servlet>
-        <servlet-name>TimeSeriesMultiple</servlet-name>
-        <servlet-class>com.guavus.acume.core.servlet.TimeSeriesMultipleRequestServlet</servlet-class>
-        </servlet>
-
-  	<servlet>
-    	<servlet-name>ValidateQuery</servlet-name>
-    	<servlet-class>com.guavus.acume.core.servlet.ValidateQueryServlet</servlet-class>
-  	</servlet>
-  	<servlet>
-    	<servlet-name>ValidDataSources</servlet-name>
-    	<servlet-class>com.guavus.acume.core.servlet.ValidDataSourcesServlet</servlet-class>
-  	</servlet>
-  	<servlet>
-    	<servlet-name>DataAvailability</servlet-name>
-    	<servlet-class>com.guavus.acume.core.servlet.DataAvailabilityServlet</servlet-class>
-  	</servlet>
-  	<servlet>
-    	<servlet-name>raeSql</servlet-name>
-    	<servlet-class>com.guavus.acume.core.servlet.RaeSqlRequestServlet</servlet-class>
-  	</servlet>
-  	<servlet>
-    	<servlet-name>ValidateSession</servlet-name>
-    	<servlet-class>com.guavus.acume.core.servlet.ValidateSessionServlet</servlet-class>
-  	</servlet>
-  	<servlet>
-    	<servlet-name>Login</servlet-name>
-    	<servlet-class>com.guavus.acume.core.servlet.LoginRequestServlet</servlet-class>
-  	</servlet>
-  	<servlet>
-    	<servlet-name>TimeRange</servlet-name>
-    	<servlet-class>com.guavus.acume.core.servlet.TimeRangeRequestServlet</servlet-class>
-  	</servlet>
-  	<servlet>
-    	<servlet-name>ZoneInfo</servlet-name>
-    	<servlet-class>com.guavus.acume.core.servlet.ZoneInfoRequestServlet</servlet-class>
-  	</servlet>
-  	<servlet>
-  		<servlet-name>InstaAvailability</servlet-name>
+    <distributable/>
+    <display-name>BlazeDS</display-name>
+    <description>BlazeDS Application</description>
+    <listener>
+        <listener-class>org.apache.shiro.web.env.EnvironmentLoaderListener</listener-class>
+    </listener>
+    <filter>
+        <filter-name>ShiroFilter</filter-name>
+        <filter-class>org.apache.shiro.web.servlet.ShiroFilter</filter-class>
+        <init-param>
+            <param-name>staticSecurityManagerEnabled</param-name>
+            <param-value>true</param-value>
+        </init-param>
+    </filter>
+    <filter>
+        <filter-name>SessionFilter</filter-name>
+        <filter-class>com.guavus.acume.core.servletfilters.SessionFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>ShiroFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+        <dispatcher>ERROR</dispatcher>
+    </filter-mapping>
+    <filter-mapping>
+        <filter-name>SessionFilter
+        </filter-name>
+        <url-pattern>/*
+        </url-pattern>
+    </filter-mapping>
+    <listener>
+        <listener-class>flex.messaging.HttpFlexSession</listener-class>
+    </listener>
+    <context-param>
+        <param-name>shiroEnvironmentClass</param-name>
+        <param-value>com.guavus.rubix.user.shiro.StaticSecurityManagerIniWebEnvironment</param-value>
+    </context-param>
+    <servlet>
+        <servlet-name>MessageBrokerServlet</servlet-name>
+        <display-name>MessageBrokerServlet</display-name>
+        <servlet-class>flex.messaging.MessageBrokerServlet</servlet-class>
+        <init-param>
+            <param-name>services.configuration.file</param-name>
+            <param-value>/WEB-INF/flex/services-config.xml</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet>
+        <servlet-name>RDSDispatchServlet</servlet-name>
+        <display-name>RDSDispatchServlet</display-name>
+        <servlet-class>flex.rds.server.servlet.FrontEndServlet</servlet-class>
+        <init-param>
+            <param-name>useAppserverSecurity</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <load-on-startup>10</load-on-startup>
+    </servlet>
+    <servlet-mapping id="RDS_DISPATCH_MAPPING">
+        <servlet-name>RDSDispatchServlet</servlet-name>
+        <url-pattern>/CFIDE/main/ide.cfm</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>MessageBrokerServlet</servlet-name>
+        <url-pattern>/messagebroker/*</url-pattern>
+    </servlet-mapping>
+    <filter>
+        <filter-name>CacheControlFilter</filter-name>
+        <filter-class>com.guavus.acume.core.servletfilters.CacheControlFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CacheControlFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <servlet>
+        <servlet-name>AcumeInitServlet</servlet-name>
+        <servlet-class>com.guavus.acume.servlet.AcumeInitServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet>
+        <servlet-name>RGService</servlet-name>
+        <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <param-name>com.sun.jersey.config.property.packages</param-name>
+            <param-value>com.guavus.acume.rest.api</param-value>
+        </init-param>
+        <init-param>
+            <param-name>com.sun.jersey.api.json.POJOMappingFeature</param-name>
+            <param-value>true</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet>
+        <servlet-name>ValidateSession</servlet-name>
+        <servlet-class>com.guavus.acume.core.servlet.ValidateSessionServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>Login</servlet-name>
+        <servlet-class>com.guavus.acume.core.servlet.LoginRequestServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>TimeRange</servlet-name>
+        <servlet-class>com.guavus.acume.core.servlet.TimeRangeRequestServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>ZoneInfo</servlet-name>
+        <servlet-class>com.guavus.acume.core.servlet.ZoneInfoRequestServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>InstaAvailability</servlet-name>
         <servlet-class>com.guavus.acume.core.servlet.InstaAvailabilityRequestServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>AcumeAvailability</servlet-name>
         <servlet-class>com.guavus.acume.core.servlet.AcumeAvailabilityRequestServlet</servlet-class>
     </servlet>
-    <servlet>
-        <servlet-name>Logout</servlet-name>
-        <servlet-class>com.guavus.acume.core.servlet.LogoutRequestServlet</servlet-class>
-    </servlet>
-  	
-  	<servlet-mapping>
-    	<servlet-name>Sql</servlet-name>
-	<url-pattern>/queryresponse/sql</url-pattern>
-  	</servlet-mapping>
-  	<servlet-mapping>
-    	<servlet-name>raeSql</servlet-name>
-	<url-pattern>/queryresponse/raeSql</url-pattern>
-  	</servlet-mapping>
-  	<servlet-mapping>
-    	<servlet-name>Aggregate</servlet-name>
-	<url-pattern>/queryresponse/aggregate</url-pattern>
-  	</servlet-mapping>
-
-	<servlet-mapping>
-        <servlet-name>AggregateMultiple</servlet-name>
-        <url-pattern>/queryresponse/aggregatemultiple</url-pattern>
-        </servlet-mapping>
-
-  	<servlet-mapping>
-    	<servlet-name>Search</servlet-name>
-	<url-pattern>/queryresponse/search</url-pattern>
-  	</servlet-mapping>
-  	<servlet-mapping>
-    	<servlet-name>TimeSeries</servlet-name>
-	<url-pattern>/queryresponse/timeseries</url-pattern>
-  	</servlet-mapping>
-
-	<servlet-mapping>
-        <servlet-name>TimeSeriesMultiple</servlet-name>
-    <url-pattern>/queryresponse/timeseriesmultiple</url-pattern>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/sql</url-pattern>
     </servlet-mapping>
-
-  	<servlet-mapping>
-    	<servlet-name>ValidateQuery</servlet-name>
-	<url-pattern>/queryresponse/validQuery</url-pattern>
-  	</servlet-mapping>
-  	<servlet-mapping>
-    	<servlet-name>ValidDataSources</servlet-name>
-	<url-pattern>/queryresponse/validateDataSources</url-pattern>
-  	</servlet-mapping>
-  	<servlet-mapping>
-    	<servlet-name>DataAvailability</servlet-name>
-	<url-pattern>/queryresponse/dataAvailability</url-pattern>
-  	</servlet-mapping>
-  	<servlet-mapping>
-    	<servlet-name>ValidateSession</servlet-name>
-	<url-pattern>/queryresponse/validateSession</url-pattern>
-  	</servlet-mapping>
-  	<servlet-mapping>
-    	<servlet-name>Login</servlet-name>
-	<url-pattern>/queryresponse/login</url-pattern>
-  	</servlet-mapping>
-  	<servlet-mapping>
-    	<servlet-name>TimeRange</servlet-name>
-	<url-pattern>/queryresponse/getTimeRange</url-pattern>
-  	</servlet-mapping>
-  	<servlet-mapping>
-    	<servlet-name>ZoneInfo</servlet-name>
-	<url-pattern>/queryresponse/zoneInfo</url-pattern>
-  	</servlet-mapping>
-  	<servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/raeSql</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/aggregate</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/aggregatemultiple</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/search</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/timeseries</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/timeseriesmultiple</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/validQuery</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/validateDataSources</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/dataAvailability</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/gdimensions</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/pstimes</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/exportaggregate</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/exporttimeseries</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/exportsqlaggregate</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/sqlaggregate</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/validDataSources</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/validateQuery</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ValidateSession</servlet-name>
+        <url-pattern>/queryresponse/validateSession</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>Login</servlet-name>
+        <url-pattern>/queryresponse/login</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>TimeRange</servlet-name>
+        <url-pattern>/queryresponse/getTimeRange</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ZoneInfo</servlet-name>
+        <url-pattern>/queryresponse/zoneInfo</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
         <servlet-name>InstaAvailability</servlet-name>
-    <url-pattern>/queryresponse/instaAvailability</url-pattern>
+        <url-pattern>/queryresponse/instaAvailability</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>AcumeAvailability</servlet-name>
-    <url-pattern>/queryresponse/acumeAvailability</url-pattern>
+        <url-pattern>/queryresponse/acumeAvailability</url-pattern>
     </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>Logout</servlet-name>
-    <url-pattern>/queryresponse/logout</url-pattern>
-    </servlet-mapping>
-
-	<session-config>
-       <session-timeout>60</session-timeout>
+    <session-config>
+        <session-timeout>60</session-timeout>
     </session-config>
-  	
-	<welcome-file-list>
-		<welcome-file>index.html</welcome-file>
-		<welcome-file>index.jsp</welcome-file>
-	</welcome-file-list>
-</web-app>    
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+</web-app>

@@ -41,46 +41,15 @@ class AcumeHiveCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheCo
     val endTime = updatedparsedsql._1(0).getEndTime
 
     if (!useInsta) {
-      // Firing on thin client
       //Replace the ts with "timestamp"
       val tsRegex = "\\b" + "ts" + "\\b"
       val tsReplacedSql = updatedsql.replaceAll(tsRegex, "timestamp")
       
-      val resultSchemaRdd = cacheSqlContext.sql(tsReplacedSql)
-      logger.info(s"Firing thin client Query $tsReplacedSql")
-      new AcumeCacheResponse(resultSchemaRdd, resultSchemaRdd.rdd, new MetaData(-1, timestamps.toList))
-    
+      executeThinClientQuery(tsReplacedSql, timestamps)
     } else {
-      // Firing on thick client
       var tableName = AcumeCacheContextTraitUtil.getTable(cube)
       updatedsql = updatedsql.replaceAll(s"$cube", s"$tableName")
-
-      val finalRdd = if (rt == RequestType.Timeseries) {
-        val tables = for (timestamp <- timestamps) yield {
-          
-          val rdd = dataLoader.loadData(Map[String, Any](), new BaseCube(cube, binsource, null, null, null, null, null), timestamp, Utility.getNextTimeFromGranularity(timestamp, level, Utility.newCalendar), level)
-          val tempTable = AcumeCacheContextTraitUtil.getTable(cube)
-          rdd.registerTempTable(tempTable)
-          val tempTable1 = AcumeCacheContextTraitUtil.getTable(cube)
-          cacheSqlContext.sql(s"select *, $timestamp as ts from $tempTable").registerTempTable(tempTable1)
-          tempTable1
-        }
-
-        val finalQuery = tables.map(x => s" select * from $x ").mkString(" union all ")
-        cacheSqlContext.sql(finalQuery)
-
-      } else {
-        val rdd = dataLoader.loadData(Map[String, Any](), new BaseCube(cube, binsource, null, null, null, null, null), startTime, endTime, 0l)
-        val tempTable = AcumeCacheContextTraitUtil.getTable(cube)
-        rdd.registerTempTable(tempTable)
-        cacheSqlContext.sql(s"select *, $startTime as ts from $tempTable")
-      }
-      
-      logger.info(s"Registering Temp Table $tableName")
-      finalRdd.registerTempTable(tableName)
-      logger.info(s"Firing thick client Query $updatedsql")
-      val resultSchemaRDD = cacheSqlContext.sql(updatedsql)
-      new AcumeCacheResponse(resultSchemaRDD, resultSchemaRDD.rdd, MetaData(-1, timestamps.toList))
+      executeThickClientQuery(updatedsql, timestamps, cube, binsource, rt, startTime, endTime, level, tableName)
     }
   }
   
