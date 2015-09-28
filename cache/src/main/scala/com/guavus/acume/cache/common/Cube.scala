@@ -26,8 +26,10 @@ case class DimensionSet(dimensionSet: List[Dimension]) extends Serializable {
 }
 
 case class MeasureSet(measureSet: List[Measure]) extends Serializable {
-  val defaultValueMap = new scala.collection.mutable.HashMap[String, Any]() ++
+  val defaultValueMap = new scala.collection.immutable.HashMap[String, Any]() ++
     measureSet.map(x => x.getName -> x.getDefaultValue)
+  val measureToAggregateFunction = new scala.collection.immutable.HashMap[String, String]() ++
+    measureSet.map(x => x.getName -> x.getAggregationFunction)
 }
 
 case class DimensionTable(var tblnm: String, var maxid: Long) extends Serializable {
