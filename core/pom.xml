@@ -307,12 +307,20 @@
 					<groupId>org.apache.hive</groupId>
 					<artifactId>*</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>com.guavus</groupId>
+					<artifactId>attvaludf</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.guavus.common</groupId>
+            				<artifactId>attval</artifactId>
+            			</exclusion>
 			</exclusions>
 		</dependency>
-        <dependency>
+        	<dependency>
 			<groupId>com.guavus</groupId>
 			<artifactId>attvaludf</artifactId>
-			<version>platform5.0</version>
+			<version>${pversion}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.guavus</groupId>
