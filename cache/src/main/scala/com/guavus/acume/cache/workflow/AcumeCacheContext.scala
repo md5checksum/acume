@@ -44,7 +44,7 @@ class AcumeCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheConf) 
       val startTime = l.getStartTime
       val endTime = l.getEndTime
     
-      validateQuery(startTime, endTime, binsource, cacheConf.getDataSourceName, cube)
+      validateQuery(startTime, endTime, binsource, cube)
       
       i = AcumeCacheContextTraitUtil.getTable(cube)
       updatedsql = updatedsql.replaceAll(s"$cube", s"$i")
@@ -72,12 +72,6 @@ class AcumeCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheConf) 
  
   }
 
-  private [acume] def validateQuery(startTime : Long, endTime : Long, binSource : String) {
-    if(startTime < BinAvailabilityPoller.getFirstBinPersistedTime(binSource) || endTime > BinAvailabilityPoller.getLastBinPersistedTime(binSource)){
-      throw new RuntimeException("Cannot serve query. StartTime and endTime doesn't fall in the availability range.")
-    }
-  }
-
   /**
    * Gets the cache instance object for retreiving acume cache values on which transformations will be applied
    * Used by customExecution path
@@ -94,7 +88,7 @@ class AcumeCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheConf) 
       endTime: Long,
       cube: CubeKey): AcumeCache[k, v] = {
 
-    validateQuery(startTime, endTime, cube.binsource)
+    validateQuery(startTime, endTime, cube.binsource, cube.name)
 
     val idd = new CacheIdentifier()
     val id = getCube(cube)

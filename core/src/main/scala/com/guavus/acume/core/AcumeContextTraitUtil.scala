@@ -66,6 +66,7 @@ object AcumeContextTraitUtil {
     initCheckpointDir
     chooseHiveDatabase
     BinAvailabilityPoller.init(insta)
+    registerUserDefinedFunctions
     acumeContextMap
   }
   

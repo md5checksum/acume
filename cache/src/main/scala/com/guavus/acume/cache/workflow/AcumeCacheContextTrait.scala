@@ -132,7 +132,7 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
     kCube.toList
   }
   
-  private [acume] def validateQuery(startTime : Long, endTime : Long, binSource : String, dsName: String, cubeName: String) {
+  private [acume] def validateQuery(startTime : Long, endTime : Long, binSource : String, cubeName: String) {
     if(startTime < BinAvailabilityPoller.getFirstBinPersistedTime(binSource) || endTime > BinAvailabilityPoller.getLastBinPersistedTime(binSource)){
       throw new RuntimeException("Cannot serve query. StartTime and endTime doesn't fall in the availability range.")
     }
@@ -156,7 +156,7 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
     val queryOptionalParams = correctsql._1._2
     var timestamps : MutableList[Long] = MutableList[Long]()
     
-    validateQuery(startTime, endTime, binsource, cacheConf.getDataSourceName, cubeName)
+    validateQuery(startTime, endTime, binsource, cubeName)
 
     val level: Long = {
       if (queryOptionalParams.getTimeSeriesGranularity() != 0) {
