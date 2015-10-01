@@ -13,7 +13,7 @@ Please don't use the following reserved property names:
             <name>applicationPath</name>
             <type>basic</type>
             <help><![CDATA[ - Path where sample application is kept]]></help>
-            <default><![CDATA[]]>
+            <default><![CDATA[/opt/tms/acumeDF-ca4.0/*]]>
             </default>
             <targets>
             </targets>
@@ -947,7 +947,7 @@ Please don't use the following reserved property names:
             <name>docBase</name>
             <type>basic</type>
             <help><![CDATA[ - Path of the application]]></help>
-            <default><![CDATA[/opt/tms/rubix-atlas3.0]]></default>
+            <default><![CDATA[/opt/tms/acumeDF-ca4.0/*]]></default>
             <targets>
                 <target>
                     <file><![CDATA[server.xml]]></file>
@@ -1345,7 +1345,7 @@ Please don't use the following reserved property names:
                 </target>
             </targets>
         </property>
-	<property>
+  <property>
             <name>acumeCoreThreadPoolSize</name>
             <type>basic</type>
             <help><![CDATA[]]></help>
@@ -1354,6 +1354,54 @@ Please don't use the following reserved property names:
                 <target>
                     <file><![CDATA[acume.conf]]></file>
                     <path><![CDATA[APACHE_TOMCAT_ROOT/app/WEB-INF/classes/]]></path>
+                </target>
+            </targets>
+        </property>
+        <property>
+            <name>cdn1</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[Telstra CDN]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[SolutionApplicationConfig.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/config/]]></path>
+                </target>
+            </targets>
+        </property>        
+        <property>
+            <name>cdn2</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[Telstra Zone]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[SolutionApplicationConfig.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/config/]]></path>
+                </target>
+            </targets>
+        </property>
+        <property>
+            <name>cdn3</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[Telstra Netflix NSW]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[SolutionApplicationConfig.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/config/]]></path>
+                </target>
+            </targets>
+        </property>
+        <property>
+            <name>cdn4</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[Akamai Victoria]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[SolutionApplicationConfig.xml]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/app/config/]]></path>
                 </target>
             </targets>
         </property>        
