@@ -12,7 +12,6 @@ import com.guavus.rubix.user.management.vo.ValidateSessionRequest
 import com.guavus.rubix.user.management.vo.LoginResponse
 import com.guavus.rubix.user.management.vo.LogoutRequest
 
-
 object QueryJsonUtil {
 
   private var gson: Gson = new GsonBuilder().create()
@@ -31,16 +30,10 @@ object QueryJsonUtil {
     gson.fromJson(json, classOf[QueryRequest])
   }
   
-  def fromJsonToQueryRequests(json: String): java.util.ArrayList[QueryRequest] = {
-    val array = gson.fromJson(json, classOf[Array[QueryRequest]])
-    val response = new java.util.ArrayList[QueryRequest](array.length)
-    for(request <- array) {
-      response.add(request)
-    }
-    response
+  def fromJsonToQueryRequests(json: String): Array[QueryRequest] = {
+    gson.fromJson(json, classOf[Array[QueryRequest]])
   }
   
-
   def aggregateResponseToJson(response: AggregateResponse): String = gson.toJson(response)
 
   def aggregateResponsesToJson(response: java.util.ArrayList[AggregateResponse]): String = gson.toJson(response)
