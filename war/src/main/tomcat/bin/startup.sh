@@ -288,7 +288,7 @@ if [ ! -z $ACUMECOLONSEP_UDFPATHS ];then
     colonSepUdfJarPath=":"$colonSepUdfJarPath
 fi
 
-export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:$spark_jars:$SCRIPT_DIR/../lib/*:$crux_jar:-Djava.io.tmpdir=$CATALINA_BASE:/opt/tms/java/pcsaudf.jar$colonSepUdfJarPath:$SPARK_HBASE_JAR"
+export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:$spark_jars:$SCRIPT_DIR/../lib/*:$crux_jar:-Djava.io.tmpdir=$CATALINA_BASE:${REFLEX_ROOT_PREFIX}/opt/tms/java/pcsaudf.jar$colonSepUdfJarPath:$SPARK_HBASE_JAR"
 echo "SPARK_CLASSPATH = $SPARK_CLASSPATH" >> "$CATALINA_OUT"
 
 
