@@ -152,6 +152,7 @@ class RestService {
 	
 	@POST
 	@Consumes(Array("text/plain"))
+  @Produces(Array("application/json"))
 	@Path("raeSql")
 	def raeServSqlQueryOnDataSource(query : String, @DefaultValue("cache") @QueryParam("datasource") datasource : String, @QueryParam(value = "super") userinfo : String,
 			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
@@ -196,6 +197,8 @@ class RestService {
 	}
   
   @POST
+  @Consumes(Array("application/json"))
+  @Produces(Array("application/json"))
   @Path("validateSession")
   def getValidSession(validateSessionRequest : ValidateSessionRequest) : CurrentSessionInfo = {
     try{
@@ -214,6 +217,8 @@ class RestService {
   }
   
   @POST
+  @Consumes(Array("application/json"))
+  @Produces(Array("application/json"))
   @Path("login")
   def getLoginResponse(loginParameterRequest : LoginParameterRequest) : LoginResponse = {
     val loginRequest : LoginRequest = new LoginRequest()
@@ -228,15 +233,19 @@ class RestService {
     response
   }
   
-  @GET
+  @POST
+  @Consumes(Array("application/json"))
+  @Produces(Array("application/json"))
   @Path("getTimeRange")
   def getTimeRange(@QueryParam(value = "super") userinfo : String,
       @QueryParam("user") user : String, @QueryParam("password") password : String) : Array[Long] = {
-    Authentication.authenticate(userinfo, user, password)
+      Authentication.authenticate(userinfo, user, password)
       new PSUserService().getTimeRange()
   }
   
   @POST
+  @Consumes(Array("application/json"))
+  @Produces(Array("application/json"))
   @Path("zoneInfo")
   def getZoneInfo(zoneInfo : ZoneInfoRequest,@QueryParam(value = "super") userinfo : String,
       @QueryParam("user") user : String, @QueryParam("password") password : String) : java.util.List[TimeZoneInfo] = {
@@ -245,6 +254,8 @@ class RestService {
   }
   
   @POST
+  @Consumes(Array("application/json"))
+  @Produces(Array("application/json"))
   @Path("instaAvailability")
   def getInstaAvailabilty(@QueryParam(value = "super") userinfo : String,
       @QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("binSource") binSource : String) : java.util.Map[Long,StartEndResponse] = {
@@ -258,6 +269,8 @@ class RestService {
   }
   
   @POST
+  @Consumes(Array("application/json"))
+  @Produces(Array("application/json"))
   @Path("acumeAvailability")
   def getAcumeAvailabilty(@QueryParam(value = "super") userinfo : String,
       @QueryParam("user") user : String, @QueryParam("password") password : String) : java.util.Map[String, java.util.Map[Long, Interval]] = {
@@ -274,6 +287,8 @@ class RestService {
   }
   
   @POST
+  @Consumes(Array("application/json"))
+  @Produces(Array("application/json"))
   @Path("logout")
   def getLogoutResponse(logoutRequest : LogoutRequest) : LogoutResponse = {
     UserManagementUtils.getIWebUMService().logout(logoutRequest)
