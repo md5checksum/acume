@@ -96,30 +96,6 @@
         </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
-    <servlet>
-        <servlet-name>ValidateSession</servlet-name>
-        <servlet-class>com.guavus.acume.core.servlet.ValidateSessionServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>Login</servlet-name>
-        <servlet-class>com.guavus.acume.core.servlet.LoginRequestServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>TimeRange</servlet-name>
-        <servlet-class>com.guavus.acume.core.servlet.TimeRangeRequestServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>ZoneInfo</servlet-name>
-        <servlet-class>com.guavus.acume.core.servlet.ZoneInfoRequestServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>InstaAvailability</servlet-name>
-        <servlet-class>com.guavus.acume.core.servlet.InstaAvailabilityRequestServlet</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>AcumeAvailability</servlet-name>
-        <servlet-class>com.guavus.acume.core.servlet.AcumeAvailabilityRequestServlet</servlet-class>
-    </servlet>
     <servlet-mapping>
         <servlet-name>RGService</servlet-name>
         <url-pattern>/queryresponse/sql</url-pattern>
@@ -193,28 +169,32 @@
         <url-pattern>/queryresponse/validateQuery</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>ValidateSession</servlet-name>
-        <url-pattern>/queryresponse/validateSession</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>Login</servlet-name>
-        <url-pattern>/queryresponse/login</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>TimeRange</servlet-name>
+        <servlet-name>RGService</servlet-name>
         <url-pattern>/queryresponse/getTimeRange</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>ZoneInfo</servlet-name>
-        <url-pattern>/queryresponse/zoneInfo</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>InstaAvailability</servlet-name>
+        <servlet-name>RGService</servlet-name>
         <url-pattern>/queryresponse/instaAvailability</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>AcumeAvailability</servlet-name>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/validateSession</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/login</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/zoneInfo</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
         <url-pattern>/queryresponse/acumeAvailability</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/logout</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>60</session-timeout>
