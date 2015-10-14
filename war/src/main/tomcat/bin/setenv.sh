@@ -26,7 +26,7 @@ for (( i=0; i<$NUM_GC_LOG_FILES; i++ ))
     fi
   done
 
-GC_OPTS=" -XX:+UseG1GC -XX:MetaspaceSize=$CLI_REPLACE_MAXPERMSIZE$ -Xloggc:$gcRelativePath"gc.log" -XX:+PrintGCDetails -XX:+PrintGCDateStamps -XX:+UseGCLogFileRotation -XX:GCLogFileSize=500M -XX:NumberOfGCLogFiles=$NUM_GC_LOG_FILES "
+GC_OPTS=" -XX:+UseG1GC -XX:G1HeapRegionSize=16M -XX:MetaspaceSize=$CLI_REPLACE_MAXPERMSIZE$ -Xloggc:$gcRelativePath"gc.log" -XX:+PrintFlagsFinal -XX:+PrintReferenceGC -XX:+PrintGCTimeStamps -XX:+PrintGCDateStamps -verbose:gc -XX:+PrintGCDetails -XX:+PrintAdaptiveSizePolicy -XX:AdaptiveSizePolicyOutputInterval=1 -XX:+UnlockDiagnosticVMOptions -XX:+G1SummarizeConcMark -XX:+UseGCLogFileRotation -XX:GCLogFileSize=500M -XX:NumberOfGCLogFiles=$NUM_GC_LOG_FILES -XX:MaxDirectMemorySize=4096M -XX:-ResizePLAB -XX:+UseCompressedOops -XX:InitiatingHeapOccupancyPercent=45 -XX:+UnlockExperimentalVMOptions -XX:G1MixedGCLiveThresholdPercent=85 "
 
 ACUME_PERMGEN_CONFIG=" -XX:MetaspaceSize=$CLI_REPLACE_PERMSIZE$ "
 
