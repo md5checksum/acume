@@ -52,6 +52,19 @@ Please don't use the following reserved property names:
         </property>
 
         <property>
+            <name>solutionConf</name>
+            <type>basic</type>
+            <help><![CDATA[]]></help>
+            <default><![CDATA[solution.ini]]></default>
+            <targets>
+                <target>
+                    <file><![CDATA[startup.sh]]></file>
+                    <path><![CDATA[APACHE_TOMCAT_ROOT/bin/]]></path>
+                </target>
+            </targets>
+        </property>
+
+        <property>
             <name>sessionCookieDomain</name>
             <help><![CDATA[ - Domain name of the company for ex. If deploying at Verizon than domain name can be ".verizon.com"]]></help>
             <default><![CDATA[.guavus.com]]></default>
