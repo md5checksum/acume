@@ -17,7 +17,5 @@ class AcumeHiveContext(val datasourceName: String) extends AcumeContextTrait {
   override def acc() = acumeCacheContext
   
   override def sqlContext() = hiveContext
-  
-  AcumeContextTraitUtil.registerUserDefinedFunctions
 
 }

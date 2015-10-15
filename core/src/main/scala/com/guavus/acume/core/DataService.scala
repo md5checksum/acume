@@ -1,48 +1,38 @@
 package com.guavus.acume.core
 
-import com.guavus.acume.cache.core.TimeGranularity
-import com.guavus.rubix.query.remote.flex.TimeseriesResponse
-import com.guavus.rubix.query.remote.flex.AggregateResponse
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.catalyst.expressions.Row
-import com.guavus.rubix.query.remote.flex.QueryRequest
-import com.guavus.qb.cube.schema.QueryBuilderSchema
-import com.guavus.qb.conf.QBConf
-import org.apache.spark.sql.SchemaRDD
-import scala.collection.mutable.ArrayBuffer
-import com.guavus.rubix.query.remote.flex.AggregateResultSet
-import com.guavus.rubix.query.remote.flex.TimeseriesResultSet
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
-import scala.collection.mutable.HashMap
 import java.util.Arrays
-import com.guavus.rubix.query.remote.flex.SearchResponse
-import com.guavus.rubix.query.remote.flex.SearchResponse
-import scala.collection.JavaConverters._
-import scala.collection.JavaConversions._
-import com.guavus.rubix.query.remote.flex.SearchRequest
-import com.guavus.acume.cache.workflow.AcumeCacheResponse
-import com.guavus.qb.services.IQueryBuilderService
-import scala.collection.mutable.HashMap
-import com.guavus.acume.cache.common.ConfConstants
-import com.guavus.rubix.user.management.utils.HttpUtils
-import org.apache.shiro.SecurityUtils
 import java.util.concurrent.atomic.AtomicLong
+
+import scala.collection.JavaConversions._
+import scala.collection.JavaConverters._
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.HashMap
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.future
+
+import org.apache.spark.sql.catalyst.expressions.Row
 import org.slf4j.LoggerFactory
-import java.util.concurrent.{Callable, TimeoutException, ConcurrentHashMap}
-import scala.concurrent._
-import scala.concurrent.duration._
-import ExecutionContext.Implicits.global
-import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
-import acume.exception.AcumeException
-import com.guavus.acume.core.exceptions.AcumeExceptionConstants
-import com.guavus.acume.workflow.RequestDataType
+
 import com.guavus.acume.cache.common.AcumeConstants
-import java.util.concurrent.ConcurrentHashMap
-import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
-import DataService._
-import com.guavus.acume.core.configuration.DataServiceFactory
 import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
+import com.guavus.acume.cache.workflow.AcumeCacheResponse
+import com.guavus.acume.cache.workflow.MetaData
+import com.guavus.acume.core.configuration.DataServiceFactory
+import com.guavus.acume.workflow.RequestDataType
+import com.guavus.qb.cube.schema.QueryBuilderSchema
+import com.guavus.qb.services.IQueryBuilderService
+import com.guavus.rubix.query.remote.flex.AggregateResponse
+import com.guavus.rubix.query.remote.flex.AggregateResultSet
+import com.guavus.rubix.query.remote.flex.QueryRequest
+import com.guavus.rubix.query.remote.flex.SearchRequest
+import com.guavus.rubix.query.remote.flex.SearchResponse
+import com.guavus.rubix.query.remote.flex.TimeseriesResponse
+import com.guavus.rubix.query.remote.flex.TimeseriesResultSet
+import com.guavus.rubix.user.management.utils.HttpUtils
+import DataService._
 
 /**
  * This class interacts with query builder and Olap cache.
@@ -187,6 +177,8 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       val localProperties = if (property == null) getSparkJobLocalProperties else property
       val (cacheResponse, rows) = run(sql, jobGroupId, jobDescription, acumeContext.acumeConf, localProperties)
       
+      
+      
       val fields = queryBuilderService.get(0).getQuerySchema(sql, cacheResponse.schemaRDD.schema.fieldNames.toList)
       
       val acumeSchema: QueryBuilderSchema = queryBuilderService.get(0).getQueryBuilderSchema
@@ -305,7 +297,13 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
           }
           list += new AggregateResultSet(dims, measures)
         }
-        new AggregateResponse(list, dimsNames, measuresNames, cacheResponse.metadata.totalRecords.toInt)
+        val totalRecords : Int = 
+          if(cacheResponse.metadata.totalRecords < 0) 
+            rows.size 
+          else 
+            cacheResponse.metadata.totalRecords.toInt
+            
+        new AggregateResponse(list, dimsNames, measuresNames, totalRecords)
       }
     } catch {
       case e: Throwable =>
@@ -332,17 +330,45 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     if (!modifiedSql.equals("")) {
       if (!queryBuilderService.iterator.next.isSchedulerQuery(sql)) {
         logger.info(modifiedSql)
-        val resp = acumeContext.acc.acql(modifiedSql)
-        
-        if ((RequestDataType.Aggregate.equals(requestDataType) || !queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql)) && !acumeContext.acumeConf.getDisableTotalForAggregateQueries(datasourceName)) {
-          resp.metadata.totalRecords = acumeContext.acc.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getLong(0)
-        }
-        resp
+        getResponse(modifiedSql, requestDataType)
       } else {
         acumeContext.acc.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql))
       }
     } else
       throw new RuntimeException(s"Invalid Modified Query")
+
+  }
+
+  private def getResponse(modifiedSql: String, requestDataType: RequestDataType.RequestDataType): AcumeCacheResponse = {
+    
+    val resp : AcumeCacheResponse = new AcumeCacheResponse(null, null, MetaData(-1, null))
+
+    val mainQueryThread = new Thread {
+        override def run {
+          val tempResult = acumeContext.acc.acql(modifiedSql)
+          resp.schemaRDD = tempResult.schemaRDD
+          resp.rowRDD = tempResult.rowRDD
+          resp.metadata.timestamps = tempResult.metadata.timestamps 
+        }
+    }
+    mainQueryThread.start
+
+    val countQueryThread = new Thread {
+      override def run {
+        resp.metadata.totalRecords = acumeContext.acc.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getLong(0)
+      }
+    } 
+
+    if (RequestDataType.Aggregate.equals(requestDataType) 
+          && !acumeContext.acumeConf.getDisableTotalForAggregateQueries(datasourceName)) {
+      if (modifiedSql.toLowerCase.trim.contains("limit")) {
+    	  countQueryThread.start
+        countQueryThread.join
+      }
+    }
+   
+    mainQueryThread.join
+    resp
 
   }
 }

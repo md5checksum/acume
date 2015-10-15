@@ -42,6 +42,8 @@ import com.guavus.rubix.query.remote.flex.StartEndResponse
 import com.guavus.acume.core.scheduler.ICacheAvalabilityUpdatePolicy
 import com.guavus.rubix.user.management.vo.LogoutRequest
 import com.guavus.rubix.user.management.vo.LogoutResponse
+import java.util.ArrayList
+import scala.collection.JavaConversions
 
 @Path("/" + "queryresponse")
 /**
@@ -108,19 +110,21 @@ class RestService {
 	@POST
     @Consumes(Array("application/json"))
     @Produces(Array("application/json"))
-    @Path("aggregateMultiple")
-	def servAggregateMultiple(query : java.util.ArrayList[QueryRequest], @QueryParam(value = "super") userinfo : String,
+    @Path("aggregatemultiple")
+	def servAggregateMultiple(query : Array[QueryRequest], @QueryParam(value = "super") userinfo : String,
 			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
-	  servMultiple(query, userinfo, user, password, getAdditionalInfo, true)
+    val queryRequests = new ArrayList[QueryRequest](JavaConversions.asJavaList(query.toList))
+	  servMultiple(queryRequests, userinfo, user, password, getAdditionalInfo, true)
 	}
 	
 	@POST
     @Consumes(Array("application/json"))
     @Produces(Array("application/json"))
-    @Path("timeseriesMultiple")
-	def servTimeseriesMultiple(query : java.util.ArrayList[QueryRequest], @QueryParam(value = "super") userinfo : String,
+    @Path("timeseriesmultiple")
+	def servTimeseriesMultiple(query : Array[QueryRequest], @QueryParam(value = "super") userinfo : String,
 			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
-	  servMultiple(query, userinfo, user, password, getAdditionalInfo, false)
+    val queryRequests = new ArrayList[QueryRequest](JavaConversions.asJavaList(query.toList))
+	  servMultiple(queryRequests, userinfo, user, password, getAdditionalInfo, false)
 	}
 	
 	@POST

@@ -66,9 +66,10 @@ object AcumeContextTraitUtil {
     initCheckpointDir
     chooseHiveDatabase
     BinAvailabilityPoller.init(insta)
+    registerUserDefinedFunctions
     acumeContextMap
   }
-  
+
   def getInstaClient() : Insta = {
 		if(acumeConf.getUseInsta(DatasourceType.HBASE.toString().toLowerCase()))
 			InstaUtil.initializeInstaClient(hiveContext, hBaseSQLContext)
