@@ -3,8 +3,8 @@ package com.guavus.rubix.query.remote.flex
 import java.io.Serializable
 import java.util.Arrays
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
-//remove if not needed
 import scala.collection.JavaConversions._
+import com.guavus.rubix.search.Operator
 
 class ResponseFilter extends Serializable {
 

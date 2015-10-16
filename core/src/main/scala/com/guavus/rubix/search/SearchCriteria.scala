@@ -1,4 +1,4 @@
-package com.guavus.rubix.query.remote.flex
+package com.guavus.rubix.search
 
 import java.io.Serializable
 import java.util.ArrayList
@@ -10,6 +10,7 @@ import com.google.common.collect.Lists
 import java.util.Collection
 import Operator._
 import Join._
+import com.guavus.rubix.search.SortOrder
 
 @SerialVersionUID(-269427656660693923L)
 class SearchCriteria extends Serializable {

@@ -1,8 +1,9 @@
-package com.guavus.rubix.query.remote.flex
+package com.guavus.rubix.search
 
 import java.io.Serializable
 import java.util.List
 import scala.reflect.BeanProperty
+import com.guavus.rubix.query.remote.flex.QueryJsonUtil
 
 @SerialVersionUID(-2432627248383151081L)
 class SearchRequest extends Serializable {
@@ -49,7 +50,7 @@ class SearchRequest extends Serializable {
   }
 
   override def toString(): String = {
-    "SearchRequest [searchCriteria=" + searchCriteria + ", responseDimensions=" + responseDimensions + ", startTime=" + startTime + ", endTime=" + endTime + ", timeGranularity=" + timeGranularity + "]"
+    QueryJsonUtil.fromSearchRequestToJson(this)
   }
 
   override def hashCode(): Int = {

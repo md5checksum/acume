@@ -1,4 +1,4 @@
-package com.guavus.rubix.query.remote.flex
+package com.guavus.rubix.search
 import java.io.Serializable
 import java.util.ArrayList
 import com.google.gson.Gson
@@ -15,7 +15,7 @@ import com.google.gson.stream.JsonToken.NULL
 import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
 import SearchCriterion._
-import scala.reflect.{BeanProperty, BooleanBeanProperty}
+import scala.reflect.BeanProperty
 
 object SearchCriterion {
 

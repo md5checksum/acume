@@ -13,6 +13,7 @@ import scala.collection.JavaConversions._
 import java.util.ArrayList
 import com.google.common.collect.Lists
 import java.util.Arrays
+import com.guavus.rubix.search.SearchRequest
 
 object QueryRequest {
 
