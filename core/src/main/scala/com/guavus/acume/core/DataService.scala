@@ -16,15 +16,19 @@ import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
 import scala.collection.mutable.HashMap
 import java.util.Arrays
-import com.guavus.rubix.query.remote.flex.SearchResponse
-import com.guavus.rubix.query.remote.flex.SearchResponse
 import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
-import com.guavus.rubix.query.remote.flex.SearchRequest
 import com.guavus.acume.cache.workflow.AcumeCacheResponse
 import com.guavus.qb.services.IQueryBuilderService
 import scala.collection.mutable.HashMap
 import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.rubix.query.remote.flex.AggregateResponse
+import com.guavus.rubix.query.remote.flex.AggregateResultSet
+import com.guavus.rubix.query.remote.flex.QueryRequest
+import com.guavus.rubix.search.SearchRequest
+import com.guavus.rubix.search.SearchResponse
+import com.guavus.rubix.query.remote.flex.TimeseriesResponse
+import com.guavus.rubix.query.remote.flex.TimeseriesResultSet
 import com.guavus.rubix.user.management.utils.HttpUtils
 import org.apache.shiro.SecurityUtils
 import java.util.concurrent.atomic.AtomicLong
@@ -71,8 +75,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     val sql = DataServiceFactory.dsInterpreterPolicy.updateQuery(unUpdatedSql)
     val response = execute(sql, requestDataType)
     val responseRdd = response.rowRDD
-    val schema = response.schemaRDD.schema
-    val fields = schema.fieldNames
+    val fields = queryBuilderService.get(0).getQuerySchema(sql, response.schemaRDD.schema.fieldNames.toList)
     val rows = responseRdd.collect
     val acumeSchema: QueryBuilderSchema = queryBuilderService.get(0).getQueryBuilderSchema
     val dimsNames = new ArrayBuffer[String]()

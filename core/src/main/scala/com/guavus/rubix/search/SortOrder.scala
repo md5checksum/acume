@@ -1,4 +1,4 @@
-package com.guavus.rubix.query.remote.flex
+package com.guavus.rubix.search
 
 import scala.reflect.BeanProperty
 import com.guavus.rubix.query.remote.flex.SortDirection._

@@ -10,13 +10,13 @@ import javax.ws.rs.ext.MessageBodyReader
 import javax.ws.rs.ext.Provider
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.guavus.rubix.query.remote.flex.SearchCriterion
+import com.guavus.rubix.search.SearchCriterion
 import com.sun.jersey.spi.resource.Singleton
 import MessageBodyReaderJSON._
 
 object MessageBodyReaderJSON {
 
-  private var gson: Gson = new GsonBuilder().registerTypeAdapter(classOf[SearchCriterion], new SearchCriterion.SearchCriterionJsonAdapter()).create()
+   var gson: Gson = new GsonBuilder().registerTypeAdapter(classOf[SearchCriterion], new SearchCriterion.SearchCriterionJsonAdapter()).create()
 }
 
 @Provider

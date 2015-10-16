@@ -1,7 +1,6 @@
-package com.guavus.rubix.query.remote.flex
+package com.guavus.rubix.search
 
 import java.util._
-import scala.reflect.BeanProperty
 
 @SerialVersionUID(-6814760797154764558L)
 class SearchResponse(dimensionNames : List[String], responses : List[List[Any]]) extends Serializable {

@@ -11,7 +11,7 @@ import javax.ws.rs.QueryParam
 import javax.ws.rs.DefaultValue
 import javax.xml.bind.annotation.XmlRootElement
 import javax.ws.rs.POST
-import com.guavus.rubix.query.remote.flex.SearchRequest
+import com.guavus.rubix.search.SearchRequest
 import com.guavus.acume.cache.workflow.AcumeCacheResponse
 import com.guavus.acume.core.AcumeContextTraitUtil
 import com.guavus.acume.cache.common.AcumeConstants
@@ -135,7 +135,7 @@ class RestService {
 			@QueryParam("user") user : String, @QueryParam("password") password : String, @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : Serializable = {
 	  Authentication.authenticate(userinfo, user, password)
 		// Submit the request to query builder which will return the actual query to be fired on olap cache. It will also return the type of query it was aggregate/timeseries. After receiving
-	  AcumeService.acumeService.searchRequest(query).asInstanceOf[Serializable]
+	  AcumeService.acumeService.search(query).asInstanceOf[Serializable]
 	}
   
 	@POST

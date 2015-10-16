@@ -1,6 +1,5 @@
-package com.guavus.rubix.query.remote.flex
+package com.guavus.rubix.search
 
-import MeasureRange._
 
 object Operator extends Enumeration {
 
@@ -16,9 +15,9 @@ object Operator extends Enumeration {
   
   val EQUAL = new Operator("=", "EQUAL")
 
-  val INSENSITIVE_SEARCH = new Operator("", "INSENSITIVE_SEARCH")
+  val INSENSITIVE_SEARCH = new Operator("like", "INSENSITIVE_SEARCH")
 
-  val CONTAINS = new Operator("like", "INSENSITIVE_SEARCH")
+  val CONTAINS = new Operator("like", "CONTAINS")
 
   val NOT_CONTAINS = new Operator("not like", "NOT_CONTAINS")
 

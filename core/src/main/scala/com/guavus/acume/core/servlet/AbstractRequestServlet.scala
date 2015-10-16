@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import javax.ws.rs.Path
 import javax.xml.bind.annotation.XmlRootElement
-import com.guavus.rubix.query.remote.flex.SearchResponse
+import com.guavus.rubix.search.SearchResponse
 import javax.servlet.ServletException
 import java.io.Serializable
 import com.guavus.rubix.user.management.vo.LoginResponse

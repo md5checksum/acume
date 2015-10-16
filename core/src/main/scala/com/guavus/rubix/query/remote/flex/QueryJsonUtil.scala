@@ -11,6 +11,10 @@ import com.guavus.rubix.user.management.vo.LoginRequest
 import com.guavus.rubix.user.management.vo.ValidateSessionRequest
 import com.guavus.rubix.user.management.vo.LoginResponse
 import com.guavus.rubix.user.management.vo.LogoutRequest
+import com.guavus.acume.rest.api.MessageBodyReaderJSON
+import com.guavus.rubix.search.SearchRequest
+import com.guavus.rubix.search.SearchCriterion
+import com.guavus.rubix.search.SearchCriteria
 
 object QueryJsonUtil {
 
@@ -34,6 +38,11 @@ object QueryJsonUtil {
     gson.fromJson(json, classOf[Array[QueryRequest]])
   }
   
+  
+  def fromSearchRequestToJson(request : SearchRequest) = {
+	gson.toJson(request)
+  }
+  
   def aggregateResponseToJson(response: AggregateResponse): String = gson.toJson(response)
 
   def aggregateResponsesToJson(response: java.util.ArrayList[AggregateResponse]): String = gson.toJson(response)
@@ -44,6 +53,24 @@ object QueryJsonUtil {
 
   def fromJsonToSearchRequest(json: String): SearchRequest = {
     gson.fromJson(json, classOf[SearchRequest])
+  }
+  
+  def main(args: Array[String]) {
+	val search = new SearchRequest() 
+	search.setResponseDimensions(Lists.newArrayList("a", "b", "c"))
+	search.setStartTime(1212)
+	search.setEndTime(1212)
+	search.setLimit(100)
+	val sc = new SearchCriteria()
+	search.setSearchCriteria(sc)
+	val scn = new SearchCriterion()
+	scn.setDimensionName("a")
+	scn.setValue("1")
+	sc.addCriteria(scn)
+	scn.setOperator("GREATER_THAN")
+	val s = MessageBodyReaderJSON.gson.fromJson(fromSearchRequestToJson(search), classOf[SearchRequest]);
+	println(s.toSql)
+	println("pankaj");
   }
   
   def fromJsonToZoneInfoRequest(json: String): ZoneInfoRequest = {

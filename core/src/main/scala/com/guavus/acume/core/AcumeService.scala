@@ -4,8 +4,8 @@ import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.core.configuration.ConfigFactory
 import com.guavus.rubix.query.remote.flex.AggregateResponse
 import com.guavus.rubix.query.remote.flex.QueryRequest
-import com.guavus.rubix.query.remote.flex.SearchRequest
-import com.guavus.rubix.query.remote.flex.SearchResponse
+import com.guavus.rubix.search.SearchRequest
+import com.guavus.rubix.search.SearchResponse
 import com.guavus.rubix.query.remote.flex.TimeseriesResponse
 import scala.collection.JavaConversions._
 import scala.collection.JavaConverters._
@@ -370,7 +370,7 @@ class AcumeService {
     dataService.execute(queryRequest, RequestDataType.SQL)
   }
   
-  def searchRequest(searchRequest : SearchRequest) : SearchResponse = {
+  def search(searchRequest : SearchRequest) : SearchResponse = {
     val dataService = DataServiceFactory.getDataserviceInstance(searchRequest.toSql, RequestDataType.SQL)
     dataService.servSearchRequest(searchRequest)
   }

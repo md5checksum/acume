@@ -35,7 +35,7 @@ class DsInterpreterPolicyImpl extends DsInterpreterPolicy {
      /*
      * if tableName is global use the defaultDatasourceName
      */
-    if("global".equals(tableName)){
+    if("global".equals(tableName) || "search".equals(tableName)){
       logger.info("Selecting defaultDatasourceName " + defaultDsName)
     	return defaultDsName
     }

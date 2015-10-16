@@ -1,4 +1,4 @@
-package com.guavus.rubix.query.remote.flex
+package com.guavus.rubix.search
 
 object Join extends Enumeration {
 
