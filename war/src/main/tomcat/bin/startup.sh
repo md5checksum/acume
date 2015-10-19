@@ -314,11 +314,16 @@ elif [[ "$num_core_jars" -gt 1 ]]; then
 fi
 
 
-#-------------------------------------
-# Add log4j property file for executors
-#-------------------------------------
+#---------------------------------------------------------------------------------------------
+# Add log4j property file for executors and solution property file if present
+#---------------------------------------------------------------------------------------------
+SOLUTION_FILE=$DOCBASE/WEB-INF/classes/$CLI_REPLACE_SOLUTIONCONF$
+if [ -f "$SOLUTION_FILE" ]; then
+    ARG_EXECUTOR_LOGFILE="--files $DOCBASE/WEB-INF/classes/log4j-executor.properties,$DOCBASE/WEB-INF/classes/acume.ini,$SOLUTION_FILE"
+else
+    ARG_EXECUTOR_LOGFILE="--files $DOCBASE/WEB-INF/classes/log4j-executor.properties,$DOCBASE/WEB-INF/classes/acume.ini"
+fi
 
-ARG_EXECUTOR_LOGFILE="--files $DOCBASE/WEB-INF/classes/log4j-executor.properties,$DOCBASE/WEB-INF/classes/acume.ini"
 
 
 #-------------------------------------

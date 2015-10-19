@@ -58,6 +58,14 @@
         </Property>
 
         <Property>
+            <Property_Name>application.${acumeApp}.solutionConf</Property_Name>
+            <Property_Value></Property_Value>
+            <Property_Type>read-write</Property_Type>
+            <Property_DataType>string</Property_DataType>
+            <Property_OriginalName>application.${acumeApp}.solutionConf</Property_OriginalName>
+        </Property>
+
+        <Property>
             <Property_Name>application.${acumeApp}.sessionCookieDomain</Property_Name>
             <Property_Value>.guavus.com</Property_Value>
             <Property_Type>read-write</Property_Type>
