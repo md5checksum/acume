@@ -1,9 +1,10 @@
 package com.guavus.rubix.search
 
 import java.util._
+import scala.reflect.BeanProperty
 
 @SerialVersionUID(-6814760797154764558L)
-class SearchResponse(dimensionNames : List[String], responses : List[List[Any]]) extends Serializable {
+class SearchResponse(@BeanProperty var dimensionNames : List[String], @BeanProperty var responses : List[List[Any]]) extends Serializable {
 
   override def toString(): String = {
     val maxLen = 10
