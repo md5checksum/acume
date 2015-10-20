@@ -47,6 +47,8 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 import DataService._
 import com.guavus.acume.core.configuration.DataServiceFactory
 import com.guavus.acume.cache.common.ConfConstants
+import java.util.ArrayList
+import com.guavus.rubix.search.SearchResponse
 
 /**
  * This class interacts with query builder and Olap cache.
@@ -78,11 +80,19 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     val fields = queryBuilderService.get(0).getQuerySchema(sql, response.schemaRDD.schema.fieldNames.toList)
     val rows = responseRdd.collect
     val acumeSchema: QueryBuilderSchema = queryBuilderService.get(0).getQueryBuilderSchema
-    val dimsNames = new ArrayBuffer[String]()
+    val dimsNames = new ArrayList[String]()
     for (field <- fields) {
       dimsNames += field
     }
-    new SearchResponse(dimsNames, rows.map(x => asJavaList(x.toSeq.map(y => y))).toList)
+    val finalOutput = new ArrayList[java.util.List[Any]]();
+    for(row <- rows) {
+      val innerList = new ArrayList[Any]()
+      for(value <- row.toSeq) {
+        innerList.add(value)
+      }
+      finalOutput.add(innerList)
+    }
+    new SearchResponse(dimsNames, finalOutput)
   }
 
   private def setSparkJobLocalProperties() {
