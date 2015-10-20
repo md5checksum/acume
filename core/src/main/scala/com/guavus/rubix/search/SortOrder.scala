@@ -2,6 +2,7 @@ package com.guavus.rubix.search
 
 import scala.reflect.BeanProperty
 import com.guavus.rubix.query.remote.flex.SortDirection._
+import com.guavus.rubix.query.remote.flex.SortDirection
 
 class SortOrder {
 
@@ -9,9 +10,9 @@ class SortOrder {
   var dimensionName: String = _
 
   @BeanProperty
-  var sortOrder: SortDirection = _
+  var sortOrder: String = _
 
-  def this(dimensionName: String, sortOrder: SortDirection) {
+  def this(dimensionName: String, sortOrder: String) {
     this()
     this.dimensionName = dimensionName
     this.sortOrder = sortOrder
@@ -19,6 +20,15 @@ class SortOrder {
 
   override def toString(): String = {
     "SortOrder [dimensionName=" + dimensionName + ", sortOrder=" + sortOrder + "]"
+  }
+  
+  def toSql() = {
+    
+    " order by " + dimensionName + (if(sortOrder.equalsIgnoreCase("asc")) {
+      " asc "
+    } else {
+      " desc "
+    })
   }
 
 /*

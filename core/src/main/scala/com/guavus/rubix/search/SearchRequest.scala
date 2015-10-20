@@ -79,7 +79,7 @@ class SearchRequest extends Serializable {
   }
 
   def toSql(): String = {
-    val abs = "select " + responseDimensions.toString.substring(1, responseDimensions.toString.length - 1) + " from search where startTime = " + startTime + " and endTime = " + endTime + " and timeGranularity = " + timeGranularity + (if (searchCriteria.isEmpty) "" else " and " + searchCriteria.toSql()) + " "
+    val abs = "select " + responseDimensions.toString.substring(1, responseDimensions.toString.length - 1) + " from search where startTime = " + startTime + " and endTime = " + endTime + " and timeGranularity = " + timeGranularity + (if (searchCriteria.isEmpty) "" else " and " + searchCriteria.toSql()) + " " +searchCriteria.getSortOrder.toSql
     abs
   }
 
