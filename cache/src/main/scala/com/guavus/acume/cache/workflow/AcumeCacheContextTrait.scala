@@ -141,7 +141,7 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
   
   private [acume] def isThinClient : Boolean = {
     cacheConf.getOption(ConfConstants.useInsta) match {
-      case Some(value) => return value.toBoolean
+      case Some(value) => return (!value.toBoolean)
       case None => return false
     }
   }
