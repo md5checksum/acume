@@ -24,6 +24,7 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable.ListBuffer
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 
 /**
  * @author archit.thakur
@@ -84,11 +85,19 @@ class AcumeCacheSQLCorrector(val conf: AcumeCacheConf) extends ISqlCorrector {
         tablename
         
       val querybinsource = x.getBinsource
-      val key_binsource = 
-        if(querybinsource != null)
+
+      val key_binsource = {
+        if (querybinsource != null)
           querybinsource
-      else
-        conf.get(ConfConstants.acumecorebinsource)
+        else {
+          val eligibleCubes = AcumeCacheContextTraitUtil.cubeList.filter(x => x.cubeName.equalsIgnoreCase(tablename))
+          if (eligibleCubes.size == 1)
+            eligibleCubes.get(0).get.binSource
+          else
+            conf.get(ConfConstants.acumecorebinsource)
+
+        }
+      }
         
       val xlist = x.getSingleEntityKeyValueList
       val singleEntityKey = acumeCacheContextTrait.getCubeMap.getOrElse(CubeKey(newtablename, key_binsource), throw new RuntimeException("Cube not found")).singleEntityKeys
