@@ -59,7 +59,7 @@ class DsInterpreterPolicyImpl extends DsInterpreterPolicy {
       case 1 =>
         logger.info("Selecting datasourceName " + dsNames(0) + " interpreted from datasourceNames")
         return dsNames(0)
-      case _ => throw new RuntimeException("TableName neither a cubeName nor a datasourceName. Failing query " + query)
+      case _ => return defaultDsName
     }
 
   }
