@@ -1,12 +1,9 @@
 package com.guavus.acume.core
 
 import java.util.Calendar
-
 import scala.collection.JavaConversions._
-
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
@@ -15,6 +12,9 @@ import com.guavus.acume.core.configuration.ConfigFactory
 import com.guavus.acume.core.scheduler.Controller
 import com.guavus.rubix.query.remote.flex.TimeZoneInfo
 import com.guavus.rubix.query.remote.flex.ZoneInfoParams
+import com.guavus.rubix.cache.Interval
+import com.guavus.acume.core.scheduler.ICacheAvalabilityUpdatePolicy
+import scala.collection.mutable.HashMap
 
 object PSUserService {
 
@@ -63,6 +63,18 @@ class PSUserService {
     else{
     controller.getInstaTimeIntervalForBinSource(binSource)
     }
+  }
+
+  def getAcumeAvailability : java.util.Map[String, java.util.Map[Long, Interval]] = {
+    val map: HashMap[String, HashMap[Long, Interval]] = ICacheAvalabilityUpdatePolicy.getICacheAvalabiltyUpdatePolicy.getCacheAvalabilityMap
+    val resultMap: java.util.Map[String, java.util.Map[Long, Interval]] = new java.util.HashMap[String, java.util.Map[Long, Interval]]()
+    for ((key: String, value: scala.collection.mutable.HashMap[Long, Interval]) <- map) {
+      resultMap.put(key, new java.util.HashMap[Long, Interval]())
+      for ((k: Long, v: Interval) <- value) {
+        resultMap.get(key).put(k, v)
+      }
+    }
+    resultMap
   }
 
 /*
