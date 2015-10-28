@@ -67,14 +67,7 @@ class PSUserService {
 
   def getAcumeAvailability : java.util.Map[String, java.util.Map[Long, Interval]] = {
     val map: HashMap[String, HashMap[Long, Interval]] = ICacheAvalabilityUpdatePolicy.getICacheAvalabiltyUpdatePolicy.getCacheAvalabilityMap
-    val resultMap: java.util.Map[String, java.util.Map[Long, Interval]] = new java.util.HashMap[String, java.util.Map[Long, Interval]]()
-    for ((key: String, value: scala.collection.mutable.HashMap[Long, Interval]) <- map) {
-      resultMap.put(key, new java.util.HashMap[Long, Interval]())
-      for ((k: Long, v: Interval) <- value) {
-        resultMap.get(key).put(k, v)
-      }
-    }
-    resultMap
+    mapAsJavaMap(map.map(x => (x._1, mapAsJavaMap(x._2))))
   }
 
 /*
