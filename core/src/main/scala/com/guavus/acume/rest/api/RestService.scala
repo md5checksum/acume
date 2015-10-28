@@ -1,49 +1,45 @@
 package com.guavus.acume.rest.api
 
+import java.io.Serializable
+import java.util.ArrayList
+
+import scala.collection.JavaConversions
+import scala.collection.JavaConversions.mapAsJavaMap
+import scala.collection.mutable.HashMap
+
+import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.core.AcumeService
+import com.guavus.acume.core.PSUserService
 import com.guavus.acume.core.authenticate.Authentication
+import com.guavus.acume.core.configuration.ConfigFactory
+import com.guavus.acume.core.query.DataExportRequest
+import com.guavus.acume.core.scheduler.Controller
+import com.guavus.acume.core.scheduler.ICacheAvalabilityUpdatePolicy
+import com.guavus.acume.workflow.RequestDataType
+import com.guavus.rubix.cache.Interval
+import com.guavus.rubix.query.remote.flex.LoginParameterRequest
 import com.guavus.rubix.query.remote.flex.QueryRequest
+import com.guavus.rubix.query.remote.flex.StartEndResponse
+import com.guavus.rubix.query.remote.flex.TimeZoneInfo
+import com.guavus.rubix.query.remote.flex.ZoneInfoRequest
+import com.guavus.rubix.search.SearchRequest
+import com.guavus.rubix.user.management.exceptions.HttpUMException
+import com.guavus.rubix.user.management.ui.RoleVO
+import com.guavus.rubix.user.management.utils.UserManagementUtils
+import com.guavus.rubix.user.management.vo.CurrentSessionInfo
+import com.guavus.rubix.user.management.vo.LoginRequest
+import com.guavus.rubix.user.management.vo.LoginResponse
+import com.guavus.rubix.user.management.vo.LogoutRequest
+import com.guavus.rubix.user.management.vo.LogoutResponse
+import com.guavus.rubix.user.management.vo.ValidateSessionRequest
+
 import javax.ws.rs.Consumes
-import javax.ws.rs.GET
+import javax.ws.rs.DefaultValue
+import javax.ws.rs.POST
 import javax.ws.rs.Path
 import javax.ws.rs.Produces
 import javax.ws.rs.QueryParam
-import javax.ws.rs.DefaultValue
 import javax.xml.bind.annotation.XmlRootElement
-import javax.ws.rs.POST
-import com.guavus.rubix.search.SearchRequest
-import com.guavus.acume.cache.workflow.AcumeCacheResponse
-import com.guavus.acume.core.AcumeContextTraitUtil
-import com.guavus.acume.cache.common.AcumeConstants
-import com.guavus.acume.core.query.DataExportRequest
-import com.guavus.acume.cache.workflow.RequestType
-import com.guavus.rubix.user.management.utils.UserManagementUtils
-import java.io.Serializable
-import com.guavus.acume.core.scheduler.Controller
-import com.guavus.acume.core.configuration.ConfigFactory
-import com.guavus.acume.cache.common.ConfConstants
-import com.guavus.rubix.user.management.vo.CurrentSessionInfo
-import org.apache.shiro.subject.Subject
-import org.apache.shiro.session.Session
-import org.apache.shiro.SecurityUtils
-import com.guavus.rubix.user.management.exceptions.HttpUMException
-import com.guavus.rubix.user.management.vo.LoginRequest
-import com.guavus.rubix.user.management.vo.LoginResponse
-import com.guavus.rubix.user.management.ui.RoleVO
-import com.guavus.acume.core.PSUserService
-import com.guavus.rubix.query.remote.flex.TimeZoneInfo
-import com.guavus.rubix.query.remote.flex.ZoneInfoRequest
-import com.guavus.rubix.user.management.vo.ValidateSessionRequest
-import scala.collection.mutable.HashMap
-import com.guavus.rubix.cache.Interval
-import com.guavus.rubix.query.remote.flex.LoginParameterRequest
-import com.guavus.acume.workflow.RequestDataType
-import com.guavus.rubix.query.remote.flex.StartEndResponse
-import com.guavus.acume.core.scheduler.ICacheAvalabilityUpdatePolicy
-import com.guavus.rubix.user.management.vo.LogoutRequest
-import com.guavus.rubix.user.management.vo.LogoutResponse
-import java.util.ArrayList
-import scala.collection.JavaConversions
 
 @Path("/" + "queryresponse")
 /**
@@ -276,14 +272,7 @@ class RestService {
       @QueryParam("user") user : String, @QueryParam("password") password : String) : java.util.Map[String, java.util.Map[Long, Interval]] = {
     Authentication.authenticate(userinfo, user, password)
     val map : HashMap[String, HashMap[Long, Interval]] = ICacheAvalabilityUpdatePolicy.getICacheAvalabiltyUpdatePolicy.getCacheAvalabilityMap
-    val resultMap : java.util.Map[String, java.util.Map[Long, Interval]] = new java.util.HashMap[String, java.util.Map[Long, Interval]]()
-    for ((key: String, value:scala.collection.mutable.HashMap[Long,Interval]) <- map){
-      resultMap.put(key, new java.util.HashMap[Long, Interval]() )
-      for ((k: Long, v:Interval) <-value){
-      resultMap.get(key).put(k,v)
-      }
-    }
-    resultMap
+    mapAsJavaMap(map.map(x => (x._1, mapAsJavaMap(x._2))))
   }
   
   @POST
