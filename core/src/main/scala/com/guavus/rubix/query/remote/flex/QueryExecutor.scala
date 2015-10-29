@@ -12,13 +12,14 @@ import com.guavus.rubix.logging.util.AcumeThreadLocal
 import com.guavus.acume.core.AcumeService
 import com.guavus.acume.workflow.RequestDataType
 import scala.collection.mutable.HashMap
+import com.guavus.acume.cache.workflow.RequestType
 
 object QueryExecutor {
 
 private var logger: Logger = LoggerFactory.getLogger(classOf[QueryExecutor[Any]])  
 }
 
-class QueryExecutor[T](private var acumeService: AcumeService, private var loginInfo: String, var request: Any, requestDataType : RequestDataType.RequestDataType, property: HashMap[String, Any] = null) extends Callable[T] {
+class QueryExecutor[T](private var acumeService: AcumeService, private var loginInfo: String, var request: Any, requestDataType : RequestType.RequestType, property: HashMap[String, Any] = null) extends Callable[T] {
 
   @BeanProperty
   var callId: String = _
@@ -37,9 +38,9 @@ class QueryExecutor[T](private var acumeService: AcumeService, private var login
     try {
       HttpUtils.setLoginInfo(loginInfo)
         requestDataType match {
-          case RequestDataType.Aggregate => response = acumeService.servAggregateSingleQuery(request.asInstanceOf[QueryRequest], property).asInstanceOf[T]
-          case RequestDataType.TimeSeries => response = acumeService.servTimeseriesSingleQuery(request.asInstanceOf[QueryRequest], property).asInstanceOf[T]
-          case RequestDataType.SQL => response = acumeService.servSingleQuery(request.asInstanceOf[String], property).asInstanceOf[T]
+          case RequestType.Aggregate => response = acumeService.servAggregateSingleQuery(request.asInstanceOf[QueryRequest], property).asInstanceOf[T]
+          case RequestType.Timeseries => response = acumeService.servTimeseriesSingleQuery(request.asInstanceOf[QueryRequest], property).asInstanceOf[T]
+          case RequestType.SQL => response = acumeService.servSingleQuery(request.asInstanceOf[String], property).asInstanceOf[T]
           case _ => throw new IllegalArgumentException("QueryExecutor does not support request type: " + requestDataType)
         }
     } finally {

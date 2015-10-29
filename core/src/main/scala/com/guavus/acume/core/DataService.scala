@@ -1,54 +1,51 @@
 package com.guavus.acume.core
 
-import com.guavus.acume.cache.core.TimeGranularity
-import com.guavus.rubix.query.remote.flex.TimeseriesResponse
-import com.guavus.rubix.query.remote.flex.AggregateResponse
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.catalyst.expressions.Row
-import com.guavus.rubix.query.remote.flex.QueryRequest
-import com.guavus.qb.cube.schema.QueryBuilderSchema
-import com.guavus.qb.conf.QBConf
-import org.apache.spark.sql.SchemaRDD
-import scala.collection.mutable.ArrayBuffer
-import com.guavus.rubix.query.remote.flex.AggregateResultSet
-import com.guavus.rubix.query.remote.flex.TimeseriesResultSet
-import scala.collection.JavaConversions._
-import scala.collection.JavaConverters._
-import scala.collection.mutable.HashMap
+import java.util.ArrayList
 import java.util.Arrays
-import scala.collection.JavaConverters._
+import java.util.concurrent.atomic.AtomicLong
+
 import scala.collection.JavaConversions._
-import com.guavus.acume.cache.workflow.AcumeCacheResponse
-import com.guavus.qb.services.IQueryBuilderService
+import scala.collection.JavaConversions.seqAsJavaList
+import scala.collection.JavaConverters.bufferAsJavaListConverter
+import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.duration.DurationInt
+import scala.concurrent.future
+
+import org.apache.spark.sql.catalyst.expressions.Row
+import org.slf4j.LoggerFactory
+
+import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
+import com.guavus.acume.cache.workflow.AcumeCacheResponse
+import com.guavus.acume.cache.workflow.RequestType
+import com.guavus.acume.cache.workflow.RequestType.Aggregate
+import com.guavus.acume.cache.workflow.RequestType.SQL
+import com.guavus.acume.cache.workflow.RequestType.Timeseries
+import com.guavus.acume.core.configuration.DataServiceFactory
+import com.guavus.qb.cube.schema.QueryBuilderSchema
+import com.guavus.qb.services.IQueryBuilderService
 import com.guavus.rubix.query.remote.flex.AggregateResponse
 import com.guavus.rubix.query.remote.flex.AggregateResultSet
 import com.guavus.rubix.query.remote.flex.QueryRequest
+import com.guavus.rubix.query.remote.flex.TimeseriesResponse
+import com.guavus.rubix.query.remote.flex.TimeseriesResultSet
 import com.guavus.rubix.search.SearchRequest
 import com.guavus.rubix.search.SearchResponse
-import com.guavus.rubix.query.remote.flex.TimeseriesResponse
-import com.guavus.rubix.query.remote.flex.TimeseriesResultSet
 import com.guavus.rubix.user.management.utils.HttpUtils
-import org.apache.shiro.SecurityUtils
-import java.util.concurrent.atomic.AtomicLong
-import org.slf4j.LoggerFactory
-import java.util.concurrent.{Callable, TimeoutException, ConcurrentHashMap}
-import scala.concurrent._
-import scala.concurrent.duration._
-import ExecutionContext.Implicits.global
-import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
-import acume.exception.AcumeException
-import com.guavus.acume.core.exceptions.AcumeExceptionConstants
-import com.guavus.acume.workflow.RequestDataType
-import com.guavus.acume.cache.common.AcumeConstants
-import java.util.concurrent.ConcurrentHashMap
-import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
-import DataService._
-import com.guavus.acume.core.configuration.DataServiceFactory
-import com.guavus.acume.cache.common.ConfConstants
-import java.util.ArrayList
-import com.guavus.rubix.search.SearchResponse
+
+import DataService.classificationStats
+import DataService.counter
+import DataService.logger
+import DataService.poolStats
+import DataService.queryPoolPolicy
+import DataService.{ queryPoolPolicy_= => queryPoolPolicy_= }
+import DataService.queryPoolSchedulerPolicy
+import DataService.queryPoolUIPolicy
+import javax.xml.bind.annotation.XmlRootElement
 
 /**
  * This class interacts with query builder and Olap cache.
@@ -59,26 +56,24 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
    * Takes QueryRequest i.e. Rubix query and return aggregate Response.
    */
   def servAggregate(queryRequest: QueryRequest, property: HashMap[String, Any] = null): AggregateResponse = {
-    servRequest(queryRequest.toSql(""), RequestDataType.Aggregate, property).asInstanceOf[AggregateResponse]
+    servRequest(queryRequest.toSql(""), RequestType.Aggregate, property).asInstanceOf[AggregateResponse]
   }
 
   /**
    * Takes QueryRequest i.e. Rubix query and return timeseries Response.
    */
   def servTimeseries(queryRequest: QueryRequest, property: HashMap[String, Any] = null): TimeseriesResponse = {
-    servRequest(queryRequest.toSql("ts,"), RequestDataType.TimeSeries, property).asInstanceOf[TimeseriesResponse]
+    servRequest(queryRequest.toSql("ts,"), RequestType.Timeseries, property).asInstanceOf[TimeseriesResponse]
   }
 
   def servSearchRequest(queryRequest: SearchRequest): SearchResponse = {
-    servSearchRequest(queryRequest.toSql, RequestDataType.SQL)
+    servSearchRequest(queryRequest.toSql, RequestType.SQL)
   }
 
-  def servSearchRequest(unUpdatedSql: String, requestDataType: RequestDataType.RequestDataType): SearchResponse = {
+  def servSearchRequest(unUpdatedSql: String, requestDataType: RequestType.RequestType): SearchResponse = {
     val sql = DataServiceFactory.dsInterpreterPolicy.updateQuery(unUpdatedSql)
-    val response = execute(sql, requestDataType)
-    val responseRdd = response.rowRDD
+    val (response, rows) = execute(sql, requestDataType)
     val fields = queryBuilderService.get(0).getQuerySchema(sql, response.schemaRDD.schema.fieldNames.toList)
-    val rows = responseRdd.collect
     val acumeSchema: QueryBuilderSchema = queryBuilderService.get(0).getQueryBuilderSchema
     val dimsNames = new ArrayList[String]()
     for (field <- fields) {
@@ -132,15 +127,15 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     }
   }
 
-  def checkJobLevelProperties(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): (List[(String, HashMap[String, Any])], List[String]) = {
+  def checkJobLevelProperties(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestType.RequestType): (List[(String, HashMap[String, Any])], List[String]) = {
     this.synchronized {
 
       var sqlList: java.util.ArrayList[String] = new java.util.ArrayList()
       requests foreach (request => {
         requestDataType match {
-          case RequestDataType.Aggregate => sqlList.add(request.asInstanceOf[QueryRequest].toSql(""))
-          case RequestDataType.TimeSeries => sqlList.add(request.asInstanceOf[QueryRequest].toSql("ts,"))
-          case RequestDataType.SQL => sqlList.add(request.asInstanceOf[String])
+          case Aggregate => sqlList.add(request.asInstanceOf[QueryRequest].toSql(""))
+          case Timeseries => sqlList.add(request.asInstanceOf[QueryRequest].toSql("ts,"))
+          case SQL => sqlList.add(request.asInstanceOf[String])
           case _ => throw new IllegalArgumentException("QueryExecutor does not support request type: " + requestDataType)
         }
       })
@@ -164,7 +159,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     }
   }
 
-  def servRequest(unUpdatedSql: String, requestDataType: RequestDataType.RequestDataType, property: HashMap[String, Any] = null): Any = {
+  def servRequest(unUpdatedSql: String, requestDataType: RequestType.RequestType, property: HashMap[String, Any] = null): Any = {
     
     val sql = DataServiceFactory.dsInterpreterPolicy.updateQuery(unUpdatedSql)
     
@@ -189,9 +184,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         try {
           conf.setDatasourceName(datasourceName)
           acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
-          val cacheResponse = execute(sql, requestDataType)
-          val responseRdd = cacheResponse.rowRDD
-          (cacheResponse, responseRdd.collect)
+          execute(sql, requestDataType)
         } finally {
           unsetSparkJobLocalProperties
         }
@@ -206,13 +199,13 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       val dimsNames = new ArrayBuffer[String]()
       val measuresNames = new ArrayBuffer[String]()
       var j = 0
-      var isTimeseries = RequestDataType.TimeSeries.equals(requestDataType)
+      var isTimeseries = RequestType.Timeseries.equals(requestDataType)
 
       var tsIndex = 0
       for (field <- fields) {
         if (field.equalsIgnoreCase("ts") || field.equalsIgnoreCase("timestamp")) {
           isTimeseries = {
-            if(RequestDataType.Aggregate.equals(requestDataType)) {
+            if(RequestType.Aggregate.equals(requestDataType)) {
               // In hbase, ts is a dimension. Adding ts to dimfields even in case of Aggregate
               dimsNames += field
             	false
@@ -318,7 +311,14 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
           }
           list += new AggregateResultSet(dims, measures)
         }
-        new AggregateResponse(list, dimsNames, measuresNames, cacheResponse.metadata.totalRecords.toInt)
+        
+        val totalRecords : Int = 
+          if(cacheResponse.metadata.totalRecords < 0) 
+            rows.size 
+          else 
+            cacheResponse.metadata.totalRecords.toInt
+ 
+        new AggregateResponse(list, dimsNames, measuresNames, totalRecords)
       }
     } catch {
       case e: Throwable =>
@@ -329,34 +329,9 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       unsetSparkJobLocalProperties
     }
   }
-
-  def execute(sql: String, requestDataType: RequestDataType.RequestDataType): AcumeCacheResponse = {
-
-    var isFirst: Boolean = true
-    val modifiedSql: String = queryBuilderService.foldLeft("") { (result, current) =>
-      if (isFirst) {
-        isFirst = false
-        current.buildQuery(sql)
-      } else {
-        current.buildQuery(result)
-      }
-    }
-
-    if (!modifiedSql.equals("")) {
-      if (!queryBuilderService.iterator.next.isSchedulerQuery(sql)) {
-        logger.info(modifiedSql)
-        val resp = acumeContext.acc.acql(modifiedSql)
-        
-        if ((RequestDataType.Aggregate.equals(requestDataType) || !queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql)) && !acumeContext.acumeConf.getDisableTotalForAggregateQueries(datasourceName)) {
-          resp.metadata.totalRecords = acumeContext.acc.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getLong(0)
-        }
-        resp
-      } else {
-        acumeContext.acc.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql))
-      }
-    } else
-      throw new RuntimeException(s"Invalid Modified Query")
-
+  
+  def execute(sql: String, requestType : RequestType.RequestType) : (AcumeCacheResponse, Array[Row]) = {
+    acumeContext.acc.acql2(sql, queryBuilderService, requestType)
   }
 }
 
