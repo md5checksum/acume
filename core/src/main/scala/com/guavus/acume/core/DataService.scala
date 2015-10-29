@@ -17,7 +17,6 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable.HashMap
 import java.util.Arrays
 import com.guavus.rubix.query.remote.flex.SearchResponse
-import com.guavus.rubix.query.remote.flex.SearchResponse
 import scala.collection.JavaConverters._
 import scala.collection.JavaConversions._
 import com.guavus.rubix.query.remote.flex.SearchRequest
@@ -36,13 +35,16 @@ import ExecutionContext.Implicits.global
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import acume.exception.AcumeException
 import com.guavus.acume.core.exceptions.AcumeExceptionConstants
-import com.guavus.acume.workflow.RequestDataType
 import com.guavus.acume.cache.common.AcumeConstants
 import java.util.concurrent.ConcurrentHashMap
 import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 import DataService._
 import com.guavus.acume.core.configuration.DataServiceFactory
 import com.guavus.acume.cache.common.ConfConstants
+import com.guavus.acume.cache.workflow.RequestType
+import com.guavus.acume.cache.workflow.RequestType.Aggregate
+import com.guavus.acume.cache.workflow.RequestType.SQL
+import com.guavus.acume.cache.workflow.RequestType.Timeseries
 
 /**
  * This class interacts with query builder and Olap cache.
@@ -53,27 +55,26 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
    * Takes QueryRequest i.e. Rubix query and return aggregate Response.
    */
   def servAggregate(queryRequest: QueryRequest, property: HashMap[String, Any] = null): AggregateResponse = {
-    servRequest(queryRequest.toSql(""), RequestDataType.Aggregate, property).asInstanceOf[AggregateResponse]
+    servRequest(queryRequest.toSql(""), RequestType.Aggregate, property).asInstanceOf[AggregateResponse]
   }
 
   /**
    * Takes QueryRequest i.e. Rubix query and return timeseries Response.
    */
   def servTimeseries(queryRequest: QueryRequest, property: HashMap[String, Any] = null): TimeseriesResponse = {
-    servRequest(queryRequest.toSql("ts,"), RequestDataType.TimeSeries, property).asInstanceOf[TimeseriesResponse]
+    servRequest(queryRequest.toSql("ts,"), RequestType.Timeseries, property).asInstanceOf[TimeseriesResponse]
   }
 
   def servSearchRequest(queryRequest: SearchRequest): SearchResponse = {
-    servSearchRequest(queryRequest.toSql, RequestDataType.SQL)
+    servSearchRequest(queryRequest.toSql, RequestType.SQL)
   }
 
-  def servSearchRequest(unUpdatedSql: String, requestDataType: RequestDataType.RequestDataType): SearchResponse = {
+  def servSearchRequest(unUpdatedSql: String, requestType: RequestType.RequestType): SearchResponse = {
     val sql = DataServiceFactory.dsInterpreterPolicy.updateQuery(unUpdatedSql)
-    val response = execute(sql, requestDataType)
-    val responseRdd = response.rowRDD
+    val (response, rows) = execute(sql, requestType)
     val schema = response.schemaRDD.schema
     val fields = schema.fieldNames
-    val rows = responseRdd.collect
+
     val acumeSchema: QueryBuilderSchema = queryBuilderService.get(0).getQueryBuilderSchema
     val dimsNames = new ArrayBuffer[String]()
     for (field <- fields) {
@@ -119,16 +120,16 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     }
   }
 
-  def checkJobLevelProperties(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): (List[(String, HashMap[String, Any])], List[String]) = {
+  def checkJobLevelProperties(requests: java.util.ArrayList[_ <: Any], requestType: RequestType.RequestType): (List[(String, HashMap[String, Any])], List[String]) = {
     this.synchronized {
 
       var sqlList: java.util.ArrayList[String] = new java.util.ArrayList()
       requests foreach (request => {
-        requestDataType match {
-          case RequestDataType.Aggregate => sqlList.add(request.asInstanceOf[QueryRequest].toSql(""))
-          case RequestDataType.TimeSeries => sqlList.add(request.asInstanceOf[QueryRequest].toSql("ts,"))
-          case RequestDataType.SQL => sqlList.add(request.asInstanceOf[String])
-          case _ => throw new IllegalArgumentException("QueryExecutor does not support request type: " + requestDataType)
+        requestType match {
+          case Aggregate => sqlList.add(request.asInstanceOf[QueryRequest].toSql(""))
+          case Timeseries => sqlList.add(request.asInstanceOf[QueryRequest].toSql("ts,"))
+          case SQL => sqlList.add(request.asInstanceOf[String])
+          case _ => throw new IllegalArgumentException("QueryExecutor does not support request type: " + requestType)
         }
       })
       
@@ -151,7 +152,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     }
   }
 
-  def servRequest(unUpdatedSql: String, requestDataType: RequestDataType.RequestDataType, property: HashMap[String, Any] = null): Any = {
+  def servRequest(unUpdatedSql: String, requestType: RequestType.RequestType, property: HashMap[String, Any] = null): Any = {
     
     val sql = DataServiceFactory.dsInterpreterPolicy.updateQuery(unUpdatedSql)
     
@@ -176,9 +177,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         try {
           conf.setDatasourceName(datasourceName)
           acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
-          val cacheResponse = execute(sql, requestDataType)
-          val responseRdd = cacheResponse.rowRDD
-          (cacheResponse, responseRdd.collect)
+          execute(sql, requestType)
         } finally {
           unsetSparkJobLocalProperties
         }
@@ -193,13 +192,13 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       val dimsNames = new ArrayBuffer[String]()
       val measuresNames = new ArrayBuffer[String]()
       var j = 0
-      var isTimeseries = RequestDataType.TimeSeries.equals(requestDataType)
+      var isTimeseries = RequestType.Timeseries.equals(requestType)
 
       var tsIndex = 0
       for (field <- fields) {
         if (field.equalsIgnoreCase("ts") || field.equalsIgnoreCase("timestamp")) {
           isTimeseries = {
-            if(RequestDataType.Aggregate.equals(requestDataType)) {
+            if(RequestType.Aggregate.equals(requestType)) {
               // In hbase, ts is a dimension. Adding ts to dimfields even in case of Aggregate
               dimsNames += field
             	false
@@ -305,7 +304,14 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
           }
           list += new AggregateResultSet(dims, measures)
         }
-        new AggregateResponse(list, dimsNames, measuresNames, cacheResponse.metadata.totalRecords.toInt)
+
+        val totalRecords : Int = 
+        if(cacheResponse.metadata.totalRecords < 0) 
+          rows.size 
+        else 
+          cacheResponse.metadata.totalRecords.toInt
+
+        new AggregateResponse(list, dimsNames, measuresNames, totalRecords)
       }
     } catch {
       case e: Throwable =>
@@ -317,33 +323,8 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     }
   }
 
-  def execute(sql: String, requestDataType: RequestDataType.RequestDataType): AcumeCacheResponse = {
-
-    var isFirst: Boolean = true
-    val modifiedSql: String = queryBuilderService.foldLeft("") { (result, current) =>
-      if (isFirst) {
-        isFirst = false
-        current.buildQuery(sql)
-      } else {
-        current.buildQuery(result)
-      }
-    }
-
-    if (!modifiedSql.equals("")) {
-      if (!queryBuilderService.iterator.next.isSchedulerQuery(sql)) {
-        logger.info(modifiedSql)
-        val resp = acumeContext.acc.acql(modifiedSql)
-        
-        if ((RequestDataType.Aggregate.equals(requestDataType) || !queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql)) && !acumeContext.acumeConf.getDisableTotalForAggregateQueries(datasourceName)) {
-          resp.metadata.totalRecords = acumeContext.acc.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getLong(0)
-        }
-        resp
-      } else {
-        acumeContext.acc.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql))
-      }
-    } else
-      throw new RuntimeException(s"Invalid Modified Query")
-
+  def execute(sql: String, requestType : RequestType.RequestType) : (AcumeCacheResponse, Array[Row]) = {
+    acumeContext.acc.acql2(sql, queryBuilderService, requestType)
   }
 }
 

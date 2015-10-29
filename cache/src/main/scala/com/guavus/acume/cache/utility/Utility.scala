@@ -67,6 +67,11 @@ import com.guavus.acume.cache.common.HbaseConfigs
 import com.guavus.qb.ds.DatasourceType
 import org.apache.hadoop.fs.FileStatus
 import java.io.FileNotFoundException
+import net.sf.jsqlparser.JSQLParserException
+import net.sf.jsqlparser.statement.select.PlainSelect
+import net.sf.jsqlparser.statement.select.Select
+import com.guavus.qb.core.SqlParserFactory
+import java.io.StringReader
 
 /**
  * @author archit.thakur
@@ -948,4 +953,19 @@ object Utility extends Logging {
         Array[FileStatus]()
     }
   }
+  
+  def getPlainSelectObjectFromQuery(inputsql: String) : PlainSelect = {
+    var select: Select = null;
+    try {
+      select = SqlParserFactory.getParserManager().parse(new StringReader(inputsql)).asInstanceOf[Select]
+    } catch {
+      case ex : JSQLParserException => 
+        logError("SQL not parsable", ex)
+        throw ex
+    }
+    
+    select.getSelectBody.asInstanceOf[PlainSelect]
+  }
+  
+
 }
