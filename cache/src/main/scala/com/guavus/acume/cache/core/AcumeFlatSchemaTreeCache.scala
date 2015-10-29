@@ -480,7 +480,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
               if (level == aggregationlevel) {
                 finalRdds += acumeValue.getAcumeValue.measureSchemaRdd
               } else {
-                finalRdds += acumeValue.getAcumeValue.measureSchemaRdd.where('ts >= startTime).where('ts < endTime)
+                finalRdds += acumeValue.getAcumeValue.measureSchemaRdd.where('ts >= startTime.toInt).where('ts < endTime.toInt)
               }
             }
             timestamp = Utility.getNextTimeFromGranularity(timestamp, aggregationlevel, cal)

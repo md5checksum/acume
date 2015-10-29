@@ -4,7 +4,6 @@ import java.io.File
 import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.ThreadPoolExecutor
 import java.util.concurrent.TimeUnit
-
 import scala.collection.JavaConversions._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContextExecutorService
@@ -12,13 +11,12 @@ import scala.concurrent.Future
 import scala.util.Failure
 import scala.util.Success
 import scala.util.control.Breaks._
-
 import org.apache.hadoop.fs.Path
 import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.SchemaRDD
 import org.apache.spark.sql.catalyst.expressions.Row
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.CacheLevel
 import com.guavus.acume.cache.common.ConfConstants
@@ -30,6 +28,7 @@ import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 import com.guavus.acume.threads.NamedThreadPoolFactory
+import com.guavus.acume.cache.common.AcumeConstants
 
 
 abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy)
@@ -113,7 +112,13 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
 
       if (priority == 1 && Utility.isPathExisting(diskDirpath, acumeCacheContext) && Utility.isDiskWriteComplete(diskDirectory, acumeCacheContext)) {
         acumeCacheContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk cache reading " + diskDirectory, false)
-        val rdd = acumeCacheContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
+        var rdd: SchemaRDD = null
+        val bucketingAttributes = cube.propertyMap.getOrElse(AcumeConstants.BUCKETING_ATTRIBUTES, null)
+        if(bucketingAttributes != null) {
+          rdd = acumeCacheContext.cacheSqlContext.parquetFileIndivisible(bucketingAttributes.split(";"), cube.propertyMap.get(AcumeConstants.NUM_PARTITIONS).get.toInt, diskDirectory)
+        } else {
+          rdd = acumeCacheContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
+        }
         return new AcumeFlatSchemaCacheValue(new AcumeDiskValue(levelTimestamp, cube, rdd, cachePointToTable, true), acumeCacheContext)
       }
     } catch {
