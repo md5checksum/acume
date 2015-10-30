@@ -85,34 +85,32 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
 
           var count: Long = -1
           var rdd: RDD[Row] = null
-
-          logger.info("=== Printing time 3 " + System.currentTimeMillis())
-          
-          val plainSelect: PlainSelect = Utility.getPlainSelectObjectFromQuery(modifiedSql)
-          val limit : Limit = plainSelect.getLimit
-          val limitValue = if(limit != null) limit.getRowCount else -1
-          plainSelect.setLimit(null)
-          val nonLimitQuery = plainSelect.toString
-
-          logger.info("=== Printing time 4 " + System.currentTimeMillis())
-          
+          var limitValue: Int = -1
+          var newDF: DataFrame = null
           var acumeCacheResponse = new AcumeCacheResponse(null, null, MetaData(-1, null))
 
-          // Fire the count(*) query if applicable
-          if (limitValue > 0 && (RequestType.Aggregate.equals(requestDataType) || !queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql)) && !cacheConf.getDisableTotalForAggregateQueries(cacheConf.datasourceName)) {
-            // Fire count query and dont cache this
-            acumeCacheResponse = executeQuery(nonLimitQuery)
-            rdd = acumeCacheResponse.rowRDD
-            count = rdd.count
-          }
+          if ((RequestType.Aggregate.equals(requestDataType) || !queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql)) && !cacheConf.getDisableTotalForAggregateQueries(cacheConf.datasourceName)) {
+            // This is aggregateQuery
 
-          // Fire the main query
-          val newDF: DataFrame = if (limitValue > 0) {
-            // Get new DF with the limit
-            cacheSqlContext.applySchema(rdd, acumeCacheResponse.schemaRDD.schema).limit(limitValue.toInt)
+            val limitAndQuery = getNoLimitQuery(modifiedSql)
+            limitValue = limitAndQuery._1
+            val noLimitQuery = limitAndQuery._2
+
+            if (limitValue > 0) {
+              // Fire count query and dont cache this
+              acumeCacheResponse = executeQuery(noLimitQuery)
+              rdd = acumeCacheResponse.rowRDD
+              count = rdd.count
+              newDF = cacheSqlContext.applySchema(rdd, acumeCacheResponse.schemaRDD.schema).limit(limitValue.toInt)
+            } else {
+              acumeCacheResponse = executeQuery(noLimitQuery)
+              newDF = acumeCacheResponse.schemaRDD
+            }
           } else {
-            acumeCacheResponse = executeQuery(nonLimitQuery)
-            acumeCacheResponse.schemaRDD
+            // This is a timeseries query or an aggregate query with count to be disabled
+            // No need to remove the limit in timeseries query
+            acumeCacheResponse = executeQuery(modifiedSql)
+            newDF = acumeCacheResponse.schemaRDD
           }
 
           new AcumeCacheResponse(newDF, rdd, MetaData(count, acumeCacheResponse.metadata.timestamps))
@@ -129,6 +127,33 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
       AcumeCacheContextTraitUtil.unsetQuery()
     }
     
+  }
+
+  def getNoLimitQuery(modifiedSql: String) = {
+    //TODO Move this to queryBuilder
+
+    var limitValue: Int = -1
+
+    logger.info("=== Printing time 3 " + System.currentTimeMillis())
+
+    val stringBuilder = new StringBuilder(modifiedSql)
+    val index = stringBuilder.lastIndexOf("LIMIT")
+
+    if (index != -1) {
+      var i = index + 6
+      while (i < stringBuilder.length && stringBuilder.charAt(i).isDigit)
+        i = i + 1
+
+      limitValue = stringBuilder.substring(index + 6, i).toInt
+      stringBuilder.delete(index, i)
+    }
+
+    val nonLimitQuery = stringBuilder.toString
+
+    logger.info("=== Printing time 4 " + System.currentTimeMillis())
+
+    (limitValue, nonLimitQuery)
+
   }
   
   def acql(sql: String): AcumeCacheResponse = {
