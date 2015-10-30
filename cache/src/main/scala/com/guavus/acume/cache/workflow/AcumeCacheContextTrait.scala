@@ -64,7 +64,6 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
     
     // Get the modified query from queryBuilder
     var isFirst: Boolean = true
-    logger.info("=== Printing time 1 " + System.currentTimeMillis())
     val modifiedSql: String = queryBuilderService.foldLeft("") { (result, current) =>
       if (isFirst) {
         isFirst = false
@@ -73,7 +72,6 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
         current.buildQuery(result)
       }
     }
-    logger.info("=== Printing time  2 " + System.currentTimeMillis())
     AcumeCacheContextTraitUtil.setQuery(sql)
 
     try {
@@ -134,13 +132,12 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
 
     var limitValue: Int = -1
 
-    logger.info("=== Printing time 3 " + System.currentTimeMillis())
-
     val stringBuilder = new StringBuilder(modifiedSql)
     val index = stringBuilder.lastIndexOf("LIMIT")
 
     if (index != -1) {
       var i = index + 6
+      
       while (i < stringBuilder.length && stringBuilder.charAt(i).isDigit)
         i = i + 1
 
@@ -149,11 +146,7 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
     }
 
     val nonLimitQuery = stringBuilder.toString
-
-    logger.info("=== Printing time 4 " + System.currentTimeMillis())
-
     (limitValue, nonLimitQuery)
-
   }
   
   def acql(sql: String): AcumeCacheResponse = {
