@@ -4,7 +4,8 @@ import java.util.concurrent.Callable
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.core.{AcumeCache, TimeGranularity}
 import com.guavus.acume.cache.utility.QueryOptionalParam
-import com.guavus.acume.cache.workflow.{AcumeCacheContextTrait, CubeKey}
+import com.guavus.acume.cache.workflow.{AcumeCacheContextTrait, AcumeCacheContextTraitUtil}
+import com.guavus.acume.cache.workflow.CubeKey
 import CustomExecutor._
 
 import org.slf4j.Logger
@@ -14,7 +15,7 @@ import com.guavus.acume.user.management.utils.HttpUtils
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
 import com.guavus.rubix.logging.util.AcumeThreadLocal
 import com.guavus.acume.core.{AcumeConf, AcumeContextTraitUtil, DataService}
-import com.guavus.acume.core.configuration.{AcumeContextTraitMap, ConfigFactory, AcumeAppConfig}
+import com.guavus.acume.core.configuration.{AcumeContextTraitMap, ConfigFactory}
 
 import com.guavus.qb.ds.DatasourceType
 
@@ -97,8 +98,9 @@ abstract class CustomExecutor[T](
         sc.cancelJobGroup(jobGroupId)
         throw e;
     } finally {
-      HttpUtils.recycle()
-      AcumeThreadLocal.unset()
+      HttpUtils.recycle
+      AcumeThreadLocal.unset
+      AcumeCacheContextTraitUtil.unsetAcumeTreeCacheValue
       this.callId = null
     }
     response
