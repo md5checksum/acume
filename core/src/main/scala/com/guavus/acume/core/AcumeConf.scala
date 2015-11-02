@@ -8,7 +8,6 @@ import org.slf4j.LoggerFactory
 import org.apache.shiro.config.Ini
 import org.apache.shiro.config.Ini.Section
 import com.guavus.acume.cache.common.ConfConstants
-import com.guavus.acume.cache.utility.PropertyValidator
 import java.net.URLClassLoader
 import java.util.Map.Entry
 import scala.Array.canBuildFrom
@@ -92,9 +91,7 @@ class AcumeConf(loadDefaults: Boolean, fileName : String) extends Cloneable with
 
         })
       }
-
     })
-	  PropertyValidator.validate(settings)
   }
   
   private def setDefault = {
