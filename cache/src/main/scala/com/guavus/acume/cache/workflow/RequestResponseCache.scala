@@ -1,6 +1,7 @@
 package com.guavus.acume.cache.workflow
 
 import java.io.StringReader
+
 import com.google.common.cache.CacheBuilder
 import com.google.common.cache.CacheLoader
 import com.google.common.cache.RemovalListener
@@ -8,8 +9,8 @@ import com.google.common.cache.RemovalNotification
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.utility.SQLParserFactory
+
 import net.sf.jsqlparser.statement.select.Select
-import com.guavus.qb.services.IQueryBuilderService
 
 /**
  * @author archit.thakur
@@ -25,10 +26,7 @@ class RequestResponseCache(acumeCacheContextTrait: AcumeCacheContextTrait, conf:
   }).build(
       new CacheLoader[RRCacheKey, AcumeCacheResponse]() {
         def load(input: RRCacheKey) = {
-          //acumeCacheContextTrait.fireQuery(input.qlstring, queryBuilderService, requestDataType)
-          val response = acumeCacheContextTrait.executeQuery(input.qlstring)
-          val cachedRDD = response.rowRDD.cache
-          cachedRDD.checkpoint
+          val response = acumeCacheContextTrait.fireQuery(input.qlstring, RequestType.Aggregate)
           response
         }
       });

@@ -324,8 +324,32 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
   }
 
   def execute(sql: String, requestType : RequestType.RequestType) : (AcumeCacheResponse, Array[Row]) = {
-    acumeContext.acc.acql2(sql, queryBuilderService, requestType)
+    
+    // Get the modified query from queryBuilder
+    var isFirst: Boolean = true
+    val modifiedSql: String = queryBuilderService.foldLeft("") { (result, current) =>
+      if (isFirst) {
+        isFirst = false
+        current.buildQuery(sql)
+      } else {
+        current.buildQuery(result)
+      }
+    }
+
+    // Execute Queries
+    if (!modifiedSql.equals("")) {
+      if (!queryBuilderService.iterator.next.isSchedulerQuery(sql)) {
+        logger.info(modifiedSql)
+        acumeContext.acc.acql(modifiedSql, queryBuilderService, requestType)
+      } else {
+        acumeContext.acc.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql), queryBuilderService, requestType)
+      }
+    } else {
+      throw new RuntimeException(s"Invalid Modified Query")
+    }
+    
   }
+  
 }
 
 object DataService {
