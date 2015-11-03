@@ -8,6 +8,8 @@ object RequestType extends Enumeration {
 
   val Aggregate = new RequestType("Aggregate")
   val Timeseries = new RequestType("Timeseries")
+  val SQL = new RequestType("SQL")
+  val SEARCH = new RequestType("SEARCH")
   
   class RequestType(val requestId: String) extends Val
 

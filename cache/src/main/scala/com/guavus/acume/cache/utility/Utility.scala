@@ -1,72 +1,67 @@
 package com.guavus.acume.cache.utility
 
+import java.io.BufferedInputStream
+import java.io.Closeable
+import java.io.DataInputStream
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.io.InputStream
+import java.io.OutputStream
 import java.text.SimpleDateFormat
-import scala.util.control.Breaks._
 import java.util.Calendar
+import java.util.Collection
 import java.util.Date
 import java.util.StringTokenizer
 import java.util.TimeZone
-import scala.collection.mutable.{Map => MutableMap}
+import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.JavaConversions.bufferAsJavaList
+import scala.collection.JavaConversions.mutableSeqAsJavaList
+import scala.collection.mutable.ArrayBuffer
+import scala.collection.mutable.HashMap
+import scala.collection.mutable.{ Map => MutableMap }
 import scala.collection.mutable.MutableList
-import org.apache.commons.configuration.PropertiesConfiguration
-import org.apache.commons.lang.StringUtils
+import scala.util.control.Breaks.break
+import scala.util.control.Breaks.breakable
+import org.apache.hadoop.fs.FileStatus
+import org.apache.hadoop.fs.Path
 import org.apache.spark.Logging
+import org.apache.spark.SparkContext
+import org.apache.spark.annotation.Experimental
 import org.apache.spark.sql.SQLContext
-import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.SchemaRDD
 import org.apache.spark.sql.catalyst.expressions.Row
 import org.apache.spark.sql.types.LongType
 import org.apache.spark.sql.types.StructField
-import com.guavus.acume.cache.common.AcumeConstants
+import org.apache.spark.sql.types.StructType
+import com.google.common.collect.Iterables
+import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.CacheLevel.CacheLevel
+import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.ConversionToSpark
 import com.guavus.acume.cache.common.Cube
+import com.guavus.acume.cache.common.DataType
+import com.guavus.acume.cache.common.Dimension
+import com.guavus.acume.cache.common.DimensionSet
+import com.guavus.acume.cache.common.FieldType
+import com.guavus.acume.cache.common.HbaseConfigs
 import com.guavus.acume.cache.common.LevelTimestamp
-import com.guavus.acume.cache.core.EvictionDetails
+import com.guavus.acume.cache.common.Measure
+import com.guavus.acume.cache.common.MeasureSet
+import com.guavus.acume.cache.core.AcumeCacheType
+import com.guavus.acume.cache.core.Level
 import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.acume.cache.core.TimeGranularity._
-import com.guavus.acume.cache.core.TimeGranularity.TimeGranularity
 import com.guavus.acume.cache.disk.utility.CubeUtil
-import com.guavus.acume.cache.common.Dimension
-import com.guavus.acume.cache.common.Measure
-import com.guavus.acume.cache.workflow.CubeKey
-import com.guavus.acume.cache.gen.Acume
-import scala.collection.SortedMap
-import scala.collection.mutable.HashMap
-import javax.xml.bind.JAXBContext
-import scala.collection.immutable.TreeMap
-import java.io.DataInputStream
-import java.io.File
-import java.io.BufferedInputStream
-import java.io.FileInputStream
-import scala.collection.JavaConverters._
-import scala.collection.JavaConversions._
-import com.guavus.acume.cache.common.AcumeCacheConf
-import scala.collection.mutable.ArrayBuffer
-import com.guavus.acume.cache.workflow.AcumeCacheContext
-import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
-import com.guavus.acume.cache.common.DataType
-import com.guavus.acume.cache.common.FieldType
-import com.guavus.acume.cache.common.ConfConstants
-import com.guavus.acume.cache.common.MeasureSet
-import com.guavus.acume.cache.common.DimensionSet
 import com.guavus.acume.cache.eviction.EvictionPolicy
-import com.guavus.acume.cache.core.AcumeCacheType
-import com.guavus.rubix.query.remote.flex.TimeZoneInfo
-import com.guavus.acume.cache.core.Level
-import org.apache.spark.SparkContext
-import java.io.OutputStream
-import java.io.InputStream
-import java.util.Collection
-import java.io.Closeable
-import org.apache.hadoop.fs.Path
-import com.guavus.acume.cache.common.CacheLevel
-import CacheLevel._
-import com.google.common.collect.Iterables
-import acume.exception.AcumeException
-import com.guavus.acume.cache.common.HbaseConfigs
+import com.guavus.acume.cache.gen.Acume
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import com.guavus.acume.cache.workflow.CubeKey
 import com.guavus.qb.ds.DatasourceType
-import org.apache.hadoop.fs.FileStatus
-import java.io.FileNotFoundException
+import com.guavus.rubix.query.remote.flex.TimeZoneInfo
+import acume.exception.AcumeException
+import javax.xml.bind.JAXBContext
+
 
 /**
  * @author archit.thakur
@@ -948,4 +943,5 @@ object Utility extends Logging {
         Array[FileStatus]()
     }
   }
+  
 }

@@ -28,6 +28,7 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
 import com.google.common.cache.LoadingCache
 import java.io.IOException
+import com.guavus.acume.cache.common.AcumeConstants
 
 abstract case class AcumeTreeCacheValue(dimensionTableName: String = null, acumeContext: AcumeCacheContextTrait) {
   
@@ -81,7 +82,13 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
           acumeContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Writing " + diskDirectory, false)
           acumeValue.measureSchemaRdd.saveAsParquetFile(diskDirectory)
           acumeContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Reading " + diskDirectory, false)
-          val rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
+          var rdd: SchemaRDD = null
+          val bucketingAttributes = cube.propertyMap.getOrElse(AcumeConstants.BUCKETING_ATTRIBUTES, null)
+          if(bucketingAttributes != null) {
+            rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(bucketingAttributes.split(";"), cube.propertyMap.get(AcumeConstants.NUM_PARTITIONS).get.toInt, diskDirectory)
+          } else {
+            rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
+          }
           value = new AcumeDiskValue(acumeValue.levelTimestamp, acumeValue.cube, rdd, acumeValue.cachePointToTable)
           value.acumeContext = acumeContext
           logger.info("Disk write complete for {}" + acumeValue.levelTimestamp.toString() + " for cube " + cube.getAbsoluteCubeName)

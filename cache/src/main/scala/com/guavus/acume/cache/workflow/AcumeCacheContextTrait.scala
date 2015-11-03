@@ -1,13 +1,19 @@
 package com.guavus.acume.cache.workflow
 
-import scala.collection.JavaConversions._
+import scala.collection.JavaConversions.asScalaBuffer
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable.MutableList
 import org.apache.hadoop.fs.Path
+import org.apache.spark.rdd.RDD
+import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hbase.HBaseSQLContext
 import org.apache.spark.sql.hive.HiveContext
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import com.guavus.acume.cache.common.AcumeCacheConf
+import com.guavus.acume.cache.common.BaseCube
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.Dimension
@@ -21,9 +27,9 @@ import com.guavus.acume.cache.utility.QueryOptionalParam
 import com.guavus.acume.cache.utility.Tuple
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.workflow.RequestType.RequestType
-import org.slf4j.LoggerFactory
-import org.slf4j.Logger
-import com.guavus.acume.cache.common.BaseCube
+import com.guavus.qb.services.IQueryBuilderService
+import net.sf.jsqlparser.statement.select.PlainSelect
+import net.sf.jsqlparser.statement.select.Limit
 
 
 /**
@@ -53,18 +59,89 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
     case hbaseContext : HBaseSQLContext =>
     case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
+
+  def fireQuery(modifiedSql: String, requestDataType: RequestType.RequestType): AcumeCacheResponse = {
+
+    // Execute Queries
+    var count: Long = -1
+    var rdd: RDD[Row] = null
+    var limitValue: Int = -1
+    var newDF: DataFrame = null
+    var acumeCacheResponse = new AcumeCacheResponse(null, null, MetaData(-1, null))
+
+    if (RequestType.Aggregate.equals(requestDataType) && !cacheConf.getDisableTotalForAggregateQueries(cacheConf.datasourceName)) {
+      // This is aggregateQuery
+
+      val limitAndQuery = getNoLimitQuery(modifiedSql)
+      limitValue = limitAndQuery._1
+      val noLimitQuery = limitAndQuery._2
+
+      if (limitValue > 0) {
+        // Fire count query and dont cache this
+        acumeCacheResponse = executeQuery(noLimitQuery)
+        rdd = acumeCacheResponse.rowRDD
+        count = rdd.count
+        newDF = cacheSqlContext.applySchema(rdd, acumeCacheResponse.schemaRDD.schema).limit(limitValue.toInt)
+      } else {
+        acumeCacheResponse = executeQuery(noLimitQuery)
+        newDF = acumeCacheResponse.schemaRDD
+      }
+    } else {
+      // This is a timeseries query or an aggregate query with count to be disabled
+      // No need to remove the limit in timeseries query
+      acumeCacheResponse = executeQuery(modifiedSql)
+      newDF = acumeCacheResponse.schemaRDD
+    }
+
+    new AcumeCacheResponse(newDF, rdd, MetaData(count, acumeCacheResponse.metadata.timestamps))
+  }
+
+  def getNoLimitQuery(modifiedSql: String) = {
+    //TODO Move this to queryBuilder
+
+    var limitValue: Int = -1
+
+    val stringBuilder = new StringBuilder(modifiedSql)
+    val index = stringBuilder.lastIndexOf("LIMIT")
+
+    if (index != -1) {
+      var i = index + 6
+      
+      while (i < stringBuilder.length && stringBuilder.charAt(i).isDigit)
+        i = i + 1
+
+      limitValue = stringBuilder.substring(index + 6, i).toInt
+      stringBuilder.delete(index, i)
+    }
+
+    val nonLimitQuery = stringBuilder.toString
+    
+    (limitValue, nonLimitQuery)
+  }
   
-  def acql(sql: String): AcumeCacheResponse = {
+  def acql(sql: String, queryBuilderService: Seq[IQueryBuilderService], requestDataType : RequestType.RequestType) : (AcumeCacheResponse, Array[Row]) = {
+    var acumeResponse : AcumeCacheResponse = null
+    var data : Array[Row] = null
+
     AcumeCacheContextTraitUtil.setQuery(sql)
+    
     try {
       if (cacheConf.getInt(ConfConstants.rrsize._1).get == 0) {
-        executeQuery(sql)
+        // RRcache is disabled
+        acumeResponse = fireQuery(sql, requestDataType)
+        data = acumeResponse.schemaRDD.collect
       } else {
-        rrCacheLoader.getRdd(sql)
+        // RRcache is enabled
+        acumeResponse = rrCacheLoader.getRdd(sql)
+        val cachedRDD = acumeResponse.rowRDD.cache
+        cachedRDD.checkpoint
+        data = cachedRDD.collect
       }
     } finally {
       AcumeCacheContextTraitUtil.unsetQuery()
     }
+    
+    (acumeResponse, data)
   }
   
   def isDimension(name: String) : Boolean =  {

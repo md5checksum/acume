@@ -26,9 +26,7 @@ class RequestResponseCache(acumeCacheContextTrait: AcumeCacheContextTrait, conf:
   }).build(
       new CacheLoader[RRCacheKey, AcumeCacheResponse]() {
         def load(input: RRCacheKey) = {
-          val response = acumeCacheContextTrait.executeQuery(input.qlstring)
-          val cachedRDD = response.rowRDD.cache
-          cachedRDD.checkpoint
+          val response = acumeCacheContextTrait.fireQuery(input.qlstring, RequestType.Aggregate)
           response
         }
       });
@@ -42,7 +40,7 @@ class RequestResponseCache(acumeCacheContextTrait: AcumeCacheContextTrait, conf:
 }
 
 trait RRCache {
-  def getRdd(input: (String)): AcumeCacheResponse
+  def getRdd(input: String) : AcumeCacheResponse
 }
 
 case class RRCacheKey(select: Select, qlstring: String) extends Equals {

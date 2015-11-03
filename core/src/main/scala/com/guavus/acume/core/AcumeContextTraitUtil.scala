@@ -14,6 +14,7 @@ import com.guavus.acume.core.gen.AcumeUdfs
 import com.guavus.acume.core.listener.AcumeBlockManagerRemovedListener
 import com.guavus.acume.core.listener.AcumeSparkListener
 import com.guavus.qb.ds.DatasourceType
+import com.guavus.acume.cache.utility.PropertyValidator
 import javax.xml.bind.JAXBContext
 import com.guavus.acume.cache.common.ConfConstants
 import org.apache.hadoop.fs.Path
@@ -43,6 +44,9 @@ object AcumeContextTraitUtil {
   val hBaseSQLContext : HBaseSQLContext = new HBaseSQLContext(sparkContext)
   
   val acumeConf = new AcumeConf(true, "/acume.ini")
+  
+  //Validate acume properties only once at startup
+  PropertyValidator.validate(acumeConf.settings)
 
   def initAcumeContextTraitFactory(datsourceNames : Array[String]) : HashMap[String, AcumeContextTrait] = {
     val acumeContextMap = HashMap[String, AcumeContextTrait]()

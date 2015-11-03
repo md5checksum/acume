@@ -92,7 +92,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
             val acumeValue = tryGet(new LevelTimestamp(CacheLevel.getCacheLevel(childrenLevel), floorTime, LoadType.DISK, CacheLevel.getCacheLevel(childrenAggregationLevel)))
             rdds.++=(if (acumeValue != null) {
               schema = acumeValue.getAcumeValue.measureSchemaRdd.schema
-              MutableList( (acumeValue.getAcumeValue, acumeValue.getAcumeValue.measureSchemaRdd.where('ts >= key.timestamp).where('ts < Utility.getNextTimeFromGranularity(key.timestamp, childrenAggregationLevel, Utility.newCalendar))))
+              MutableList( (acumeValue.getAcumeValue, acumeValue.getAcumeValue.measureSchemaRdd.where('ts >= key.timestamp.toInt).where('ts < Utility.getNextTimeFromGranularity(key.timestamp, childrenAggregationLevel, Utility.newCalendar).toInt)))
             } else {
               (for (child <- cacheLevelPolicy.getCombinableIntervals(floorTime, childrenAggregationLevel, childrenLevel)) yield {
                 if (child >= key.timestamp) {
@@ -119,7 +119,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
               rdds.++=(if (acumeValue != null) {
                 schema = acumeValue.getAcumeValue.measureSchemaRdd.schema
                 if (tempEndTime > endTime) {
-                  MutableList( (acumeValue.getAcumeValue, acumeValue.getAcumeValue.measureSchemaRdd.where('ts < endTime)) )
+                  MutableList( (acumeValue.getAcumeValue, acumeValue.getAcumeValue.measureSchemaRdd.where('ts < endTime.toInt)) )
                 } else {
                   MutableList( (acumeValue.getAcumeValue, acumeValue.getAcumeValue.measureSchemaRdd) )
                 }
@@ -380,7 +380,6 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
         	  val intervals = Utility.getAllIntervals(tempStart, tempEnd, level)
         	  for(interval <- intervals) yield {
         	    val levelTimestamp = new LevelTimestamp(CacheLevel.getCacheLevel(level), interval, CacheLevel.getCacheLevel(level))
-        	    //logger.info("Selecting table with timestamp {} for interval {}, {}", levelTimestamp.toString, startTime.toString, endTime.toString)
         	    val innerAcumeValue = cachePointToTable.get(levelTimestamp).getAcumeValue.measureSchemaRdd
 //       	    populateParent(levelTimestamp.level.localId, levelTimestamp.timestamp)
         	    combineLevels(levelTimestamp.level.localId, levelTimestamp.timestamp)
@@ -392,7 +391,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
         	  if(level == aggregationlevel) {
         	    Seq(acumeValue.getAcumeValue.measureSchemaRdd)
         	  } else {
-        		Seq(acumeValue.getAcumeValue.measureSchemaRdd.where('ts >= startTime).where('ts < endTime))
+        		Seq(acumeValue.getAcumeValue.measureSchemaRdd.where('ts >= startTime.toInt).where('ts < endTime.toInt))
         	  }
         	}
         	timestamp = Utility.getNextTimeFromGranularity(timestamp, aggregationlevel, Utility.newCalendar)
@@ -480,7 +479,7 @@ class AcumeFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: Acum
               if (level == aggregationlevel) {
                 finalRdds += acumeValue.getAcumeValue.measureSchemaRdd
               } else {
-                finalRdds += acumeValue.getAcumeValue.measureSchemaRdd.where('ts >= startTime).where('ts < endTime)
+                finalRdds += acumeValue.getAcumeValue.measureSchemaRdd.where('ts >= startTime.toInt).where('ts < endTime.toInt)
               }
             }
             timestamp = Utility.getNextTimeFromGranularity(timestamp, aggregationlevel, cal)
