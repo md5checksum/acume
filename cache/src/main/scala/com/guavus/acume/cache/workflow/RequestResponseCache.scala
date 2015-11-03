@@ -26,7 +26,7 @@ class RequestResponseCache(acumeCacheContextTrait: AcumeCacheContextTrait, conf:
   }).build(
       new CacheLoader[RRCacheKey, AcumeCacheResponse]() {
         def load(input: RRCacheKey) = {
-          val response = acumeCacheContextTrait.fireQuery(input.qlstring, RequestType.Aggregate)
+          val response = acumeCacheContextTrait.fireQuery(input.qlstring)
           response
         }
       });

@@ -90,7 +90,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
 
   def servSearchRequest(unUpdatedSql: String, requestDataType: RequestType.RequestType): SearchResponse = {
     val sql = DataServiceFactory.dsInterpreterPolicy.updateQuery(unUpdatedSql)
-    val (response, rows) = execute(sql, requestDataType)
+    val (response, rows) = execute(sql)
     val fields = queryBuilderService.get(0).getQuerySchema(sql, response.schemaRDD.schema.fieldNames.toList)
     val acumeSchema: QueryBuilderSchema = queryBuilderService.get(0).getQueryBuilderSchema
     val dimsNames = new ArrayList[String]()
@@ -202,7 +202,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         try {
           conf.setDatasourceName(datasourceName)
           acumeContext.sc.setJobGroup(jobGroupId, jobDescription, false)
-          execute(sql, requestDataType)
+          execute(sql)
         } finally {
           unsetSparkJobLocalProperties
         }
@@ -348,7 +348,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     }
   }
   
-  def execute(sql: String, requestType : RequestType.RequestType) : (AcumeCacheResponse, Array[Row]) = {
+  def execute(sql: String) : (AcumeCacheResponse, Array[Row]) = {
     
     // Get the modified query from queryBuilder
     var isFirst: Boolean = true
@@ -365,9 +365,9 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     if (!modifiedSql.equals("")) {
       if (!queryBuilderService.iterator.next.isSchedulerQuery(sql)) {
         logger.info(modifiedSql)
-        acumeContext.acc.acql(modifiedSql, queryBuilderService, requestType)
+        acumeContext.acc.acql(modifiedSql)
       } else {
-        acumeContext.acc.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql), queryBuilderService, requestType)
+        acumeContext.acc.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql))
       }
     } else {
       throw new RuntimeException(s"Invalid Modified Query")
