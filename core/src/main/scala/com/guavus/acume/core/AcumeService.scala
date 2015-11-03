@@ -366,7 +366,7 @@ class AcumeService {
   
   def  servSqlQuery2(queryRequest : String) = {
     val dataService = DataServiceFactory.getDataserviceInstance(queryRequest, RequestType.SQL)
-    dataService.execute(queryRequest, RequestType.SQL)
+    dataService.execute(queryRequest)
   }
   
   def searchRequest(searchRequest : SearchRequest) : SearchResponse = {
