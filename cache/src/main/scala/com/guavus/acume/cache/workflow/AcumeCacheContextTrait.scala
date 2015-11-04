@@ -77,10 +77,12 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
       acumeCacheResponse = executeQuery(noLimitQuery)
       rdd = acumeCacheResponse.rowRDD
       count = rdd.count
-      newDF = cacheSqlContext.applySchema(rdd, acumeCacheResponse.schemaRDD.schema).limit(limitValue.toInt)
-      
+      newDF = cacheSqlContext.applySchema(rdd, acumeCacheResponse.schemaRDD.schema).limit(limitValue.toInt)      
     } else {
-      count = 0
+      //Make count to 0 in case total query is disabled
+      if(cacheConf.getDisableTotalForAggregateQueries(cacheConf.datasourceName))
+        count = 0
+        
       acumeCacheResponse = executeQuery(modifiedSql)
       newDF = acumeCacheResponse.schemaRDD
     }
