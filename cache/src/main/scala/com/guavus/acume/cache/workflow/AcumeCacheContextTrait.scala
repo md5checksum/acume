@@ -126,9 +126,7 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
       } else {
         // RRcache is enabled
         acumeResponse = rrCacheLoader.getRdd(sql)
-        val cachedRDD = acumeResponse.rowRDD.cache
-        cachedRDD.checkpoint
-        data = cachedRDD.collect
+        data = acumeResponse.rowRDD.collect
       }
     } finally {
       AcumeCacheContextTraitUtil.unsetQuery()
