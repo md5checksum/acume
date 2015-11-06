@@ -759,7 +759,7 @@
 
         <Property>
             <Property_Name>application.${acumeApp}.ACUMECACHEDIRECTORY</Property_Name>
-            <Property_Value>''</Property_Value>
+            <Property_Value>'\'''\''</Property_Value>
             <Property_Type>read-write</Property_Type>
             <Property_DataType>string</Property_DataType>
             <Property_OriginalName>application.${acumeApp}.ACUMECACHEDIRECTORY</Property_OriginalName>
