@@ -110,6 +110,12 @@
 			<groupId>com.guavus.insta</groupId>
 			<artifactId>insta-api</artifactId>
 			<version>${pinstaversion}</version>
+			<exclusions>
+                                <exclusion>
+                                        <groupId>org.apache.spark</groupId>
+                                        <artifactId>spark-hbase_2.10</artifactId>
+                                </exclusion>
+                        </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.spark</groupId>
