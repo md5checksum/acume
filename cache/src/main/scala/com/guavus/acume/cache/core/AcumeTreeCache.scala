@@ -29,6 +29,7 @@ import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
 import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 import com.guavus.acume.threads.NamedThreadPoolFactory
 import com.guavus.acume.cache.common.AcumeConstants
+import com.guavus.acume.cache.common.LevelTimestamp
 
 
 abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, timeSeriesAggregationPolicy: CacheTimeSeriesLevelPolicy)
@@ -218,11 +219,11 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
       if (shouldCombine) {
         var isSuccessCombiningPoint = true
         val context = AcumeTreeCache.getContext(acumeCacheContext.cacheConf.getInt(ConfConstants.schedulerThreadPoolSize).get)
-        val f: Future[Option[AcumeFlatSchemaCacheValue]] = Future({
+        val f: Future[Option[AcumeTreeCacheValue]] = Future({
           if (tryGetOrNull(aggregatedTimestamp) == null) {
         	  logger.info("Finally Combining level {} to aggregationlevel " + aggregationLevel + " and levelTimeStamp {} ", childlevel, aggregatedTimestamp)
             acumeCacheContext.cacheSqlContext.sparkContext.setJobGroup(Thread.currentThread().getName + "-" + Thread.currentThread().getId(), "Combining childLevel " + childlevel + " to aggregationlevel " + aggregationLevel, false)
-        	  val cachevalue = new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(aggregatedTimestamp, cube, zipChildPoints(childrenData.map(_.measureSchemaRdd)), cachePointToTable ), acumeCacheContext)
+        	  val cachevalue = getRolledUpAcumeValue(aggregatedTimestamp, childrenData.map(_.measureSchemaRdd))
         	  notifyObserverList
         	  var diskWritingComplete = false;
         	  while(cachevalue.getAcumeValue.isInstanceOf[AcumeInMemoryValue] && !cachevalue.isFailureWritingToDisk) {
@@ -247,6 +248,10 @@ abstract class AcumeTreeCache(acumeCacheContext: AcumeCacheContextTrait, conf: A
         }(context)
       }
     }
+  }
+  
+  def getRolledUpAcumeValue(levelTimestamp:LevelTimestamp, rdds: Seq[SchemaRDD]): AcumeTreeCacheValue = {
+    return new AcumeFlatSchemaCacheValue(new AcumeInMemoryValue(levelTimestamp, cube, zipChildPoints(rdds), cachePointToTable ), acumeCacheContext)     	  
   }
 
   override def evict(key: LevelTimestamp) {

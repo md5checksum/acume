@@ -115,6 +115,26 @@ class PartitionedFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext
     rdds.reduce(_.zipAll(_))
   }
   
+  override def getRolledUpAcumeValue(levelTimestamp:LevelTimestamp, rdds: Seq[SchemaRDD]): AcumeTreeCacheValue = {
+    
+    val emptyRdd = Utility.getEmptySchemaRDD(sqlContext, rdds.head.schema)
+
+    val values: Seq[Seq[String]] = partitioningAttributesValues.map(_.toSeq.zip(partitioningAttributes).map(elem => elem._2.toString + "="+ elem._1.toString)).toSeq
+
+    val rdds3: HashMap[String, SchemaRDD] = new HashMap
+    for(i <- 0 to values.size-1) {
+      val whereClause = values(i).mkString(" and ")
+      val rdds2 = rdds.map(_.filter(whereClause))
+      val path = "/" + values(i).mkString("/") + "/"
+      val value = mergeChildPoints(emptyRdd, rdds2)
+        
+      rdds3.put(path, value)
+    }
+
+    return new PartitionedFlatSchemaCacheValue(acumeCacheContext, levelTimestamp, cube, cachePointToTable, rdds3.toMap, rdds.reduce(_.zipAll(_)), false)
+    
+  }
+  
   override def checkIfTableAlreadyExist(levelTimestamp: LevelTimestamp): AcumeTreeCacheValue = {
     val value = super.checkIfTableAlreadyExist(levelTimestamp)
     if(value != null) {

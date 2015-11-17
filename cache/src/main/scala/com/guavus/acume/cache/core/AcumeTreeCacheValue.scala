@@ -35,22 +35,24 @@ abstract case class AcumeTreeCacheValue(dimensionTableName: String = null, acume
   protected var acumeValue: AcumeValue
   def getAcumeValue() = acumeValue
   var isInMemory : Boolean
-  
+  var isFailureWritingToDisk: Boolean
   def evictFromMemory
 }
 
 class AcumeStarTreeCacheValue(dimensionTableName: String, protected var acumeValue: AcumeValue, acumeContext: AcumeCacheContextTrait) extends AcumeTreeCacheValue(dimensionTableName, acumeContext) {
   def evictFromMemory() = Unit
   var isInMemory = true
+  var isFailureWritingToDisk = false
 }
 
 class PartitionedFlatSchemaCacheValue(acumeContext: AcumeCacheContextTrait,
     levelTimestamp: LevelTimestamp, cube: Cube, cachePointToTable: LoadingCache[LevelTimestamp, AcumeTreeCacheValue],
-    rdds: Map[String, SchemaRDD], empty: SchemaRDD) extends AcumeTreeCacheValue(null, acumeContext) {
+    rdds: Map[String, SchemaRDD], empty: SchemaRDD, skipCount: Boolean = true) extends AcumeTreeCacheValue(null, acumeContext) {
   
   @volatile
   var shouldCache = true
   var isInMemory = true
+  var isFailureWritingToDisk = false
 
   def evictFromMemory() {
     acumeValue.evictFromMemory
@@ -86,7 +88,7 @@ class PartitionedFlatSchemaCacheValue(acumeContext: AcumeCacheContextTrait,
     } else {
       rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
     }
-    new AcumeDiskValue(levelTimestamp, cube, rdd, cachePointToTable, skipCount=true)
+    new AcumeDiskValue(levelTimestamp, cube, rdd, cachePointToTable, skipCount)
   }
   
 }
