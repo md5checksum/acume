@@ -63,8 +63,6 @@ class PartitionedFlatSchemaCacheValue(acumeContext: AcumeCacheContextTrait,
       try {
         val diskDirectory = Utility.getDiskDirectoryForPoint(acumeContext, cube, levelTimestamp) + "/" + elem._1
         Utility.deleteDirectory(diskDirectory, acumeContext)
-        acumeContext.cacheSqlContext.sparkContext.setLocalProperty("spark.scheduler.pool", "scheduler")
-        acumeContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Writing " + diskDirectory, false)
         elem._2.saveAsParquetFile(diskDirectory)
       } catch {
         case ex:Exception => logger.error("Failure creating AcumeDiskValue", ex)
