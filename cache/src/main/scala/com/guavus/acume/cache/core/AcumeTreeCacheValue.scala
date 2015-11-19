@@ -63,6 +63,7 @@ class PartitionedFlatSchemaCacheValue(acumeContext: AcumeCacheContextTrait,
       try {
         val diskDirectory = Utility.getDiskDirectoryForPoint(acumeContext, cube, levelTimestamp) + "/" + elem._1
         Utility.deleteDirectory(diskDirectory, acumeContext)
+        acumeContext.cacheSqlContext.sparkContext.setJobDescription("Disk Writing " + diskDirectory)
         elem._2.saveAsParquetFile(diskDirectory)
       } catch {
         case ex:Exception => logger.error("Failure creating AcumeDiskValue", ex)
@@ -72,13 +73,12 @@ class PartitionedFlatSchemaCacheValue(acumeContext: AcumeCacheContextTrait,
     if(rdds.size == 0) {
       val diskDirectory = Utility.getDiskDirectoryForPoint(acumeContext, cube, levelTimestamp) 
       Utility.deleteDirectory(diskDirectory, acumeContext)
-      acumeContext.cacheSqlContext.sparkContext.setLocalProperty("spark.scheduler.pool", "scheduler")
-      acumeContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Writing " + diskDirectory, false)
+      acumeContext.cacheSqlContext.sparkContext.setJobDescription("Disk Writing " + diskDirectory)
       empty.saveAsParquetFile(diskDirectory)
     }
     val diskDirectory = Utility.getDiskDirectoryForPoint(acumeContext, cube, levelTimestamp)  
     acumeContext.fs.createNewFile(new Path(diskDirectory + "/" + "_SUCCESS"))
-    acumeContext.cacheSqlContext.sparkContext.setJobGroup("disk_acume" + Thread.currentThread().getId(), "Disk Reading " + diskDirectory, false)
+    acumeContext.cacheSqlContext.sparkContext.setJobDescription("Disk Reading " + diskDirectory)
     var rdd: SchemaRDD = null
     val bucketingAttributes = cube.propertyMap.getOrElse(AcumeConstants.BUCKETING_ATTRIBUTES, null)
     if(bucketingAttributes != null) {

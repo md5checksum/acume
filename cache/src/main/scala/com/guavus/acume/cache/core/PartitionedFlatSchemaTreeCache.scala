@@ -21,6 +21,7 @@ import scala.collection.mutable.HashSet
 import scala.collection.Set
 import com.guavus.acume.cache.disk.utility.BinAvailabilityPoller
 import org.apache.hadoop.fs.Path
+import org.apache.spark.sql.DataFrame
 
 class PartitionedFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: AcumeCacheContext, 
                                          conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, 
@@ -47,6 +48,7 @@ class PartitionedFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext
     val partitioningAttr = values.map(_.toSeq.zip(partitioningAttributes).map(elem => elem._2.toString + "="+ elem._1.toString))
     
     val rdds: HashMap[String, SchemaRDD] = new HashMap
+    sqlContext.setConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS, numPartitions)
     for(i <- 0 to values.size-1) {
       val whereClause = partitioningAttr(i).mkString(" and ")
       val processedDiskLoaded = processBackendData(diskloaded.filter(whereClause), levelTimestamp)
@@ -60,7 +62,6 @@ class PartitionedFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext
   def processBackendData(rdd: SchemaRDD, levelTimestamp: LevelTimestamp) : SchemaRDD = {
     val tempTable = cube.getAbsoluteCubeName + "_" + System.currentTimeMillis
     rdd.registerTempTable(tempTable)
-    sqlContext.setConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS, numPartitions)
     AcumeCacheContextTraitUtil.setInstaTempTable(tempTable)
     val timestamp = levelTimestamp.timestamp
     val measureSet = (CubeUtil.getDimensionSet(cube) ++ CubeUtil.getMeasureSet(cube)).map(_.getName).mkString(",")
@@ -144,6 +145,16 @@ class PartitionedFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext
       values.map(partitioningAttributesValues.+=(_))
     }
     value
+  }
+  
+  override def mergePathRdds(rdds : Iterable[DataFrame]) = {
+    Utility.withDummyCallSite(sqlContext.sparkContext) {
+      if(bucketingAttributes.isEmpty) {
+        rdds.reduce(_.unionAll(_))
+      } else {
+        rdds.reduce(_.zipAll(_))
+      }
+    }
   }
 
 }
