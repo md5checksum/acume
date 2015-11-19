@@ -214,9 +214,19 @@ fi
 
 echo "INGO: Setting ACUME_JAVA_OPTS" >> "$CATALINA_OUT"
 CATALINA_BASE="$SCRIPT_DIR/.."
-export ACUME_JAVA_OPTS="-Dcatalina.base=$CATALINA_BASE $ACUME_JAVA_OPTS -Djava.io.tmpdir=$CATALINA_BASE/temp -Dacume.global.cache.directory=$ACUME_CACHE_DIR"
+export ACUME_JAVA_OPTS="-Djava.io.tmpdir=$CATALINA_BASE -Dcatalina.base=$CATALINA_BASE $ACUME_JAVA_OPTS -Djava.io.tmpdir=$CATALINA_BASE/temp -Dacume.global.cache.directory=$ACUME_CACHE_DIR"
 echo "ACUME_JAVA_OPTS = $ACUME_JAVA_OPTS" >> "$CATALINA_OUT"
 
+#-------------------------------------
+# Check if User Provided Any 
+# Driver Extra Java Options
+#-------------------------------------
+
+USER_DRIVER_EXTRAJAVAOPTIONS=$(cat $prop_loc 2>/dev/null |sed -e 's/#.*$//' | grep "spark.driver.extraJavaOptions" | awk -F '[ =]' '{print $2} ' | sed 's/,/:/g')
+
+if [[ ! -z "$USER_DRIVER_EXTRAJAVAOPTIONS" ]];then
+    ACUME_JAVA_OPTS="$USER_DRIVER_EXTRAJAVAOPTIONS $ACUME_JAVA_OPTS"
+fi
 
 #-------------------------------------
 # Set SPARK_JAR
@@ -281,9 +291,8 @@ if [ ! -z $ACUMECOLONSEP_UDFPATHS ];then
     colonSepUdfJarPath=":"$colonSepUdfJarPath
 fi
 
-export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:$spark_jars:$SCRIPT_DIR/../lib/*:$crux_jar:-Djava.io.tmpdir=$CATALINA_BASE:/opt/tms/java/pcsaudf.jar$colonSepUdfJarPath:$SPARK_HBASE_JAR"
+export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:$spark_jars:$SCRIPT_DIR/../lib/*:$crux_jar:/opt/tms/java/pcsaudf.jar$colonSepUdfJarPath:$SPARK_HBASE_JAR"
 echo "SPARK_CLASSPATH = $SPARK_CLASSPATH" >> "$CATALINA_OUT"
-
 
 #-------------------------------------
 # Find the core jar to be used
@@ -318,7 +327,7 @@ ARG_EXECUTOR_LOGFILE="--files $DOCBASE/WEB-INF/classes/log4j-executor.properties
 # Start the spark server
 #-------------------------------------
 
-cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_POOLCONFIG $ARG_PROPERTIES_FILE $ARG_EXECUTOR_LOGFILE --class com.guavus.acume.tomcat.core.AcumeMain --jars `ls -d -1 $DOCBASE/WEB-INF/lib/* | sed ':a;N;$!ba;s/\n/,/g'`$udfJarPath  $DOCBASE/WEB-INF/lib/$core_jar --driver-java-options '$ACUME_JAVA_OPTS'"
+cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_POOLCONFIG $ARG_PROPERTIES_FILE  $ARG_EXECUTOR_LOGFILE --class com.guavus.acume.tomcat.core.AcumeMain --jars `ls -d -1 $DOCBASE/WEB-INF/lib/* | sed ':a;N;$!ba;s/\n/,/g'`$udfJarPath  $DOCBASE/WEB-INF/lib/$core_jar --driver-java-options \"$ACUME_JAVA_OPTS\""
 echo "INFO: Starting Spark" >> "$CATALINA_OUT"
 eval $cmd >> "$CATALINA_OUT" 2>&1 "&"
 echo "INFO: Spark started successfully" >> "$CATALINA_OUT"

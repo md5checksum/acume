@@ -25,23 +25,58 @@ import org.apache.hive.service.cli.session.SessionManager
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.sql.hive.thriftserver.ReflectionUtils._
 import org.apache.spark.sql.hive.thriftserver.server.AcumeSQLOperationManager
+import org.apache.hive.service.server.HiveServer2
+import java.util.concurrent.{Executors, LinkedBlockingQueue, ThreadPoolExecutor, TimeUnit}
 
-private[hive] class AcumeSQLSessionManager(hiveContext: HiveContext)
-  extends SessionManager
+private[hive] class AcumeSQLSessionManager(hiveServer: HiveServer2, hiveContext: HiveContext)
+  extends SessionManager(hiveServer)
   with ReflectedCompositeService {
+  
+  private lazy val sparkSqlOperationManager = new AcumeSQLOperationManager(hiveContext)
 
   override def init(hiveConf: HiveConf) {
     setSuperField(this, "hiveConf", hiveConf)
 
     val backgroundPoolSize = hiveConf.getIntVar(ConfVars.HIVE_SERVER2_ASYNC_EXEC_THREADS)
-    setSuperField(this, "backgroundOperationPool", Executors.newFixedThreadPool(backgroundPoolSize))
+    val backgroundPoolQueueSize: Int = hiveConf.getIntVar(
+      ConfVars.HIVE_SERVER2_ASYNC_EXEC_WAIT_QUEUE_SIZE)
+    val keepAliveTime: Int = hiveConf.getIntVar(
+      ConfVars.HIVE_SERVER2_ASYNC_EXEC_KEEPALIVE_TIME)
+
+    setSuperField(this, "backgroundOperationPool", new ThreadPoolExecutor(
+      backgroundPoolSize,
+      backgroundPoolSize,
+      keepAliveTime,
+      TimeUnit.SECONDS,
+      new LinkedBlockingQueue[Runnable](backgroundPoolQueueSize)))
+
     getAncestorField[Log](this, 3, "LOG").info(
       s"HiveServer2: Async execution pool size $backgroundPoolSize")
+    getAncestorField[Log](this, 3, "LOG").info(
+      s"HiveServer2: Async execution wait queue size: $backgroundPoolQueueSize")
+    getAncestorField[Log](this, 3, "LOG").info(
+      s"HiveServer2: Async execution thread keepalive time: $keepAliveTime")
 
-    val sqlOperationManager = new AcumeSQLOperationManager(hiveContext)
-    setSuperField(this, "operationManager", sqlOperationManager)
-    addService(sqlOperationManager)
+    setSuperField(this, "operationManager", sparkSqlOperationManager)
 
+    setSuperField(
+      this,
+      "checkInterval",
+      hiveConf.getLongVar(
+        ConfVars.HIVE_SERVER2_SESSION_CHECK_INTERVAL).asInstanceOf[java.lang.Long])
+
+    val sessionTimeout = hiveConf.getLongVar(
+      ConfVars.HIVE_SERVER2_IDLE_SESSION_TIMEOUT).asInstanceOf[java.lang.Long]
+
+    setSuperField(
+      this,
+      "sessionTimeout",
+      sessionTimeout)
+
+    getAncestorField[Log](this, 3, "LOG").info(
+      s"HiveServer2: Idle Session Timeout: $sessionTimeout")
+
+    addService(sparkSqlOperationManager)
     initCompositeService(hiveConf)
   }
 }

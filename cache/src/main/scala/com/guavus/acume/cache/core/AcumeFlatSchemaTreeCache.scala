@@ -10,7 +10,7 @@ import scala.collection.mutable.{ Map => MutableMap }
 import scala.collection.mutable.MutableList
 
 import org.apache.spark.sql.SchemaRDD
-import org.apache.spark.sql.catalyst.expressions.Row
+import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.StructType
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory

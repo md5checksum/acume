@@ -4,7 +4,7 @@ import com.guavus.acume.cache.core.TimeGranularity
 import com.guavus.rubix.query.remote.flex.TimeseriesResponse
 import com.guavus.rubix.query.remote.flex.AggregateResponse
 import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.catalyst.expressions.Row
+import org.apache.spark.sql.Row
 import com.guavus.rubix.query.remote.flex.QueryRequest
 import com.guavus.qb.cube.schema.QueryBuilderSchema
 import com.guavus.qb.conf.QBConf
