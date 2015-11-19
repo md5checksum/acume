@@ -200,9 +200,13 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       val measuresNames = new ArrayBuffer[String]()
       var j = 0
       var isTimeseries = RequestType.Timeseries.equals(requestDataType)
-
+      
+      val dimensions = new ArrayBuffer[Boolean](fields.size)
+      
       var tsIndex = 0
-      for (field <- fields) {
+      for (i <- 0 to (fields.size-1)) {
+        val field = fields(i)
+        dimensions(i) = false
         if (field.equalsIgnoreCase("ts") || field.equalsIgnoreCase("timestamp")) {
           isTimeseries = {
             if(RequestType.Aggregate.equals(requestDataType)) {
@@ -216,6 +220,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
           tsIndex = j
         } else if (queryBuilderService.get(0).isFieldDimension(field)) {
           dimsNames += field
+          dimensions(i) = true
         } else {
           measuresNames += field
         }
@@ -244,10 +249,11 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
           var i = 0
           var dimIndex, measureIndex = 0
           var timestamp = 0L
-          for (field <- fields) {
+          for (k <- 0 to (fields.size-1)) {
+            val field = fields(k)
             if (field.equalsIgnoreCase("ts") || field.equalsIgnoreCase("timestamp")) {
               timestamp = java.lang.Long.valueOf(row(i).toString)
-            } else if (queryBuilderService.get(0).isFieldDimension(field)) {
+            } else if (dimensions(k)) {
               if (row(i) != null)
                 dims += row(i)
               else
@@ -293,8 +299,9 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
 
           var i = 0
           var dimIndex, measureIndex = 0
-          for (field <- fields) {
-            if (queryBuilderService.get(0).isFieldDimension(field)) {
+          for (k <- 0 to (fields.size-1)) {
+            val field = fields(k)
+            if (dimensions(k)) {
               if (row(i) != null)
                 dims += row(i)
               else
