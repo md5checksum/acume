@@ -88,6 +88,7 @@ class PartitionedFlatSchemaCacheValue(acumeContext: AcumeCacheContextTrait,
     }
     new AcumeDiskValue(levelTimestamp, cube, rdd, cachePointToTable, skipCount)
   }
+  acumeValue.acumeContext = acumeContext
   
 }
 
