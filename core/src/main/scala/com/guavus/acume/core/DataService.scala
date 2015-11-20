@@ -201,7 +201,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       var j = 0
       var isTimeseries = RequestType.Timeseries.equals(requestDataType)
       
-      val dimensions = new ArrayBuffer[Boolean](fields.size)
+      val dimensions = new Array[Boolean](fields.size)
       
       var tsIndex = 0
       for (i <- 0 to (fields.size-1)) {
