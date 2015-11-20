@@ -56,6 +56,7 @@ class PartitionedFlatSchemaCacheValue(acumeContext: AcumeCacheContextTrait,
 
   def evictFromMemory() {
     acumeValue.evictFromMemory
+    isInMemory = false
   }
   
   protected var acumeValue: AcumeValue = {
