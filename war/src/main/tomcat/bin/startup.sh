@@ -327,7 +327,7 @@ ARG_EXECUTOR_LOGFILE="--files $DOCBASE/WEB-INF/classes/log4j-executor.properties
 # Start the spark server
 #-------------------------------------
 
-cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_POOLCONFIG $ARG_PROPERTIES_FILE  $ARG_EXECUTOR_LOGFILE --class com.guavus.acume.tomcat.core.AcumeMain --jars `ls -d -1 $DOCBASE/WEB-INF/lib/* | sed ':a;N;$!ba;s/\n/,/g'`$udfJarPath  $DOCBASE/WEB-INF/lib/$core_jar --driver-java-options \"$ACUME_JAVA_OPTS\""
+cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_POOLCONFIG $ARG_PROPERTIES_FILE  $ARG_EXECUTOR_LOGFILE --driver-java-options \"$ACUME_JAVA_OPTS\" --class com.guavus.acume.tomcat.core.AcumeMain --jars `ls -d -1 $DOCBASE/WEB-INF/lib/* | sed ':a;N;$!ba;s/\n/,/g'`$udfJarPath  $DOCBASE/WEB-INF/lib/$core_jar"
 echo "INFO: Starting Spark" >> "$CATALINA_OUT"
 eval $cmd >> "$CATALINA_OUT" 2>&1 "&"
 echo "INFO: Spark started successfully" >> "$CATALINA_OUT"
