@@ -84,8 +84,10 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
         count = 0
         
       acumeCacheResponse = executeQuery(modifiedSql)
-      newDF = acumeCacheResponse.schemaRDD
+      rdd = acumeCacheResponse.rowRDD
+      newDF = acumeCacheResponse.schemaRDD  
     }
+    
     new AcumeCacheResponse(newDF, rdd, MetaData(count, acumeCacheResponse.metadata.timestamps))
   }
 
