@@ -283,7 +283,6 @@ fi
 
 echo "INFO: Setting SPARK_CLASSPATH" >> "$CATALINA_OUT"
 export HADOOP_CONF_DIR="/opt/hadoop/conf"
-spark_jars=$(ls -d -1 /opt/spark/lib/* 2>/dev/null | grep -v examples | xargs | sed 's/ /:/g')
 
 colonSepUdfJarPath=$ACUMECOLONSEP_UDFPATHS
 
@@ -291,8 +290,8 @@ if [ ! -z $ACUMECOLONSEP_UDFPATHS ];then
     colonSepUdfJarPath=":"$colonSepUdfJarPath
 fi
 
-export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:$spark_jars:$SCRIPT_DIR/../lib/*:$crux_jar:/opt/tms/java/pcsaudf.jar$colonSepUdfJarPath:$SPARK_HBASE_JAR"
-echo "SPARK_CLASSPATH = $SPARK_CLASSPATH" >> "$CATALINA_OUT"
+export ACUME_DRIVER_CLASSPATH="$SPARK_JAR:$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:$SCRIPT_DIR/../lib/*:$crux_jar:/opt/tms/java/pcsaudf.jar$colonSepUdfJarPath:$SPARK_HBASE_JAR"
+echo "SPARK_CLASSPATH = $ACUME_DRIVER_CLASSPATH" >> "$CATALINA_OUT"
 
 #-------------------------------------
 # Find the core jar to be used
@@ -327,7 +326,7 @@ ARG_EXECUTOR_LOGFILE="--files $DOCBASE/WEB-INF/classes/log4j-executor.properties
 # Start the spark server
 #-------------------------------------
 
-cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_POOLCONFIG $ARG_PROPERTIES_FILE  $ARG_EXECUTOR_LOGFILE --driver-java-options \"$ACUME_JAVA_OPTS\" --class com.guavus.acume.tomcat.core.AcumeMain --jars `ls -d -1 $DOCBASE/WEB-INF/lib/* | sed ':a;N;$!ba;s/\n/,/g'`$udfJarPath  $DOCBASE/WEB-INF/lib/$core_jar"
+cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_POOLCONFIG $ARG_PROPERTIES_FILE  $ARG_EXECUTOR_LOGFILE --driver-class-path \"$ACUME_DRIVER_CLASSPATH\" --driver-java-options \"$ACUME_JAVA_OPTS\" --class com.guavus.acume.tomcat.core.AcumeMain --jars `ls -d -1 $DOCBASE/WEB-INF/lib/* | sed ':a;N;$!ba;s/\n/,/g'`$udfJarPath  $DOCBASE/WEB-INF/lib/$core_jar"
 echo "INFO: Starting Spark" >> "$CATALINA_OUT"
 eval $cmd >> "$CATALINA_OUT" 2>&1 "&"
 echo "INFO: Spark started successfully" >> "$CATALINA_OUT"
