@@ -161,7 +161,7 @@ case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, var me
   }
 }
 
-case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, val measureSchemaRdd: SchemaRDD, cachePointToTable: LoadingCache[LevelTimestamp, AcumeTreeCacheValue], override val skipCount: Boolean = false) extends AcumeValue {
+case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, var measureSchemaRdd: SchemaRDD, cachePointToTable: LoadingCache[LevelTimestamp, AcumeTreeCacheValue], override val skipCount: Boolean = false) extends AcumeValue {
   var tableName = cube.getAbsoluteCubeName
   tableName = tableName + Utility.getlevelDirectoryName(levelTimestamp.level, levelTimestamp.aggregationLevel)
   tableName = tableName + "_" + levelTimestamp.timestamp + "_memory_disk"
