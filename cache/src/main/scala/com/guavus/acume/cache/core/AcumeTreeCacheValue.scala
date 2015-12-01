@@ -112,7 +112,7 @@ class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeConte
 trait AcumeValue {
   val levelTimestamp: LevelTimestamp
   val cube: Cube
-  val measureSchemaRdd: SchemaRDD
+  var measureSchemaRdd: SchemaRDD
   val cachePointToTable: LoadingCache[LevelTimestamp, AcumeTreeCacheValue]
   var acumeContext : AcumeCacheContextTrait = null
   val logger: Logger = LoggerFactory.getLogger(classOf[AcumeValue])
@@ -129,13 +129,14 @@ trait AcumeValue {
   def registerAndCacheDataInMemory(tableName : String) {
     measureSchemaRdd.registerTempTable(tableName)
     measureSchemaRdd.sqlContext.cacheTable(tableName)
+    measureSchemaRdd = measureSchemaRdd.sqlContext.table(tableName)
     if(!skipCount) {
       measureSchemaRdd.sqlContext.table(tableName).count
     }
   }
 }
 
-case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measureSchemaRdd: SchemaRDD, cachePointToTable: LoadingCache[LevelTimestamp, AcumeTreeCacheValue], parentPoints: Seq[(AcumeValue, SchemaRDD)] = Seq()) extends AcumeValue {
+case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, var measureSchemaRdd: SchemaRDD, cachePointToTable: LoadingCache[LevelTimestamp, AcumeTreeCacheValue], parentPoints: Seq[(AcumeValue, SchemaRDD)] = Seq()) extends AcumeValue {
   val tempTables = AcumeCacheContextTraitUtil.getInstaTempTable()
 
   var tableName = cube.getAbsoluteCubeName
@@ -147,6 +148,7 @@ case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, measur
   override def registerAndCacheDataInMemory(tableName : String) {
     measureSchemaRdd.registerTempTable(tableName)
     measureSchemaRdd.sqlContext.cacheTable(tableName)
+    measureSchemaRdd = measureSchemaRdd.sqlContext.table(tableName)
   }
   
   override protected def finalize() {
