@@ -41,7 +41,6 @@ class PartitionedFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext
     val endTime = Utility.getNextTimeFromGranularity(startTime, cacheLevel.localId, Utility.newCalendar)
     val diskloaded = diskUtility.loadData(keyMap, cube, startTime, endTime, cacheLevel.localId)
 
-    sqlContext.setConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS, "1")
     val partitionedColumnValues = diskloaded.select(partitioningAttributes.map(new Column(_)):_*).distinct
     val values = partitionedColumnValues.rdd.collect
     values.map(partitioningAttributesValues.+=(_))
@@ -139,7 +138,6 @@ class PartitionedFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext
   override def checkIfTableAlreadyExist(levelTimestamp: LevelTimestamp): AcumeTreeCacheValue = {
     val value = super.checkIfTableAlreadyExist(levelTimestamp)
     if(value != null) {
-      sqlContext.setConf(AcumeConstants.SPARK_SQL_SHUFFLE_PARTITIONS, "1")
       val partitionedColumnValues = value.getAcumeValue.measureSchemaRdd.select(partitioningAttributes.map(new Column(_)):_*).distinct
       val values = partitionedColumnValues.rdd.collect
       values.map(partitioningAttributesValues.+=(_))
