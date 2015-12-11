@@ -266,7 +266,7 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
   protected def executeThinClientQuery(tsReplacedSql: String, timestamps : MutableList[Long])  : AcumeCacheResponse ={
       val resultSchemaRdd = cacheSqlContext.sql(tsReplacedSql)
       logger.info(s"Firing thin client Query $tsReplacedSql")
-      new AcumeCacheResponse(resultSchemaRdd, resultSchemaRdd.rdd, new MetaData(-1, null))
+      new AcumeCacheResponse(resultSchemaRdd, resultSchemaRdd.rdd, new MetaData(-1, timestamps.toList))
   }
   
   // Firing on thick client
