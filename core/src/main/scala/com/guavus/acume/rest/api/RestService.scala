@@ -44,6 +44,7 @@ import com.guavus.rubix.user.management.vo.LogoutRequest
 import com.guavus.rubix.user.management.vo.LogoutResponse
 import java.util.ArrayList
 import scala.collection.JavaConversions
+import com.guavus.rubix.user.management.vo.ChangePasswordRequest
 
 @Path("/" + "queryresponse")
 /**
@@ -232,6 +233,18 @@ class RestService {
     }
     response
   }
+  
+  @POST
+  @Consumes(Array("application/json"))
+  @Path("changePassword")
+  def changePassword(changePasswordRequest : ChangePasswordRequest, @QueryParam(value = "super") userinfo : String,
+	      @QueryParam("user") user : String, @QueryParam("password") password : String)  = {
+	 Authentication.authenticate(userinfo, user, password)  
+     UserManagementUtils.getIWebUMService().changePassword(changePasswordRequest)
+     
+  }
+  
+  
   
   @POST
   @Consumes(Array("application/json"))
