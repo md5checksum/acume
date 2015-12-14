@@ -65,9 +65,9 @@ class PSUserService {
     }
   }
 
-  def getAcumeAvailability : java.util.Map[String, java.util.Map[Long, Interval]] = {
+  def getAcumeAvailability : java.util.Map[String, java.util.Map[String, Interval]] = {
     val map: HashMap[String, HashMap[Long, Interval]] = ICacheAvalabilityUpdatePolicy.getICacheAvalabiltyUpdatePolicy.getCacheAvalabilityMap
-    mapAsJavaMap(map.map(x => (x._1, mapAsJavaMap(x._2))))
+    mapAsJavaMap(map.map(x => (x._1, mapAsJavaMap(x._2.map(y => (y._1.toString, y._2))))))
   }
 
 /*
