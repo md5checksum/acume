@@ -196,6 +196,10 @@
         <servlet-name>RGService</servlet-name>
         <url-pattern>/queryresponse/logout</url-pattern>
     </servlet-mapping>
+     <servlet-mapping>
+        <servlet-name>RGService</servlet-name>
+        <url-pattern>/queryresponse/changePassword</url-pattern>
+    </servlet-mapping>
     <session-config>
         <session-timeout>60</session-timeout>
     </session-config>
