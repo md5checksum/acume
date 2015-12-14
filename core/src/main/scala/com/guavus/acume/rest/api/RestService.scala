@@ -31,6 +31,7 @@ import com.guavus.rubix.user.management.vo.LoginRequest
 import com.guavus.rubix.user.management.vo.LoginResponse
 import com.guavus.rubix.user.management.vo.LogoutRequest
 import com.guavus.rubix.user.management.vo.LogoutResponse
+
 import com.guavus.rubix.user.management.vo.ValidateSessionRequest
 
 import javax.ws.rs.Consumes
@@ -40,6 +41,9 @@ import javax.ws.rs.Path
 import javax.ws.rs.Produces
 import javax.ws.rs.QueryParam
 import javax.xml.bind.annotation.XmlRootElement
+
+import com.guavus.rubix.user.management.vo.ChangePasswordRequest
+
 
 @Path("/" + "queryresponse")
 /**
@@ -228,6 +232,18 @@ class RestService {
     }
     response
   }
+  
+  @POST
+  @Consumes(Array("application/json"))
+  @Path("changePassword")
+  def changePassword(changePasswordRequest : ChangePasswordRequest, @QueryParam(value = "super") userinfo : String,
+	      @QueryParam("user") user : String, @QueryParam("password") password : String)  = {
+	 Authentication.authenticate(userinfo, user, password)  
+     UserManagementUtils.getIWebUMService().changePassword(changePasswordRequest)
+     
+  }
+  
+  
   
   @POST
   @Consumes(Array("application/json"))
