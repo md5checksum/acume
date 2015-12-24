@@ -209,7 +209,7 @@ if [ ! -z "$prop_loc" ]; then
         echo "ERROR: $poolconfig_file file does not exists" >> "$CATALINA_OUT"
         exit 1
     fi
-    ARG_POOLCONFIG=$ARG_POOLCONFIG" spark.scheduler.allocation.file=$poolconfig_file"
+    ARG_POOLCONFIG=$ARG_POOLCONFIG" spark.scheduler.allocation.file=$poolconfig_file "
 fi
 
 #-------------------------------------
@@ -260,7 +260,7 @@ fi
 JAVA_OPTS="$JAVA_OPTS  -Dcatalina.base=$CATALINA_BASE  -Djava.io.tmpdir=$CATALINA_BASE/temp "
 if [ $is_acume == 1 ]; then
 	CATALINA_BASE="$SCRIPT_DIR/.."
-	export ACUME_JAVA_OPTS=" -Dacume.global.cache.directory=$ACUME_CACHE_DIR $JAVA_OPTS $ACUME_JAVA_OPTS "
+	export ACUME_JAVA_OPTS=" -Dacume.global.cache.directory=$ACUME_CACHE_DIR $ACUME_JAVA_OPTS $JAVA_OPTS "
 	JAVA_OPTS="$ACUME_JAVA_OPTS"
 fi
 echo "INFO: Setting JAVA_OPTS = $JAVA_OPTS" >> "$CATALINA_OUT"
@@ -279,7 +279,7 @@ echo "SPARK_JAR = $SPARK_JAR" >> "$CATALINA_OUT"
 # Add Udf jars to classpath
 #-------------------------------------
 
-udfJarPath=","
+udfJarPath=""
 if [ $is_acume == 1 ]; then
     dirpath="$DOCBASE/WEB-INF/classes/"
     FILE_NAME=$dirpath"acume.ini"
@@ -356,11 +356,11 @@ if [ ! [$is_acume == 1] ]; then
 fi
 
 # to be passed to executors
-JAVA_OPTS=" -Dspark.executor.extraClassPath=$SPARK_CLASSPATH $JAVA_OPTS"
+ARG_POOLCONFIG="$ARG_POOLCONFIG --conf spark.executor.extraClassPath=$SPARK_CLASSPATH "
 
 echo "INFO: SPARK_CLASSPATH = $SPARK_CLASSPATH" >> "$CATALINA_OUT"
 echo "spark_classpath = $SPARK_CLASSPATH"
-echo "JAVA_OPTS = $JAVA_OPTS"
+echo "ARG_POOLCONFIG=$ARG_POOLCONFIG"
 
 #-------------------------------------
 # Find the core jar to be used
