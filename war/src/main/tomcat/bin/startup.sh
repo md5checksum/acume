@@ -202,7 +202,7 @@ if [ ! -z "$prop_loc" ]; then
         echo "ERROR: $poolconfig_file file does not exists" >> "$CATALINA_OUT"
         exit 1
     fi
-    ARG_POOLCONFIG=$ARG_POOLCONFIG" spark.scheduler.allocation.file=$poolconfig_file"
+    ARG_POOLCONFIG=$ARG_POOLCONFIG" spark.scheduler.allocation.file=$poolconfig_file "
 fi
 
 #-------------------------------------
@@ -349,11 +349,11 @@ if [ ! [$is_acume == 1] ]; then
 fi
 
 # to be passed to executors
-JAVA_OPTS=" -Dspark.executor.extraClassPath=$SPARK_CLASSPATH $JAVA_OPTS"
+ARG_POOLCONFIG="$ARG_POOLCONFIG --conf spark.executor.extraClassPath=$SPARK_CLASSPATH "
 
-echo "INFO: SPARK_CLASSPATH=$SPARK_CLASSPATH" >> "$CATALINA_OUT"
-echo "spark_classpath=$SPARK_CLASSPATH"
-echo "JAVA_OPTS=$JAVA_OPTS"
+echo "INFO: SPARK_CLASSPATH = $SPARK_CLASSPATH" >> "$CATALINA_OUT"
+echo "spark_classpath = $SPARK_CLASSPATH"
+echo "ARG_POOLCONFIG=$ARG_POOLCONFIG"
 
 #-------------------------------------
 # Find the core jar to be used
