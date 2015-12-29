@@ -366,19 +366,13 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
 
   def getLimitFromQuery(modifiedSql: String) = {
     //TODO Move this to queryBuilder
-    var limitValue: Int = -1
-    val stringBuilder = new StringBuilder(modifiedSql)
+    var limitVal :Int = -1
+    val stringBuilder = new StringBuilder(modifiedSql.toUpperCase)
     val index = stringBuilder.lastIndexOf("LIMIT")
-
-    if (index != -1) {
-      var i = index + 6
-
-      while (i < stringBuilder.length && stringBuilder.charAt(i).isDigit)
-        i = i + 1
-
-      limitValue = stringBuilder.substring(index + 6, i).toInt
-    }
-    limitValue
+    if(index > 0)
+      limitVal = stringBuilder.substring(index + 6).trim.split(" ")(0).toInt
+     
+    limitVal
   }
 
 }
