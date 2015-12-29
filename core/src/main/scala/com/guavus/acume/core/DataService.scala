@@ -305,7 +305,14 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
           }
           list += new AggregateResultSet(dims, measures)
         }
-        new AggregateResponse(list, dimsNames, measuresNames, cacheResponse.metadata.totalRecords.toInt)
+        val totalRecords: Int =
+          if (cacheResponse.metadata.totalRecords < 0)
+            rows.size
+          else
+            cacheResponse.metadata.totalRecords.toInt
+
+        new AggregateResponse(list, dimsNames, measuresNames, totalRecords)
+
       }
     } catch {
       case e: Throwable =>
@@ -335,7 +342,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         val resp = acumeContext.acc.acql(modifiedSql)
         
         if ((RequestDataType.Aggregate.equals(requestDataType) || !queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql)) && !acumeContext.acumeConf.getDisableTotalForAggregateQueries(datasourceName)) {
-          resp.metadata.totalRecords = acumeContext.acc.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getLong(0)
+          resp.metadata.totalRecords = -1
         }
         resp
       } else {
