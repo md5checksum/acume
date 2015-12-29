@@ -339,10 +339,22 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     if (!modifiedSql.equals("")) {
       if (!queryBuilderService.iterator.next.isSchedulerQuery(sql)) {
         logger.info(modifiedSql)
+
         val resp = acumeContext.acc.acql(modifiedSql)
-        
-        if ((RequestDataType.Aggregate.equals(requestDataType) || !queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql)) && !acumeContext.acumeConf.getDisableTotalForAggregateQueries(datasourceName)) {
-          resp.metadata.totalRecords = -1
+
+        // Get the value of limit from the query
+        val limitValue = getLimitFromQuery(modifiedSql)
+
+        if (RequestDataType.Aggregate.equals(requestDataType) && !acumeContext.acumeConf.getDisableTotalForAggregateQueries(datasourceName)) {
+          // Means the total records need to be shown in the response
+
+          if (limitValue > 0) {
+            //Limit needs to be calculated seperately
+            resp.metadata.totalRecords = acumeContext.acc.acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql)).schemaRDD.first.getLong(0)
+          } else {
+            //Limit can be inferred from the number of rows in the response
+            resp.metadata.totalRecords = -1
+          }
         }
         resp
       } else {
@@ -350,8 +362,25 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       }
     } else
       throw new RuntimeException(s"Invalid Modified Query")
-
   }
+
+  def getLimitFromQuery(modifiedSql: String) = {
+    //TODO Move this to queryBuilder
+    var limitValue: Int = -1
+    val stringBuilder = new StringBuilder(modifiedSql)
+    val index = stringBuilder.lastIndexOf("LIMIT")
+
+    if (index != -1) {
+      var i = index + 6
+
+      while (i < stringBuilder.length && stringBuilder.charAt(i).isDigit)
+        i = i + 1
+
+      limitValue = stringBuilder.substring(index + 6, i).toInt
+    }
+    limitValue
+  }
+
 }
 
 object DataService {
