@@ -1,19 +1,13 @@
 package com.guavus.acume.cache.workflow
 
-import scala.collection.JavaConversions.asScalaBuffer
+import scala.collection.JavaConversions._
 import scala.collection.immutable.SortedMap
 import scala.collection.mutable.MutableList
 import org.apache.hadoop.fs.Path
-import org.apache.spark.rdd.RDD
-import org.apache.spark.sql.DataFrame
-import org.apache.spark.sql.Row
 import org.apache.spark.sql.SQLContext
 import org.apache.spark.sql.hbase.HBaseSQLContext
 import org.apache.spark.sql.hive.HiveContext
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 import com.guavus.acume.cache.common.AcumeCacheConf
-import com.guavus.acume.cache.common.BaseCube
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.common.Cube
 import com.guavus.acume.cache.common.Dimension
@@ -27,9 +21,9 @@ import com.guavus.acume.cache.utility.QueryOptionalParam
 import com.guavus.acume.cache.utility.Tuple
 import com.guavus.acume.cache.utility.Utility
 import com.guavus.acume.cache.workflow.RequestType.RequestType
-import com.guavus.qb.services.IQueryBuilderService
-import net.sf.jsqlparser.statement.select.PlainSelect
-import net.sf.jsqlparser.statement.select.Limit
+import org.slf4j.LoggerFactory
+import org.slf4j.Logger
+import com.guavus.acume.cache.common.BaseCube
 
 
 /**
@@ -60,77 +54,6 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
     case rest => throw new RuntimeException("This type of SQLContext is not supported.")
   }
   
-  def fireQuery(sql: String, queryBuilderService: Seq[IQueryBuilderService], requestDataType : RequestType.RequestType) : AcumeCacheResponse = {
-    
-    // Get the modified query from queryBuilder
-    var isFirst: Boolean = true
-    logger.info("=== Printing time 1 " + System.currentTimeMillis())
-    val modifiedSql: String = queryBuilderService.foldLeft("") { (result, current) =>
-      if (isFirst) {
-        isFirst = false
-        current.buildQuery(sql)
-      } else {
-        current.buildQuery(result)
-      }
-    }
-    logger.info("=== Printing time  2 " + System.currentTimeMillis())
-    AcumeCacheContextTraitUtil.setQuery(sql)
-
-    try {
-      // Execute Queries
-      if (!modifiedSql.equals("")) {
-
-        if (!queryBuilderService.iterator.next.isSchedulerQuery(sql)) {
-          logger.info(modifiedSql)
-
-          var count: Long = -1
-          var rdd: RDD[Row] = null
-
-          logger.info("=== Printing time 3 " + System.currentTimeMillis())
-          
-          val plainSelect: PlainSelect = Utility.getPlainSelectObjectFromQuery(modifiedSql)
-          val limit : Limit = plainSelect.getLimit
-          val limitValue = if(limit != null) limit.getRowCount else -1
-          plainSelect.setLimit(null)
-          val nonLimitQuery = plainSelect.toString
-
-          logger.info("=== Printing time 4 " + System.currentTimeMillis())
-          
-          var acumeCacheResponse = new AcumeCacheResponse(null, null, MetaData(-1, null))
-
-          // Fire the count(*) query if applicable
-          if (limitValue > 0 && (RequestType.Aggregate.equals(requestDataType) || !queryBuilderService.iterator.next.isTimeSeriesQuery(modifiedSql)) && !cacheConf.getDisableTotalForAggregateQueries(cacheConf.datasourceName)) {
-            // Fire count query and dont cache this
-            acumeCacheResponse = executeQuery(nonLimitQuery)
-            rdd = acumeCacheResponse.rowRDD
-            count = rdd.count
-          }
-
-          // Fire the main query
-          val newDF: DataFrame = if (limitValue > 0) {
-            // Get new DF with the limit
-            cacheSqlContext.applySchema(rdd, acumeCacheResponse.schemaRDD.schema).limit(limitValue.toInt)
-          } else {
-            acumeCacheResponse = executeQuery(nonLimitQuery)
-            acumeCacheResponse.schemaRDD
-          }
-
-          new AcumeCacheResponse(newDF, rdd, MetaData(count, acumeCacheResponse.metadata.timestamps))
-
-        } else {
-          acql(queryBuilderService.iterator.next.getTotalCountSqlQuery(modifiedSql))
-        }
-
-      } else {
-        throw new RuntimeException(s"Invalid Modified Query")
-      }
-
-    } finally {
-      AcumeCacheContextTraitUtil.unsetQuery()
-    }
-    
-  }
-  
   def acql(sql: String): AcumeCacheResponse = {
     AcumeCacheContextTraitUtil.setQuery(sql)
     try {
@@ -142,22 +65,6 @@ abstract class AcumeCacheContextTrait(val cacheSqlContext : SQLContext, val cach
     } finally {
       AcumeCacheContextTraitUtil.unsetQuery()
     }
-  }
-  
-  def acql2(sql: String, queryBuilderService: Seq[IQueryBuilderService], requestDataType : RequestType.RequestType) : (AcumeCacheResponse, Array[Row]) = {
-    var acumeResponse : AcumeCacheResponse = null
-    var data : Array[Row] = null
-
-    if (cacheConf.getInt(ConfConstants.rrsize._1).get == 0) {
-      // RRcache is disabled
-      acumeResponse = fireQuery(sql, queryBuilderService, requestDataType)
-      data = acumeResponse.schemaRDD.collect
-    } else {
-      // RRcache is enabled
-      acumeResponse = rrCacheLoader.getRdd(sql)
-      data = acumeResponse.schemaRDD.cache.collect
-    }
-    (acumeResponse, data)
   }
   
   def isDimension(name: String) : Boolean =  {

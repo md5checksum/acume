@@ -3,13 +3,15 @@ package com.guavus.acume.core.configuration
 import scala.collection.mutable.HashMap
 
 import com.guavus.acume.cache.common.ConfConstants
-import com.guavus.acume.cache.workflow.RequestType
 import com.guavus.acume.core.AcumeContextTrait
 import com.guavus.acume.core.AcumeContextTraitUtil
 import com.guavus.acume.core.DataService
 import com.guavus.acume.core.DsInterpreterPolicy
+import com.guavus.acume.workflow.RequestDataType
 import com.guavus.qb.services.IQueryBuilderService
 import com.guavus.rubix.query.remote.flex.QueryRequest
+
+import javax.xml.bind.annotation.XmlRootElement
 
 /**
  * @author kashish.jain
@@ -31,13 +33,13 @@ object DataServiceFactory {
     tempMap
   }
   
-  def getDataserviceInstance(queryObject : Any, requestDataType: RequestType.RequestType):  DataService = {
+  def getDataserviceInstance(queryObject : Any, requestDataType: RequestDataType.RequestDataType):  DataService = {
     requestDataType match {
-      case RequestType.SQL => 
+      case RequestDataType.SQL => 
         dataserviceMapBean.d.get(dsInterpreterPolicy.interpretDsName(queryObject.asInstanceOf[String])).get
-      case RequestType.Aggregate =>
+      case RequestDataType.Aggregate =>
         dataserviceMapBean.d.get(dsInterpreterPolicy.interpretDsName(queryObject.asInstanceOf[QueryRequest].toSql(""))).get
-      case RequestType.Timeseries =>
+      case RequestDataType.TimeSeries =>
         dataserviceMapBean.d.get(dsInterpreterPolicy.interpretDsName(queryObject.asInstanceOf[QueryRequest].toSql("ts, "))).get
     }
   }

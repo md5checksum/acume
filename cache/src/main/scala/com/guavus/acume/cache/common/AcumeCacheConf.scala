@@ -154,10 +154,6 @@ class AcumeCacheConf(var datasourceName: String, loadSystemPropertyOverDefault: 
   
   def setDataSourceName(dsName : String) { this.datasourceName = dsName }
   
-  def getDisableTotalForAggregateQueries(dsName: String) : Boolean = {
-    getBoolean(AcumeCacheConf.getKeyName(ConfConstants.disableTotalForAggregate, dsName)).getOrElse(false)
-  }
-
 }
 
 object AcumeCacheConf {
