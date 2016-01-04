@@ -5,6 +5,7 @@ import java.util.Arrays
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
 //remove if not needed
 import scala.collection.JavaConversions._
+import java.math.BigDecimal
 
 class ResponseFilter extends Serializable {
 
@@ -20,7 +21,7 @@ class ResponseFilter extends Serializable {
   def toSql(): String = {
     var sql = " " + cubeProperty + " " + Operator.convertValue(Operator.withName(operator)).sqlSymbol + " "
     for (i <- 0 until values.length) {
-      sql += values(i) + " and "
+      sql += new BigDecimal(values(i)).toPlainString() + " and "
     }
     sql = sql.substring(0, sql.length - 4)
     sql
@@ -37,7 +38,7 @@ class ResponseFilter extends Serializable {
     val buffer = new StringBuffer()
     buffer.append(cubeProperty + ", " + operator + ", ")
     for (value <- values) {
-      buffer.append(value)
+      buffer.append(new BigDecimal(value).toPlainString())
       buffer.append(",")
     }
     buffer.toString
