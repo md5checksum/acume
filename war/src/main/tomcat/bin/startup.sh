@@ -74,7 +74,8 @@ NAVIGATE_CMD="cd $SCRIPT_DIR/../conf/"
 $NAVIGATE_CMD
 
 DOCBASE=$(cat server.xml | grep -oPm1 '(?<=docBase=\")[^\"]+')
-echo "Docbase = $DOCBASE"
+appname_from_docbase=$(expr $DOCBASE : '\/data\/instances\/\([^\/]*\)')
+echo "STARTING APP=[$appname_from_docbase] with Docbase=[$DOCBASE]"
 
 
 #-------------------------------------
@@ -94,6 +95,10 @@ fi
 
 CATALINA_OUT="$CATALINA_BASE"/logs/catalina.out
 touch "$CATALINA_OUT"
+echo "" >> $CATALINA_OUT
+echo "**********************************************************************" >> $CATALINA_OUT
+echo "STARTING APP=[$appname_from_docbase] at [$(date)]" >> $CATALINA_OUT
+echo "**********************************************************************" >> $CATALINA_OUT
 
 
 #-------------------------------------
