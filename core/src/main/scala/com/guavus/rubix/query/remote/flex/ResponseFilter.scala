@@ -5,6 +5,10 @@ import java.util.Arrays
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
 import scala.collection.JavaConversions._
 import com.guavus.rubix.search.Operator
+import java.math.BigDecimal
+import com.guavus.acume.cache.common.Measure
+import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
+import scala.util.control.Exception.Catch
 
 class ResponseFilter extends Serializable {
 
@@ -15,18 +19,42 @@ class ResponseFilter extends Serializable {
   var operator: String = _
 
   @BeanProperty
-  var values: Array[Double] = _
+  var values: Array[Any] = _
 
   def toSql(): String = {
     var sql = " " + cubeProperty + " " + Operator.convertValue(Operator.withName(operator)).sqlSymbol + " "
-    for (i <- 0 until values.length) {
-      sql += values(i) + " and "
+     var mDataType:String = null;
+    try{
+       val m: Measure = AcumeCacheContextTraitUtil.getMeasure(cubeProperty)
+       mDataType = m.getDataType.typeString;
     }
+    catch {
+      case e : Throwable =>{
+        mDataType = AcumeCacheContextTraitUtil.getDerivedFieldType(cubeProperty)
+      } 
+    }
+    mDataType match {
+      case "int"    => values = values.map(_.toString.toInt)
+      case "long"   => values = values.map(_.toString.toLong)
+      case "string" => values = values.map(_.toString)
+      case "float"  => values = values.map(_.toString.toFloat)
+      case "double" => {
+        for (i <- 0 until values.length) {
+          sql += new BigDecimal(values(i).toString.toDouble).toPlainString() + " and "
+        }
+      }
+    }
+    if (!(mDataType == "double")) {
+      for (i <- 0 until values.length) {
+        sql += values(i).toString() + " and "
+      }
+    }
+    
     sql = sql.substring(0, sql.length - 4)
     sql
   }
 
-  def this(cubeProperty: String, operator: String, values: Array[Double]) {
+  def this(cubeProperty: String, operator: String, values: Array[Any]) {
     this()
     this.cubeProperty = cubeProperty
     this.operator = operator
@@ -37,7 +65,7 @@ class ResponseFilter extends Serializable {
     val buffer = new StringBuffer()
     buffer.append(cubeProperty + ", " + operator + ", ")
     for (value <- values) {
-      buffer.append(value)
+       buffer.append(value.toString())
       buffer.append(",")
     }
     buffer.toString
@@ -48,7 +76,7 @@ class ResponseFilter extends Serializable {
     var result = 1
     result = prime * result + (if ((cubeProperty == null)) 0 else cubeProperty.hashCode)
     result = prime * result + (if ((operator == null)) 0 else operator.hashCode)
-    result = prime * result + Arrays.hashCode(values)
+    result = prime * result + values.toBuffer.hashCode()
     result
   }
 
@@ -62,7 +90,7 @@ class ResponseFilter extends Serializable {
     if (operator == null) {
       if (other.operator != null) return false
     } else if (operator != other.operator) return false
-    if (!Arrays.equals(values, other.values)) return false
+    if (values.toBuffer.equals(other.values.toBuffer)) return false
     true
   }
 

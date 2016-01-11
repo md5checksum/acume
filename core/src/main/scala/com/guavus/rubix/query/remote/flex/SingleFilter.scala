@@ -3,6 +3,8 @@ package com.guavus.rubix.query.remote.flex
 import java.io.Serializable
 import javax.xml.bind.annotation.XmlRootElement
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
+import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
+import com.guavus.acume.cache.common.Dimension
 
 @SerialVersionUID(-9174188557495936312L)
 @XmlRootElement
@@ -12,7 +14,7 @@ class SingleFilter extends Serializable {
   var dimension: String = _
 
   @BeanProperty
-  var value: String = _
+  var value: Any = _
 
   @BeanProperty
   var condition: String = _
@@ -43,6 +45,17 @@ class SingleFilter extends Serializable {
   }
   
   def toSql(): String = {
+    val dim: Dimension = AcumeCacheContextTraitUtil.getDimension(dimension)
+    val dimDataType = dim.getDataType.typeString;
+    dimDataType match{
+        case "int"     => value = value.toString().toInt
+        case "long"    => value = value.toString().toLong
+        case "string"  => value = value.toString()
+        case "float"   => value = value.toString().toFloat
+        case "double"  => value = value.toString().toDouble
+        case _         => value = value.toString()
+      
+    }
     if (this.condition == "EQUAL")
       " " + dimension +" = "+value + " "
     else

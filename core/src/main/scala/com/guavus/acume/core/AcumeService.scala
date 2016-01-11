@@ -75,7 +75,7 @@ class AcumeService {
     if (request.isInstanceOf[QueryRequest]) {
       val queryRequest = request.asInstanceOf[QueryRequest]
   		if(queryRequest.getParamMap() !=null ){
-  			callModuleId = queryRequest.getParamMap().filter(_.getName.equals("M_ID")).map(_.getValue()).toList
+  			callModuleId = queryRequest.getParamMap().filter(_.getName.equals("M_ID")).map(_.getValue().toString).toList
   			if(callModuleId==null || callModuleId.size==0) {
   				callModuleId =List(LoggingInfoWrapper.NO_MODULE_ID);
   			}
