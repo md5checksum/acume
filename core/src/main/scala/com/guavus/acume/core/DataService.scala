@@ -36,7 +36,25 @@ import com.guavus.rubix.query.remote.flex.TimeseriesResultSet
 import com.guavus.rubix.search.SearchRequest
 import com.guavus.rubix.search.SearchResponse
 import com.guavus.rubix.user.management.utils.HttpUtils
-
+import org.apache.shiro.SecurityUtils
+import java.util.concurrent.atomic.AtomicLong
+import org.slf4j.LoggerFactory
+import java.util.concurrent.{Callable, TimeoutException, ConcurrentHashMap}
+import scala.concurrent._
+import scala.concurrent.duration._
+import ExecutionContext.Implicits.global
+import com.guavus.acume.cache.workflow.AcumeCacheContextTrait
+import acume.exception.AcumeException
+import com.guavus.acume.core.exceptions.AcumeExceptionConstants
+import com.guavus.acume.workflow.RequestDataType
+import com.guavus.acume.cache.common.AcumeConstants
+import java.util.concurrent.ConcurrentHashMap
+import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
+import DataService._
+import com.guavus.acume.core.configuration.DataServiceFactory
+import com.guavus.acume.cache.common.ConfConstants
+import java.util.ArrayList
+import com.guavus.rubix.search.SearchResponse
 import DataService.classificationStats
 import DataService.counter
 import DataService.logger

@@ -128,6 +128,5 @@ object ICacheAvalabilityUpdatePolicy {
       }
       _$value
     }
-    
   }
 }

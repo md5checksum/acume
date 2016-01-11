@@ -178,6 +178,7 @@ trait AcumeValue {
   def registerAndCacheDataInMemory(tableName : String) {
     measureSchemaRdd.registerTempTable(tableName)
     measureSchemaRdd.sqlContext.cacheTable(tableName)
+    measureSchemaRdd = measureSchemaRdd.sqlContext.table(tableName)
     if(!skipCount) {
       measureSchemaRdd.sqlContext.table(tableName).count
     }
@@ -196,6 +197,7 @@ case class AcumeInMemoryValue(levelTimestamp: LevelTimestamp, cube: Cube, var me
   override def registerAndCacheDataInMemory(tableName : String) {
     measureSchemaRdd.registerTempTable(tableName)
     measureSchemaRdd.sqlContext.cacheTable(tableName)
+    measureSchemaRdd = measureSchemaRdd.sqlContext.table(tableName)
   }
   
   override protected def finalize() {

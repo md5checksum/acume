@@ -14,7 +14,7 @@
 		<fullUdfclassName>com.guavus.pcsa.pcsaudaf.PCSACountudaf</fullUdfclassName>
 	</UserDefined>
 
-	<UserDefined>
+	<!--UserDefined>
 		<functionName>genericUDAF</functionName>
 		<fullUdfclassName>com.guavus.densevectorudf.GenericDenseVectorUDAFResolver</fullUdfclassName>
 	</UserDefined>
@@ -32,6 +32,6 @@
 	<UserDefined>
 		<functionName>averageUDF</functionName>
 		<fullUdfclassName>com.guavus.densevectorudf.AverageDenseVectorUDF</fullUdfclassName>
-	</UserDefined>
+	</UserDefined-->
 
 </AcumeUdfs>
