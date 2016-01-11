@@ -2,11 +2,9 @@ package com.guavus.acume.cache.workflow
 
 import java.util.Random
 import java.util.concurrent.ConcurrentHashMap
-
 import scala.collection.mutable.ArrayBuffer
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.MutableList
-
 import com.guavus.acume.cache.common.AcumeCacheConf
 import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.Cube
@@ -17,13 +15,13 @@ import com.guavus.acume.cache.disk.utility.DataLoader
 import com.guavus.acume.cache.utility.InsensitiveStringKeyHashMap
 import com.guavus.acume.cache.utility.SQLUtility
 import com.guavus.acume.cache.utility.Utility
-
 import net.sf.jsqlparser.expression.Expression
 import net.sf.jsqlparser.expression.Parenthesis
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo
 import net.sf.jsqlparser.schema.Column
+import com.guavus.qb.conf.QBConf
 
 /**
  * @author kashish.jain
@@ -292,5 +290,33 @@ object AcumeCacheContextTraitUtil {
     (list, RequestType.getRequestType(requestType))
   }
   
+  def getDimension(field : String):Dimension = {
+    dimensionMap.get(field).get.asInstanceOf[Dimension]
+  }
   
+  def getMeasure(field : String):Measure = {
+    measureMap.get(field).get.asInstanceOf[Measure]
+  }
+  
+  def getDerivedFieldType(field : String) : String ={
+    val qbConf = new QBConf()
+    var settingsmap : HashMap[String, String] = qbConf.getAllDerivedMeasureTypeFunction()
+    var x = settingsmap.get("qb.function.derivedmeasure."+field.toLowerCase)
+    if(x == null){
+      settingsmap = qbConf.getAllDerivedDimensionsTypeFunction()
+      x = settingsmap.get("qb.function.deriveddimension."+field.toLowerCase)
+    }
+    if(x == null){
+      settingsmap = qbConf.getAllDerivedDimensionsNameIdTypeFunction()
+      x = settingsmap.get("qb.function.deriveddimension.nameid."+field.toLowerCase)
+    }
+    if(x == null){
+      return "double"
+    }
+    val splitArray :Array[String] = x.get.split(";")
+    if(splitArray.length > 1){
+      return splitArray.apply(1)
+    }
+    return "double"
+  }
 }
