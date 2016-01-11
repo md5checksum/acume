@@ -234,6 +234,9 @@ class QueryPrefetchTaskProducer(schemas: List[QueryBuilderSchema], private var t
                 optionalParam.put(LAST_BIN_TIME, intervalMap.get(-1).getOrElse({ throw new IllegalStateException("EndTime for binsource " + key + " can not be null") }))
                 optionalParam.put(VERSION, version)
                 val lastCacheUpdateAndPrefetchIntervals = policy.getIntervalsAndLastUpdateTime(startTime, tempEndTime, prefetchCubeConfiguration, isFirstRun, optionalParam, taskManager)
+                if(lastCacheUpdateAndPrefetchIntervals == null)
+                  return
+                  
                 val prefetchIntervals = lastCacheUpdateAndPrefetchIntervals.getIntervals
                 map.put(startTime, combiner)
                 for (eachInterval <- prefetchIntervals) {

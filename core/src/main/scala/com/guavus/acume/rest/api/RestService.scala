@@ -287,10 +287,10 @@ class RestService {
   @Produces(Array("application/json"))
   @Path("acumeAvailability")
   def getAcumeAvailabilty(@QueryParam(value = "super") userinfo : String,
-      @QueryParam("user") user : String, @QueryParam("password") password : String) : java.util.Map[String, java.util.Map[Long, Interval]] = {
+      @QueryParam("user") user : String, @QueryParam("password") password : String) : java.util.Map[String, java.util.Map[String, Interval]] = {
     Authentication.authenticate(userinfo, user, password)
     val map : HashMap[String, HashMap[Long, Interval]] = ICacheAvalabilityUpdatePolicy.getICacheAvalabiltyUpdatePolicy.getCacheAvalabilityMap
-    mapAsJavaMap(map.map(x => (x._1, mapAsJavaMap(x._2))))
+    mapAsJavaMap(map.map(x => (x._1, mapAsJavaMap(x._2.map(y => (y._1.toString, y._2))))))
   }
   
   @POST

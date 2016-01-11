@@ -35,13 +35,62 @@ abstract case class AcumeTreeCacheValue(dimensionTableName: String = null, acume
   protected var acumeValue: AcumeValue
   def getAcumeValue() = acumeValue
   var isInMemory : Boolean
-  
+  var isFailureWritingToDisk: Boolean
   def evictFromMemory
 }
 
 class AcumeStarTreeCacheValue(dimensionTableName: String, protected var acumeValue: AcumeValue, acumeContext: AcumeCacheContextTrait) extends AcumeTreeCacheValue(dimensionTableName, acumeContext) {
   def evictFromMemory() = Unit
   var isInMemory = true
+  var isFailureWritingToDisk = false
+}
+
+class PartitionedFlatSchemaCacheValue(acumeContext: AcumeCacheContextTrait,
+    levelTimestamp: LevelTimestamp, cube: Cube, cachePointToTable: LoadingCache[LevelTimestamp, AcumeTreeCacheValue],
+    rdds: Map[String, SchemaRDD], empty: SchemaRDD, skipCount: Boolean = true) extends AcumeTreeCacheValue(null, acumeContext) {
+  
+  @volatile
+  var shouldCache = true
+  var isInMemory = true
+  var isFailureWritingToDisk = false
+
+  def evictFromMemory() {
+    acumeValue.evictFromMemory
+    isInMemory = false
+  }
+  
+  protected var acumeValue: AcumeValue = {
+    rdds.map( elem => {
+      try {
+        val diskDirectory = Utility.getDiskDirectoryForPoint(acumeContext, cube, levelTimestamp) + "/" + elem._1
+        Utility.deleteDirectory(diskDirectory, acumeContext)
+        acumeContext.cacheSqlContext.sparkContext.setJobDescription("Disk Writing " + diskDirectory)
+        elem._2.saveAsParquetFile(diskDirectory)
+      } catch {
+        case ex:Exception => logger.error("Failure creating AcumeDiskValue", ex)
+        null
+      }
+    })
+    if(rdds.size == 0) {
+      val diskDirectory = Utility.getDiskDirectoryForPoint(acumeContext, cube, levelTimestamp) 
+      Utility.deleteDirectory(diskDirectory, acumeContext)
+      acumeContext.cacheSqlContext.sparkContext.setJobDescription("Disk Writing " + diskDirectory)
+      empty.saveAsParquetFile(diskDirectory)
+    }
+    val diskDirectory = Utility.getDiskDirectoryForPoint(acumeContext, cube, levelTimestamp)  
+    acumeContext.fs.createNewFile(new Path(diskDirectory + "/" + "_SUCCESS"))
+    acumeContext.cacheSqlContext.sparkContext.setJobDescription("Disk Reading " + diskDirectory)
+    var rdd: SchemaRDD = null
+    val bucketingAttributes = cube.propertyMap.getOrElse(AcumeConstants.BUCKETING_ATTRIBUTES, null)
+    if(bucketingAttributes != null) {
+      rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(bucketingAttributes.split(";"), cube.propertyMap.get(AcumeConstants.NUM_PARTITIONS).get.toInt, diskDirectory)
+    } else {
+      rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
+    }
+    new AcumeDiskValue(levelTimestamp, cube, rdd, cachePointToTable, skipCount)
+  }
+  acumeValue.acumeContext = acumeContext
+  
 }
 
 class AcumeFlatSchemaCacheValue(protected var acumeValue: AcumeValue, acumeContext: AcumeCacheContextTrait) extends AcumeTreeCacheValue(null, acumeContext) {
@@ -174,6 +223,15 @@ case class AcumeDiskValue(levelTimestamp: LevelTimestamp, cube: Cube, var measur
   tableName = tableName + "_" + levelTimestamp.timestamp + "_memory_disk"
   
   registerAndCacheDataInMemory(tableName)
+  
+  override def registerAndCacheDataInMemory(tableName : String) {
+    measureSchemaRdd.registerTempTable(tableName)
+    measureSchemaRdd.sqlContext.cacheTable(tableName)
+    measureSchemaRdd = measureSchemaRdd.sqlContext.table(tableName)
+    if(!skipCount) {
+      measureSchemaRdd.sqlContext.table(tableName).count
+    }
+  }
   
   override protected def finalize() {
     if(cachePointToTable.getIfPresent(levelTimestamp) == null) {

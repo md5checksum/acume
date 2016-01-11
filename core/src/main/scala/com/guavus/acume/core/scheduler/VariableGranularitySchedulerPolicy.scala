@@ -13,9 +13,13 @@ import java.lang.IllegalArgumentException
 import com.guavus.acume.core.AcumeService
 import com.guavus.acume.core.DataService
 import com.guavus.acume.core.AcumeContextTraitUtil
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 class VariableGranularitySchedulerPolicy extends ISchedulerPolicy {
 
+  private var logger: Logger = LoggerFactory.getLogger(classOf[VariableGranularitySchedulerPolicy])
+  
   val schedulerVariableRetentionMap: Map[Long, Int] = Utility.getLevelPointMap(AcumeContextTraitUtil.acumeConf.getSchedulerVariableRetentionMap).map(x=> x._1.level -> x._2)
 
   val cachePopulationMap: HashMap[PrefetchCubeConfiguration, HashMap[String, HashMap[Long, Long]]] = new HashMap[PrefetchCubeConfiguration, HashMap[String, HashMap[Long, Long]]]()
@@ -37,8 +41,10 @@ class VariableGranularitySchedulerPolicy extends ISchedulerPolicy {
     val version = optionalParams.get(QueryPrefetchTaskProducer.VERSION).get.asInstanceOf[Int]
     
     if (version != taskManager.getVersion) {
-      throw new IllegalStateException("View changed current version " + version + " and new version is " + taskManager.getVersion)
+      logger.info("View changed current version " + version + " and new version is " + taskManager.getVersion)
+      return null
     }
+    
     for ((level,noOfRequests) <- schedulerVariableRetentionMap) {
       var tempStartTime = binSourceToIntervalMap.get(level).getOrElse(startTime)
       var flag = false

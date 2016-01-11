@@ -39,6 +39,7 @@ object AcumeConstants {
   val SPARK_SQL_SHUFFLE_PARTITIONS = "spark.sql.shuffle.partitions"
   val DISTRIBUTE_BY = " distribute by "
   val SORT_BY = " sort by "
+  val PARTITIONING_ATTRIBUTES = "partitioningAttributes"
   val BUCKETING_ATTRIBUTES = "bucketingAttributes"
   val SECONDARY_INDEX = "secondaryIndex"
   val NUM_PARTITIONS = "numPartitions"

@@ -12,6 +12,7 @@ import com.guavus.acume.cache.utility.Utility
 import org.slf4j.LoggerFactory
 import org.slf4j.Logger
 import com.guavus.acume.cache.common.AcumeConstants
+import org.apache.spark.sql.DataFrame
 
 class HashPartitionedFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheContext: AcumeCacheContext, 
                                          conf: AcumeCacheConf, cube: Cube, cacheLevelPolicy: CacheLevelPolicyTrait, 
@@ -83,5 +84,11 @@ class HashPartitionedFlatSchemaTreeCache(keyMap: Map[String, Any], acumeCacheCon
   
   override def zipChildPoints(rdds : Seq[SchemaRDD]): SchemaRDD = {
     rdds.reduce(_.zipAll(_))
+  }
+  
+  override def mergePathRdds(rdds : Iterable[DataFrame]) = {
+    Utility.withDummyCallSite(acumeCacheContext.cacheSqlContext.sparkContext) {
+        rdds.reduce(_.zipAll(_))
+    }
   }
 }
