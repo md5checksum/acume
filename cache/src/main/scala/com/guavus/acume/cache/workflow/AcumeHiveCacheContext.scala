@@ -49,6 +49,7 @@ class AcumeHiveCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheCo
     } else {
       var tableName = AcumeCacheContextTraitUtil.getTable(cube)
       updatedsql = updatedsql.replaceAll(s"$cube", s"$tableName")
+
       executeThickClientQuery(updatedsql, timestamps, cube, binsource, rt, startTime, endTime, level, tableName)
     }
   }

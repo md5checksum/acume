@@ -39,55 +39,34 @@ class AcumeHbaseCacheContext(cacheSqlContext: SQLContext, cacheConf: AcumeCacheC
   
   private def constructQueryFromCube(cube: Cube) : String = {
     
-    /*
-     * ****** Sample Create command ********
-     *
-     * CREATE TABLE $TestTableName(
-     *    bytecol TINYINT,
-     *    shortcol SMALLINT,
-     *    floatcol FLOAT,
-     *    doublecol DOUBLE,
-     *    strcol STRING,
-     *    intcol INTEGER,
-     * )
-     * USING org.apache.spark.sql.hbase.HBaseSource
-     * OPTIONS(
-     *    tableName "$TestTableName",
-     *    hbaseTableName "$TestHBaseTableName",
-     *    keyCols "doublecol, strcol, intcol",
-     *    colsMapping "bytecol=cf1.hbytecol, shortcol=cf1.hshortcol, floatcol=cf2.hfloatcol"
-     * )
-     *
-     */
-
     var queryString = new StringBuilder()
-    queryString.append("CREATE TABLE ")
+    queryString.append("create table ")
     queryString.append(cube.cubeName)
+    queryString.append(" ( ")
     
-    queryString.append("( ")
-    val dimFields = cube.dimension.dimensionSet.map(dimension => dimension.getName + " " + ConversionToSpark.convertToSparkDataType(dimension.getDataType).typeName.map(_.toUpper)).toArray.mkString(", ")
-    val measureFields = cube.measure.measureSet.map(measure => measure.getName + " " + ConversionToSpark.convertToSparkDataType(measure.getDataType).typeName.map(_.toUpper)).toArray.mkString(", ")
+    val dimFields = cube.dimension.dimensionSet.map(dimension => dimension.getName + " " + ConversionToSpark.convertToSparkDataType(dimension.getDataType).typeName).toArray.mkString(", ")
     queryString.append(dimFields)
+    
+    val measureFields = cube.measure.measureSet.map(measure => measure.getName + " " + ConversionToSpark.convertToSparkDataType(measure.getDataType).typeName).toArray.mkString(", ")
     queryString.append(", " + measureFields)
-    queryString.append(" ) ")
     
-    queryString.append("USING org.apache.spark.sql.hbase.HBaseSource ")
-    
-    queryString.append("OPTIONS( ")
-    
-    queryString.append("tableName " + "\"" + cube.cubeName + "\", ")
-    
-    queryString.append("hbaseTableName " + "\"" + cube.hbaseConfigs.nameSpace + "." + cube.hbaseConfigs.tableName + "\", ")
-    
+    queryString.append(", primary key(")
     val primaryKeys = cube.hbaseConfigs.primaryKeys.mkString(",")
-    queryString.append("keyCols " + "\"" + primaryKeys + "\", ")
+    queryString.append(primaryKeys)
+    queryString.append(")) mapped by (")
+    
+    queryString.append(cube.hbaseConfigs.nameSpace + ".")
+    
+    queryString.append(cube.hbaseConfigs.tableName)
+    
+    queryString.append(", COLS=[")
     
     val columnMappings = cube.hbaseConfigs.columnMappings.map(mapping => mapping._1 + "=" + mapping._2).toArray.mkString(", ")
-    queryString.append("colsMapping " + "\"" + columnMappings + "\"")
-    queryString.append(")") 
-   
+    queryString.append(columnMappings)
+    
+    queryString.append("])")
+    
     logger.info("Firing query on Hbase: " + queryString.toString)
-
     queryString.toString
   }
   

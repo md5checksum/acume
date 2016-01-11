@@ -1,13 +1,6 @@
 #!/bin/sh
 
 #-------------------------------------
-# RPM Mode Support
-#-------------------------------------
-
-. /etc/reflex/reflexpaths.sh
-
-
-#-------------------------------------
 #The default values of the arguments in case args not provided
 #-------------------------------------
 
@@ -15,29 +8,14 @@ ARG_MASTER_MODE=" --master yarn-client"
 ARG_PROPERTIES_FILE=""
 QUEUE_NAME=" --queue default"
 ARG_POOLCONFIG=""
-ARG_CLASS_NAME='$CLI_REPLACE_APPCLASSNAME$'
-APPPATH_WITH_COLON='$CLI_REPLACE_APPLICATIONPATH$'
 
 master_mode=-1
 app_name=-1
 prop_loc='$CLI_REPLACE_ACUMESPARKPROPERTYLOCATION$'
 queue_name=-1
-class_name=-1
-is_acume=1
 
 if [[ "$prop_loc" =~ ^\$CLI* ]]; then
     prop_loc=""
-fi
-
-#----------------------------------
-# If class not provided, its acume
-#----------------------------------
-if [[ "$ARG_CLASS_NAME" =~ ^\$CLI* ]]; then
-    ARG_CLASS_NAME="--class com.guavus.acume.tomcat.core.AcumeMain"
-else
-    class_name="--class $ARG_CLASS_NAME"
-    ARG_CLASS_NAME=$class_name
-    is_acume=0
 fi
 
 
@@ -57,14 +35,11 @@ echo "SCRIPT_DIR = $SCRIPT_DIR"
 
 #-------------------------------------
 # Set up unique App name and cache dir
-# for Acume case
 #-------------------------------------
 
-ARG_APP_NAME=""
-if [ $is_acume == 1 ]; then
-    ACUME_CACHE_DIR=$(echo "$SCRIPT_DIR" | md5sum | awk '{print $1}')
-    ARG_APP_NAME=" --name Acume-${ACUME_CACHE_DIR}"
-fi
+ACUME_CACHE_DIR=$(echo "$SCRIPT_DIR" | md5sum | awk '{print $1}')
+ARG_APP_NAME=" --name Acume-${ACUME_CACHE_DIR}"
+
 
 #-------------------------------------
 # Parse docbase from server.xml
@@ -74,8 +49,7 @@ NAVIGATE_CMD="cd $SCRIPT_DIR/../conf/"
 $NAVIGATE_CMD
 
 DOCBASE=$(cat server.xml | grep -oPm1 '(?<=docBase=\")[^\"]+')
-appname_from_docbase=$(expr $DOCBASE : '\/data\/instances\/\([^\/]*\)')
-echo "STARTING APP=[$appname_from_docbase] with Docbase=[$DOCBASE]"
+echo "Docbase = $DOCBASE"
 
 
 #-------------------------------------
@@ -86,8 +60,9 @@ CATALINA_BASE="$SCRIPT_DIR/.."
 if [ -r "$CATALINA_BASE/bin/setenv.sh" ]; then
     . "$CATALINA_BASE/bin/setenv.sh"
 else
-    echo "[WARNING] setenv.sh not present or not read. "
+    echo "[WARNING] setenv.sh not present. "
 fi
+
 
 #-------------------------------------
 #Set the catalina_out, create file
@@ -95,10 +70,6 @@ fi
 
 CATALINA_OUT="$CATALINA_BASE"/logs/catalina.out
 touch "$CATALINA_OUT"
-echo "" >> $CATALINA_OUT
-echo "**********************************************************************" >> $CATALINA_OUT
-echo "STARTING APP=[$appname_from_docbase] at [$(date)]" >> $CATALINA_OUT
-echo "**********************************************************************" >> $CATALINA_OUT
 
 
 #-------------------------------------
@@ -126,11 +97,8 @@ while (($#)); do
     shift
 done
 
-#-------------------------------------
-# Set property file location
-#-------------------------------------
-
 SPARK_PROPERTYFILE=$DOCBASE/WEB-INF/classes/spark.properties
+
 
 if [[ ! -z  $prop_loc ]];then
     echo "INFO: Using Configured Spark Property File : $prop_loc" >>"$CATALINA_OUT"
@@ -146,6 +114,7 @@ else
     ARG_PROPERTIES_FILE=" --properties-file $prop_loc"
     echo "ARG_PROPERTIES_FILE = $ARG_PROPERTIES_FILE"
 fi
+
 
 #-------------------------------------
 # Assigning app name
@@ -214,61 +183,40 @@ if [ ! -z "$prop_loc" ]; then
         echo "ERROR: $poolconfig_file file does not exists" >> "$CATALINA_OUT"
         exit 1
     fi
-    ARG_POOLCONFIG=$ARG_POOLCONFIG" spark.scheduler.allocation.file=$poolconfig_file "
-fi
-
-#-------------------------------------
-# Finding additional user-specified jar path
-#-------------------------------------
-APP_JAR_PATH='$CLI_REPLACE_APP_JAR_PATH$'
-if [[ "$APP_JAR_PATH" =~ ^\$CLI* ]]; then
-    APP_JAR_PATH=""
-else
-    APP_JAR_PATH="$APP_JAR_PATH,"
-fi
-echo "user-specified additional jar path : $APP_JAR_PATH"
-
-#-------------------------------------
-# Finding crux jar for acume case
-#-------------------------------------
-
-if [ $is_acume == 1 ]; then
-    num_crux_jars=$(ls -d ${REFLEX_ROOT_PREFIX}/opt/tms/java/crux2.0-*-jar-with-dependencies.jar 2>>"$CATALINA_OUT" | wc -l )
-
-	if [ "$num_crux_jars" -eq 1 ]; then
-            crux_jar=$(ls -d ${REFLEX_ROOT_PREFIX}/opt/tms/java/crux2.0-*-jar-with-dependencies.jar )
-    		echo "INFO: Found crux jar $crux_jar" >> "$CATALINA_OUT"
-	elif [ "$num_crux_jars" -eq 0 ]; then
-            echo "ERROR: Failed to find crux jar in ${REFLEX_ROOT_PREFIX}/opt/tms/java/" >> "$CATALINA_OUT"
-    		exit 1
-	elif [ "$num_crux_jars" -gt 1 ]; then
-            jars_list=$(ls -d ${REFLEX_ROOT_PREFIX}/opt/tms/java/crux2.0-*-jar-with-dependencies.jar)
-            echo "ERROR: Found multiple crux jars in ${REFLEX_ROOT_PREFIX}/opt/tms/java/" >> "$CATALINA_OUT"
-    		echo "$jars_list" >> "$CATALINA_OUT"
-    		echo "Please remove all but one jar." >> "$CATALINA_OUT"
-    		exit 1
-	fi
+    ARG_POOLCONFIG=$ARG_POOLCONFIG" spark.scheduler.allocation.file=$poolconfig_file"
 fi
 
 
 #-------------------------------------
-# Set JAVA_OPTS
+# Finding crux jar
 #-------------------------------------
 
-JAVA_OPTS='$CLI_REPLACE_JAVAOPTIONS$'
-if [[ "$JAVA_OPTS" =~ ^\$CLI* ]]; then
-    JAVA_OPTS=""
-else
-    echo "cli read JAVA_OPTS = $JAVA_OPTS"
+num_crux_jars=$(ls -d /opt/tms/java/crux2.0-*-jar-with-dependencies.jar 2>>"$CATALINA_OUT" | wc -l )
+
+if [ "$num_crux_jars" -eq 1 ]; then
+    crux_jar=$(ls -d /opt/tms/java/crux2.0-*-jar-with-dependencies.jar )
+    echo "INFO: Found crux jar $crux_jar" >> "$CATALINA_OUT"
+elif [ "$num_crux_jars" -eq 0 ]; then
+    echo "ERROR: Failed to find crux jar in /opt/tms/java/" >> "$CATALINA_OUT"
+    exit 1
+elif [ "$num_crux_jars" -gt 1 ]; then
+    jars_list=$(ls -d /opt/tms/java/crux2.0-*-jar-with-dependencies.jar)
+    echo "ERROR: Found multiple crux jars in /opt/tms/java/" >> "$CATALINA_OUT"
+    echo "$jars_list" >> "$CATALINA_OUT"
+    echo "Please remove all but one jar." >> "$CATALINA_OUT"
+    exit 1
 fi
 
-JAVA_OPTS="$JAVA_OPTS  -Dcatalina.base=$CATALINA_BASE  -Djava.io.tmpdir=$CATALINA_BASE/temp "
-if [ $is_acume == 1 ]; then
-	CATALINA_BASE="$SCRIPT_DIR/.."
-	export ACUME_JAVA_OPTS=" -Dacume.global.cache.directory=$ACUME_CACHE_DIR $ACUME_JAVA_OPTS $JAVA_OPTS "
-	JAVA_OPTS="$ACUME_JAVA_OPTS"
-fi
-echo "INFO: Setting JAVA_OPTS = $JAVA_OPTS" >> "$CATALINA_OUT"
+
+#-------------------------------------
+# Set ACUME_JAVA_OPTS
+#-------------------------------------
+
+echo "INGO: Setting ACUME_JAVA_OPTS" >> "$CATALINA_OUT"
+CATALINA_BASE="$SCRIPT_DIR/.."
+export ACUME_JAVA_OPTS="-Dcatalina.base=$CATALINA_BASE $ACUME_JAVA_OPTS -Djava.io.tmpdir=$CATALINA_BASE/temp -Dacume.global.cache.directory=$ACUME_CACHE_DIR"
+echo "ACUME_JAVA_OPTS = $ACUME_JAVA_OPTS" >> "$CATALINA_OUT"
+
 
 #-------------------------------------
 # Set SPARK_JAR
@@ -284,53 +232,39 @@ echo "SPARK_JAR = $SPARK_JAR" >> "$CATALINA_OUT"
 # Add Udf jars to classpath
 #-------------------------------------
 
-udfJarPath=""
-if [ $is_acume == 1 ]; then
-    dirpath="$DOCBASE/WEB-INF/classes/"
-    FILE_NAME=$dirpath"acume.ini"
-    prop_key="acume.global.udf.configurationxml"
-    prop_value=`cat ${FILE_NAME} 2>/dev/null | grep ${prop_key} | cut -d ' ' -f2`
+dirpath="$DOCBASE/WEB-INF/classes/"
+FILE_NAME=$dirpath"acume.ini"
+prop_key="acume.global.udf.configurationxml"
+prop_value=`cat ${FILE_NAME} 2>/dev/null | grep ${prop_key} | cut -d ' ' -f2`
 
-    if [ -z $prop_value ];then
-        FILE_NAME=$dirpath"udfConfiguration.xml"
-        if [ -f "$FILE_NAME" ]; then
-            . $SCRIPT_DIR/getUdfJarPaths.sh --udfConfXmlPath $FILE_NAME
-        else
-            echo "ERROR: udfConfiguration.xml file does not exists" >>"$CATALINA_OUT"
-            exit 1
-        fi
+if [ -z $prop_value ];then
+    FILE_NAME=$dirpath"udfConfiguration.xml"
+    if [ -f "$FILE_NAME" ]; then
+        . $SCRIPT_DIR/getUdfJarPaths.sh --udfConfXmlPath $FILE_NAME
     else
-        . $SCRIPT_DIR/getUdfJarPaths.sh --udfConfXmlPath $prop_value
+        echo "ERROR: udfConfiguration.xml file does not exists" >>"$CATALINA_OUT"
+        exit 1
     fi
-
-    udfJarPath=$ACUME_UDFJARPATHS
-    if [ ! -z $ACUME_UDFJARPATHS ];then
-        udfJarPath=,$udfJarPath
-    fi
+else
+    . $SCRIPT_DIR/getUdfJarPaths.sh --udfConfXmlPath $prop_value
 fi
 
+udfJarPath=$ACUME_UDFJARPATHS
+if [ ! -z $ACUME_UDFJARPATHS ];then
+    udfJarPath=,$udfJarPath
+fi
 
 
 #-------------------------------------
 # HBASE Jar for Spark Classpath
 #-------------------------------------
 
-SPARK_HBASE_JAR=$(ls -1 ${REFLEX_ROOT_PREFIX}/opt/tms/java/hbase-spark/spark-hbase*-jar-with-dependencies.jar 2>/dev/null)
+SPARK_HBASE_JAR=$(ls -1 /opt/tms/java/hbase-spark/spark-hbase*-jar-with-dependencies.jar 2>/dev/null)
 if [[ ! -z $SPARK_HBASE_JAR ]];then
     echo "INFO: Using HBASE Jar : $SPARK_HBASE_JAR" >> "$CATALINA_OUT"
 else
-    echo "WARNING: No SPARK HBASE Jar found at :${REFLEX_ROOT_PREFIX}/opt/tms/java/hbase-spark/" >> "$CATALINA_OUT"
+    echo "WARNING: No SPARK HBASE Jar found at :/opt/tms/java/hbase-spark/" >> "$CATALINA_OUT"
 fi
-
-#------------------------------------------------
-# Create apppath to be added to spark_classpath for executors
-#------------------------------------------------
-if [[ "$APPPATH_WITH_COLON" =~ ^\$CLI* ]]; then
-    APPPATH_WITH_COLON=""
-else
-    APPPATH_WITH_COLON=":$APPPATH_WITH_COLON/WEB-INF/lib/*"
-fi
-echo "APPPATH_WITH_COLON=$APPPATH_WITH_COLON"
 
 
 #-------------------------------------
@@ -341,31 +275,15 @@ echo "INFO: Setting SPARK_CLASSPATH" >> "$CATALINA_OUT"
 export HADOOP_CONF_DIR="/opt/hadoop/conf"
 spark_jars=$(ls -d -1 /opt/spark/lib/* 2>/dev/null | grep -v examples | xargs | sed 's/ /:/g')
 
-colonSepUdfJarPath=""
-if [ $is_acume == 1 ]; then
-	colonSepUdfJarPath=$ACUMECOLONSEP_UDFPATHS
+colonSepUdfJarPath=$ACUMECOLONSEP_UDFPATHS
 
-	if [ ! -z $ACUMECOLONSEP_UDFPATHS ];then
-    		colonSepUdfJarPath=":"$colonSepUdfJarPath
-	fi
+if [ ! -z $ACUMECOLONSEP_UDFPATHS ];then
+    colonSepUdfJarPath=":"$colonSepUdfJarPath
 fi
 
-# we will not export SPARK_CLASSPATH varibale, rather
-# pass this as driver and executor options
+export SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:$spark_jars:$SCRIPT_DIR/../lib/*:$crux_jar:-Djava.io.tmpdir=$CATALINA_BASE:/opt/tms/java/pcsaudf.jar$colonSepUdfJarPath:$SPARK_HBASE_JAR"
+echo "SPARK_CLASSPATH = $SPARK_CLASSPATH" >> "$CATALINA_OUT"
 
-# to be passed to driver
-SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:$spark_jars:$SCRIPT_DIR/../lib/*:$crux_jar:-Djava.io.tmpdir=$CATALINA_BASE:${REFLEX_ROOT_PREFIX}/opt/tms/java/pcsaudf.jar$colonSepUdfJarPath:$SPARK_HBASE_JAR"
-
-if [ ! [$is_acume == 1] ]; then
-        SPARK_CLASSPATH="$SPARK_CLASSPATH$APPPATH_WITH_COLON:/opt/kafka/libs/* "
-fi
-
-# to be passed to executors
-ARG_POOLCONFIG="$ARG_POOLCONFIG --conf spark.executor.extraClassPath=$SPARK_CLASSPATH "
-
-echo "INFO: SPARK_CLASSPATH = $SPARK_CLASSPATH" >> "$CATALINA_OUT"
-echo "spark_classpath = $SPARK_CLASSPATH"
-echo "ARG_POOLCONFIG=$ARG_POOLCONFIG"
 
 #-------------------------------------
 # Find the core jar to be used
@@ -388,57 +306,24 @@ elif [[ "$num_core_jars" -gt 1 ]]; then
     exit 1
 fi
 
-core_jar=$DOCBASE/WEB-INF/lib/$core_jar
-echo "core_jar = $core_jar"
-
 
 #---------------------------------------------------------------------------------------------
 # Add log4j property file for executors and solution property file if present
 #---------------------------------------------------------------------------------------------
-ARG_EXECUTOR_LOGFILE="--files $DOCBASE/WEB-INF/classes/log4j-executor.properties"
-
-if [ $is_acume == 1 ]; then
-	ARG_EXECUTOR_LOGFILE="$ARG_EXECUTOR_LOGFILE,$DOCBASE/WEB-INF/classes/acume.ini"
-else
-    streaming_file=$DOCBASE/WEB-INF/classes/streaming.ini
-	if [ -f "$streaming_file" ]; then
-	    ARG_EXECUTOR_LOGFILE="$ARG_EXECUTOR_LOGFILE,$streaming_file"
-	fi
-fi
-
 SOLUTION_FILE=$DOCBASE/WEB-INF/classes/$CLI_REPLACE_SOLUTIONCONF$
 if [ -f "$SOLUTION_FILE" ]; then
-    ARG_EXECUTOR_LOGFILE="$ARG_EXECUTOR_LOGFILE,$SOLUTION_FILE"
-fi
-
-echo "--files value=$ARG_EXECUTOR_LOGFILE"
-
-#-------------------------------------
-# Run init script
-# we will not return from here until
-# this script returns
-#-------------------------------------
-
-INIT_SCRIPT='$CLI_REPLACE_PREINITSCRIPT$'
-if [[ "$INIT_SCRIPT" =~ ^\$CLI* ]] || [[ "$INIT_SCRIPT" == "" ]]; then
-    echo "INFO: No init script [$INIT_SCRIPT] found. Skipping."
+    ARG_EXECUTOR_LOGFILE="--files $DOCBASE/WEB-INF/classes/log4j-executor.properties,$DOCBASE/WEB-INF/classes/acume.ini,$SOLUTION_FILE"
 else
-    scrpt="sh -x '$INIT_SCRIPT'"
-    echo $scrpt >> "$CATALINA_OUT"
-    eval $scrpt >> "$CATALINA_OUT" 2>&1
-    echo "INFO: init script $INIT_SCRIPT ran successfully" >> "$CATALINA_OUT"
-    echo "INFO: init script [$INIT_SCRIPT] ran successfully"
+    ARG_EXECUTOR_LOGFILE="--files $DOCBASE/WEB-INF/classes/log4j-executor.properties,$DOCBASE/WEB-INF/classes/acume.ini"
 fi
+
+
 
 #-------------------------------------
 # Start the spark server
 #-------------------------------------
 
-cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_POOLCONFIG $ARG_PROPERTIES_FILE $ARG_EXECUTOR_LOGFILE $ARG_CLASS_NAME --jars $APP_JAR_PATH`ls -d -1 $DOCBASE/WEB-INF/lib/* | sed ':a;N;$!ba;s/\n/,/g'`$udfJarPath  --driver-class-path '$SPARK_CLASSPATH' --driver-java-options '$JAVA_OPTS' $core_jar"
-
+cmd="sh -x /opt/spark/bin/spark-submit $ARG_APP_NAME $ARG_MASTER_MODE $QUEUE_NAME $ARG_POOLCONFIG $ARG_PROPERTIES_FILE $ARG_EXECUTOR_LOGFILE --class com.guavus.acume.tomcat.core.AcumeMain --jars `ls -d -1 $DOCBASE/WEB-INF/lib/* | sed ':a;N;$!ba;s/\n/,/g'`$udfJarPath  $DOCBASE/WEB-INF/lib/$core_jar --driver-java-options '$ACUME_JAVA_OPTS'"
 echo "INFO: Starting Spark" >> "$CATALINA_OUT"
-echo $cmd >> "$CATALINA_OUT"
 eval $cmd >> "$CATALINA_OUT" 2>&1 "&"
 echo "INFO: Spark started successfully" >> "$CATALINA_OUT"
-
-
