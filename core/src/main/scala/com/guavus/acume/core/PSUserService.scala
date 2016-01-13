@@ -15,6 +15,9 @@ import com.guavus.rubix.query.remote.flex.ZoneInfoParams
 import com.guavus.rubix.cache.Interval
 import com.guavus.acume.core.scheduler.ICacheAvalabilityUpdatePolicy
 import scala.collection.mutable.HashMap
+import acume.exception.AcumeException
+import com.guavus.acume.core.exceptions.AcumeExceptionConstants
+import com.guavus.acume.core.exceptions.AcumeExceptionConstants._
 
 object PSUserService {
 
@@ -67,6 +70,10 @@ class PSUserService {
 
   def getAcumeAvailability : java.util.Map[String, java.util.Map[String, Interval]] = {
     val map: HashMap[String, HashMap[Long, Interval]] = ICacheAvalabilityUpdatePolicy.getICacheAvalabiltyUpdatePolicy.getCacheAvalabilityMap
+    
+    if(map == null || map.isEmpty)
+      throw new AcumeException(AcumeExceptionConstants.NO_DATA_EXCEPTION.name)
+    
     mapAsJavaMap(map.map(x => (x._1, mapAsJavaMap(x._2.map(y => (y._1.toString, y._2))))))
   }
 

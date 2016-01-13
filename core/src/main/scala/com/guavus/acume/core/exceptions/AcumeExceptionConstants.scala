@@ -47,6 +47,8 @@ object AcumeExceptionConstants extends Enumeration {
   val TOO_MANY_CONNECTION_EXCEPTION = new AcumeExceptionConstants("TOO_MANY_CONNECTION_EXCEPTION")
   
   val TIMEOUT_EXCEPTION = new AcumeExceptionConstants("TIMEOUT_EXCEPTION")
+  
+  val NO_DATA_EXCEPTION = new AcumeExceptionConstants("NO_DATA_EXCEPTION")
 
   case class AcumeExceptionConstants(val name: String) extends Val {
 

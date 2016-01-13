@@ -2,11 +2,9 @@ package com.guavus.acume.rest.api
 
 import java.io.Serializable
 import java.util.ArrayList
-
 import scala.collection.JavaConversions
 import scala.collection.JavaConversions.mapAsJavaMap
 import scala.collection.mutable.HashMap
-
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.core.AcumeService
 import com.guavus.acume.core.PSUserService
@@ -31,9 +29,7 @@ import com.guavus.rubix.user.management.vo.LoginRequest
 import com.guavus.rubix.user.management.vo.LoginResponse
 import com.guavus.rubix.user.management.vo.LogoutRequest
 import com.guavus.rubix.user.management.vo.LogoutResponse
-
 import com.guavus.rubix.user.management.vo.ValidateSessionRequest
-
 import javax.ws.rs.Consumes
 import javax.ws.rs.DefaultValue
 import javax.ws.rs.POST
@@ -41,8 +37,10 @@ import javax.ws.rs.Path
 import javax.ws.rs.Produces
 import javax.ws.rs.QueryParam
 import javax.xml.bind.annotation.XmlRootElement
-
 import com.guavus.rubix.user.management.vo.ChangePasswordRequest
+import acume.exception.AcumeException
+import com.guavus.acume.core.exceptions.AcumeExceptionConstants
+import com.guavus.acume.core.exceptions.AcumeExceptionConstants._
 
 
 @Path("/" + "queryresponse")
@@ -290,6 +288,10 @@ class RestService {
       @QueryParam("user") user : String, @QueryParam("password") password : String) : java.util.Map[String, java.util.Map[String, Interval]] = {
     Authentication.authenticate(userinfo, user, password)
     val map : HashMap[String, HashMap[Long, Interval]] = ICacheAvalabilityUpdatePolicy.getICacheAvalabiltyUpdatePolicy.getCacheAvalabilityMap
+    
+    if(map == null || map.isEmpty)
+      throw new AcumeException(AcumeExceptionConstants.NO_DATA_EXCEPTION.name)
+    
     mapAsJavaMap(map.map(x => (x._1, mapAsJavaMap(x._2.map(y => (y._1.toString, y._2))))))
   }
   
