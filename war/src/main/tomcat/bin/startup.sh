@@ -235,19 +235,19 @@ echo "user-specified additional jar path : $APP_JAR_PATH"
 if [ $is_acume == 1 ]; then
     num_crux_jars=$(ls -d ${REFLEX_ROOT_PREFIX}/opt/tms/java/crux2.0-*-jar-with-dependencies.jar 2>>"$CATALINA_OUT" | wc -l )
 
-	if [ "$num_crux_jars" -eq 1 ]; then
+    if [ "$num_crux_jars" -eq 1 ]; then
             crux_jar=$(ls -d ${REFLEX_ROOT_PREFIX}/opt/tms/java/crux2.0-*-jar-with-dependencies.jar )
-    		echo "INFO: Found crux jar $crux_jar" >> "$CATALINA_OUT"
-	elif [ "$num_crux_jars" -eq 0 ]; then
+            echo "INFO: Found crux jar $crux_jar" >> "$CATALINA_OUT"
+    elif [ "$num_crux_jars" -eq 0 ]; then
             echo "ERROR: Failed to find crux jar in ${REFLEX_ROOT_PREFIX}/opt/tms/java/" >> "$CATALINA_OUT"
-    		exit 1
-	elif [ "$num_crux_jars" -gt 1 ]; then
+            exit 1
+    elif [ "$num_crux_jars" -gt 1 ]; then
             jars_list=$(ls -d ${REFLEX_ROOT_PREFIX}/opt/tms/java/crux2.0-*-jar-with-dependencies.jar)
             echo "ERROR: Found multiple crux jars in ${REFLEX_ROOT_PREFIX}/opt/tms/java/" >> "$CATALINA_OUT"
-    		echo "$jars_list" >> "$CATALINA_OUT"
-    		echo "Please remove all but one jar." >> "$CATALINA_OUT"
-    		exit 1
-	fi
+            echo "$jars_list" >> "$CATALINA_OUT"
+            echo "Please remove all but one jar." >> "$CATALINA_OUT"
+            exit 1
+    fi
 fi
 
 
@@ -264,9 +264,21 @@ fi
 
 JAVA_OPTS="$JAVA_OPTS  -Dcatalina.base=$CATALINA_BASE  -Djava.io.tmpdir=$CATALINA_BASE/temp "
 if [ $is_acume == 1 ]; then
-	CATALINA_BASE="$SCRIPT_DIR/.."
-	export ACUME_JAVA_OPTS=" -Dacume.global.cache.directory=$ACUME_CACHE_DIR $ACUME_JAVA_OPTS $JAVA_OPTS "
-	JAVA_OPTS="$ACUME_JAVA_OPTS"
+    CATALINA_BASE="$SCRIPT_DIR/.."
+    export ACUME_JAVA_OPTS=" -Dacume.global.cache.directory=$ACUME_CACHE_DIR $ACUME_JAVA_OPTS $JAVA_OPTS "
+
+    #-------------------------------------
+    # Check if User Provided Any
+    # Driver Extra Java Options
+    #-------------------------------------
+
+    USER_DRIVER_EXTRAJAVAOPTIONS=$(cat $prop_loc 2>/dev/null |sed -e 's/#.*$//' | grep "spark.driver.extraJavaOptions" | awk -F '[ =]' '{print $2} ' | sed 's/,/:/g')
+
+    if [[ ! -z "$USER_DRIVER_EXTRAJAVAOPTIONS" ]];then
+        export ACUME_JAVA_OPTS="$USER_DRIVER_EXTRAJAVAOPTIONS $ACUME_JAVA_OPTS"
+    fi
+
+    JAVA_OPTS="$ACUME_JAVA_OPTS"
 fi
 echo "INFO: Setting JAVA_OPTS = $JAVA_OPTS" >> "$CATALINA_OUT"
 
@@ -343,11 +355,11 @@ spark_jars=$(ls -d -1 /opt/spark/lib/* 2>/dev/null | grep -v examples | xargs | 
 
 colonSepUdfJarPath=""
 if [ $is_acume == 1 ]; then
-	colonSepUdfJarPath=$ACUMECOLONSEP_UDFPATHS
+    colonSepUdfJarPath=$ACUMECOLONSEP_UDFPATHS
 
-	if [ ! -z $ACUMECOLONSEP_UDFPATHS ];then
-    		colonSepUdfJarPath=":"$colonSepUdfJarPath
-	fi
+    if [ ! -z $ACUMECOLONSEP_UDFPATHS ];then
+            colonSepUdfJarPath=":"$colonSepUdfJarPath
+    fi
 fi
 
 # we will not export SPARK_CLASSPATH varibale, rather
@@ -398,12 +410,12 @@ echo "core_jar = $core_jar"
 ARG_EXECUTOR_LOGFILE="--files $DOCBASE/WEB-INF/classes/log4j-executor.properties"
 
 if [ $is_acume == 1 ]; then
-	ARG_EXECUTOR_LOGFILE="$ARG_EXECUTOR_LOGFILE,$DOCBASE/WEB-INF/classes/acume.ini"
+    ARG_EXECUTOR_LOGFILE="$ARG_EXECUTOR_LOGFILE,$DOCBASE/WEB-INF/classes/acume.ini"
 else
     streaming_file=$DOCBASE/WEB-INF/classes/streaming.ini
-	if [ -f "$streaming_file" ]; then
-	    ARG_EXECUTOR_LOGFILE="$ARG_EXECUTOR_LOGFILE,$streaming_file"
-	fi
+    if [ -f "$streaming_file" ]; then
+        ARG_EXECUTOR_LOGFILE="$ARG_EXECUTOR_LOGFILE,$streaming_file"
+    fi
 fi
 
 SOLUTION_FILE=$DOCBASE/WEB-INF/classes/$CLI_REPLACE_SOLUTIONCONF$

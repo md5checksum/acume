@@ -38,6 +38,10 @@ private[hive] class AcumeSparkExecuteStatementOperation(
   private var iter: Iterator[SparkRow] = _
   private var dataTypes: Array[DataType] = _
 
+  override def runInternal() :Unit = {
+
+  }
+
   private def runInternal(cmd: String) = {
     try {
       result = hiveContext.sql(cmd)
@@ -134,10 +138,10 @@ private[hive] class AcumeSparkExecuteStatementOperation(
   def getResultSetSchema: TableSchema = {
     logInfo(s"Result Schema: ${result.queryExecution.analyzed.output}")
     if (result.queryExecution.analyzed.output.size == 0) {
-      new TableSchema(new FieldSchema("Result", "string", "") :: Nil)
+      new TableSchema(new FieldSchema("Result", "string", "",null) :: Nil)
     } else {
       val schema = result.queryExecution.analyzed.output.map { attr =>
-        new FieldSchema(attr.name, HiveMetastoreTypes.toMetastoreType(attr.dataType), "")
+        new FieldSchema(attr.name, HiveMetastoreTypes.toMetastoreType(attr.dataType), "",null)
       }
       new TableSchema(schema)
     }
@@ -162,7 +166,7 @@ private[hive] class AcumeSparkExecuteStatementOperation(
     return sqlOperationConf
   }
 
-  def run(): Unit = {
+ override def run(): Unit = {
         logInfo(s"Running query '$statement'")
         setState(OperationState.RUNNING)
         try {
@@ -181,5 +185,5 @@ private[hive] class AcumeSparkExecuteStatementOperation(
         }
         setState(OperationState.FINISHED)
       }
-    
+
 }

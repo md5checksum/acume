@@ -43,7 +43,6 @@ class AcumeSQLOperationManager(hiveContext: HiveContext) extends OperationManage
   val handleToOperation = ReflectionUtils
     .getSuperField[JMap[OperationHandle, Operation]](this, "handleToOperation")
 
-  // TODO: Currenlty this will grow infinitely, even as sessions expire
   val sessionToActivePool = Map[HiveSession, String]()
 
   override def newExecuteStatementOperation(
@@ -52,9 +51,12 @@ class AcumeSQLOperationManager(hiveContext: HiveContext) extends OperationManage
       confOverlay: JMap[String, String],
       async: Boolean): ExecuteStatementOperation = synchronized {
 
-    val operation = new AcumeSparkExecuteStatementOperation(parentSession, statement, confOverlay)(
-      hiveContext, sessionToActivePool)
+    val runInBackground = async && hiveContext.hiveThriftServerAsync
+    val operation = new AcumeSparkExecuteStatementOperation(parentSession, statement, confOverlay,
+      runInBackground)(hiveContext, sessionToActivePool)
     handleToOperation.put(operation.getHandle, operation)
+    logDebug(s"Created Operation for $statement with session=$parentSession, " +
+      s"runInBackground=$runInBackground")
     operation
   }
 }

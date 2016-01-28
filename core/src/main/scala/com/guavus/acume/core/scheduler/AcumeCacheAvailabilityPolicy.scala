@@ -72,6 +72,7 @@ class UnionizedCacheAvailabilityPolicy extends ICacheAvalabilityUpdatePolicy {
       return unprocessed
     }
     val executedPlan = unprocessed.queryExecution.executedPlan
+
     val id = if (executedPlan.isInstanceOf[InMemoryColumnarTableScan])
       executedPlan.asInstanceOf[InMemoryColumnarTableScan].relation._cachedColumnBuffers.id
     else return unprocessed
