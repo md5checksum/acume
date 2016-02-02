@@ -357,7 +357,7 @@ fi
 SPARK_CLASSPATH="$DOCBASE/WEB-INF/classes/:$DOCBASE/WEB-INF/lib/*:$spark_jars:$SCRIPT_DIR/../lib/*:$crux_jar:-Djava.io.tmpdir=$CATALINA_BASE:${REFLEX_ROOT_PREFIX}/opt/tms/java/pcsaudf.jar$colonSepUdfJarPath:$SPARK_HBASE_JAR"
 
 if [ ! [$is_acume == 1] ]; then
-        SPARK_CLASSPATH="$SPARK_CLASSPATH$APPPATH_WITH_COLON:/opt/kafka/libs/* "
+        SPARK_CLASSPATH="$SPARK_CLASSPATH$APPPATH_WITH_COLON:/opt/kafka/libs/*:"
 fi
 
 # to be passed to executors
