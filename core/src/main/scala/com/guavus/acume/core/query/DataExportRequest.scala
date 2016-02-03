@@ -4,7 +4,6 @@ import java.io.OutputStream
 import java.util.List
 import scala.beans.BeanProperty
 import com.guavus.acume.cache.common.AcumeConstants
-import com.guavus.acume.cache.workflow.RequestType
 import com.guavus.acume.core.AcumeService
 import com.guavus.rubix.query.remote.flex.NameValue
 import com.guavus.rubix.query.remote.flex.QueryRequest

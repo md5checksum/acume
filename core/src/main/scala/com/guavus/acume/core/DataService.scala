@@ -21,10 +21,8 @@ import com.guavus.acume.cache.common.AcumeConstants
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.cache.workflow.AcumeCacheContextTraitUtil
 import com.guavus.acume.cache.workflow.AcumeCacheResponse
-import com.guavus.acume.cache.workflow.RequestType
-import com.guavus.acume.cache.workflow.RequestType.Aggregate
-import com.guavus.acume.cache.workflow.RequestType.SQL
-import com.guavus.acume.cache.workflow.RequestType.Timeseries
+import com.guavus.acume.workflow.RequestDataType
+import com.guavus.acume.workflow.RequestDataType._
 import com.guavus.acume.core.configuration.DataServiceFactory
 import com.guavus.qb.cube.schema.QueryBuilderSchema
 import com.guavus.qb.services.IQueryBuilderService
@@ -74,21 +72,21 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
    * Takes QueryRequest i.e. Rubix query and return aggregate Response.
    */
   def servAggregate(queryRequest: QueryRequest, property: HashMap[String, Any] = null): AggregateResponse = {
-    servRequest(queryRequest.toSql(""), RequestType.Aggregate, property).asInstanceOf[AggregateResponse]
+    servRequest(queryRequest.toSql(""), RequestDataType.Aggregate, property).asInstanceOf[AggregateResponse]
   }
 
   /**
    * Takes QueryRequest i.e. Rubix query and return timeseries Response.
    */
   def servTimeseries(queryRequest: QueryRequest, property: HashMap[String, Any] = null): TimeseriesResponse = {
-    servRequest(queryRequest.toSql("ts,"), RequestType.Timeseries, property).asInstanceOf[TimeseriesResponse]
+    servRequest(queryRequest.toSql("ts,"), RequestDataType.TimeSeries, property).asInstanceOf[TimeseriesResponse]
   }
 
   def servSearchRequest(queryRequest: SearchRequest): SearchResponse = {
-    servSearchRequest(queryRequest.toSql, RequestType.SQL)
+    servSearchRequest(queryRequest.toSql, RequestDataType.SQL)
   }
 
-  def servSearchRequest(unUpdatedSql: String, requestDataType: RequestType.RequestType): SearchResponse = {
+  def servSearchRequest(unUpdatedSql: String, requestDataType: RequestDataType.RequestDataType): SearchResponse = {
     val sql = DataServiceFactory.dsInterpreterPolicy.updateQuery(unUpdatedSql)
     val (response, rows) = execute(sql)
     val fields = queryBuilderService.get(0).getQuerySchema(sql, response.schemaRDD.schema.fieldNames.toList)
@@ -145,14 +143,14 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     }
   }
 
-  def checkJobLevelProperties(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestType.RequestType): (List[(String, HashMap[String, Any])], List[String]) = {
+  def checkJobLevelProperties(requests: java.util.ArrayList[_ <: Any], requestDataType: RequestDataType.RequestDataType): (List[(String, HashMap[String, Any])], List[String]) = {
     this.synchronized {
 
       var sqlList: java.util.ArrayList[String] = new java.util.ArrayList()
       requests foreach (request => {
         requestDataType match {
           case Aggregate => sqlList.add(request.asInstanceOf[QueryRequest].toSql(""))
-          case Timeseries => sqlList.add(request.asInstanceOf[QueryRequest].toSql("ts,"))
+          case TimeSeries => sqlList.add(request.asInstanceOf[QueryRequest].toSql("ts,"))
           case SQL => sqlList.add(request.asInstanceOf[String])
           case _ => throw new IllegalArgumentException("QueryExecutor does not support request type: " + requestDataType)
         }
@@ -177,7 +175,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
     }
   }
 
-  def servRequest(unUpdatedSql: String, requestDataType: RequestType.RequestType, property: HashMap[String, Any] = null): Any = {
+  def servRequest(unUpdatedSql: String, requestDataType: RequestDataType.RequestDataType, property: HashMap[String, Any] = null): Any = {
     
     val sql = DataServiceFactory.dsInterpreterPolicy.updateQuery(unUpdatedSql)
     
@@ -217,7 +215,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
       val dimsNames = new ArrayBuffer[String]()
       val measuresNames = new ArrayBuffer[String]()
       var j = 0
-      var isTimeseries = RequestType.Timeseries.equals(requestDataType)
+      var isTimeseries = RequestDataType.TimeSeries.equals(requestDataType)
       
       val dimensions = new Array[Boolean](fields.size)
       
@@ -227,7 +225,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
         dimensions(i) = false
         if (field.equalsIgnoreCase("ts") || field.equalsIgnoreCase("timestamp")) {
           isTimeseries = {
-            if(RequestType.Aggregate.equals(requestDataType)) {
+            if(RequestDataType.Aggregate.equals(requestDataType)) {
               // In hbase, ts is a dimension. Adding ts to dimfields even in case of Aggregate
               dimsNames += field
             	false
