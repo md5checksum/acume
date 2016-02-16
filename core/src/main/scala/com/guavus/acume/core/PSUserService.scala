@@ -76,6 +76,18 @@ class PSUserService {
     
     mapAsJavaMap(map.map(x => (x._1, mapAsJavaMap(x._2.map(y => (y._1.toString, y._2))))))
   }
+  
+  def getAcumeAvailability(binSource: String) : java.util.Map[String, Interval] = {
+    val map: HashMap[String, HashMap[Long, Interval]] = ICacheAvalabilityUpdatePolicy.getICacheAvalabiltyUpdatePolicy.getCacheAvalabilityMap
+    
+    if(map == null || map.isEmpty)
+      throw new AcumeException(AcumeExceptionConstants.NO_DATA_EXCEPTION.name)
+
+    val retVal = mapAsJavaMap(map.map(x => (x._1, mapAsJavaMap(x._2.map(y => (y._1.toString, y._2)))))).get(binSource)
+    if (retVal == null || retVal.isEmpty)
+      throw new AcumeException(AcumeExceptionConstants.NO_DATA_EXCEPTION.name)
+    retVal
+  }
 
 /*
 Original Java:
