@@ -17,7 +17,6 @@
 
 package org.apache.spark.sql.hive.thriftserver
 
-
 import java.io.IOException
 import java.util.{List => JList}
 import javax.security.auth.login.LoginException
@@ -37,15 +36,14 @@ import org.apache.spark.sql.hive.thriftserver.ReflectionUtils._
 
 import scala.collection.JavaConversions._
 
-private class AcumeSQLCLIService(hiveServer: HiveServer2, hiveContext: HiveContext)
+private[hive] class AcumeSparkSQLCLIService(hiveServer: HiveServer2, hiveContext: HiveContext)
   extends CLIService(hiveServer)
   with ReflectedCompositeService {
-
 
   override def init(hiveConf: HiveConf) {
     setSuperField(this, "hiveConf", hiveConf)
 
-    val sparkSqlSessionManager = new AcumeSQLSessionManager(hiveServer, hiveContext)
+    val sparkSqlSessionManager = new AcumeSparkSQLSessionManager(hiveServer, hiveContext)
     setSuperField(this, "sessionManager", sparkSqlSessionManager)
     addService(sparkSqlSessionManager)
     var sparkServiceUGI: UserGroupInformation = null

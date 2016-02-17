@@ -30,6 +30,7 @@
 		<jersey-version>1.8</jersey-version>
 		<aspectj.version>1.8.3</aspectj.version>
 		<org.springframework.version>4.1.4.RELEASE</org.springframework.version>
+		<libthrift.version>0.9.2</libthrift.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -140,8 +141,8 @@
 					<artifactId>asm</artifactId>
 				</exclusion>
 				<exclusion>
-                			<groupId>com.sun.jersey</groupId>
-                		</exclusion>
+					<groupId>com.sun.jersey</groupId>
+				</exclusion>
 				<exclusion>
 					<groupId>org.slf4j</groupId>
 					<artifactId>log4j-over-slf4j</artifactId>
@@ -150,30 +151,34 @@
 					<groupId>ch.qos.logback</groupId>
 					<artifactId>logback-access</artifactId>
 				</exclusion>
-				 <exclusion>
-                                      <groupId>ch.qos.logback</groupId>
-                                      <artifactId>logback-classic</artifactId>
-                              </exclusion>
-				 <exclusion>
-                                        <groupId>ch.qos.logback</groupId>
-                                        <artifactId>logback-core</artifactId>
-                                </exclusion>
+				<exclusion>
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-classic</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-core</artifactId>
+				</exclusion>
 				<exclusion>
 					<groupId>org.apache.logging.log4j</groupId>
-                        		<artifactId>log4j-core</artifactId>
-                		</exclusion>
+					<artifactId>log4j-core</artifactId>
+				</exclusion>
 				<exclusion>
-                        		<groupId>log4j</groupId>
-                        		<artifactId>log4j</artifactId>
-                </exclusion>
-                <exclusion>
-                        <groupId>xerces</groupId>
-                        <artifactId>xercesImpl</artifactId>
-                 </exclusion>
-                 <exclusion>
-                        <groupId>xml-apis</groupId>
-                        <artifactId>xml-apis</artifactId>
-                 </exclusion>	
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xerces</groupId>
+					<artifactId>xercesImpl</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xml-apis</groupId>
+					<artifactId>xml-apis</artifactId>
+				</exclusion>	
+				<exclusion>
+					<groupId>apache</groupId>
+  					<artifactId>libthrift</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<!-- Rest Service dependencies -->
@@ -313,8 +318,12 @@
 				</exclusion>
 				<exclusion>
 					<groupId>com.guavus.common</groupId>
-            				<artifactId>attval</artifactId>
-            			</exclusion>
+            		<artifactId>attval</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>apache</groupId>
+  					<artifactId>libthrift</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
         	<dependency>
@@ -381,6 +390,13 @@
 			<groupId>com.adobe.blazeds</groupId>
 			<artifactId>flex-rds-server</artifactId>
 			<version>3.2.0.3978</version>
+		</dependency>
+
+		<!-- Libthrift dependency -->
+		<dependency>
+		        <groupId>org.apache.thrift</groupId>
+		        <artifactId>libthrift</artifactId>
+		        <version>${libthrift.version}</version>
 		</dependency>
 
 	</dependencies>

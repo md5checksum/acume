@@ -17,33 +17,31 @@
 
 package org.apache.spark.sql.hive.thriftserver.server
 
-import java.sql.Timestamp
 import java.util.{Map => JMap}
-import scala.collection.JavaConversions._
-import scala.collection.mutable.{ArrayBuffer, Map}
-import scala.math.{random, round}
-import org.apache.hadoop.hive.common.`type`.HiveDecimal
-import org.apache.hadoop.hive.metastore.api.FieldSchema
+import scala.collection.mutable.Map
+
 import org.apache.hive.service.cli._
 import org.apache.hive.service.cli.operation.{ExecuteStatementOperation, Operation, OperationManager}
 import org.apache.hive.service.cli.session.HiveSession
+import org.apache.hive.service.cli.HiveSQLException
+import org.apache.hive.service.cli.OperationHandle
+import org.apache.hive.service.cli.OperationState
+import org.apache.hive.service.cli.OperationStatus
+import org.apache.hive.service.cli.RowSet
 import org.apache.spark.Logging
-import org.apache.spark.sql.{Row => SparkRow, SQLConf, SchemaRDD}
-import org.apache.spark.sql.types._
-import org.apache.spark.sql.hive.{HiveContext, HiveMetastoreTypes}
-import org.apache.spark.sql.hive.thriftserver.ReflectionUtils
-import com.guavus.acume.core.AcumeService
-import org.apache.spark.sql.hive.thriftserver.AcumeSparkExecuteStatementOperation
+import org.apache.spark.sql.hive.HiveContext
+import org.apache.spark.sql.hive.thriftserver.{AcumeSparkExecuteStatementOperation, ReflectionUtils}
 
 /**
  * Executes queries using Spark SQL, and maintains a list of handles to active queries.
  */
-class AcumeSQLOperationManager(hiveContext: HiveContext) extends OperationManager with Logging {
-    
+private[thriftserver] class AcumeSparkSQLOperationManager(hiveContext: HiveContext)
+  extends OperationManager with Logging {
+
   val handleToOperation = ReflectionUtils
     .getSuperField[JMap[OperationHandle, Operation]](this, "handleToOperation")
 
-  val sessionToActivePool = Map[HiveSession, String]()
+  val sessionToActivePool = Map[SessionHandle, String]()
 
   override def newExecuteStatementOperation(
       parentSession: HiveSession,
@@ -59,4 +57,5 @@ class AcumeSQLOperationManager(hiveContext: HiveContext) extends OperationManage
       s"runInBackground=$runInBackground")
     operation
   }
+  
 }
