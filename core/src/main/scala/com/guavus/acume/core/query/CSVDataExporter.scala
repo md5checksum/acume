@@ -57,6 +57,23 @@ object CSVDataExporter {
     formatted.toString
   }
   
+  private def getAggregateFormattedColumnNames(dimensions: Map[Integer, NameValue], measures: Map[Integer, NameValue], index : Int): String = {
+    val formatted = new StringBuilder()
+    if (index == -1) {
+    	formatted.append(getCSV(dimensions))
+    	formatted.append(getCSV(measures))
+    } else {
+      formatted.append(getCSV(measures))
+      formatted.append("Flow Paths")
+    }
+    if (dimensions.isEmpty) {
+      formatted.append(AcumeConstants.COMMA)
+    }
+    formatted.deleteCharAt(formatted.length - 1)
+    formatted.append(AcumeConstants.NEW_LINE)
+    formatted.toString
+  }
+  
   private def getTimeseriesFormattedColumnNames(dimensions: Map[Integer, NameValue], measures: Map[Integer, NameValue]): String = {
     val formatted = new StringBuilder()
     formatted.append(getCSV(dimensions))
@@ -91,6 +108,18 @@ object CSVDataExporter {
       string.append(map.get(i).value)
       string.append(AcumeConstants.COMMA)
     }
+    string.toString
+  }
+  
+  private def getCSV(map: Map[Integer, NameValue], index: Int): String = {
+    val string = new StringBuilder()
+    for (i <- map.keySet) {
+      if (i!= index) {
+    	  string.append(map.get(i).value)
+    	  string.append(AcumeConstants.COMMA)
+      }
+    }
+    string.append(map.get(index).value)
     string.toString
   }
   
@@ -139,6 +168,30 @@ object CSVDataExporter {
     }
     string.toString
   }
+  
+  private def getCSV(columnIndex: Set[Integer], columns: List[_], index : Int): String = {
+    val string = new StringBuilder()
+    for (i <- columnIndex) {
+      if (columns(i).isInstanceOf[java.lang.Double]) {
+        string.append(new BigDecimal(("%.5f").format(columns(i).asInstanceOf[java.lang.Double])))
+      } else {
+         if (index == i) {
+          var size = columns(i).toString.split("#").length
+          for (outerString <- columns(i).toString.split("#")) {
+            var colVal = outerString.split(";")
+            string.append(colVal(3))
+            size = size - 1
+            if (size != 0)
+            string.append(AcumeConstants.COMMA)
+          }
+        } else {
+        	string.append(columns(i).toString)
+        }
+      }
+      string.append(AcumeConstants.COMMA)
+    }
+    string.toString
+  }
 
   private def getCSV(columnsMap: Map[Integer, NameValue], validColumnNames: List[String], validColumnValues: List[_]): String = {
     val string = new StringBuilder()
@@ -162,7 +215,7 @@ object CSVDataExporter {
     string.toString
   }
   
-  private def getFormattedResponse(response: TimeseriesResponse, dimensions: Map[Integer, NameValue], measures: Map[Integer, NameValue]): String = {
+  private def getFormattedResponse(response: TimeseriesResponse, dimensions: Map[Integer, NameValue], measures: Map[Integer, NameValue], isFlowPath: Boolean): String = {
     if (response == null) {
       return ""
     }
@@ -186,15 +239,20 @@ object CSVDataExporter {
     formatted.toString
   }
 
-  private def getFormattedResponse(response: AggregateResponse, dimensions: Map[Integer, NameValue], measures: Map[Integer, NameValue]): String = {
+  private def getFormattedResponse(response: AggregateResponse, dimensions: Map[Integer, NameValue], measures: Map[Integer, NameValue], index : Int): String = {
     if (response == null) {
       return ""
     }
     val formatted = new StringBuilder()
     val aggregateResults = response.getResults
     for (aggregateResult <- aggregateResults) {
-      formatted.append(getCSV(dimensions.keySet, aggregateResult.getRecord))
-      formatted.append(getCSV(measures.keySet, aggregateResult.getMeasures))
+      if (index != -1) {
+    	  formatted.append(getCSV(measures.keySet, aggregateResult.getMeasures))
+    	  formatted.append(getCSV(dimensions.keySet, aggregateResult.getRecord, index))
+      } else {
+    	  formatted.append(getCSV(dimensions.keySet, aggregateResult.getRecord))
+    	  formatted.append(getCSV(measures.keySet, aggregateResult.getMeasures))
+      }
       formatted.deleteCharAt(formatted.length - 1)
       formatted.append(AcumeConstants.NEW_LINE)
     }
@@ -237,12 +295,12 @@ object CSVDataExporter {
     var formattedResponse: String = null
     var formattedResponseTotal: String = null
     if ((queryResponse.isInstanceOf[AggregateResponse]) || (queryResponseTotal.isInstanceOf[AggregateResponse])) {
-      formattedColumnNames = getAggregateFormattedColumnNames(dimensionsColumnHeaders, measuresColumnHeaders)
-      formattedResponse = getFormattedResponse(queryResponse.asInstanceOf[AggregateResponse], dimensionsColumnHeaders, measuresColumnHeaders)
+      formattedColumnNames = getAggregateFormattedColumnNames(dimensionsColumnHeaders, measuresColumnHeaders, if (responseDimensions.contains("FlowPathName")) {responseDimensions.indexOf("FlowPathName")} else {-1})
+      formattedResponse = getFormattedResponse(queryResponse.asInstanceOf[AggregateResponse], dimensionsColumnHeaders, measuresColumnHeaders, if (responseDimensions.contains("FlowPathName")) {responseDimensions.indexOf("FlowPathName")} else {-1} )
       formattedResponseTotal = getFormattedResponseTotal(queryResponseTotal.asInstanceOf[AggregateResponse], dimensionsColumnHeaders, measuresColumnHeaders)
     } else if ((queryResponse.isInstanceOf[TimeseriesResponse]) || (queryResponseTotal.isInstanceOf[TimeseriesResponse])) {
       formattedColumnNames = getTimeseriesFormattedColumnNames(dimensionsColumnHeaders, measuresColumnHeaders)
-      formattedResponse = getFormattedResponse(queryResponse.asInstanceOf[TimeseriesResponse], dimensionsColumnHeaders, measuresColumnHeaders)
+      formattedResponse = getFormattedResponse(queryResponse.asInstanceOf[TimeseriesResponse], dimensionsColumnHeaders, measuresColumnHeaders, false)
       formattedResponseTotal = getFormattedResponseTotal(queryResponseTotal.asInstanceOf[TimeseriesResponse], dimensionsColumnHeaders, measuresColumnHeaders)
     } else {
       throw new RuntimeException("Invalid type of queryResponse object")
