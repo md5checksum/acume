@@ -1,3 +1,4 @@
+
 package com.guavus.acume.tomcat.core
 
 import scala.collection.JavaConversions._
@@ -15,6 +16,7 @@ import com.guavus.rubix.user.management.UMProperties
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.core.AcumeContextTraitUtil
 import org.apache.spark.sql.hive.thriftserver.AcumeHiveThriftServer2
+import org.apache.spark.sql.hive.thriftserver.HiveThriftServer2
 
 
 /**
@@ -48,8 +50,12 @@ object AcumeMain {
     /*
      * Start thriftServer
      */
-    if(AcumeContextTraitUtil.acumeConf.getEnableJDBCServer.toBoolean)
-      AcumeHiveThriftServer2.startWithContext(AcumeContextTraitUtil.hiveContext)
+    if(AcumeContextTraitUtil.acumeConf.getEnableJDBCServer.toBoolean) {
+      if(AcumeContextTraitUtil.acumeConf.getBoolean(ConfConstants.thriftIsRawQuery).getOrElse(true))
+        HiveThriftServer2.startWithContext(AcumeContextTraitUtil.hiveContext)
+      else
+        AcumeHiveThriftServer2.startWithContext(AcumeContextTraitUtil.hiveContext)
+    }
 
     val timeTaken = (System.currentTimeMillis() - startTime)
     logger.info("Time taken to initialize Acume {} seconds", timeTaken / 1000)

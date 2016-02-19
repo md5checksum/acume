@@ -43,6 +43,7 @@ import org.apache.spark.sql.execution.SetCommand
 import org.apache.spark.sql.hive.{HiveContext, HiveMetastoreTypes}
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row => SparkRow, SQLConf}
+import com.guavus.acume.core.AcumeService
 
 
 private[hive] class AcumeSparkExecuteStatementOperation(
@@ -226,7 +227,7 @@ private[hive] class AcumeSparkExecuteStatementOperation(
       hiveContext.sparkContext.setLocalProperty("spark.scheduler.pool", pool)
     }
     try {
-      result = hiveContext.sql(statement)
+      result = AcumeService.acumeService.servSqlQuery2(statement)
       logDebug(result.queryExecution.toString())
       result.queryExecution.logical match {
         case SetCommand(Some((SQLConf.THRIFTSERVER_POOL.key, Some(value)))) =>

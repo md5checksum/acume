@@ -365,8 +365,9 @@ class AcumeService {
   }
   
   def  servSqlQuery2(queryRequest : String) = {
-    val dataService = DataServiceFactory.getDataserviceInstance(queryRequest, RequestDataType.SQL)
-    dataService.execute(queryRequest)
+    val dataService = DataServiceFactory.dataserviceMapBean.d.get("hive").getOrElse(throw new AcumeException("Hive datasource not enabled"))
+    val updatedQuery = DataServiceFactory.dsInterpreterPolicy.updateQuery(queryRequest)
+    dataService.execute(updatedQuery)._1.schemaRDD
   }
   
   def search(searchRequest : SearchRequest) : SearchResponse = {

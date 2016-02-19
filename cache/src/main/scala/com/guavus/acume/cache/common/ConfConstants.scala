@@ -50,6 +50,7 @@ private [acume] object ConfConstants {
   val acumecacheavailablitymappolicy = "acume.global.scheduler.cacheavailabilitymapupdatepolicy"
   val acumecachesqlcorrector = "acume.global.sql.corrector"
   val acumecachesqlparser = "acume.global.sql.parser"
+  val thriftIsRawQuery = "acume.global.thrift.isRawQuery"
 
   /* Cache properties */
   val acumecoretimeserieslevelmap  = "acume.core.global.timeserieslevelpolicymap"
