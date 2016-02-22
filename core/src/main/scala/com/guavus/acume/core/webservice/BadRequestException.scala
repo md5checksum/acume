@@ -6,7 +6,12 @@ import com.sun.jersey.api.Responses
 import scala.reflect.{BeanProperty, BooleanBeanProperty}
 
 @SerialVersionUID(3741047728746673730L)
-class BadRequestException(httpErrorCode: Int, acumeErrorCode: String, message : String, diagnostic: String) extends WebApplicationException(httpErrorCode) {
+class BadRequestException( httpErrorCode: Int, acumeErrorCode: String, message : String, diagnostic: String) extends WebApplicationException(httpErrorCode) {
+ 
+  def getHttpErrorCode(): Int = httpErrorCode
+  def getAcumeErrorCode(): String = acumeErrorCode
+  
+  
 /*
 Original Java:
 package com.guavus.rubix.RubixWebService;
