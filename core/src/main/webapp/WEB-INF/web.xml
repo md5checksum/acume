@@ -36,6 +36,10 @@
 		<listener-class>flex.messaging.HttpFlexSession</listener-class>
 	</listener>
 
+<context-param>
+    <param-name>shiroEnvironmentClass</param-name>
+    <param-value>com.guavus.rubix.user.shiro.StaticSecurityManagerIniWebEnvironment</param-value>
+</context-param>
 	<filter>
 		<filter-name>SessionFilter</filter-name>
 		<filter-class>com.guavus.acume.core.servletfilters.SessionFilter</filter-class>
