@@ -236,7 +236,7 @@ class RestService {
   @Path("changePassword")
   def changePassword(changePasswordRequest : ChangePasswordRequest, @QueryParam(value = "super") userinfo : String,
 	      @QueryParam("user") user : String, @QueryParam("password") password : String)  = {
-	 Authentication.authenticate(userinfo, user, password)
+	 //Authentication.authenticate(userinfo, user, password)
    changePasswordRequest.setCurrentPassword(changePasswordRequest.getCurrentPassword)
    changePasswordRequest.setNewPassword(changePasswordRequest.getNewPassword)
      UserManagementUtils.getIWebUMService().changePassword(changePasswordRequest)
