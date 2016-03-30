@@ -47,7 +47,7 @@ class AcumeStarTreeCacheValue(dimensionTableName: String, protected var acumeVal
 
 class PartitionedFlatSchemaCacheValue(acumeContext: AcumeCacheContextTrait,
     levelTimestamp: LevelTimestamp, cube: Cube, cachePointToTable: LoadingCache[LevelTimestamp, AcumeTreeCacheValue],
-    rdds: Map[String, SchemaRDD], empty: SchemaRDD, skipCount: Boolean = true) extends AcumeTreeCacheValue(null, acumeContext) {
+    var rdds: Map[String, SchemaRDD], empty: SchemaRDD, skipCount: Boolean = true) extends AcumeTreeCacheValue(null, acumeContext) {
   
   @volatile
   var shouldCache = true
@@ -87,6 +87,12 @@ class PartitionedFlatSchemaCacheValue(acumeContext: AcumeCacheContextTrait,
     } else {
       rdd = acumeContext.cacheSqlContext.parquetFileIndivisible(diskDirectory)
     }
+    val tempTables = AcumeCacheContextTraitUtil.getInstaTempTable()
+    tempTables match {
+        case Some(table) => table.asInstanceOf[scala.collection.mutable.ArrayBuffer[String]].map(x => acumeContext.cacheSqlContext.dropTempTable(x))
+        case None =>
+    }
+    rdds = null
     new AcumeDiskValue(levelTimestamp, cube, rdd, cachePointToTable, skipCount)
   }
   acumeValue.acumeContext = acumeContext
