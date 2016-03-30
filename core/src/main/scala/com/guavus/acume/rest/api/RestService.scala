@@ -289,11 +289,40 @@ class RestService {
     Authentication.authenticate(userinfo, user, password)
     val map : HashMap[String, HashMap[Long, Interval]] = ICacheAvalabilityUpdatePolicy.getICacheAvalabiltyUpdatePolicy.getCacheAvalabilityMap
     
-    if(map == null || map.isEmpty)
+    if(!checkMapSanity(map))
       throw new AcumeException(AcumeExceptionConstants.NO_DATA_EXCEPTION.name)
     
     mapAsJavaMap(map.map(x => (x._1, mapAsJavaMap(x._2.map(y => (y._1.toString, y._2))))))
   }
+  
+  def checkMapSanity(map : HashMap[String, HashMap[Long, Interval]]): Boolean = {
+    if(map == null || map.isEmpty){
+      return false
+    }else{
+       map.foreach((entry)=> {
+         val key = entry._1
+         val value= entry._2
+         if(key==null || value==null || value.isEmpty){
+           return false
+         }
+   
+         value.foreach((values)=> {
+        			 if(values._1==null || values._2==null){
+        				 return false
+        			 }
+        			 
+        			 if(values._2.getStartTime()==null || values._2.getEndTime()==null || values._2.getStartTime().equals(values._2.getEndTime) ){
+        			   return false
+        			 }
+         }
+         )
+       }
+       )
+    }
+    
+     true
+  }
+  
   
   @POST
   @Consumes(Array("application/json"))
