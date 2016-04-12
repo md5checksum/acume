@@ -215,8 +215,7 @@ class DataService(queryBuilderService: Seq[IQueryBuilderService], val acumeConte
             if(RequestDataType.Aggregate.equals(requestDataType)) {
               // In hbase, ts is a dimension. Adding ts to dimfields even in case of Aggregate
               dimsNames += field
-              dimensions(i) = true
-              false
+            	false
             }
             else
               true
