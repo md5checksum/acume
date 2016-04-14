@@ -73,6 +73,14 @@
 					<groupId>apache</groupId>
   					<artifactId>libthrift</artifactId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.apache.spark</groupId>
+					<artifactId>spark-hbase_2.10</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.spark</groupId>
+					<artifactId>spark-unsafe_2.10</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
