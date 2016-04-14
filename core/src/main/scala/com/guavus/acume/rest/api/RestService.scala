@@ -2,11 +2,9 @@ package com.guavus.acume.rest.api
 
 import java.io.Serializable
 import java.util.ArrayList
-
 import scala.collection.JavaConversions
 import scala.collection.JavaConversions.mapAsJavaMap
 import scala.collection.mutable.HashMap
-
 import com.guavus.acume.cache.common.ConfConstants
 import com.guavus.acume.core.AcumeService
 import com.guavus.acume.core.PSUserService
@@ -31,9 +29,7 @@ import com.guavus.rubix.user.management.vo.LoginRequest
 import com.guavus.rubix.user.management.vo.LoginResponse
 import com.guavus.rubix.user.management.vo.LogoutRequest
 import com.guavus.rubix.user.management.vo.LogoutResponse
-
 import com.guavus.rubix.user.management.vo.ValidateSessionRequest
-
 import javax.ws.rs.Consumes
 import javax.ws.rs.DefaultValue
 import javax.ws.rs.POST
@@ -41,8 +37,8 @@ import javax.ws.rs.Path
 import javax.ws.rs.Produces
 import javax.ws.rs.QueryParam
 import javax.xml.bind.annotation.XmlRootElement
-
 import com.guavus.rubix.user.management.vo.ChangePasswordRequest
+import com.guavus.acume.core.AcumeContextTraitUtil
 
 
 @Path("/" + "queryresponse")
@@ -51,6 +47,8 @@ import com.guavus.rubix.user.management.vo.ChangePasswordRequest
  */
 class RestService {
   
+  val defaultBinSource = AcumeContextTraitUtil.acumeConf.get(ConfConstants.acumecorebinsource)
+
   @POST
   @Consumes(Array("text/plain,text/html,application/x-www-form-urlencoded,application/json"))
   @Path("exportaggregate")
@@ -164,6 +162,7 @@ class RestService {
 	
 	@POST
 	@Path("dataAvailability")
+	 @Produces(Array("application/json"))
 	def getDataAvailability( @QueryParam(value = "super") userinfo : String, @QueryParam("user") user : String, @QueryParam("password") password : String, 
       @QueryParam("getAddInfo") getAdditionalInfo : Boolean) : java.util.HashMap[String, java.util.ArrayList[Long]] = {
 	  Authentication.authenticate(userinfo, user, password)
@@ -171,8 +170,8 @@ class RestService {
     val controller = ConfigFactory.getInstance.getBean(classOf[Controller])
 	  val map = new java.util.HashMap[String, java.util.ArrayList[Long]]()
 	  val list = new java.util.ArrayList[Long]()
-	  list.add(controller.getFirstBinPersistedTime(ConfConstants.acumecorebinsource))
-	  list.add(controller.getLastBinPersistedTime(ConfConstants.acumecorebinsource))
+	  list.add(controller.getFirstBinPersistedTime(defaultBinSource))
+	  list.add(controller.getLastBinPersistedTime(defaultBinSource))
 	  
 	  //placeholder bin source
 	  map.put("abcd", list)
