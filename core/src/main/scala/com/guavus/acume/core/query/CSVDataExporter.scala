@@ -182,7 +182,7 @@ object CSVDataExporter {
             string.append(colVal(3))
             size = size - 1
             if (size != 0)
-            string.append(AcumeConstants.COMMA)
+            string.append("|")
           }
         } else {
         	string.append(columns(i).toString)
